@@ -1,0 +1,22 @@
+title: "StackStorm HA"
+
+##
+## RabbitMQ HA chart configuration
+##
+## For values.yaml reference:
+## https://github.com/helm/charts/tree/master/stable/rabbitmq-ha
+##
+rabbitmq-ha:
+  rabbitmqUsername: admin
+  # TODO: Use default random 24 character password, but need to fetch this string for use by
+  # downstream services.
+  rabbitmqPassword: 9jS+w1u07NbHtZke1m+jW4Cj
+  persistentVolume:
+    enabled: true
+
+##
+## MongoDB HA chart configuration
+##
+## For values.yaml reference:
+## https://github.com/helm/charts/tree/master/stable/mongodb-replicaset
+##
