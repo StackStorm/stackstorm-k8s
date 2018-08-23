@@ -6,6 +6,10 @@ RabbitMQ HA, MongoDB replicaset and etcd cluster that st2 replies on for MQ, DB 
 
 It's more than welcome to configure each component in-depth to fit specific availability/scalability demands.
 
+## Requirements
+* [Kubernetes](https://kubernetes.io/docs/setup/pick-right-solution/) cluster
+* [Helm](https://docs.helm.sh/using_helm/#install-helm) and [Tiller](https://docs.helm.sh/using_helm/#initialize-helm-and-install-tiller)
+
 ## Usage
 1) Edit `values.yaml` with configuration for the StackStorm Enterprise HA K8s cluster.
 > NB! It's highly recommended to set your own secrets as file contains unsafe defaults like self-signed SSL certificates, SSH keys,
