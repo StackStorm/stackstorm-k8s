@@ -1,0 +1,84 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: st2web-enterprise-{{ .Release.Name }}
+spec:
+  selector:
+    matchLabels:
+      app: st2web
+      tier: frontend
+      vendor: stackstorm
+      support: enterprise
+      release: {{ .Release.Name }}
+  replicas: {{ .Values.st2web.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: st2web
+        tier: frontend
+        vendor: stackstorm
+        support: enterprise
+        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+        release: {{ .Release.Name }}
+        heritage: {{ .Release.Service }}
+    spec:
+      containers:
+      - name: st2web-enterprise
+        image: "{{ .Values.st2web.image.repository }}:{{ .Values.st2web.image.tag }}"
+        imagePullPolicy: {{ .Values.st2web.image.pullPolicy }}
+        ports:
+        - containerPort: 443
+        # Probe to check if app is running. Failure will lead to a pod restart.
+        livenessProbe:
+          httpGet:
+            scheme: HTTPS
+            path: /
+            port: 443
+          initialDelaySeconds: 1
+        # Probe to check if app is ready to serve traffic. Failure will lead to temp stop serving traffic.
+        # TODO: Failing to add readinessProbe, since st2 requires authorization (401) and we don't have `/healthz` endpoints yet (https://github.com/StackStorm/st2/issues/4020)
+#        readinessProbe:
+#          httpGet:
+#            # Probes can't check several endpoints, - this should be implemented on app side (@see https://www.ianlewis.org/en/using-kubernetes-health-checks)
+#            # Also multiple liveness checks are not available (@see https://github.com/kubernetes/kubernetes/issues/37218)
+#            # So checking ST2_API only
+#            scheme: HTTPS
+#            path: /api/
+#            port: 443
+#          initialDelaySeconds: 3
+        envFrom:
+        - configMapRef:
+            name: st2-urls-{{ .Release.Name }}
+            optional: true
+        volumeMounts:
+        - name: st2web-ssl-cert
+          mountPath: /etc/ssl/st2/
+          readOnly: true
+        resources:
+{{ toYaml .Values.st2web.resources | indent 10 }}
+      volumes:
+      - name: st2web-ssl-cert
+        secret:
+          secretName: st2web-{{ .Release.Name }}
+          items:
+          - key: ssl_certificate
+            path: st2.crt
+            # 0400 file permission
+            mode: 256
+          - key: ssl_certificate_key
+            path: st2.key
+            # 0400 file permission
+            mode: 256
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}

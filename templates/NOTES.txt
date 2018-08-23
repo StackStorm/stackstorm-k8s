@@ -1,0 +1,10 @@
+Congratulations! You have just deployed StackStorm Enterprise HA!
+
+1. Get the application URL by running these commands:
+
+export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services st2web-enterprise-{{ .Release.Name }})
+export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+echo https://$NODE_IP:$NODE_PORT/
+
+
+# TODO: 2. Login with the following credentials

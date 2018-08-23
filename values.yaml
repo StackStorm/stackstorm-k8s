@@ -1,3 +1,103 @@
+# Default values for StackStorm Enterprise
+# This is a YAML-formatted file.
+
+# StackStorm shared variables
+st2:
+  # st2.conf settings
+  config:
+
+st2web:
+  # Minimum 2 replicas are required to run st2web in HA mode
+  replicaCount: 2
+  # st2web Docker image details
+  image:
+    # TODO: Change to real Docker image, once we'll have private Docker registry (#10)
+    repository: localhost:5000/st2web-enterprise
+    tag: 2.9dev
+    pullPolicy: IfNotPresent
+  # Tested resource consumption based on multiple requests to st2web within nginx
+  # Please adjust based on your conscious choice
+  resources:
+    requests:
+      memory: "25Mi"
+      cpu: "50m"
+    limits:
+      memory: "100Mi"
+  # TODO: Research & add 'ingress'
+  # ingress:
+  # Additional advanced settings to control pod/deployment placement
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+##
+## StackStorm Enterprise Cluster Secrets. All fields are required!
+##
+# TODO: Move to `secrets.yaml` when it gets implemented in Helm (https://github.com/kubernetes/helm/issues/2196)
+secrets:
+  # TODO: Use 'ST2_LICENSE_KEY' for private Docker Hub image pull secret (https://github.com/StackStorm/k8s-st2/issues/10#issuecomment-401440772)
+  # ST2_LICENSE_KEY:
+  st2web:
+    # SSL Certificate used for StackStorm Web UI in nginx (HTTPS)
+    # Warning! This is dummy auto-generated self-signed SSL cert. Use your own instead!
+    ssl_certificate: |-
+      -----BEGIN CERTIFICATE-----
+      MIID2zCCAsOgAwIBAgIJANcrpXluUyomMA0GCSqGSIb3DQEBCwUAMIGDMQswCQYD
+      VQQGEwJVUzETMBEGA1UECAwKQ2FsaWZvcm5pYTESMBAGA1UEBwwJUGFsbyBBbHRv
+      MRMwEQYDVQQKDApTdGFja1N0b3JtMSEwHwYDVQQLDBhJbmZvcm1hdGlvbiAgIFRl
+      Y2hub2xvZ3kxEzARBgNVBAMMCnN0YWNrc3Rvcm0wHhcNMTgwNTIzMTQxMDMyWhcN
+      MTkwNTIzMTQxMDMyWjCBgzELMAkGA1UEBhMCVVMxEzARBgNVBAgMCkNhbGlmb3Ju
+      aWExEjAQBgNVBAcMCVBhbG8gQWx0bzETMBEGA1UECgwKU3RhY2tTdG9ybTEhMB8G
+      A1UECwwYSW5mb3JtYXRpb24gICBUZWNobm9sb2d5MRMwEQYDVQQDDApzdGFja3N0
+      b3JtMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5r2f8xtKToZM3rMS
+      J+gcpRjCIACv4ivJDxhhOJ1L9WXpR5UGUtftuiRKvhQA6lW0buPyAWnIDdEyUKHa
+      QoPPYfB/mmuu5qc14JLJ9swzqkfHkgcgi1DjXFg8GkfWKXymtD2F/jU+Mf94NS9P
+      kfZO7mAfOMjsX18J7Vmq/Jk2dYOmbQHsj549VNUcaj4HEmf52cqHlJCAdl8gVJ0H
+      8NDJwDkb1okNKqCMLu5sR3ffmTnVO+zxsNIZMnngevWfhkLkYdEpxraL0Dyi8HkA
+      004cvPryoit4sucYvEWU2ZWBjBtOFJmqH8QQYei/G9JDVjfXk8KoRm1EvH1G3Hab
+      6wmB0QIDAQABo1AwTjAdBgNVHQ4EFgQUrTArdEoZeiCoYs5xp+BDp9/AlhowHwYD
+      VR0jBBgwFoAUrTArdEoZeiCoYs5xp+BDp9/AlhowDAYDVR0TBAUwAwEB/zANBgkq
+      hkiG9w0BAQsFAAOCAQEAjhMlepcXlWlbr7HcwDX0bNAAze+tJ/NVQGAkl92Nu/9L
+      KsJmObhFEJmok4ZuYhzeVlNRVkC465oHhDLOjUzZoZ6y4hiyH8YJacnZ8mpFFxcc
+      /s18QEw5+G6/xTAzTsrvN2aS+M6qVfEM2tmtwzb7cE14nExLrKq9MGZ6c9qBbH/k
+      YP18QVLx89mBcrWHzbUmCXkVzVxcII2U2CyPhGoHpN054oZ9XT5r0p/JqWLl2wEh
+      6iNbkxysfAeB2J0tY10uSWCzQuQ1UtzDaBkGUHd+UKR98EcduoNqMoUIwkAu0gjk
+      k8kkryYUKpQ/OAiyXIDJiR9lWPGG1Kr8ZqOwjeCRKw==
+      -----END CERTIFICATE-----
+    # SSL Certificate private key used for StackStorm Web UI in nginx (HTTPS)
+    # Warning! This is dummy auto-generated self-signed SSL cert. Use your own instead!
+    ssl_certificate_key: |-
+      -----BEGIN PRIVATE KEY-----
+      MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDmvZ/zG0pOhkze
+      sxIn6BylGMIgAK/iK8kPGGE4nUv1ZelHlQZS1+26JEq+FADqVbRu4/IBacgN0TJQ
+      odpCg89h8H+aa67mpzXgksn2zDOqR8eSByCLUONcWDwaR9YpfKa0PYX+NT4x/3g1
+      L0+R9k7uYB84yOxfXwntWar8mTZ1g6ZtAeyPnj1U1RxqPgcSZ/nZyoeUkIB2XyBU
+      nQfw0MnAORvWiQ0qoIwu7mxHd9+ZOdU77PGw0hkyeeB69Z+GQuRh0SnGtovQPKLw
+      eQDTThy8+vKiK3iy5xi8RZTZlYGMG04UmaofxBBh6L8b0kNWN9eTwqhGbUS8fUbc
+      dpvrCYHRAgMBAAECggEBAKiTETCDV55W8AIjwbf2FDdqBylqVxVd995XaW/7O2tl
+      sTDi52PO7Zd4vEJyStjpFJGPZ1cw+T9e/ut51AOUWQastg0TbwyETRBtLbBpL7XQ
+      CzXcjyI5TmJA9Gge45AbyY8VA7fdHjtY8XGpxvBUiwYMo8LQyCBFRvNo90rkhK0E
+      xk+mk+DhVFTFvJbYhENTAA8iCq3GeeA7tC+hwOkyNUeyiroIYa1m9uwIPFHS4gxF
+      +uCRsTnhOxUVzxfAWsWBZDe0Yo5zVHl7xwFfse1T//vbwoF5ouIP2IjbwGveCbeW
+      hunsYOPdkkT8rdszyLmrfrpA6Bc0tHKuOz9fJRcCuSECgYEA+9RIc/mzz0AI09oA
+      8vNWYImgPRa0l+AxX3EuL/xx49i8swpELtjNzsz0H1J0nY6baPMaoxj4TEJFxT7c
+      X5NSltcZlxxAxi5WdEpJSdSvznNTKpYVqyDkJWN+1NuoW5e8LOMOuR3NRx7ogA2P
+      o2NpsbShIp22odMaj1tW9kED+N8CgYEA6o/uBVs+y2Fv7Y86PSnaBJPzO07YO1xG
+      tan0zr4TBp2o4YX5sgSdCSlZmSsrGi5Vq20RsBkOg4w8o4ZFYPBZmi+xDyomiibA
+      qssbYTTovwooy5y5LMO+HSz0ClWe17v+o/M0OWwM/uLZ/dOb309NT81A58f0jZIn
+      6ghnWscF608CgYBmAxRmhpxkNBhfWUxRHmm7KYUTugLmExdtBjgjkCvClKW8EUiV
+      gZW9VCEAHzLGMGKcHP6JWzAaFC6XPGOhA9jM6c2f/P3wSg0ThpQxqEqfYvAprCqS
+      6/v/eVKDf4evssOzmzb3ni7txIOCe/vXwAmsxvMPRrwYyZ9Uuzd7AdNOGQKBgB8G
+      Alk7BEcqD/+/ndhRHMDWQKlreDYBsmh8niBqC2IooBmT+r6M1ahMi8kyaHUCA9q0
+      hk5gQgcsGSkXrT1xDKjT/fsffBFxprHwQyLMOKxrz5F+nQ9KpG5/b5eeU2/9MWTF
+      2fZuUBm2L1bfEhKrDnKrlxYQ4EuJNTZC/kiHYkUJAoGBAICBQqCOkFaugy0obNvD
+      BRmc3S5gNeMQHangZKKO1I0hnK0WeWV/D/sTNY1GxxPNhHfU3yfQvfI+Kswspi/b
+      ofUOhwAXuMsTtuLagOMyAJVs+KRVrvnXGT/p9l213ZAnDtFSpkvcjD9WUcupeTca
+      BjdoJBzImjVB5znOgIui3ME5
+      -----END PRIVATE KEY-----
+
+
+
 ##
 ## RabbitMQ HA chart configuration
 ##

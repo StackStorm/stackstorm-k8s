@@ -1,0 +1,27 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: st2web-enterprise-{{ .Release.Name }}
+  annotations:
+    description: StackStorm st2web, - an admin Web UI and main entry point for external API requests
+  labels:
+    app: st2web
+    tier: frontend
+    vendor: stackstorm
+    support: enterprise
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  selector:
+    app: st2web
+    tier: frontend
+    vendor: stackstorm
+    support: enterprise
+    release: {{ .Release.Name }}
+  # TODO: Consider to template it, if needed
+  type: NodePort
+  ports:
+  - protocol: TCP
+    port: 443

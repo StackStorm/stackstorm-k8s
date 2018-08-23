@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: st2-urls-{{ .Release.Name }}
+  annotations:
+    description: StackStorm service URLs, used across entire st2 cluster
+  labels:
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  # TODO: Template service URLs based on '{{ .Release.Name }}'
+  ST2_AUTH_URL: http://st2auth-enterprise:9100/
+  ST2_API_URL: http://st2api-enterprise:9101/
+  ST2_STREAM_URL: http://st2stream-enterprise:9102/
