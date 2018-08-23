@@ -1,5 +1,26 @@
 apiVersion: v1
 appVersion: 2.9dev
-description: A Helm chart for Kubernetes
 name: stackstorm-enterprise-ha
 version: 0.1.0
+description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm in HA environment.
+home: https://stackstorm.com/#product
+icon: https://avatars1.githubusercontent.com/u/4969009
+source:
+  - https://github.com/stackstorm/k8s-st2
+keywords:
+  - st2
+  - stackstorm
+  - devops
+  - event-driven
+  - auto-remediation
+  - IFTTT
+  - ha
+maintainers:
+  - name: Eugen C.
+    url: https://github.com/armab
+  - name: Warren Van Winckel
+    url: https://github.com/warrenvw
+details:
+  This Helm chart is a fully installable app that codifies StackStorm Enterprise optimized for HA and K8s environment.
+  You'll need to obtain StackStorm Enterprise license to install this chart. The 90-day trial can be requested at (https://stackstorm.com/#product).
+  For configuration details check 'values.yaml'.
