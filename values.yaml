@@ -13,7 +13,6 @@ st2web:
   image:
     # TODO: Change to real Docker image, once we'll have private Docker registry (#10)
     repository: localhost:5000/st2web-enterprise
-    tag: 2.9dev
     pullPolicy: IfNotPresent
   # Tested resource consumption based on multiple requests to st2web within nginx
   # Please adjust based on your conscious choice

@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
       - name: st2web-enterprise
-        image: "{{ .Values.st2web.image.repository }}:{{ .Values.st2web.image.tag }}"
+        image: "{{ .Values.st2web.image.repository }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.st2web.image.pullPolicy }}
         ports:
         - containerPort: 443
