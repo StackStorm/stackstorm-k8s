@@ -3,6 +3,8 @@ StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm in HA env
 
 To install the chart:
 ```
+helm dependency update
+
 helm install .
 ```
 For advanced configuration you may need to edit the default settings in `values.yaml`.
