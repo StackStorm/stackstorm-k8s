@@ -26,7 +26,7 @@ helm install .
 ```
 
 4) Upgrade.
-Once you made any changes in values, to upgrade the cluster:
+Once you make any changes to values, upgrade the cluster:
 ```
 helm upgrade <release-name> .
 ```
