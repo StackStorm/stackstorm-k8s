@@ -30,6 +30,12 @@ st2:
     # TODO: Move to st2.conf defaults
     [rbac]
     enable = True
+  # Custom StackStorm pack configs. Each record creates a file in '/opt/stackstorm/configs/'
+  # https://docs.stackstorm.com/reference/pack_configs.html#configuration-file
+  pack_configs:
+    core.yaml: |
+      ---
+      # example core pack config yaml
 
 st2web:
   # Minimum 2 replicas are required to run st2web in HA mode
