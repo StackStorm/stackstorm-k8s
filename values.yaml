@@ -10,7 +10,7 @@ st2:
     [auth]
     enable = True
     host = 0.0.0.0
-    # TODO: Needs templating to include {{ .Release.Name }}
+    # TODO: Template URL based on '{{ .Release.Name }}', see "configmaps_st2-config.yaml"
     api_url = http://st2api-enterprise:9101/
     [api]
     host = 0.0.0.0
