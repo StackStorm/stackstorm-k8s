@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: st2-config-{{ .Release.Name }}
+  annotations:
+    description: Custom StackStorm config which will apply settings on top of default st2.conf
+  labels:
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  st2.docker.conf: |
+{{ .Values.st2.config | indent 4 }}

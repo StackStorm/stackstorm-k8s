@@ -3,8 +3,33 @@
 
 # StackStorm shared variables
 st2:
-  # st2.conf settings
-  config:
+  # Custom StackStorm config settings (st2.docker.conf) which will apply settings on top of default st2.conf
+  # TODO: Bundle defaults like 'host = 0.0.0.0' in default st2.conf during the Docker container build
+  # TODO: Bundle secrets in dynamic ENV-based st2.secrets.conf, leave custom user-defined settings for st2.docker.conf?
+  config: |
+    [auth]
+    enable = True
+    host = 0.0.0.0
+    # TODO: Needs templating to include {{ .Release.Name }}
+    api_url = http://st2api-enterprise:9101/
+    [api]
+    host = 0.0.0.0
+    allow_origin = '*'
+    [stream]
+    host = 0.0.0.0
+    [coordination]
+    url = etcd://etcd:2379
+    # TODO: For prod, rework with K8s secrets ENVs ?
+    [messaging]
+    # TODO: url is defined in st2.conf, need to at least override here
+    url = amqp://admin:9jS+w1u07NbHtZke1m+jW4Cj@st2-rabbitmq-ha-discovery:5672
+
+    # TODO: For prod, rework with K8s secrets ENVs ?
+    [database]
+    host = mongodb://st2-mongodb-ha-0.st2-mongodb-ha,st2-mongodb-ha-1.st2-mongodb-ha,st2-mongodb-ha-2.st2-mongodb-ha/?replicaSet=rs0
+    # TODO: Move to st2.conf defaults
+    [rbac]
+    enable = True
 
 st2web:
   # Minimum 2 replicas are required to run st2web in HA mode
