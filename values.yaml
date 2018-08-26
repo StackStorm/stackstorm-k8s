@@ -30,12 +30,48 @@ st2:
     # TODO: Move to st2.conf defaults
     [rbac]
     enable = True
+
   # Custom StackStorm pack configs. Each record creates a file in '/opt/stackstorm/configs/'
   # https://docs.stackstorm.com/reference/pack_configs.html#configuration-file
   pack_configs:
     core.yaml: |
       ---
       # example core pack config yaml
+
+  # StackStorm Role Based Access Control settings (https://docs.stackstorm.com/rbac.html)
+  rbac:
+    # Custom StackStorm RBAC roles, shipped in '/opt/stackstorm/rbac/roles/'
+    # See https://docs.stackstorm.com/rbac.html#defining-roles-and-permission-grants
+    roles:
+      sample.yaml: |
+        # sample RBAC role file, see https://docs.stackstorm.com/rbac.html#defining-roles-and-permission-grants
+        ---
+        name: "sample"
+        description: "Example Role which contains no permission grants and serves for demonstration purposes"
+
+    # Custom StackStorm RBAC role assignments, shipped in '/opt/stackstorm/rbac/assignments/'
+    # See: https://docs.stackstorm.com/rbac.html#defining-user-role-assignments
+    assignments:
+      st2admin.yaml: |
+        ---
+        username: st2admin
+        roles:
+          - system_admin
+      stanley.yaml: |
+        ---
+        username: stanley
+        roles:
+          - admin
+
+  # StackStorm RBAC LDAP groups-to-roles mapping rules, shipped in '/opt/stackstorm/rbac/mappings/'
+  # See RBAC Roles Based on LDAP Groups: https://docs.stackstorm.com/rbac.html#automatically-granting-roles-based-on-ldap-group-membership
+  mappings:
+    #stormers.yaml: |
+    #---
+    #group: "CN=stormers,OU=groups,DC=stackstorm,DC=net"
+    #description: "Automatically grant admin role to all stormers group members."
+    #roles:
+    #  - "admin"
 
 st2web:
   # Minimum 2 replicas are required to run st2web in HA mode

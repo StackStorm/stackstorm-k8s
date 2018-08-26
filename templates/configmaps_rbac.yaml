@@ -1,0 +1,41 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: st2-rbac-roles-{{ .Release.Name }}
+  annotations:
+    description: Custom StackStorm RBAC roles, shipped in '/opt/stackstorm/rbac/roles/'
+  labels:
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+{{ toYaml .Values.st2.rbac.roles | indent 2 }}
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: st2-rbac-assignments-{{ .Release.Name }}
+  annotations:
+    description: Custom StackStorm RBAC role assignments, shipped in '/opt/stackstorm/rbac/assignments/'
+  labels:
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+{{ toYaml .Values.st2.rbac.assignments | indent 2 }}
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: st2-rbac-mappings-{{ .Release.Name }}
+  annotations:
+    description: StackStorm RBAC LDAP groups-to-roles mapping rules, shipped in '/opt/stackstorm/rbac/mappings/'
+  labels:
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+{{ toYaml .Values.st2.rbac.mappings | indent 2 }}
