@@ -100,11 +100,17 @@ st2web:
 
 ##
 ## StackStorm Enterprise Cluster Secrets. All fields are required!
+## NB! It's highly recommended to change ALL defaults!
 ##
 # TODO: Move to `secrets.yaml` when it gets implemented in Helm (https://github.com/kubernetes/helm/issues/2196)
 secrets:
   # TODO: Use 'ST2_LICENSE_KEY' for private Docker Hub image pull secret (https://github.com/StackStorm/k8s-st2/issues/10#issuecomment-401440772)
   # ST2_LICENSE_KEY:
+  st2:
+    # Username, used to login to StackStorm system
+    username: st2admin
+    # Password, used to login to StackStorm system
+    password: Ch@ngeMe
   st2web:
     # SSL Certificate used for StackStorm Web UI in nginx (HTTPS)
     # Warning! This is dummy auto-generated self-signed SSL cert. Use your own instead!
@@ -163,8 +169,6 @@ secrets:
       ofUOhwAXuMsTtuLagOMyAJVs+KRVrvnXGT/p9l213ZAnDtFSpkvcjD9WUcupeTca
       BjdoJBzImjVB5znOgIui3ME5
       -----END PRIVATE KEY-----
-
-
 
 ##
 ## RabbitMQ HA chart configuration
