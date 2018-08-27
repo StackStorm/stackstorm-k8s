@@ -22,10 +22,12 @@ st2:
     # TODO: For prod, rework with K8s secrets ENVs ?
     [messaging]
     # TODO: url is defined in st2.conf, need to at least override here
+    # TODO: Needs templating based on Helm '{{ .Release.Name }}' in RabbitMQ host
     url = amqp://admin:9jS+w1u07NbHtZke1m+jW4Cj@st2-rabbitmq-ha-discovery:5672
 
     # TODO: For prod, rework with K8s secrets ENVs ?
     [database]
+    # TODO: Needs templating based on Helm '{{ .Release.Name }}' in MongoDB host
     host = mongodb://st2-mongodb-ha-0.st2-mongodb-ha,st2-mongodb-ha-1.st2-mongodb-ha,st2-mongodb-ha-2.st2-mongodb-ha/?replicaSet=rs0
     # TODO: Move to st2.conf defaults
     [rbac]
