@@ -2,7 +2,7 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: st2web-enterprise-{{ .Release.Name }}
+  name: {{ .Release.Name }}-st2web-enterprise
   annotations:
     description: StackStorm st2web, - an admin Web UI and main entry point for external API requests
   labels:

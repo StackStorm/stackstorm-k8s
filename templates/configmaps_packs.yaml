@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: st2-pack-configs-{{ .Release.Name }}
+  name: {{ .Release.Name }}-st2-pack-configs
   annotations:
     description: Custom StackStorm pack configs, shipped in '/opt/stackstorm/configs/'
   labels:

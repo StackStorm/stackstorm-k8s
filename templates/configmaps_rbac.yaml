@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: st2-rbac-roles-{{ .Release.Name }}
+  name: {{ .Release.Name }}-st2-rbac-roles
   annotations:
     description: Custom StackStorm RBAC roles, shipped in '/opt/stackstorm/rbac/roles/'
   labels:
@@ -16,7 +16,7 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: st2-rbac-assignments-{{ .Release.Name }}
+  name: {{ .Release.Name }}-st2-rbac-assignments
   annotations:
     description: Custom StackStorm RBAC role assignments, shipped in '/opt/stackstorm/rbac/assignments/'
   labels:
@@ -30,7 +30,7 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: st2-rbac-mappings-{{ .Release.Name }}
+  name: {{ .Release.Name }}-st2-rbac-mappings
   annotations:
     description: StackStorm RBAC LDAP groups-to-roles mapping rules, shipped in '/opt/stackstorm/rbac/mappings/'
   labels:

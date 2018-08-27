@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: st2-urls-{{ .Release.Name }}
+  name: {{ .Release.Name }}-st2-urls
   annotations:
     description: StackStorm service URLs, used across entire st2 cluster
   labels:
@@ -10,6 +10,6 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-  ST2_AUTH_URL: http://st2auth-enterprise-{{ .Release.Name }}:9100/
-  ST2_API_URL: http://st2api-enterprise-{{ .Release.Name }}:9101/
-  ST2_STREAM_URL: http://st2stream-enterprise-{{ .Release.Name }}:9102/
+  ST2_AUTH_URL: http://{{ .Release.Name }}-st2auth-enterprise:9100/
+  ST2_API_URL: http://{{ .Release.Name }}-st2api-enterprise:9101/
+  ST2_STREAM_URL: http://{{ .Release.Name }}-st2stream-enterprise:9102/
