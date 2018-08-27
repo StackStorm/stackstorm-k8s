@@ -117,3 +117,8 @@ rabbitmq-ha:
 ## For values.yaml reference:
 ## https://github.com/helm/charts/tree/master/stable/mongodb-replicaset
 ##
+# Specs for the MongoDB image
+mongodb-ha:
+  image:
+    # StackStorm currently supports maximum MongoDB v3.4
+    tag: 3.4
