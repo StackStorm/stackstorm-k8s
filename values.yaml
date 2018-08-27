@@ -137,7 +137,7 @@ kube-registry-proxy:
   registry:
     host: st2-docker-registry.default.svc.cluster.local
     port: 5000
-	  hostPort: 5000
+  hostPort: 5000
 
 ##
 ## MongoDB HA chart configuration
