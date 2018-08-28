@@ -1,6 +1,9 @@
 # Default values for StackStorm Enterprise
 # This is a YAML-formatted file.
 
+# StackStorm Enterprise private Docker Registry used to pull images
+dockerRegistry: docker.stackstorm.com
+
 # StackStorm shared variables
 st2:
   # Custom StackStorm config settings (st2.docker.conf) which will apply settings on top of default st2.conf
@@ -104,9 +107,9 @@ st2web:
 ##
 # TODO: Move to `secrets.yaml` when it gets implemented in Helm (https://github.com/kubernetes/helm/issues/2196)
 secrets:
-  # TODO: Use 'ST2_LICENSE_KEY' for private Docker Hub image pull secret (https://github.com/StackStorm/k8s-st2/issues/10#issuecomment-401440772)
-  # ST2_LICENSE_KEY:
   st2:
+    # Required (!) StackStorm Enterprise license key. Don't have one? Obtain 90-day free trial at https://stackstorm.com/#product
+    license: ""
     # Username, used to login to StackStorm system
     username: st2admin
     # Password, used to login to StackStorm system
