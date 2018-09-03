@@ -1,0 +1,97 @@
+# Add just a basic single-node etcd coordination instance as PoC
+# Eventually will be replaced by the HA etcd K8s objects (https://github.com/coreos/etcd/blob/master/hack/kubernetes-deploy/etcd.yml)
+# or external Helm chart dependency (https://github.com/kubernetes/charts/tree/master/incubator/etcd)
+# TODO: Use 3rd party Helm Chart + HA (#48)
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-etcd
+spec:
+  selector:
+    matchLabels:
+      app: etcd
+      tier: coordination
+      vendor: coreos
+      release: {{ .Release.Name }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: etcd
+        tier: coordination
+        vendor: coreos
+        support: opensource
+        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+        release: {{ .Release.Name }}
+        heritage: {{ .Release.Service }}
+    spec:
+      containers:
+      - name: etcd
+        image: quay.io/coreos/etcd:latest
+        imagePullPolicy: IfNotPresent
+        command:
+        - /usr/local/bin/etcd
+        - --name
+        - etcd
+        - --initial-advertise-peer-urls
+        - http://etcd:2380
+        - --listen-peer-urls
+        - http://0.0.0.0:2380
+        - --listen-client-urls
+        - http://0.0.0.0:2379
+        - --advertise-client-urls
+        - http://etcd:2379
+        - --initial-cluster
+        - etcd=http://etcd:2380
+        - --initial-cluster-state
+        - new
+        ports:
+        - containerPort: 2379
+          name: client
+          protocol: TCP
+        - containerPort: 2380
+          name: server
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            scheme: HTTP
+            path: /health
+            port: 2379
+        livenessProbe:
+          httpGet:
+            scheme: HTTP
+            path: /health
+            port: 2379
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  # TODO: Template name with {{ .Release.Name }} and include in st2.conf
+  name: etcd
+  labels:
+    app: etcd
+    tier: coordination
+    vendor: coreos
+    support: opensource
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  selector:
+    app: etcd
+    tier: coordination
+    vendor: coreos
+    support: opensource
+    release: {{ .Release.Name }}
+  type: NodePort
+  ports:
+  - name: client
+    port: 2379
+    protocol: TCP
+    targetPort: 2379
+  - name: server
+    port: 2380
+    protocol: TCP
+    targetPort: 2380
