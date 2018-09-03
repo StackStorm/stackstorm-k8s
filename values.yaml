@@ -30,7 +30,6 @@ st2:
     # TODO: url is defined in st2.conf, need to at least override here
     # TODO: Needs templating based on Helm '{{ .Release.Name }}' in RabbitMQ host
     url = amqp://admin:9jS+w1u07NbHtZke1m+jW4Cj@st2-rabbitmq-ha-discovery:5672
-
     # TODO: For prod, rework with K8s secrets ENVs ?
     [database]
     # TODO: Needs templating based on Helm '{{ .Release.Name }}' in MongoDB host
@@ -38,6 +37,12 @@ st2:
     # TODO: Move to st2.conf defaults
     [rbac]
     enable = True
+    # Enable metrics for benchmarking purposes
+    [metrics]
+    prefix = k8s-dev
+    driver = statsd
+    host = 35.162.54.37
+    port = 8125
 
   # Custom StackStorm pack configs. Each record creates a file in '/opt/stackstorm/configs/'
   # https://docs.stackstorm.com/reference/pack_configs.html#configuration-file
