@@ -1,8 +1,11 @@
 # Default values for StackStorm Enterprise
 # This is a YAML-formatted file.
 
-# StackStorm Enterprise private Docker Registry used to pull images
-dockerRegistry: docker.stackstorm.com
+# Docker image settings, applied to all StackStorm pods
+image:
+  # StackStorm Enterprise private Docker Registry used to pull images
+  repository: docker.stackstorm.com
+  pullPolicy: Always
 
 # StackStorm shared variables
 st2:
@@ -79,13 +82,8 @@ st2:
     #  - "admin"
 
 st2web:
-  # Minimum 2 replicas are required to run st2web in HA mode
+  # Minimum 2 replicas are recommended to run st2web in HA mode
   replicaCount: 2
-  # st2web Docker image details
-  image:
-    # TODO: Change to real Docker image, once we'll have private Docker registry (#10)
-    repository: docker.stackstorm.com/st2web-enterprise
-    pullPolicy: IfNotPresent
   # Tested resource consumption based on multiple requests to st2web within nginx
   # Please adjust based on your conscious choice
   resources:

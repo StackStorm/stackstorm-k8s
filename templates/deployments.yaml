@@ -27,8 +27,8 @@ spec:
       - name: {{ .Release.Name }}-st2-license
       containers:
       - name: st2web-enterprise
-        image: "{{ .Values.st2web.image.repository }}:{{ .Chart.AppVersion }}"
-        imagePullPolicy: {{ .Values.st2web.image.pullPolicy }}
+        image: "{{ .Values.image.repository }}/st2web-enterprise:{{ .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 443
         # Probe to check if app is running. Failure will lead to a pod restart.
