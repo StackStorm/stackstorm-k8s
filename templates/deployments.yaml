@@ -2,16 +2,109 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: {{ .Release.Name }}-st2auth-enterprise
+spec:
+  selector:
+    matchLabels:
+      app: st2auth
+      support: enterprise
+      release: {{ .Release.Name }}
+  # https://docs.stackstorm.com/reference/ha.html#st2auth
+  # Multiple st2auth processes can be behind a load balancer in an active-active configuration.
+  replicas: {{ default 2 .Values.st2auth.replicas }}
+  template:
+    metadata:
+      labels:
+        app: st2auth
+        tier: backend
+        vendor: stackstorm
+        support: enterprise
+        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+        release: {{ .Release.Name }}
+        heritage: {{ .Release.Service }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+    spec:
+      imagePullSecrets:
+      - name: {{ .Release.Name }}-st2-license
+      # Sidecar container for generating .htpasswd with st2 username & password pair and sharing produced file with the main st2auth container
+      initContainers:
+      - name: generate-htpasswd
+        image: "{{ .Values.image.repository }}/st2auth-enterprise:{{ .Chart.AppVersion }}"
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 9100
+        env:
+        - name: ST2_AUTH_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-st2-auth
+              key: username
+        - name: ST2_AUTH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-st2-auth
+              key: password
+        volumeMounts:
+        - name: htpasswd-vol
+          mountPath: /tmp/st2
+        command:
+          - 'sh'
+          - '-ec'
+          - printf "${ST2_AUTH_USERNAME}:$(openssl passwd -apr1 "${ST2_AUTH_PASSWORD}")\n" > /tmp/st2/htpasswd
+      containers:
+      - name: st2auth-enterprise
+        image: "{{ .Values.image.repository }}/st2auth-enterprise:{{ .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        # TODO: Add liveness/readiness probes (#5)
+        #livenessProbe:
+        #readinessProbe:
+        envFrom:
+        - configMapRef:
+            name: {{ .Release.Name }}-st2-urls
+        volumeMounts:
+        - name: st2-config-vol
+          mountPath: /etc/st2/st2.docker.conf
+          # TODO: Use alternative approach, as subPath breaks pod auto-update when config is changed, see @https://github.com/kubernetes/kubernetes/issues/50345, workarounds: http://blog.bonesoul.com/configmap-kubernetes/ and https://github.com/kubernetes/kubernetes/issues/50345#issuecomment-400647420
+          subPath: st2.docker.conf
+        - name: htpasswd-vol
+          mountPath: /etc/st2/htpasswd
+          subPath: htpasswd
+          readOnly: true
+        resources:
+{{ toYaml .Values.st2auth.resources | indent 10 }}
+      volumes:
+        - name: st2-config-vol
+          configMap:
+            name: {{ .Release.Name }}-st2-config
+        - name: htpasswd-vol
+          emptyDir:
+            medium: Memory
+    {{- with .Values.st2auth.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.st2auth.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.st2auth.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   name: {{ .Release.Name }}-st2web-enterprise
 spec:
   selector:
     matchLabels:
       app: st2web
-      tier: frontend
-      vendor: stackstorm
       support: enterprise
       release: {{ .Release.Name }}
-  replicas: {{ .Values.st2web.replicaCount }}
+  replicas: {{ default 2 .Values.st2web.replicas }}
   template:
     metadata:
       labels:
@@ -72,15 +165,15 @@ spec:
             path: st2.key
             # 0400 file permission
             mode: 256
-    {{- with .Values.nodeSelector }}
+    {{- with .Values.st2web.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
     {{- end }}
-    {{- with .Values.affinity }}
+    {{- with .Values.st2web.affinity }}
       affinity:
 {{ toYaml . | indent 8 }}
     {{- end }}
-    {{- with .Values.tolerations }}
+    {{- with .Values.st2web.tolerations }}
       tolerations:
 {{ toYaml . | indent 8 }}
     {{- end }}

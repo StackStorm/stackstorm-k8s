@@ -2,6 +2,31 @@
 kind: Service
 apiVersion: v1
 metadata:
+  name: {{ .Release.Name }}-st2auth-enterprise
+  annotations:
+    description: StackStorm st2auth - all authentication is managed by this service.
+  labels:
+    app: st2auth
+    tier: backend
+    vendor: stackstorm
+    support: enterprise
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  selector:
+    app: st2auth
+    support: enterprise
+    release: {{ .Release.Name }}
+  type: ClusterIP
+  ports:
+  - protocol: TCP
+    port: 9100
+
+---
+kind: Service
+apiVersion: v1
+metadata:
   name: {{ .Release.Name }}-st2web-enterprise
   annotations:
     description: StackStorm st2web, - an admin Web UI and main entry point for external API requests
@@ -16,8 +41,6 @@ metadata:
 spec:
   selector:
     app: st2web
-    tier: frontend
-    vendor: stackstorm
     support: enterprise
     release: {{ .Release.Name }}
   # TODO: Consider to template it, if needed
