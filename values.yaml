@@ -235,6 +235,16 @@ st2rulesengine:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+# https://docs.stackstorm.com/reference/ha.html#st2notifier
+# st2notifier runs in active-active mode and requires for that coordination backend like Redis or Zookeeper
+st2notifier:
+  replicas: 2
+  # TODO: Find out recommended/default resources for this specific service (#25)
+  resources: {}
+  # Additional advanced settings to control pod/deployment placement
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
 
 ##
 ## RabbitMQ HA chart configuration

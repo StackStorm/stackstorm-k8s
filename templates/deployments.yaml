@@ -379,3 +379,66 @@ spec:
       tolerations:
 {{ toYaml . | indent 8 }}
     {{- end }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-st2notifier-enterprise
+spec:
+  selector:
+    matchLabels:
+      app: st2notifier
+      support: enterprise
+      release: {{ .Release.Name }}
+  # https://docs.stackstorm.com/reference/ha.html#st2notifier
+  # st2notifier runs in active-active mode and requires for that coordination backend like Redis or Zookeeper
+  replicas: {{ default 2 .Values.st2notifier.replicas }}
+  template:
+    metadata:
+      labels:
+        app: st2notifier
+        tier: backend
+        vendor: stackstorm
+        support: enterprise
+        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+        release: {{ .Release.Name }}
+        heritage: {{ .Release.Service }}
+    spec:
+      imagePullSecrets:
+      - name: {{ .Release.Name }}-st2-license
+      containers:
+      - name: st2notifier-enterprise
+        image: "{{ .Values.image.repository }}/st2notifier-enterprise:{{ .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        # TODO: Add liveness/readiness probes (#5)
+        #livenessProbe:
+        #readinessProbe:
+        envFrom:
+        - configMapRef:
+            name: {{ .Release.Name }}-st2-urls
+        volumeMounts:
+        - name: st2-config-vol
+          mountPath: /etc/st2/st2.docker.conf
+          subPath: st2.docker.conf
+        - name: st2-config-vol
+          mountPath: /etc/st2/st2.user.conf
+          subPath: st2.user.conf
+        resources:
+{{ toYaml .Values.st2notifier.resources | indent 10 }}
+      volumes:
+        - name: st2-config-vol
+          configMap:
+            name: {{ .Release.Name }}-st2-config
+    {{- with .Values.st2notifier.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.st2notifier.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.st2notifier.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
