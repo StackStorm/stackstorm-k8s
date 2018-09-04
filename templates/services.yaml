@@ -52,6 +52,31 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
+  name: {{ .Release.Name }}-st2stream-enterprise
+  annotations:
+    description: StackStorm st2stream - exposes a server-sent event stream, used by the clients like WebUI and ChatOps to receive update from the st2stream server.
+  labels:
+    app: st2stream
+    tier: backend
+    vendor: stackstorm
+    support: enterprise
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  selector:
+    app: st2stream
+    support: enterprise
+    release: {{ .Release.Name }}
+  type: ClusterIP
+  ports:
+  - protocol: TCP
+    port: 9102
+
+---
+kind: Service
+apiVersion: v1
+metadata:
   name: {{ .Release.Name }}-st2web-enterprise
   annotations:
     description: StackStorm st2web, - an admin Web UI and main entry point for external API requests
