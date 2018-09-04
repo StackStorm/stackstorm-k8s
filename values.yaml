@@ -7,6 +7,7 @@
 image:
   # StackStorm Enterprise private Docker Registry used to pull images
   repository: docker.stackstorm.com
+  # Image pull policy. Change to "IfNotPresent" when switching to stable images
   pullPolicy: Always
 
 ##
@@ -91,7 +92,17 @@ st2web:
 # Multiple st2auth processes can be behind a load balancer in an active-active configuration.
 st2auth:
   replicas: 2
-  # TODO: Find out recommended/default resources this specific service (#25)
+  # TODO: Find out recommended/default resources for this specific service (#25)
+  resources: {}
+  # Additional advanced settings to control pod/deployment placement
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+# https://docs.stackstorm.com/reference/ha.html#st2api
+# Multiple st2api process can be behind a load balancer in an active-active configuration.
+st2api:
+  replicas: 2
+  # TODO: Find out recommended/default resources for this specific service (#25)
   resources: {}
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}

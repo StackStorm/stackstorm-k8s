@@ -27,6 +27,31 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
+  name: {{ .Release.Name }}-st2api-enterprise
+  annotations:
+    description: StackStorm st2api - service hosts the REST API endpoints that serve requests from WebUI, CLI, ChatOps and other st2 services.
+  labels:
+    app: st2api
+    tier: backend
+    vendor: stackstorm
+    support: enterprise
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  selector:
+    app: st2api
+    support: enterprise
+    release: {{ .Release.Name }}
+  type: ClusterIP
+  ports:
+  - protocol: TCP
+    port: 9101
+
+---
+kind: Service
+apiVersion: v1
+metadata:
   name: {{ .Release.Name }}-st2web-enterprise
   annotations:
     description: StackStorm st2web, - an admin Web UI and main entry point for external API requests
