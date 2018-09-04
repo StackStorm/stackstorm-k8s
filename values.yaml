@@ -68,58 +68,6 @@ st2:
     #  - "admin"
 
 ##
-## StackStorm Enterprise Cluster settings for each individual service/component.
-##
-# Many st2web instances, placed behind a load balancer that serve web app and proxify requests to st2auth, st2api, st2stream.
-st2web:
-  # Minimum 2 replicas are recommended to run st2web in HA mode
-  replicas: 2
-  # Tested resource consumption based on multiple requests to st2web within nginx
-  # Please adjust based on your conscious choice
-  resources:
-    requests:
-      memory: "25Mi"
-      cpu: "50m"
-    limits:
-      memory: "100Mi"
-  # TODO: Research & add Ingress (#31)
-  # ingress:
-  # Additional advanced settings to control pod/deployment placement
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-# https://docs.stackstorm.com/reference/ha.html#st2auth
-# Multiple st2auth processes can be behind a load balancer in an active-active configuration.
-st2auth:
-  replicas: 2
-  # TODO: Find out recommended/default resources for this specific service (#25)
-  resources: {}
-  # Additional advanced settings to control pod/deployment placement
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-# https://docs.stackstorm.com/reference/ha.html#st2api
-# Multiple st2api process can be behind a load balancer in an active-active configuration.
-st2api:
-  replicas: 2
-  # TODO: Find out recommended/default resources for this specific service (#25)
-  resources: {}
-  # Additional advanced settings to control pod/deployment placement
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-# https://docs.stackstorm.com/reference/ha.html#st2stream
-# Multiple st2stream process can be behind a load balancer in an active-active configuration.
-st2stream:
-  replicas: 2
-  # TODO: Find out recommended/default resources for this specific service (#25)
-  resources: {}
-  # Additional advanced settings to control pod/deployment placement
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-
-##
 ## StackStorm Enterprise Cluster Secrets. All fields are required!
 ## NB! It's highly recommended to change ALL defaults!
 ##
@@ -223,6 +171,58 @@ secrets:
       ofUOhwAXuMsTtuLagOMyAJVs+KRVrvnXGT/p9l213ZAnDtFSpkvcjD9WUcupeTca
       BjdoJBzImjVB5znOgIui3ME5
       -----END PRIVATE KEY-----
+
+##
+## StackStorm Enterprise Cluster pod settings for each individual service/component.
+##
+# Many st2web instances, placed behind a load balancer that serve web app and proxify requests to st2auth, st2api, st2stream.
+st2web:
+  # Minimum 2 replicas are recommended to run st2web in HA mode
+  replicas: 2
+  # Tested resource consumption based on multiple requests to st2web within nginx
+  # Please adjust based on your conscious choice
+  resources:
+    requests:
+      memory: "25Mi"
+      cpu: "50m"
+    limits:
+      memory: "100Mi"
+  # TODO: Research & add Ingress (#31)
+  # ingress:
+  # Additional advanced settings to control pod/deployment placement
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+# https://docs.stackstorm.com/reference/ha.html#st2auth
+# Multiple st2auth processes can be behind a load balancer in an active-active configuration.
+st2auth:
+  replicas: 2
+  # TODO: Find out recommended/default resources for this specific service (#25)
+  resources: {}
+  # Additional advanced settings to control pod/deployment placement
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+# https://docs.stackstorm.com/reference/ha.html#st2api
+# Multiple st2api process can be behind a load balancer in an active-active configuration.
+st2api:
+  replicas: 2
+  # TODO: Find out recommended/default resources for this specific service (#25)
+  resources: {}
+  # Additional advanced settings to control pod/deployment placement
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+# https://docs.stackstorm.com/reference/ha.html#st2stream
+# Multiple st2stream process can be behind a load balancer in an active-active configuration.
+st2stream:
+  replicas: 2
+  # TODO: Find out recommended/default resources for this specific service (#25)
+  resources: {}
+  # Additional advanced settings to control pod/deployment placement
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
 
 ##
 ## RabbitMQ HA chart configuration
