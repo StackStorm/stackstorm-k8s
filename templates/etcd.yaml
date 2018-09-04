@@ -68,8 +68,7 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  # TODO: Template name with {{ .Release.Name }} and include in st2.conf
-  name: etcd
+  name: {{ .Release.Name }}-etcd
   labels:
     app: etcd
     tier: coordination
