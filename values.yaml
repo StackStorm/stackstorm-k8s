@@ -269,6 +269,18 @@ st2actionrunner:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+# https://docs.stackstorm.com/reference/ha.html#st2garbagecollector
+# Optional service that cleans up old executions and other operations data based on setup configurations.
+# By default this process does nothing and needs to be setup in st2.conf to perform any work.
+st2garbagecollector:
+  # Having 1 st2garbagecollector unique replica is enough for periodic task like st2 history garbage collection
+  replicas: 1
+  # TODO: Find out recommended/default resources for this specific service (#25)
+  resources: {}
+  # Additional advanced settings to control pod/deployment placement
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
 
 ##
 ## RabbitMQ HA chart configuration
