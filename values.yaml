@@ -258,6 +258,17 @@ st2sensorcontainer:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+# https://docs.stackstorm.com/reference/ha.html#st2actionrunner
+# Multiple st2actionrunner processes can run in active-active with only connections to MongoDB and RabbitMQ. Work gets naturally
+# distributed across runners via RabbitMQ. Adding more st2actionrunner processes increases the ability of StackStorm to execute actions.
+st2actionrunner:
+  replicas: 5
+  # TODO: Find out recommended/default resources for this specific service (#25)
+  resources: {}
+  # Additional advanced settings to control pod/deployment placement
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
 
 ##
 ## RabbitMQ HA chart configuration
