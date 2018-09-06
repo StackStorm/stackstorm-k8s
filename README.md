@@ -22,13 +22,13 @@ helm dependency update
 
 3) Install the chart:
 ```
-helm install .
+helm install --set secrets.st2.license=<ST2_LICENSE_KEY> .
 ```
 
 4) Upgrade.
 Once you make any changes to values, upgrade the cluster:
 ```
-helm upgrade <release-name> .
+helm upgrade --set secrets.st2.license=<ST2_LICENSE_KEY> <release-name> .
 ```
 
 ## Components
