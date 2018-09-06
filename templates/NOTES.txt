@@ -1,10 +1,21 @@
 Congratulations! You have just deployed StackStorm Enterprise HA!
 
-1. Get the application URL by running these commands:
+  ███████╗████████╗██████╗      ██████╗ ██╗  ██╗
+  ██╔════╝╚══██╔══╝╚════██╗    ██╔═══██╗██║ ██╔╝
+  ███████╗   ██║    █████╔╝    ██║   ██║█████╔╝
+  ╚════██║   ██║   ██╔═══╝     ██║   ██║██╔═██╗
+  ███████║   ██║   ███████╗    ╚██████╔╝██║  ██╗
+  ╚══════╝   ╚═╝   ╚══════╝     ╚═════╝ ╚═╝  ╚═╝
 
-export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ .Release.Name }}-st2web-enterprise)
-export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
-echo https://$NODE_IP:$NODE_PORT/
+1. Get the StackStorm Web UI URL by running these commands:
+export ST2WEB_IP=$(minikube ip 2>/dev/null || kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+export ST2WEB_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ .Release.Name }}-st2web-enterprise)
+echo https://$ST2WEB_IP:$ST2WEB_PORT/
 
+2. Login with the following credentials:
+username: {{ .Values.secrets.st2.username }}
+password: {{ .Values.secrets.st2.password }}
 
-# TODO: 2. Login with the following credentials
+-----------------------------------------------------
+Thanks for trying StackStorm!
+Need help? Enterprise support: support@stackstorm.com

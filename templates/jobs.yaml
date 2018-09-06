@@ -28,7 +28,7 @@ spec:
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
       annotations:
-        # TODO: Investigate/propose running Helm hook only on condition
+        # TODO: Investigate/propose running Helm hook only on condition when ConfigMap or Secret has changed
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") . | sha256sum }}
     spec:
@@ -102,7 +102,7 @@ spec:
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
       annotations:
-        # TODO: Investigate/propose running Helm hook only on condition
+        # TODO: Investigate/propose running Helm hook only on condition when ConfigMap or Secret has changed
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/rbac: {{ include (print $.Template.BasePath "/configmaps_rbac.yaml") . | sha256sum }}
     spec:
