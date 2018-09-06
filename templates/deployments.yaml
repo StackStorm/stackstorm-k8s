@@ -24,6 +24,7 @@ spec:
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        checksum/auth: {{ include (print $.Template.BasePath "/secrets_st2auth.yaml") . | sha256sum }}
     spec:
       imagePullSecrets:
       - name: {{ .Release.Name }}-st2-license
