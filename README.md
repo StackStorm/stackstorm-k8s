@@ -75,6 +75,12 @@ Stackstorm workers that actually execute actions.
 `5` replicas for K8s Deployment are configured by default to increase the ability of StackStorm to execute actions.
 This is the first thing to lift if you have a lot of actions to execute in your StackStorm cluster.
 
+### [st2garbagecollector](https://docs.stackstorm.com/reference/ha.html#st2garbagecollector)
+Service that cleans up old executions and other operations data based on setup configurations.
+Having `1` st2garbagecollector replica for K8s Deployment is enough, considering its periodic execution nature.
+By default this process does nothing and needs to be configured in st2.conf settings (via `values.yaml`).
+Purging stale data can significantly improve cluster abilities to perform faster and so it's recommended to configure `st2garbagecollector` in production.
+
 ## Tips & Tricks
 Grab all logs for entire StackStorm cluster with dependent services in Helm release:
 ```
