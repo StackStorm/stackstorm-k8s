@@ -54,6 +54,10 @@ StackStorm st2stream - exposes a server-sent event stream, used by the clients l
 Similar to st2auth and st2api, st2stream K8s configuration includes Pod Deployment with `2` replicas for HA (can be increased in `values.yaml`)
 and ClusterIP Service listening on port `9102`.
 
+### [st2rulesengine](https://docs.stackstorm.com/reference/ha.html#st2rulesengine)
+st2rulesengine evaluates rules when it sees new triggers and decides if new action execution should be requested.
+K8s config includes Pod Deployment with `2` (configurable) replicas by default for HA.
+
 
 ## Tips & Tricks
 Grab all logs for entire StackStorm cluster with dependent services in Helm release:
