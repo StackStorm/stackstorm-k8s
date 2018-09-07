@@ -94,6 +94,10 @@ By default `3` nodes of RabbitMQ are deployed via K8s StatefulSet.
 For more advanced RabbitMQ configuration, please refer to official [rabbitmq-ha](https://github.com/helm/charts/tree/master/stable/rabbitmq-ha)
 Helm chart repository, - all settings could be overridden via `values.yaml`.
 
+### [etcd](https://docs.stackstorm.com/latest/reference/ha.html#zookeeper-redis)
+StackStorm employs `etcd` as a distributed coordination backend, required for StackStorm cluster components to work properly in HA scenario.
+Currently, due to low demands, only `1` instance of `etcd` is setup via K8s Deployment.
+Future plans to rely on official Helm chart and configure etcd/Raft cluster properly with `3` nodes by default (TODO #48).
 
 ## Tips & Tricks
 Grab all logs for entire StackStorm cluster with dependent services in Helm release:
