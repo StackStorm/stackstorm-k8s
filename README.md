@@ -34,9 +34,14 @@ helm upgrade --set secrets.st2.license=<ST2_LICENSE_KEY> <release-name> .
 ## Components
 ### st2web
 By default, st2web includes a Pod Deployment and a Service for st2web Enterprise Web UI.
-2 replicas (configurable) of st2web, placed behind a load balancer serve web app and proxify requests to st2auth, st2api, st2stream.
+`2` replicas (configurable) of st2web serve the st2 web app and proxify requests to st2auth, st2api, st2stream.
 Service uses NodePort, so installing this chart will not provision a K8s resource of type LoadBalancer or Ingress (TODO!).
 Depending on your Kubernetes cluster setup you may need to add additional configuration to access the Web UI service or expose it to public net.
+
+### [st2auth](https://docs.stackstorm.com/reference/ha.html#st2auth) 
+All authentication is managed by `st2auth` service.
+K8s configuration includes a Pod Deployment backed by `2` replicas by default and Service of type ClusterIP listening on port `9100`.
+Multiple st2auth processes can be behind a load balancer in an active-active configuration and you can increase number of replicas per your discretion.
 
 ## Tips & Tricks
 Grab all logs for entire StackStorm cluster with dependent services in Helm release:
