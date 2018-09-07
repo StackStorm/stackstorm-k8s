@@ -1,4 +1,4 @@
-# Default values for StackStorm Enterprise
+# Default values for StackStorm Enterprise HA cluster
 # This is a YAML-formatted file.
 
 ##
@@ -72,9 +72,11 @@ st2:
 ## NB! It's highly recommended to change ALL defaults!
 ##
 # TODO: Move to `secrets.yaml` when it gets implemented in Helm (https://github.com/kubernetes/helm/issues/2196)
+# TODO: Alternatively as part of reorganizing Helm values, consider moving values to existing `st2` and `st2web` sections (?)
 secrets:
   st2:
-    # Required (!) StackStorm Enterprise license key. Don't have one? Obtain 90-day free trial at https://stackstorm.com/#product
+    # Required (!) StackStorm Enterprise license key.
+    # Don't have one? Obtain 90-day free trial at https://stackstorm.com/#product
     license: ""
     # Username, used to login to StackStorm system
     username: st2admin
@@ -82,7 +84,7 @@ secrets:
     password: Ch@ngeMe
     # SSH private key for the 'stanley' system user ('system_user.ssh_key_file' in st2.conf)
     # Warning! Replace with your own SSH key!
-    # TODO: Consider auto-generating if no key provided
+    # TODO: For prod/stable consider auto-generating if no key provided
     ssh_key: |-
       -----BEGIN RSA PRIVATE KEY-----
       MIIEowIBAAKCAQEAs73kblN3XfLR6tYsHRHyX/aQKx4amcNjT+E+2ufwqkiINDyA
@@ -114,7 +116,7 @@ secrets:
   st2web:
     # SSL Certificate used for StackStorm Web UI in nginx (HTTPS)
     # Warning! This is dummy auto-generated self-signed SSL cert. Use your own instead!
-    # TODO: Consider auto-generating if no cert provided
+    # TODO: For prod/stable consider auto-generating if no cert provided
     ssl_certificate: |-
       -----BEGIN CERTIFICATE-----
       MIID2zCCAsOgAwIBAgIJANcrpXluUyomMA0GCSqGSIb3DQEBCwUAMIGDMQswCQYD
@@ -141,7 +143,7 @@ secrets:
       -----END CERTIFICATE-----
     # SSL Certificate private key used for StackStorm Web UI in nginx (HTTPS)
     # Warning! This is dummy auto-generated self-signed SSL cert. Use your own instead!
-    # TODO: Consider auto-generating if no cert provided
+    # TODO: For prod/stable consider auto-generating if no cert provided
     ssl_certificate_key: |-
       -----BEGIN PRIVATE KEY-----
       MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDmvZ/zG0pOhkze
@@ -187,7 +189,7 @@ st2web:
       cpu: "50m"
     limits:
       memory: "100Mi"
-  # TODO: Research & add Ingress (#31)
+  # TODO: Add Ingress and/or LoadBalancer setting as a way to expose service to public (#31)
   # ingress:
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
@@ -283,7 +285,19 @@ st2garbagecollector:
   affinity: {}
 
 ##
-## RabbitMQ HA chart configuration
+## MongoDB HA configuration (3rd party chart dependency)
+##
+## For values.yaml reference:
+## https://github.com/helm/charts/tree/master/stable/mongodb-replicaset
+##
+# Specs for the MongoDB image
+mongodb-ha:
+  image:
+    # StackStorm currently supports maximum MongoDB v3.4
+    tag: 3.4
+
+##
+## RabbitMQ HA configuration (3rd party chart dependency)
 ##
 ## For values.yaml reference:
 ## https://github.com/helm/charts/tree/master/stable/rabbitmq-ha
@@ -296,7 +310,8 @@ rabbitmq-ha:
   persistentVolume:
     enabled: true
 
-## Docker registry configuration
+##
+## Docker registry configuration (3rd party chart dependency)
 ##
 ## The docker registry is useful if custom images need to be made available in the cluster.
 ##
@@ -310,7 +325,7 @@ docker-registry:
   enabled: false
 
 ##
-## Docker registry proxy chart configuration
+## Docker registry proxy configuration (3rd party chart dependency)
 ## (only installed if docker-registry is enabled)
 ##
 ## This is run on each k8s node, and proxies pod localhost:5000 to the docker registry
@@ -323,15 +338,3 @@ kube-registry-proxy:
     host: st2-docker-registry.default.svc.cluster.local
     port: 5000
   hostPort: 5000
-
-##
-## MongoDB HA chart configuration
-##
-## For values.yaml reference:
-## https://github.com/helm/charts/tree/master/stable/mongodb-replicaset
-##
-# Specs for the MongoDB image
-mongodb-ha:
-  image:
-    # StackStorm currently supports maximum MongoDB v3.4
-    tag: 3.4
