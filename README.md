@@ -49,6 +49,12 @@ K8s configuration consists of Pod Deployment with `2` default replicas for HA an
 Being one of the most important of StackStorm services with a lot of logic involved,
 it's recommended to increase number of replicas to distribute the load if you'd plan increased load demands.
 
+### [st2stream](https://docs.stackstorm.com/reference/ha.html#st2stream)
+StackStorm st2stream - exposes a server-sent event stream, used by the clients like WebUI and ChatOps to receive update from the st2stream server.
+Similar to st2auth and st2api, st2stream K8s configuration includes Pod Deployment with `2` replicas for HA (can be increased in `values.yaml`)
+and ClusterIP Service listening on port `9102`.
+
+
 ## Tips & Tricks
 Grab all logs for entire StackStorm cluster with dependent services in Helm release:
 ```
