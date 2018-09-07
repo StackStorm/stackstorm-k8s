@@ -128,8 +128,8 @@ spec:
       {{- if .Values.st2packs-image.repository }}
       initContainers:
       - name: st2-packs
-        image: localhost:5000/st2packs:latest
-        imagePullPolicy: Always
+        image: "{{ .Values.st2packs-image.repository }}/{{ .Values.st2packs-image.name }}:{{ .Values.st2packs-image.tag }}"
+        imagePullPolicy: {{ .Values.st2packs-image.pullPolicy | quote }}
         volumeMounts:
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs
@@ -504,8 +504,8 @@ spec:
       {{- if .Values.st2packs-image.repository }}
       initContainers:
       - name: st2-packs
-        image: localhost:5000/st2packs:latest
-        imagePullPolicy: Always
+        image: "{{ .Values.st2packs-image.repository }}/{{ .Values.st2packs-image.name }}:{{ .Values.st2packs-image.tag }}"
+        imagePullPolicy: {{ .Values.st2packs-image.pullPolicy | quote }}
         volumeMounts:
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs
@@ -594,8 +594,8 @@ spec:
       {{- if .Values.st2packs-image.repository }}
       initContainers:
       - name: st2-packs
-        image: localhost:5000/st2packs:latest
-        imagePullPolicy: Always
+        image: "{{ .Values.st2packs-image.repository }}/{{ .Values.st2packs-image.name }}:{{ .Values.st2packs-image.tag }}"
+        imagePullPolicy: {{ .Values.st2packs-image.pullPolicy | quote }}
         volumeMounts:
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs
