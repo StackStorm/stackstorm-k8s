@@ -70,6 +70,11 @@ Future plans (#12) to re-work this setup and benefit from Docker-friendly [singl
 (since st2 `v2.9`) as a way of [Sensor Partitioning](https://docs.stackstorm.com/latest/reference/sensor_partitioning.html), distributing the computing load
 between many pods and relying on K8s failover/reschedule mechanisms, instead of running everything on 1 single instance of st2sensorcontainer.
 
+### [st2actionrunner](https://docs.stackstorm.com/reference/ha.html#st2actionrunner)
+Stackstorm workers that actually execute actions.
+`5` replicas for K8s Deployment are configured by default to increase the ability of StackStorm to execute actions.
+This is the first thing to lift if you have a lot of actions to execute in your StackStorm cluster.
+
 ## Tips & Tricks
 Grab all logs for entire StackStorm cluster with dependent services in Helm release:
 ```
