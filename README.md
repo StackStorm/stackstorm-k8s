@@ -33,7 +33,7 @@ helm upgrade --set secrets.st2.license=<ST2_LICENSE_KEY> <release-name> .
 
 ## Components
 ### st2web
-By default, st2web includes a Pod Deployment and a Service for st2web Enterprise Web UI.
+st2web is a StackStorm Web UI admin dashboard. By default, st2web K8s config includes a Pod Deployment and a Service.
 `2` replicas (configurable) of st2web serve the st2 web app and proxify requests to st2auth, st2api, st2stream.
 Service uses NodePort, so installing this chart will not provision a K8s resource of type LoadBalancer or Ingress (TODO!).
 Depending on your Kubernetes cluster setup you may need to add additional configuration to access the Web UI service or expose it to public net.
