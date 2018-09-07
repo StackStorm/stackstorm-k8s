@@ -1,10 +1,10 @@
 # `stackstorm-enterprise-ha` Helm Chart
-StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm in HA environment.
+StackStorm Enterprise K8s Helm Chart for running StackStorm Enterprise cluster in HA mode.
 
 It will install 2 replicas for each component of StackStorm microservices for redundancy, as well as backends like
-RabbitMQ HA, MongoDB replicaset and etcd cluster that st2 replies on for MQ, DB and distributed coordination respectively.
+RabbitMQ HA, MongoDB HA Replicaset and etcd cluster that st2 replies on for MQ, DB and distributed coordination respectively.
 
-It's more than welcome to configure each component in-depth to fit specific availability/scalability demands.
+It's more than welcome to fine-tune each component settings to fit specific availability/scalability demands.
 
 ## Requirements
 * [Kubernetes](https://kubernetes.io/docs/setup/pick-right-solution/) cluster
