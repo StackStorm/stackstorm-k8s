@@ -32,7 +32,7 @@ helm upgrade --set secrets.st2.license=<ST2_LICENSE_KEY> <release-name> .
 ```
 
 ## Components
-### st2web
+### [st2web](https://docs.stackstorm.com/latest/reference/ha.html#nginx-and-load-balancing)
 st2web is a StackStorm Web UI admin dashboard. By default, st2web K8s config includes a Pod Deployment and a Service.
 `2` replicas (configurable) of st2web serve the st2 web app and proxify requests to st2auth, st2api, st2stream.
 Service uses NodePort, so installing this chart will not provision a K8s resource of type LoadBalancer or Ingress (TODO!).
@@ -81,11 +81,18 @@ Having `1` st2garbagecollector replica for K8s Deployment is enough, considering
 By default this process does nothing and needs to be configured in st2.conf settings (via `values.yaml`).
 Purging stale data can significantly improve cluster abilities to perform faster and so it's recommended to configure `st2garbagecollector` in production.
 
-### [MongoDB HA](https://github.com/helm/charts/tree/master/stable/mongodb-replicaset)
-External Helm Chart is used to configure MongoDB HA [ReplicaSet](https://docs.mongodb.com/manual/tutorial/deploy-replica-set/).
+### [MongoDB HA ReplicaSet](https://github.com/helm/charts/tree/master/stable/mongodb-replicaset)
+StackStorm uses MongoDB as a database engine. External Helm Chart is used to configure MongoDB HA [ReplicaSet](https://docs.mongodb.com/manual/tutorial/deploy-replica-set/).
 By default `3` nodes (1 primary and 2 secondaries) of MongoDB are deployed via K8s StatefulSet.
 For more advanced MongoDB configuration, refer to official [mongodb-replicaset](https://github.com/helm/charts/tree/master/stable/mongodb-replicaset)
 Helm chart settings, which might be fine-tuned via `values.yaml`.
+
+### [RabbitMQ HA](https://docs.stackstorm.com/latest/reference/ha.html#rabbitmq)
+RabbitMQ is a message bus StackStorm relies on for inter-process communication and load distribution.
+External Helm Chart is used to deploy [RabbitMQ cluster](https://www.rabbitmq.com/clustering.html) in Highly Available mode.
+By default `3` nodes of RabbitMQ are deployed via K8s StatefulSet.
+For more advanced RabbitMQ configuration, please refer to official [rabbitmq-ha](https://github.com/helm/charts/tree/master/stable/rabbitmq-ha)
+Helm chart repository, - all settings could be overridden via `values.yaml`.
 
 
 ## Tips & Tricks
