@@ -58,10 +58,17 @@ and ClusterIP Service listening on port `9102`.
 st2rulesengine evaluates rules when it sees new triggers and decides if new action execution should be requested.
 K8s config includes Pod Deployment with `2` (configurable) replicas by default for HA.
 
-### [st2notifier](ttps://docs.stackstorm.com/reference/ha.html#st2notifier)
+### [st2notifier](https://docs.stackstorm.com/reference/ha.html#st2notifier)
 Multiple st2notifier processes can run in active-active mode, using connections to RabbitMQ and MongoDB and generating triggers based on
 action execution completion as well as doing action rescheduling.
 In an HA deployment minimum 2 replicas of st2notifier is running, requiring co-ordination backend, which is `etcd` in this case.
+
+### [st2sensorcontainer](https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer)
+st2sensorcontainer manages StackStorm sensors: starts, stops and restarts them as a subprocesses.
+At the moment K8s configuration consists of Deployment with hardcoded `1` replica.
+Future plans (#12) to re-work this setup and benefit from Docker-friendly [single-sensor-per-container mode](https://github.com/StackStorm/st2/pull/4179)
+(since st2 `v2.9`) as a way of [Sensor Partitioning](https://docs.stackstorm.com/latest/reference/sensor_partitioning.html), distributing the computing load
+between many pods and relying on K8s failover/reschedule mechanisms, instead of running everything on 1 single instance of st2sensorcontainer.
 
 ## Tips & Tricks
 Grab all logs for entire StackStorm cluster with dependent services in Helm release:
