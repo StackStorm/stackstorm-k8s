@@ -43,6 +43,12 @@ All authentication is managed by `st2auth` service.
 K8s configuration includes a Pod Deployment backed by `2` replicas by default and Service of type ClusterIP listening on port `9100`.
 Multiple st2auth processes can be behind a load balancer in an active-active configuration and you can increase number of replicas per your discretion.
 
+### [st2api](https://docs.stackstorm.com/reference/ha.html#st2api)
+Service hosts the REST API endpoints that serve requests from WebUI, CLI, ChatOps and other st2 components.
+K8s configuration consists of Pod Deployment with `2` default replicas for HA and ClusterIP Service accepting HTTP requests on port `9101`.
+Being one of the most important of StackStorm services with a lot of logic involved,
+it's recommended to increase number of replicas to distribute the load if you'd plan increased load demands.
+
 ## Tips & Tricks
 Grab all logs for entire StackStorm cluster with dependent services in Helm release:
 ```
