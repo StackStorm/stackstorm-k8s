@@ -81,6 +81,13 @@ Having `1` st2garbagecollector replica for K8s Deployment is enough, considering
 By default this process does nothing and needs to be configured in st2.conf settings (via `values.yaml`).
 Purging stale data can significantly improve cluster abilities to perform faster and so it's recommended to configure `st2garbagecollector` in production.
 
+### [MongoDB HA](https://github.com/helm/charts/tree/master/stable/mongodb-replicaset)
+External Helm Chart is used to configure MongoDB HA [ReplicaSet](https://docs.mongodb.com/manual/tutorial/deploy-replica-set/).
+By default `3` nodes (1 primary and 2 secondaries) of MongoDB are deployed via K8s StatefulSet.
+For more advanced MongoDB configuration, refer to official [mongodb-replicaset](https://github.com/helm/charts/tree/master/stable/mongodb-replicaset)
+Helm chart settings, which might be fine-tuned via `values.yaml`.
+
+
 ## Tips & Tricks
 Grab all logs for entire StackStorm cluster with dependent services in Helm release:
 ```
