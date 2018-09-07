@@ -58,6 +58,10 @@ and ClusterIP Service listening on port `9102`.
 st2rulesengine evaluates rules when it sees new triggers and decides if new action execution should be requested.
 K8s config includes Pod Deployment with `2` (configurable) replicas by default for HA.
 
+### [st2notifier](ttps://docs.stackstorm.com/reference/ha.html#st2notifier)
+Multiple st2notifier processes can run in active-active mode, using connections to RabbitMQ and MongoDB and generating triggers based on
+action execution completion as well as doing action rescheduling.
+In an HA deployment minimum 2 replicas of st2notifier is running, requiring co-ordination backend, which is `etcd` in this case.
 
 ## Tips & Tricks
 Grab all logs for entire StackStorm cluster with dependent services in Helm release:
