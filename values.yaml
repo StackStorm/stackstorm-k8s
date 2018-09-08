@@ -227,10 +227,17 @@ st2stream:
   affinity: {}
 # https://docs.stackstorm.com/reference/ha.html#st2rulesengine
 # Multiple st2rulesengine processes can run in active-active with only connections to MongoDB and RabbitMQ. All these will share the TriggerInstance load and naturally pick up more work if one or more of the processes becomes unavailable.
-# The timer function in each of the RulesEngine is not HA compatible and will be extracted into its own service (https://github.com/StackStorm/st2/pull/4180).
-# TODO: Iclude st2timersengine (#50)
 st2rulesengine:
   replicas: 2
+  # TODO: Find out recommended/default resources for this specific service (#25)
+  resources: {}
+  # Additional advanced settings to control pod/deployment placement
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+# https://docs.stackstorm.com/reference/ha.html#st2timersengine
+# Only single replica is created via K8s Deployment as timersengine can't work in active-active mode at the moment and it relies on K8s failover/reschedule capabilities to address cases of process failure.
+st2timersengine:
   # TODO: Find out recommended/default resources for this specific service (#25)
   resources: {}
   # Additional advanced settings to control pod/deployment placement

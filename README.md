@@ -58,6 +58,11 @@ and ClusterIP Service listening on port `9102`.
 st2rulesengine evaluates rules when it sees new triggers and decides if new action execution should be requested.
 K8s config includes Pod Deployment with `2` (configurable) replicas by default for HA.
 
+### [st2timersengine](https://docs.stackstorm.com/reference/ha.html#st2timersengine)
+st2timersengine is responsible for scheduling all user specified [timers](https://docs.stackstorm.com/rules.html#timers) aka st2 cron.
+Only single replica is created via K8s Deployment as timersengine can't work in active-active mode at the moment
+(multiple timers will produce duplicated events) and it relies on K8s failover/reschedule capabilities to address cases of process failure.
+
 ### [st2notifier](https://docs.stackstorm.com/reference/ha.html#st2notifier)
 Multiple st2notifier processes can run in active-active mode, using connections to RabbitMQ and MongoDB and generating triggers based on
 action execution completion as well as doing action rescheduling.
@@ -96,7 +101,7 @@ Helm chart repository, - all settings could be overridden via `values.yaml`.
 
 ### [etcd](https://docs.stackstorm.com/latest/reference/ha.html#zookeeper-redis)
 StackStorm employs `etcd` as a distributed coordination backend, required for StackStorm cluster components to work properly in HA scenario.
-Currently, due to low demands, only `1` instance of `etcd` is setup via K8s Deployment.
+Currently, due to low demands, only `1` instance of `etcd` is created via K8s Deployment.
 Future plans to rely on official Helm chart and configure etcd/Raft cluster properly with `3` nodes by default (TODO #48).
 
 ## Tips & Tricks
