@@ -63,6 +63,11 @@ st2timersengine is responsible for scheduling all user specified [timers](https:
 Only single replica is created via K8s Deployment as timersengine can't work in active-active mode at the moment
 (multiple timers will produce duplicated events) and it relies on K8s failover/reschedule capabilities to address cases of process failure.
 
+### [st2workflowengine](https://docs.stackstorm.com/reference/ha.html#st2workflowengine)
+st2workflowengine drives the execution of orquesta workflows and actually schedules actions to run. 
+Multiple st2workflowengine processes can run in active-active mode and so `2` K8s Deployment replicas are created.
+All the workflow engine processes will share the load and pick up more work if one or more of the processes become available.
+
 ### [st2notifier](https://docs.stackstorm.com/reference/ha.html#st2notifier)
 Multiple st2notifier processes can run in active-active mode, using connections to RabbitMQ and MongoDB and generating triggers based on
 action execution completion as well as doing action rescheduling.
