@@ -1,0 +1,54 @@
+apiVersion: v1
+entries:
+  stackstorm-enterprise-ha:
+  - apiVersion: v1
+    appVersion: 2.9dev
+    created: 2018-09-10T15:55:50.576162995+01:00
+    description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm
+      in HA environment.
+    digest: a7bab346c6d34f3acf17d097aca8c2458f7bc5d1ae76e365721e3254ed9623d0
+    home: https://stackstorm.com/#product
+    icon: https://avatars1.githubusercontent.com/u/4969009
+    keywords:
+    - st2
+    - stackstorm
+    - devops
+    - event-driven
+    - auto-remediation
+    - IFTTT
+    - ha
+    maintainers:
+    - name: Eugen C.
+      url: https://github.com/armab
+    - name: Warren Van Winckel
+      url: https://github.com/warrenvw
+    name: stackstorm-enterprise-ha
+    urls:
+    - https://helm.stackstorm.com/stackstorm-enterprise-ha-0.3.0.tgz
+    version: 0.3.0
+  - apiVersion: v1
+    appVersion: 2.9dev
+    created: 2018-09-10T15:55:50.573827344+01:00
+    description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm
+      in HA environment.
+    digest: aef78255b623932c6d5b711cd1388002a7cbbfb0c853a8b11a306468bb4ab241
+    home: https://stackstorm.com/#product
+    icon: https://avatars1.githubusercontent.com/u/4969009
+    keywords:
+    - st2
+    - stackstorm
+    - devops
+    - event-driven
+    - auto-remediation
+    - IFTTT
+    - ha
+    maintainers:
+    - name: Eugen C.
+      url: https://github.com/armab
+    - name: Warren Van Winckel
+      url: https://github.com/warrenvw
+    name: stackstorm-enterprise-ha
+    urls:
+    - https://helm.stackstorm.com/stackstorm-enterprise-ha-0.2.0.tgz
+    version: 0.2.0
+generated: 2018-09-10T15:55:50.571330979+01:00
