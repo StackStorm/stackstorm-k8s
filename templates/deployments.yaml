@@ -28,7 +28,6 @@ spec:
     spec:
       imagePullSecrets:
       - name: {{ .Release.Name }}-st2-license
-      - name: {{ .Release.Name }}-regcred
       # Sidecar container for generating .htpasswd with st2 username & password pair and sharing produced file with the main st2auth container
       initContainers:
       - name: generate-htpasswd
@@ -126,7 +125,6 @@ spec:
     spec:
       imagePullSecrets:
       - name: {{ .Release.Name }}-st2-license
-      - name: {{ .Release.Name }}-regcred
       containers:
       - name: st2api-enterprise
         image: "{{ .Values.image.repository }}/st2api-enterprise:{{ .Chart.AppVersion }}"
@@ -194,7 +192,6 @@ spec:
     spec:
       imagePullSecrets:
       - name: {{ .Release.Name }}-st2-license
-      - name: {{ .Release.Name }}-regcred
       containers:
       - name: st2stream-enterprise
         image: "{{ .Values.image.repository }}/st2stream-enterprise:{{ .Chart.AppVersion }}"
@@ -258,7 +255,6 @@ spec:
     spec:
       imagePullSecrets:
       - name: {{ .Release.Name }}-st2-license
-      - name: {{ .Release.Name }}-regcred
       containers:
       - name: st2web-enterprise
         image: "{{ .Values.image.repository }}/st2web-enterprise:{{ .Chart.AppVersion }}"
@@ -348,7 +344,6 @@ spec:
     spec:
       imagePullSecrets:
       - name: {{ .Release.Name }}-st2-license
-      - name: {{ .Release.Name }}-regcred
       containers:
       - name: st2rulesengine-enterprise
         image: "{{ .Values.image.repository }}/st2rulesengine-enterprise:{{ .Chart.AppVersion }}"
@@ -545,7 +540,6 @@ spec:
     spec:
       imagePullSecrets:
       - name: {{ .Release.Name }}-st2-license
-      - name: {{ .Release.Name }}-regcred
       containers:
       - name: st2notifier-enterprise
         image: "{{ .Values.image.repository }}/st2notifier-enterprise:{{ .Chart.AppVersion }}"
@@ -614,7 +608,6 @@ spec:
     spec:
       imagePullSecrets:
       - name: {{ .Release.Name }}-st2-license
-      - name: {{ .Release.Name }}-regcred
       # TODO: Add SidecarContainer for sharing st2 packs + virtualenvs (#27)
       containers:
       - name: st2sensorcontainer-enterprise
@@ -690,7 +683,6 @@ spec:
     spec:
       imagePullSecrets:
       - name: {{ .Release.Name }}-st2-license
-      - name: {{ .Release.Name }}-regcred
       # TODO: Add SidecarContainer for sharing st2 packs + virtualenvs (#27)
       containers:
       - name: st2actionrunner-enterprise
@@ -775,7 +767,6 @@ spec:
     spec:
       imagePullSecrets:
       - name: {{ .Release.Name }}-st2-license
-      - name: {{ .Release.Name }}-regcred
       containers:
       - name: st2garbagecollector-enterprise
         image: "{{ .Values.image.repository }}/st2garbagecollector-enterprise:{{ .Chart.AppVersion }}"
