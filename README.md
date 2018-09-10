@@ -1,5 +1,6 @@
 # StackStorm K8s Helm Chart Repository index
-Helm repository index for `stackstorm-enterprise-ha` chart that codifies StackStorm Enterprise High Availability fleet as a simple to use reproducible infrastructure-as-code app.
+K8s Helm repository index for `stackstorm-enterprise-ha` chart that codifies StackStorm Enterprise
+High Availability fleet as a simple to use reproducible infrastructure-as-code app.
 
 ## Usage
 ```
