@@ -6,6 +6,10 @@ metadata:
   annotations:
     description: StackStorm service URLs, used across entire st2 cluster
   labels:
+    app: st2
+    tier: backend
+    vendor: stackstorm
+    support: enterprise
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
