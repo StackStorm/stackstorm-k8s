@@ -34,17 +34,17 @@ spec:
     spec:
       imagePullSecrets:
       - name: {{ .Release.Name }}-st2-license
-      {{- if .Values.st2packs-image.repository }}
+      {{ if .Values.st2packs.image.repository }}
       initContainers:
       - name: st2-packs
-        image: "{{ .Values.st2packs-image.repository }}/{{ .Values.st2packs-image.name }}:{{ .Values.st2packs-image.tag }}"
-        imagePullPolicy: {{ .Values.st2packs-image.pullPolicy | quote }}
+        image: "{{ .Values.st2packs.image.repository }}/{{ .Values.st2packs.image.name }}:{{ .Values.st2packs.image.tag }}"
+        imagePullPolicy: {{ .Values.st2packs.image.pullPolicy | quote }}
         volumeMounts:
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs
         - name: st2-virtualenvs-vol
           mountPath: /opt/stackstorm/virtualenvs
-      {{- end }}
+      {{ end }}
       containers:
       - name: st2-register-content
         image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
@@ -79,9 +79,13 @@ spec:
           configMap:
             name: {{ .Release.Name }}-st2-pack-configs
         - name: st2-packs-vol
-          hostPath: {}
+          hostPath:
+            path: /opt/stackstorm/packs
+            type: DirectoryOrCreate
         - name: st2-virtualenvs-vol
-          hostPath: {}
+          hostPath:
+            path: /opt/stackstorm/virtualenvs
+            type: DirectoryOrCreate
       restartPolicy: OnFailure
 
 ---

@@ -74,6 +74,8 @@ st2:
 # TODO: Move to `secrets.yaml` when it gets implemented in Helm (https://github.com/kubernetes/helm/issues/2196)
 # TODO: Alternatively as part of reorganizing Helm values, consider moving values to existing `st2` and `st2web` sections (?)
 secrets:
+  packs: {}
+
   st2:
     # Required (!) StackStorm Enterprise license key.
     # Don't have one? Obtain 90-day free trial at https://stackstorm.com/#product
@@ -330,14 +332,15 @@ docker-registry:
 ## Instead, follow the 'Building and deploying a custom packs image' instructions.
 ## The repository, name, tag and pullPolicy for this image are specified below.
 ##
-st2packs-image:
+st2packs:
   # If you wish to use a private docker registry running in the k8s cluster, set docker-registry.enabled to true.
   # The repository must be defined in order for the custom packs image to be made available to the necessary pods.
   # NOTE: No default values are assumed. Uncomment the following lines and configure the correct values.
-#  repository: localhost:5000
-#  name: st2packs
-#  tag: latest
-#  pullPolicy: Always
+  image:
+    repository: localhost:5000
+    name: st2packs
+    tag: latest
+    pullPolicy: Always
 
 ##
 ## Docker registry proxy configuration (3rd party chart dependency)
