@@ -25,6 +25,9 @@ helm dependency update
 helm install --set secrets.st2.license=<ST2_LICENSE_KEY> .
 ```
 
+> Don't have StackStorm Enterprise License?<br>
+> 90-day free trial can be requested at https://stackstorm.com/#product
+
 4) Upgrade.
 Once you make any changes to values, upgrade the cluster:
 ```
