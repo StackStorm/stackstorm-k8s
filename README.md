@@ -109,3 +109,81 @@ Grab all logs only for stackstorm backend services, excluding st2web and DB/MQ/e
 ```
 kubectl logs -l release=<release-name>,tier=backend
 ```
+
+# Installing packs in the cluster
+
+In the kubernetes cluster, the `st2 pack install` command will not work. Instead, you need to build your own custom docker image which contains the packs, and push it to your private docker registry. The image will be run as a sidecar container in pods which need access to the packs. If you do not already have a docker registry, it is very easy to deploy one in your k8s cluster.
+
+## Install custom packs in the cluster
+
+### Build image
+
+Until the st2packs-builder is deployed to a public repo, you will need to build the st2packs-builder image: 
+
+```
+pushd st2packs-builder
+make build
+popd
+```
+
+To build the st2packs image which contains your required packs installed in `/opt/stackstorm/packs` and `/opt/stackstorm/virtualenvs`, define the `PACKS` environment variable with a space separated list of pack names. For example, to install the `pagerduty` and `vault` packs, run:
+
+```
+export PACKS="pagerduty vault"
+# Define K8S_DOCKER_REGISTRY only if you are not using the docker registry in the k8s cluster.
+export K8S_DOCKER_REGISTRY=<DOCKER_REGISTRY_URL>
+make build-packs
+```
+
+### How to enable the private docker registry running in the k8s cluster
+
+In `stackstorm-enterprise-ha/values.yaml`, set `docker-registry.enabled` to `true`:
+
+```
+docker-registry:
+  enabled: true
+```
+
+### Deploy to private docker registry
+
+If running on a Mac, in one terminal:
+
+```
+docker run --privileged --pid=host socat:latest nsenter -t 1 -u -n -i socat TCP-LISTEN:5000,fork TCP:docker.for.mac.localhost:5000
+```
+
+In another terminal:
+
+```
+kubectl port-forward <docker-registry-name> 5000:5000
+```
+
+Finally, in another terminal:
+
+```
+make push-packs
+```
+
+
+### How to provide custom pack configs
+
+Update the `pack_configs` section of `stackstorm-enterprise-ha/values.yaml`:
+
+For example:
+
+```
+pack_configs:
+  vault.yaml: |
+    ---
+    url: 'https://127.0.0.1:8200'
+    cert: '{{ .Values.secrets.packs.vault.cert }}'
+    token: '{{ .Values.secrets.packs.vault.token }}'
+    verify: false
+
+  pagerduty.yaml: |
+    ---
+    # example pagerduty pack config yaml
+    api_key: {{ .Values.secrets.packs.pagerduty.api_key }}
+    service_key: {{ .Values.secrets.packs.pagerduty.service_key }}
+    debug: false
+```
