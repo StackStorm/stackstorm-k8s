@@ -41,8 +41,6 @@ spec:
       - name: generate-htpasswd
         image: "{{ .Values.image.repository }}/st2auth-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        ports:
-        - containerPort: 9100
         env:
         - name: ST2_AUTH_USERNAME
           valueFrom:
@@ -65,6 +63,8 @@ spec:
       - name: st2auth-enterprise
         image: "{{ .Values.image.repository }}/st2auth-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: 9100
         # TODO: Add liveness/readiness probes (#5)
         #livenessProbe:
         #readinessProbe:
@@ -890,3 +890,136 @@ spec:
       tolerations:
 {{ toYaml . | indent 8 }}
     {{- end }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-st2client-enterprise
+  labels:
+    app: st2client
+    tier: backend
+    vendor: stackstorm
+    support: enterprise
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  selector:
+    matchLabels:
+      app: st2client
+      support: enterprise
+      release: {{ .Release.Name }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: st2client
+        tier: backend
+        vendor: stackstorm
+        support: enterprise
+        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+        release: {{ .Release.Name }}
+        heritage: {{ .Release.Service }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        checksum/rbac: {{ include (print $.Template.BasePath "/configmaps_rbac.yaml") . | sha256sum }}
+        checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") . | sha256sum }}
+        checksum/auth: {{ include (print $.Template.BasePath "/secrets_st2auth.yaml") . | sha256sum }}
+        checksum/ssh: {{ include (print $.Template.BasePath "/secrets_ssh.yaml") . | sha256sum }}
+    spec:
+      imagePullSecrets:
+      - name: {{ .Release.Name }}-st2-license
+      # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
+      initContainers:
+      - name: generate-st2client-config
+        image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        envFrom:
+        - configMapRef:
+            name: {{ .Release.Name }}-st2-urls
+        env:
+        - name: ST2_AUTH_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-st2-auth
+              key: username
+        - name: ST2_AUTH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-st2-auth
+              key: password
+        volumeMounts:
+        - name: st2client-config-vol
+          mountPath: /root/.st2/
+        command:
+          - 'sh'
+          - '-ec'
+          - st2 login "${ST2_AUTH_USERNAME}" -p "${ST2_AUTH_PASSWORD}" -w
+      containers:
+      - name: st2client-enterprise
+        image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        envFrom:
+        - configMapRef:
+            name: {{ .Release.Name }}-st2-urls
+        volumeMounts:
+        - name: st2-config-vol
+          mountPath: /etc/st2/st2.docker.conf
+          subPath: st2.docker.conf
+        - name: st2-config-vol
+          mountPath: /etc/st2/st2.user.conf
+          subPath: st2.user.conf
+        - name: st2-rbac-roles-vol
+          mountPath: /opt/stackstorm/rbac/roles/
+        - name: st2-rbac-assignments-vol
+          mountPath: /opt/stackstorm/rbac/assignments/
+        - name: st2-rbac-mappings-vol
+          mountPath: /opt/stackstorm/rbac/mappings/
+        - name: st2-pack-configs-vol
+          mountPath: /opt/stackstorm/configs/
+        - name: st2client-config-vol
+          mountPath: /root/.st2/
+          readOnly: true
+        - name: st2-ssh-key-vol
+          mountPath: /home/stanley/.ssh/
+          readOnly: true
+        # TODO: Add SidecarContainer for sharing st2 packs + virtualenvs (#27)
+#        - name: st2-packs-vol
+#          mountPath: /opt/stackstorm/packs/
+#        - name: st2-virtualenvs-vol
+#          mountPath: /opt/stackstorm/virtualenvs/
+        command:
+          - 'bash'
+          - '-ec'
+          - 'while true; do sleep 999; done'
+        resources:
+      volumes:
+        - name: st2-config-vol
+          configMap:
+            name: {{ .Release.Name }}-st2-config
+        - name: st2-rbac-roles-vol
+          configMap:
+            name: {{ .Release.Name }}-st2-rbac-roles
+        - name: st2-rbac-assignments-vol
+          configMap:
+            name: {{ .Release.Name }}-st2-rbac-assignments
+        - name: st2-rbac-mappings-vol
+          configMap:
+            name: {{ .Release.Name }}-st2-rbac-mappings
+        - name: st2-pack-configs-vol
+          configMap:
+            name: {{ .Release.Name }}-st2-pack-configs
+        - name: st2client-config-vol
+          emptyDir:
+            medium: Memory
+        - name: st2-ssh-key-vol
+          secret:
+            secretName: {{ .Release.Name }}-st2-ssh
+            items:
+            - key: private_key
+              path: stanley_rsa
+              # 0400 file permission
+              mode: 256
+#      - name: st2-packs-vol
+#      - name: st2-virtualenvs-vol

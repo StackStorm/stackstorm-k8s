@@ -32,6 +32,20 @@ helm upgrade --set secrets.st2.license=<ST2_LICENSE_KEY> <release-name> .
 ```
 
 ## Components
+### st2client
+A helper container to switch into and run st2 CLI commands against the deployed StackStorm Enterprise cluster.
+All resources like credentials, configs, RBAC, packs, keys and secrets are shared with this container.
+```
+# obtain st2client pod name
+ST2CLIENT=$(kubectl get pod -l app=st2client,support=enterprise -o jsonpath="{.items[0].metadata.name}")
+
+# run a single st2 client command
+kubectl exec -it ${ST2CLIENT} -- st2 --version
+
+# switch into a container shell and use st2 CLI
+kubectl exec -it ${ST2CLIENT} /bin/bash
+```
+
 ### [st2web](https://docs.stackstorm.com/latest/reference/ha.html#nginx-and-load-balancing)
 st2web is a StackStorm Web UI admin dashboard. By default, st2web K8s config includes a Pod Deployment and a Service.
 `2` replicas (configurable) of st2web serve the st2 web app and proxify requests to st2auth, st2api, st2stream.
