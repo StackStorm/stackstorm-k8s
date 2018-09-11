@@ -344,6 +344,21 @@ docker-registry:
   enabled: false
 
 ##
+## Docker registry proxy configuration (3rd party chart dependency)
+## (only installed if docker-registry is enabled)
+##
+## This is run on each k8s node, and proxies pod localhost:5000 to the docker registry
+##
+## For values.yaml reference:
+## https://github.com/helm/charts/tree/master/incubator/kube-registry-proxy
+##
+kube-registry-proxy:
+  registry:
+    host: st2-docker-registry.default.svc.cluster.local
+    port: 5000
+  hostPort: 5000
+
+##
 ## Custom packs image settings
 ## It is not possible to run `st2 pack install` in the k8s cluster.
 ## Instead, follow the 'Building and deploying a custom packs image' instructions.
@@ -358,18 +373,3 @@ st2packs:
     name: st2packs
     tag: latest
     pullPolicy: Always
-
-##
-## Docker registry proxy configuration (3rd party chart dependency)
-## (only installed if docker-registry is enabled)
-##
-## This is run on each k8s node, and proxies pod localhost:5000 to the docker registry
-##
-## For values.yaml reference:
-## https://github.com/helm/charts/tree/master/incubator/kube-registry-proxy
-##
-kube-registry-proxy:
-  registry:
-    host: st2-docker-registry.default.svc.cluster.local
-    port: 5000
-  hostPort: 5000
