@@ -952,10 +952,16 @@ spec:
         volumeMounts:
         - name: st2client-config-vol
           mountPath: /root/.st2/
+        # `st2 login` doesn't exit on failure correctly, use old methods instead. See bug: https://github.com/StackStorm/st2/issues/4338
         command:
           - 'sh'
           - '-ec'
-          - st2 login "${ST2_AUTH_USERNAME}" -p "${ST2_AUTH_PASSWORD}" -w
+          - |
+            cat <<EOT > /root/.st2/config
+            [credentials]
+            username = ${ST2_AUTH_USERNAME}
+            password = ${ST2_AUTH_PASSWORD}
+            EOT
       containers:
       - name: st2client-enterprise
         image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
@@ -980,7 +986,6 @@ spec:
           mountPath: /opt/stackstorm/configs/
         - name: st2client-config-vol
           mountPath: /root/.st2/
-          readOnly: true
         - name: st2-ssh-key-vol
           mountPath: /home/stanley/.ssh/
           readOnly: true
