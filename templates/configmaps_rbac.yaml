@@ -6,6 +6,10 @@ metadata:
   annotations:
     description: Custom StackStorm RBAC roles, shipped in '/opt/stackstorm/rbac/roles/'
   labels:
+    app: st2
+    tier: backend
+    vendor: stackstorm
+    support: enterprise
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -20,6 +24,10 @@ metadata:
   annotations:
     description: Custom StackStorm RBAC role assignments, shipped in '/opt/stackstorm/rbac/assignments/'
   labels:
+    app: st2
+    tier: backend
+    vendor: stackstorm
+    support: enterprise
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -34,6 +42,10 @@ metadata:
   annotations:
     description: StackStorm RBAC LDAP groups-to-roles mapping rules, shipped in '/opt/stackstorm/rbac/mappings/'
   labels:
+    app: st2
+    tier: backend
+    vendor: stackstorm
+    support: enterprise
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}

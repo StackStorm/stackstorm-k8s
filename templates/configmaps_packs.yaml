@@ -6,6 +6,10 @@ metadata:
   annotations:
     description: Custom StackStorm pack configs, shipped in '/opt/stackstorm/configs/'
   labels:
+    app: st2
+    tier: backend
+    vendor: stackstorm
+    support: enterprise
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}

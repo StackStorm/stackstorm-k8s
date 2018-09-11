@@ -6,6 +6,10 @@ metadata:
   annotations:
     description: Custom StackStorm config which will apply settings on top of default st2.conf
   labels:
+    app: st2
+    tier: backend
+    vendor: stackstorm
+    support: enterprise
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
