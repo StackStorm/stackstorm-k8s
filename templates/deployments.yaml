@@ -966,6 +966,9 @@ spec:
       - name: st2client-enterprise
         image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        env:
+        - name: ST2CLIENT
+          value: "1"
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -999,6 +1002,9 @@ spec:
           - '-ec'
           - 'while true; do sleep 999; done'
         resources:
+          requests:
+            memory: "5Mi"
+            cpu: "5m"
       volumes:
         - name: st2-config-vol
           configMap:
