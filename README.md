@@ -160,10 +160,10 @@ make build-packs
 
 ### Deploy to private docker registry
 
-In one terminal, forward from from localhost to the private registry (in this case, we assume the docker-registry is running in the k8s cluster):
+In one terminal, forward from from localhost to the private registry. If the `docker-registry` is running in the k8s cluster, then you can use:
 
 ```
-kubectl port-forward $(kubectl get pod -l app=docker-registry,support=enterprise -o jsonpath="{.items[0].metadata.name}") 5000:5000
+kubectl port-forward $(kubectl get pod -l app=docker-registry -o jsonpath="{.items[0].metadata.name}") 5000:5000
 ```
 
 In another terminal, deploy the image to the registry:
@@ -197,6 +197,8 @@ kube-registry-proxy:
     port: 5000
   hostPort: 5000
 ```
+
+Read https://github.com/helm/charts/tree/master/incubator/kube-registry-proxy for information on how to install this chart.
 
 ### How to provide custom pack configs
 
