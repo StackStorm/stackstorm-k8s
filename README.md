@@ -122,58 +122,64 @@ kubectl logs -l release=<release-name>,tier=backend
 
 # Installing packs in the cluster
 
-In the kubernetes cluster, the `st2 pack install` command will not work. Instead, you need to build your own custom docker image which contains the packs, and push it to your private docker registry. The image will be run as a sidecar container in pods which need access to the packs. If you do not already have a docker registry, it is very easy to deploy one in your k8s cluster.
+In the kubernetes cluster, the `st2 pack install` command will not work. Instead, you need to build your own custom docker
+image which contains the packs, and push it to your docker registry. The image will be run as a sidecar container in pods
+which need access to the packs. If you do not already have a docker registry, it is very easy to deploy one in your k8s cluster.
 
 ## Install custom packs in the cluster
 
 ### Build image
 
-Until the st2packs-builder is deployed to a public repo, you will need to build the st2packs-builder image: 
+To build the st2packs image which contains your required packs installed in `/opt/stackstorm/packs` and `/opt/stackstorm/virtualenvs`,
+define the `PACKS` environment variable with a space separated list of pack names. For example, to install the `email` and `vault`
+packs (in addition to the default system packs), run:
 
 ```
-pushd st2packs-builder
-make build
-popd
-```
-
-To build the st2packs image which contains your required packs installed in `/opt/stackstorm/packs` and `/opt/stackstorm/virtualenvs`, define the `PACKS` environment variable with a space separated list of pack names. For example, to install the `pagerduty` and `vault` packs, run:
-
-```
-export PACKS="pagerduty vault"
-# Define K8S_DOCKER_REGISTRY only if you are not using the docker registry in the k8s cluster.
+export PACKS="email vault"
+# Define K8S_DOCKER_REGISTRY only if you are not using the docker registry in the k8s cluster. It defaults to `localhost:5000`.
 export K8S_DOCKER_REGISTRY=<DOCKER_REGISTRY_URL>
 make build-packs
 ```
 
-### How to enable the private docker registry running in the k8s cluster
-
-In `stackstorm-enterprise-ha/values.yaml`, set `docker-registry.enabled` to `true`:
-
-```
-docker-registry:
-  enabled: true
-```
-
 ### Deploy to private docker registry
 
-If running on a Mac, in one terminal:
+In one terminal, forward from from localhost to the private registry (in this case, we assume the docker-registry is running in the k8s cluster):
 
 ```
-docker run --privileged --pid=host socat:latest nsenter -t 1 -u -n -i socat TCP-LISTEN:5000,fork TCP:docker.for.mac.localhost:5000
+kubectl port-forward $(kubectl get pod -l app=docker-registry,support=enterprise -o jsonpath="{.items[0].metadata.name}") 5000:5000
 ```
 
-In another terminal:
-
-```
-kubectl port-forward <docker-registry-name> 5000:5000
-```
-
-Finally, in another terminal:
+In another terminal, deploy the image to the registry:
 
 ```
 make push-packs
 ```
 
+NOTE: If running on MacOS, before deploying the image, open another terminal and execute:
+
+```
+docker run --privileged --pid=host socat:latest nsenter -t 1 -u -n -i socat TCP-LISTEN:5000,fork TCP:docker.for.mac.localhost:5000
+```
+
+### Create the kube-registry-proxy
+
+The kube-registry-proxy proxies localhost:5000 in the pod to the docker registry. Add the following to `values.yaml`:
+
+```
+##
+## Docker registry proxy configuration
+##
+## This is run on each k8s node, and proxies pod localhost:5000 to the docker registry
+##
+## For values.yaml reference:
+## https://github.com/helm/charts/tree/master/incubator/kube-registry-proxy
+##
+kube-registry-proxy:
+  registry:
+    host: st2-docker-registry.default.svc.cluster.local
+    port: 5000
+  hostPort: 5000
+```
 
 ### How to provide custom pack configs
 

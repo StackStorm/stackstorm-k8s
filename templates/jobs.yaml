@@ -34,16 +34,33 @@ spec:
     spec:
       imagePullSecrets:
       - name: {{ .Release.Name }}-st2-license
-      {{ if .Values.st2packs.image.repository }}
+      {{ if .Values.st2.packs.image.repository }}
       initContainers:
-      - name: st2-packs
-        image: "{{ .Values.st2packs.image.repository }}/{{ .Values.st2packs.image.name }}:{{ .Values.st2packs.image.tag }}"
-        imagePullPolicy: {{ .Values.st2packs.image.pullPolicy | quote }}
+      # Merge packs and virtualenvs from st2actionrunner-enterprise with those from the st2.packs image
+      # Custom packs
+      - name: st2-custom-packs
+        image: "{{ .Values.st2.packs.image.repository }}/{{ .Values.st2.packs.image.name }}:{{ .Values.st2.packs.image.tag }}"
+        imagePullPolicy: {{ .Values.st2.packs.image.pullPolicy | quote }}
         volumeMounts:
         - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs
+          mountPath: /opt/stackstorm/packs-shared
         - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs
+          mountPath: /opt/stackstorm/virtualenvs-shared
+        command:
+          - cp -R /opt/stackstorm/packs /opt/stackstorm/packs-shared
+          - cp -R /opt/stackstorm/virtualenvs /opt/stackstorm/virtualenvs-shared
+      # System packs
+      - name: st2-system-packs
+        image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        volumeMounts:
+        - name: st2-packs-vol
+          mountPath: /opt/stackstorm/packs-shared
+        - name: st2-virtualenvs-vol
+          mountPath: /opt/stackstorm/virtualenvs-shared
+        command:
+          - cp -R /opt/stackstorm/packs /opt/stackstorm/packs-shared
+          - cp -R /opt/stackstorm/virtualenvs /opt/stackstorm/virtualenvs-shared
       {{ end }}
       containers:
       - name: st2-register-content
@@ -79,13 +96,9 @@ spec:
           configMap:
             name: {{ .Release.Name }}-st2-pack-configs
         - name: st2-packs-vol
-          hostPath:
-            path: /opt/stackstorm/packs
-            type: DirectoryOrCreate
+          emptyDir: {}
         - name: st2-virtualenvs-vol
-          hostPath:
-            path: /opt/stackstorm/virtualenvs
-            type: DirectoryOrCreate
+          emptyDir: {}
       restartPolicy: OnFailure
 
 ---
