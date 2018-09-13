@@ -82,10 +82,12 @@ spec:
           subPath: st2.user.conf
         - name: st2-pack-configs-vol
           mountPath: /opt/stackstorm/configs/
+        {{ if .Values.st2.packs.image.repository }}
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs/
         - name: st2-virtualenvs-vol
           mountPath: /opt/stackstorm/virtualenvs/
+        {{ end }}
         # TODO: Find out default resource limits for this specific service (#25)
         #resources:
       volumes:
@@ -95,10 +97,12 @@ spec:
         - name: st2-pack-configs-vol
           configMap:
             name: {{ .Release.Name }}-st2-pack-configs
+        {{ if .Values.st2.packs.image.repository }}
         - name: st2-packs-vol
           emptyDir: {}
         - name: st2-virtualenvs-vol
           emptyDir: {}
+        {{ end }}
       restartPolicy: OnFailure
 
 ---
