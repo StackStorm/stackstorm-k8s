@@ -153,6 +153,12 @@ spec:
           mountPath: /opt/stackstorm/packs-shared
         - name: st2-virtualenvs-vol
           mountPath: /opt/stackstorm/virtualenvs-shared
+        command:
+          - 'sh'
+          - '-ec'
+          - |
+            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
+            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
         image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
@@ -160,11 +166,14 @@ spec:
         volumeMounts:
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs-shared
+        - name: st2-virtualenvs-vol
+          mountPath: /opt/stackstorm/virtualenvs-shared
         command:
-          - /bin/cp
-          - -R
-          - /opt/stackstorm/packs/
-          - /opt/stackstorm/packs-shared
+          - 'sh'
+          - '-ec'
+          - |
+            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
+            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       {{- end }}
       containers:
       - name: st2api-enterprise
@@ -188,8 +197,10 @@ spec:
         {{- if .Values.st2.packs.image.repository }}
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs
+          readOnly: true
         - name: st2-virtualenvs-vol
           mountPath: /opt/stackstorm/virtualenvs
+          readOnly: true
         {{- end }}
         resources:
 {{ toYaml .Values.st2api.resources | indent 10 }}
@@ -729,6 +740,12 @@ spec:
           mountPath: /opt/stackstorm/packs-shared
         - name: st2-virtualenvs-vol
           mountPath: /opt/stackstorm/virtualenvs-shared
+        command:
+          - 'sh'
+          - '-ec'
+          - |
+            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
+            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
         image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
@@ -737,10 +754,11 @@ spec:
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs-shared
         command:
-          - /bin/cp
-          - -R
-          - /opt/stackstorm/packs/
-          - /opt/stackstorm/packs-shared
+          - 'sh'
+          - '-ec'
+          - |
+            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
+            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       {{- end }}
       containers:
       - name: st2sensorcontainer-enterprise
@@ -762,8 +780,10 @@ spec:
         {{- if .Values.st2.packs.image.repository }}
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs
+          readOnly: true
         - name: st2-virtualenvs-vol
           mountPath: /opt/stackstorm/virtualenvs
+          readOnly: true
         {{- end }}
         resources:
 {{ toYaml .Values.st2sensorcontainer.resources | indent 10 }}
@@ -841,6 +861,12 @@ spec:
           mountPath: /opt/stackstorm/packs-shared
         - name: st2-virtualenvs-vol
           mountPath: /opt/stackstorm/virtualenvs-shared
+        command:
+          - 'sh'
+          - '-ec'
+          - |
+            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
+            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
         image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
@@ -849,10 +875,11 @@ spec:
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs-shared
         command:
-          - /bin/cp
-          - -R
-          - /opt/stackstorm/packs/
-          - /opt/stackstorm/packs-shared
+          - 'sh'
+          - '-ec'
+          - |
+            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
+            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       {{- end }}
       containers:
       - name: st2actionrunner-enterprise
@@ -877,8 +904,10 @@ spec:
         {{- if .Values.st2.packs.image.repository }}
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs
+          readOnly: true
         - name: st2-virtualenvs-vol
           mountPath: /opt/stackstorm/virtualenvs
+          readOnly: true
         {{- end }}
         resources:
 {{ toYaml .Values.st2actionrunner.resources | indent 10 }}
@@ -1037,6 +1066,12 @@ spec:
           mountPath: /opt/stackstorm/packs-shared
         - name: st2-virtualenvs-vol
           mountPath: /opt/stackstorm/virtualenvs-shared
+        command:
+          - 'sh'
+          - '-ec'
+          - |
+            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
+            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
         image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
@@ -1045,10 +1080,11 @@ spec:
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs-shared
         command:
-          - /bin/cp
-          - -R
-          - /opt/stackstorm/packs/
-          - /opt/stackstorm/packs-shared
+          - 'sh'
+          - '-ec'
+          - |
+            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
+            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       {{- end }}
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       - name: generate-st2client-config
@@ -1114,8 +1150,10 @@ spec:
         {{- if .Values.st2.packs.image.repository }}
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs
+          readOnly: true
         - name: st2-virtualenvs-vol
           mountPath: /opt/stackstorm/virtualenvs
+          readOnly: true
         {{- end }}
         command:
           - 'bash'

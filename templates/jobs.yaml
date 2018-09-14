@@ -46,6 +46,12 @@ spec:
           mountPath: /opt/stackstorm/packs-shared
         - name: st2-virtualenvs-vol
           mountPath: /opt/stackstorm/virtualenvs-shared
+        command:
+          - 'sh'
+          - '-ec'
+          - |
+            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
+            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
         image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
@@ -54,10 +60,11 @@ spec:
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs-shared
         command:
-          - /bin/cp
-          - -R
-          - /opt/stackstorm/packs/
-          - /opt/stackstorm/packs-shared
+          - 'sh'
+          - '-ec'
+          - |
+            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
+            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       {{ end }}
       containers:
       - name: st2-register-content
