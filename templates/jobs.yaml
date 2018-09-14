@@ -46,9 +46,6 @@ spec:
           mountPath: /opt/stackstorm/packs-shared
         - name: st2-virtualenvs-vol
           mountPath: /opt/stackstorm/virtualenvs-shared
-        command:
-          - cp -R /opt/stackstorm/packs /opt/stackstorm/packs-shared
-          - cp -R /opt/stackstorm/virtualenvs /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
         image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
@@ -56,11 +53,11 @@ spec:
         volumeMounts:
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs-shared
-        - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs-shared
         command:
-          - cp -R /opt/stackstorm/packs /opt/stackstorm/packs-shared
-          - cp -R /opt/stackstorm/virtualenvs /opt/stackstorm/virtualenvs-shared
+          - /bin/cp
+          - -R
+          - /opt/stackstorm/packs/
+          - /opt/stackstorm/packs-shared
       {{ end }}
       containers:
       - name: st2-register-content

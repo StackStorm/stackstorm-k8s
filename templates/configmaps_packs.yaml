@@ -14,4 +14,4 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-{{ toYaml .Values.st2.pack_configs | indent 2 }}
+{{ toYaml .Values.st2.packs.configs | indent 2 }}

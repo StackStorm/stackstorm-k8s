@@ -153,23 +153,18 @@ spec:
           mountPath: /opt/stackstorm/packs-shared
         - name: st2-virtualenvs-vol
           mountPath: /opt/stackstorm/virtualenvs-shared
-        command:
-          # Copy packs and virtualenvs from image to shared volume
-          - cp -R /opt/stackstorm/packs /opt/stackstorm/packs-shared
-          - cp -R /opt/stackstorm/virtualenvs /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
-        image: "{{ .Values.image.repository }}/st2api-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         volumeMounts:
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs-shared
-        - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs-shared
         command:
-          # Copy packs and virtualenvs from image to shared volume
-          - cp -R /opt/stackstorm/packs /opt/stackstorm/packs-shared
-          - cp -R /opt/stackstorm/virtualenvs /opt/stackstorm/virtualenvs-shared
+          - /bin/cp
+          - -R
+          - /opt/stackstorm/packs/
+          - /opt/stackstorm/packs-shared
       {{- end }}
       containers:
       - name: st2api-enterprise
@@ -734,23 +729,18 @@ spec:
           mountPath: /opt/stackstorm/packs-shared
         - name: st2-virtualenvs-vol
           mountPath: /opt/stackstorm/virtualenvs-shared
-        command:
-          # Copy packs and virtualenvs from image to shared volume
-          - cp -R /opt/stackstorm/packs /opt/stackstorm/packs-shared
-          - cp -R /opt/stackstorm/virtualenvs /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
-        image: "{{ .Values.image.repository }}/st2sensorcontainer-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         volumeMounts:
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs-shared
-        - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs-shared
         command:
-          # Copy packs and virtualenvs from image to shared volume
-          - cp -R /opt/stackstorm/packs /opt/stackstorm/packs-shared
-          - cp -R /opt/stackstorm/virtualenvs /opt/stackstorm/virtualenvs-shared
+          - /bin/cp
+          - -R
+          - /opt/stackstorm/packs/
+          - /opt/stackstorm/packs-shared
       {{- end }}
       containers:
       - name: st2sensorcontainer-enterprise
@@ -851,10 +841,6 @@ spec:
           mountPath: /opt/stackstorm/packs-shared
         - name: st2-virtualenvs-vol
           mountPath: /opt/stackstorm/virtualenvs-shared
-        command:
-          # Copy packs and virtualenvs from image to shared volume
-          - cp -R /opt/stackstorm/packs /opt/stackstorm/packs-shared
-          - cp -R /opt/stackstorm/virtualenvs /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
         image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
@@ -862,12 +848,11 @@ spec:
         volumeMounts:
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs-shared
-        - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs-shared
         command:
-          # Copy packs and virtualenvs from image to shared volume
-          - cp -R /opt/stackstorm/packs /opt/stackstorm/packs-shared
-          - cp -R /opt/stackstorm/virtualenvs /opt/stackstorm/virtualenvs-shared
+          - /bin/cp
+          - -R
+          - /opt/stackstorm/packs/
+          - /opt/stackstorm/packs-shared
       {{- end }}
       containers:
       - name: st2actionrunner-enterprise
@@ -1040,8 +1025,32 @@ spec:
     spec:
       imagePullSecrets:
       - name: {{ .Release.Name }}-st2-license
-      # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       initContainers:
+      {{- if .Values.st2.packs.image.repository }}
+      # Merge packs and virtualenvs from st2actionrunner-enterprise with those from the st2.packs image
+      # Custom packs
+      - name: st2-custom-packs
+        image: "{{ .Values.st2.packs.image.repository }}/{{ .Values.st2.packs.image.name }}:{{ .Values.st2.packs.image.tag }}"
+        imagePullPolicy: {{ .Values.st2.packs.image.pullPolicy | quote }}
+        volumeMounts:
+        - name: st2-packs-vol
+          mountPath: /opt/stackstorm/packs-shared
+        - name: st2-virtualenvs-vol
+          mountPath: /opt/stackstorm/virtualenvs-shared
+      # System packs
+      - name: st2-system-packs
+        image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        volumeMounts:
+        - name: st2-packs-vol
+          mountPath: /opt/stackstorm/packs-shared
+        command:
+          - /bin/cp
+          - -R
+          - /opt/stackstorm/packs/
+          - /opt/stackstorm/packs-shared
+      {{- end }}
+      # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       - name: generate-st2client-config
         image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -1102,11 +1111,12 @@ spec:
         - name: st2-ssh-key-vol
           mountPath: /home/stanley/.ssh/
           readOnly: true
-        # TODO: Add SidecarContainer for sharing st2 packs + virtualenvs (#27)
-#        - name: st2-packs-vol
-#          mountPath: /opt/stackstorm/packs/
-#        - name: st2-virtualenvs-vol
-#          mountPath: /opt/stackstorm/virtualenvs/
+        {{- if .Values.st2.packs.image.repository }}
+        - name: st2-packs-vol
+          mountPath: /opt/stackstorm/packs
+        - name: st2-virtualenvs-vol
+          mountPath: /opt/stackstorm/virtualenvs
+        {{- end }}
         command:
           - 'bash'
           - '-ec'
@@ -1142,5 +1152,9 @@ spec:
               path: stanley_rsa
               # 0400 file permission
               mode: 256
-#      - name: st2-packs-vol
-#      - name: st2-virtualenvs-vol
+        {{- if .Values.st2.packs.image.repository }}
+        - name: st2-packs-vol
+          emptyDir: {}
+        - name: st2-virtualenvs-vol
+          emptyDir: {}
+        {{- end }}
