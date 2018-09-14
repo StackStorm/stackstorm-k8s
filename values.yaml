@@ -345,32 +345,3 @@ rabbitmq-ha:
   persistentVolume:
     enabled: true
 
-##
-## Docker registry configuration (3rd party chart dependency)
-##
-## The docker registry is useful if custom images need to be made available in the cluster.
-##
-## For values.yaml reference:
-## https://github.com/helm/charts/tree/master/stable/docker-registry
-##
-## If enabled is true, helm installs a docker registry into the cluster.
-## Otherwise, the docker registry is not installed.
-##
-docker-registry:
-  enabled: false
-
-##
-## Docker registry proxy configuration (3rd party chart dependency)
-## (only installed if docker-registry is enabled)
-##
-## This is run on each k8s node, and proxies pod localhost:5000 to the docker registry
-##
-## For values.yaml reference:
-## https://github.com/helm/charts/tree/master/incubator/kube-registry-proxy
-##
-kube-registry-proxy:
-  registry:
-    host: st2-docker-registry.default.svc.cluster.local
-    port: 5000
-  hostPort: 5000
-
