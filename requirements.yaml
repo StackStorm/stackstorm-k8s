@@ -7,7 +7,7 @@ dependencies:
     repository: https://kubernetes-charts.storage.googleapis.com/
     alias: mongodb-ha
   - name: docker-registry
-    version: 1.5.1
+    version: 1.5.3
     repository: https://kubernetes-charts.storage.googleapis.com/
     condition: docker-registry.enabled
   - name: kube-registry-proxy

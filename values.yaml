@@ -359,7 +359,8 @@ rabbitmq-ha:
 ## Otherwise, the docker registry is not installed.
 ##
 docker-registry:
-  enabled: true
+  enabled: false
+  fullnameOverride: st2packs-docker-registry
 
 ##
 ## Docker registry proxy configuration (3rd party chart dependency)
@@ -372,6 +373,6 @@ docker-registry:
 ##
 kube-registry-proxy:
   registry:
-    host: st2-docker-registry.default.svc.cluster.local
+    host: st2packs-docker-registry.default.svc.cluster.local
     port: 5000
   hostPort: 5000
