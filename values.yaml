@@ -92,8 +92,6 @@ st2:
 # TODO: Move to `secrets.yaml` when it gets implemented in Helm (https://github.com/kubernetes/helm/issues/2196)
 # TODO: Alternatively as part of reorganizing Helm values, consider moving values to existing `st2` and `st2web` sections (?)
 secrets:
-  packs: {}
-
   st2:
     # Required (!) StackStorm Enterprise license key.
     # Don't have one? Obtain 90-day free trial at https://stackstorm.com/#product
