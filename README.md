@@ -137,6 +137,55 @@ very easy to deploy one in your k8s cluster. You can optionally enable in-cluste
 `values.yaml` by setting `docker-registry.enabled: true` and additional 3rd party charts [docker-registry](https://github.com/helm/charts/tree/master/stable/docker-registry)
 and [kube-registry-proxy](https://github.com/helm/charts/tree/master/incubator/kube-registry-proxy) will be configured.
 
+## Install custom st2 packs in the cluster
+In the kubernetes cluster, the `st2 pack install` command will not work. Instead, you need to bake the packs into a custom
+docker image, and push it to a private or public docker registry. The image will provide `/opt/stackstorm/{packs,virtualenvs}`
+via a sidecar container in pods which need access to the packs.
+
+If you do not already have an appropriate docker registry, we made it very easy to deploy one in your k8s cluster.
+See below for details.
+
+### Build st2packs image
+To build the st2packs image which contains your required packs installed in `/opt/stackstorm/packs` and
+`/opt/stackstorm/virtualenvs`, define the `PACKS` build argument using a space separated list of pack names.
+Set DOCKER_REGISTRY to the docker registry URL. If using the private docker registry in the k8s cluster,
+set `DOCKER_REGISTRY`to `localhost:5000`.
+
+Please see https://hub.docker.com/r/stackstorm/st2packs/ for details on how to build your custom `st2packs` image.
+
+### Push st2packs image to a docker registry
+If you're pushing to a private docker registry in the k8s cluster, you will need to port forward from your local host to the registry. You can use:
+```
+kubectl port-forward $(kubectl get pod -l app=docker-registry -o jsonpath="{.items[0].metadata.name}") 5000:5000
+```
+
+NOTE: If running on MacOS, before deploying the image, open another terminal and execute:
+```
+docker run --privileged --pid=host socat:latest nsenter -t 1 -u -n -i socat TCP-LISTEN:5000,fork TCP:docker.for.mac.localhost:5000
+```
+
+To deploy the image to the registry, execute:
+```
+docker push ${DOCKER_REGISTRY}/st2packs:latest
+```
+
+### How to provide custom pack configs
+Update the `pack.configs` section of `stackstorm-enterprise-ha/values.yaml`:
+
+For example:
+```
+pack
+  configs:
+    email.yaml: |
+      ---
+      # example email pack config file
+
+    vault.yaml: |
+      ---
+      # example vault pack config file
+```
+Don't forget running Helm upgrade to apply new changes.
+
 
 ## Tips & Tricks
 Grab all logs for entire StackStorm cluster with dependent services in Helm release:

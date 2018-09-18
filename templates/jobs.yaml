@@ -34,6 +34,38 @@ spec:
     spec:
       imagePullSecrets:
       - name: {{ .Release.Name }}-st2-license
+      {{ if .Values.st2.packs.image.repository }}
+      initContainers:
+      # Merge packs and virtualenvs from st2actionrunner-enterprise with those from the st2.packs image
+      # Custom packs
+      - name: st2-custom-packs
+        image: "{{ .Values.st2.packs.image.repository }}/{{ .Values.st2.packs.image.name }}:{{ .Values.st2.packs.image.tag }}"
+        imagePullPolicy: {{ .Values.st2.packs.image.pullPolicy | quote }}
+        volumeMounts:
+        - name: st2-packs-vol
+          mountPath: /opt/stackstorm/packs-shared
+        - name: st2-virtualenvs-vol
+          mountPath: /opt/stackstorm/virtualenvs-shared
+        command:
+          - 'sh'
+          - '-ec'
+          - |
+            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
+            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
+      # System packs
+      - name: st2-system-packs
+        image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        volumeMounts:
+        - name: st2-packs-vol
+          mountPath: /opt/stackstorm/packs-shared
+        command:
+          - 'sh'
+          - '-ec'
+          - |
+            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
+            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
+      {{ end }}
       containers:
       - name: st2-register-content
         image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
@@ -54,11 +86,12 @@ spec:
           subPath: st2.user.conf
         - name: st2-pack-configs-vol
           mountPath: /opt/stackstorm/configs/
-        # TODO: Add SidecarContainer for sharing st2 packs + virtualenvs (#27)
-#        - name: st2-packs-vol
-#          mountPath: /opt/stackstorm/packs/
-#        - name: st2-virtualenvs-vol
-#          mountPath: /opt/stackstorm/virtualenvs/
+        {{ if .Values.st2.packs.image.repository }}
+        - name: st2-packs-vol
+          mountPath: /opt/stackstorm/packs/
+        - name: st2-virtualenvs-vol
+          mountPath: /opt/stackstorm/virtualenvs/
+        {{ end }}
         # TODO: Find out default resource limits for this specific service (#25)
         #resources:
       volumes:
@@ -68,8 +101,12 @@ spec:
         - name: st2-pack-configs-vol
           configMap:
             name: {{ .Release.Name }}-st2-pack-configs
-#      - name: st2-packs-vol
-#      - name: st2-virtualenvs-vol
+        {{ if .Values.st2.packs.image.repository }}
+        - name: st2-packs-vol
+          emptyDir: {}
+        - name: st2-virtualenvs-vol
+          emptyDir: {}
+        {{ end }}
       restartPolicy: OnFailure
 
 ---
