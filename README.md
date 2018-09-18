@@ -156,8 +156,7 @@ Set DOCKER_REGISTRY to the docker registry URL. If using the private docker regi
 set `DOCKER_REGISTRY`to `localhost:5000`.
 
 ```
-cd st2packs
-docker build --build-arg PACKS="<pack_names>" -t ${DOCKER_REGISTRY}/st2packs:latest .
+docker build --build-arg PACKS="<pack_names>" -t ${DOCKER_REGISTRY}/st2packs:latest st2packs
 docker push ${DOCKER_REGISTRY}/st2packs:latest
 ```
 
