@@ -18,12 +18,6 @@ st2:
   config: |
     [api]
     allow_origin = '*'
-    # Enable metrics for benchmarking purposes
-    [metrics]
-    prefix = k8s-dev
-    driver = statsd
-    host = 35.162.54.37
-    port = 8125
 
 
   # Custom pack configs and image settings.
