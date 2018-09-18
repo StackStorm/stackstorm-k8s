@@ -64,7 +64,7 @@ Multiple st2auth processes can be behind a load balancer in an active-active con
 Service hosts the REST API endpoints that serve requests from WebUI, CLI, ChatOps and other st2 components.
 K8s configuration consists of Pod Deployment with `2` default replicas for HA and ClusterIP Service accepting HTTP requests on port `9101`.
 Being one of the most important StackStorm services with a lot of logic involved,
-it's recommended to increase number of replicas to distribute the load if you'd plan increased processing environment.
+we recommend you increase the number of replicas if you expect increased load.
 
 ### [st2stream](https://docs.stackstorm.com/reference/ha.html#st2stream)
 StackStorm st2stream - exposes a server-sent event stream, used by the clients like WebUI and ChatOps to receive updates from the st2stream server.
