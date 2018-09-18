@@ -81,7 +81,7 @@ Only single replica is created via K8s Deployment as timersengine can't work in 
 (multiple timers will produce duplicated events) and it relies on K8s failover/reschedule capabilities to address cases of process failure.
 
 ### [st2workflowengine](https://docs.stackstorm.com/reference/ha.html#st2workflowengine)
-st2workflowengine drives the execution of orquesta workflows and actually schedules actions to run. 
+st2workflowengine drives the execution of orquesta workflows and actually schedules actions to run.
 Multiple st2workflowengine processes can run in active-active mode and so `2` K8s Deployment replicas are created.
 All the workflow engine processes will share the load and pick up more work if one or more of the processes become available.
 
@@ -140,7 +140,7 @@ kubectl logs -l release=<release-name>,tier=backend
 # Installing packs in the cluster
 
 In the kubernetes cluster, the `st2 pack install` command will not work. Instead, you need to bake the packs into a custom
-docker image, and push it to a private or public docker registry. The image will provide /opt/stackstorm/{packs,virtualenvs}
+docker image, and push it to a private or public docker registry. The image will provide `/opt/stackstorm/{packs,virtualenvs}`
 via a sidecar container in pods which need access to the packs.
 
 If you do not already have an appropriate docker registry, we made it very easy to deploy one in your k8s cluster.
@@ -150,15 +150,14 @@ See below for details.
 
 ### Build st2packs image
 
-To build the st2packs image which contains your required packs installed in `/opt/stackstorm/packs` and `/opt/stackstorm/virtualenvs`,
-define the `PACKS` build argument using a space separated list of pack names. For example, to install the `email` and `vault`
-packs (in addition to the default system packs), run:
-
-Set DOCKER_REGISTRY to the docker registry URL. If using the private docker registry in the k8s cluster, use `localhost:5000`.
+To build the st2packs image which contains your required packs installed in `/opt/stackstorm/packs` and
+`/opt/stackstorm/virtualenvs`, define the `PACKS` build argument using a space separated list of pack names.
+Set DOCKER_REGISTRY to the docker registry URL. If using the private docker registry in the k8s cluster,
+set `DOCKER_REGISTRY`to `localhost:5000`.
 
 ```
 cd st2packs
-docker build --build-arg PACKS="<pack names>" -t ${DOCKER_REGISTRY}/st2packs:latest .
+docker build --build-arg PACKS="<pack_names>" -t ${DOCKER_REGISTRY}/st2packs:latest .
 docker push ${DOCKER_REGISTRY}/st2packs:latest
 ```
 
@@ -201,3 +200,5 @@ pack
       ---
       # example vault pack config file
 ```
+
+Then run `helm upgrade <release_name>
