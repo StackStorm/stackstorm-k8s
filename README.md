@@ -155,12 +155,7 @@ To build the st2packs image which contains your required packs installed in `/op
 Set DOCKER_REGISTRY to the docker registry URL. If using the private docker registry in the k8s cluster,
 set `DOCKER_REGISTRY`to `localhost:5000`.
 
-```
-docker build --build-arg PACKS="<pack_names>" -t ${DOCKER_REGISTRY}/st2packs:latest st2packs
-docker push ${DOCKER_REGISTRY}/st2packs:latest
-```
-
-Read https://github.com/helm/charts/tree/master/incubator/kube-registry-proxy for more details on how to install this chart.
+Please see https://hub.docker.com/r/stackstorm/st2packs/ for details on how to build your custom `st2packs` image.
 
 ### Push st2packs image to a docker registry
 
