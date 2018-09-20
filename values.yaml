@@ -96,7 +96,7 @@ secrets:
     password: Ch@ngeMe
     # SSH private key for the 'stanley' system user ('system_user.ssh_key_file' in st2.conf)
     # Warning! Replace with your own SSH key!
-    # TODO: For prod/stable consider auto-generating if no key provided
+    # TODO: For prod/stable consider auto-generating if no key provided (#15)
     ssh_key: |-
       -----BEGIN RSA PRIVATE KEY-----
       MIIEowIBAAKCAQEAs73kblN3XfLR6tYsHRHyX/aQKx4amcNjT+E+2ufwqkiINDyA
@@ -128,7 +128,7 @@ secrets:
   st2web:
     # SSL Certificate used for StackStorm Web UI in nginx (HTTPS)
     # Warning! This is dummy auto-generated self-signed SSL cert. Use your own instead!
-    # TODO: For prod/stable consider auto-generating if no cert provided
+    # TODO: For prod/stable consider auto-generating if no cert provided (#15)
     ssl_certificate: |-
       -----BEGIN CERTIFICATE-----
       MIID2zCCAsOgAwIBAgIJANcrpXluUyomMA0GCSqGSIb3DQEBCwUAMIGDMQswCQYD
@@ -155,7 +155,7 @@ secrets:
       -----END CERTIFICATE-----
     # SSL Certificate private key used for StackStorm Web UI in nginx (HTTPS)
     # Warning! This is dummy auto-generated self-signed SSL cert. Use your own instead!
-    # TODO: For prod/stable consider auto-generating if no cert provided
+    # TODO: For prod/stable consider auto-generating if no cert provided (#15)
     ssl_certificate_key: |-
       -----BEGIN PRIVATE KEY-----
       MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDmvZ/zG0pOhkze
