@@ -92,7 +92,7 @@ spec:
         - name: st2-virtualenvs-vol
           mountPath: /opt/stackstorm/virtualenvs/
         {{ end }}
-        # TODO: Find out default resource limits for this specific service (#25)
+        # TODO: Find out default resource limits for this specific service (#5)
         #resources:
       volumes:
         - name: st2-config-vol
@@ -168,7 +168,7 @@ spec:
           mountPath: /opt/stackstorm/rbac/assignments/
         - name: st2-rbac-mappings-vol
           mountPath: /opt/stackstorm/rbac/mappings/
-        # TODO: Find out default resource limits for this specific service (#25)
+        # TODO: Find out default resource limits for this specific service (#5)
         #resources:
       volumes:
         - name: st2-config-vol
