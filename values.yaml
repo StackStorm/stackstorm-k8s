@@ -83,8 +83,8 @@ st2:
 ## StackStorm Enterprise Cluster Secrets. All fields are required!
 ## NB! It's highly recommended to change ALL defaults!
 ##
-# TODO: Move to `secrets.yaml` when it gets implemented in Helm (https://github.com/kubernetes/helm/issues/2196)
-# TODO: Alternatively as part of reorganizing Helm values, consider moving values to existing `st2` and `st2web` sections (?)
+# TODO: Move to `secrets.yaml` when it gets implemented in Helm (https://github.com/kubernetes/helm/issues/2196) ? (#14)
+# TODO: Alternatively as part of reorganizing Helm values, consider moving values to existing `st2` and `st2web` sections ? (#14)
 secrets:
   st2:
     # Required (!) StackStorm Enterprise license key.
