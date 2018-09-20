@@ -280,7 +280,7 @@ st2notifier:
 # It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance. Each sensor node needs to be
 # provided with proper partition information to share work with other sensor nodes so that the same sensor does not run on different nodes.
 st2sensorcontainer:
-  # TODO: Re-work to use single-sensor-per-container mode partitioning instead of running 1 single node of st2sensorcontainer. Proper implementation is now possible with Helm templating (#12)
+  # TODO: Re-work to use single-sensor-per-container mode partitioning instead of running 1 single node of st2sensorcontainer. Proper implementation is now possible with Helm templating (#4)
   # NB! Number of replicas are hardcoded to 1, see above T0D0 about using single-sensor-per-container mode in future as way of Sensor Partitioning.
   # replicas: 1
   # TODO: Find out recommended/default resources for this specific service (#5)
@@ -306,7 +306,7 @@ st2actionrunner:
 st2garbagecollector:
   # Having 1 st2garbagecollector unique replica is enough for periodic task like st2 history garbage collection
   replicas: 1
-  # TODO: Find out recommended/default resources for this specific service (#5) 
+  # TODO: Find out recommended/default resources for this specific service (#5)
   resources: {}
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}

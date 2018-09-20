@@ -711,7 +711,7 @@ spec:
   # It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance. Each sensor node needs to be
   # provided with proper partition information to share work with other sensor nodes so that the same sensor does not run on different nodes.
   # See Partitioning Sensors for information on how to partition sensors.
-  # TODO: Re-work to use single-sensor-per-container mode instead of running 1 node. Proper implementation is possible with Helm templating (#12)
+  # TODO: Re-work to use single-sensor-per-container mode instead of running 1 node. Proper implementation is possible with Helm templating (#4)
   replicas: 1
   template:
     metadata:
