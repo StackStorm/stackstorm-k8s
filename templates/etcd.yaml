@@ -1,7 +1,7 @@
 # Add just a basic single-node etcd coordination instance as PoC
 # Eventually will be replaced by the HA etcd K8s objects (https://github.com/coreos/etcd/blob/master/hack/kubernetes-deploy/etcd.yml)
 # or external Helm chart dependency (https://github.com/kubernetes/charts/tree/master/incubator/etcd)
-# TODO: Use 3rd party Helm Chart + HA (#48)
+# TODO: Use 3rd party Helm Chart + HA (#8)
 ---
 apiVersion: apps/v1
 kind: Deployment

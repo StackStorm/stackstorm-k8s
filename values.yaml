@@ -83,8 +83,8 @@ st2:
 ## StackStorm Enterprise Cluster Secrets. All fields are required!
 ## NB! It's highly recommended to change ALL defaults!
 ##
-# TODO: Move to `secrets.yaml` when it gets implemented in Helm (https://github.com/kubernetes/helm/issues/2196)
-# TODO: Alternatively as part of reorganizing Helm values, consider moving values to existing `st2` and `st2web` sections (?)
+# TODO: Move to `secrets.yaml` when it gets implemented in Helm (https://github.com/kubernetes/helm/issues/2196) ? (#14)
+# TODO: Alternatively as part of reorganizing Helm values, consider moving values to existing `st2` and `st2web` sections ? (#14)
 secrets:
   st2:
     # Required (!) StackStorm Enterprise license key.
@@ -96,7 +96,7 @@ secrets:
     password: Ch@ngeMe
     # SSH private key for the 'stanley' system user ('system_user.ssh_key_file' in st2.conf)
     # Warning! Replace with your own SSH key!
-    # TODO: For prod/stable consider auto-generating if no key provided
+    # TODO: For prod/stable consider auto-generating if no key provided (#15)
     ssh_key: |-
       -----BEGIN RSA PRIVATE KEY-----
       MIIEowIBAAKCAQEAs73kblN3XfLR6tYsHRHyX/aQKx4amcNjT+E+2ufwqkiINDyA
@@ -128,7 +128,7 @@ secrets:
   st2web:
     # SSL Certificate used for StackStorm Web UI in nginx (HTTPS)
     # Warning! This is dummy auto-generated self-signed SSL cert. Use your own instead!
-    # TODO: For prod/stable consider auto-generating if no cert provided
+    # TODO: For prod/stable consider auto-generating if no cert provided (#15)
     ssl_certificate: |-
       -----BEGIN CERTIFICATE-----
       MIID2zCCAsOgAwIBAgIJANcrpXluUyomMA0GCSqGSIb3DQEBCwUAMIGDMQswCQYD
@@ -155,7 +155,7 @@ secrets:
       -----END CERTIFICATE-----
     # SSL Certificate private key used for StackStorm Web UI in nginx (HTTPS)
     # Warning! This is dummy auto-generated self-signed SSL cert. Use your own instead!
-    # TODO: For prod/stable consider auto-generating if no cert provided
+    # TODO: For prod/stable consider auto-generating if no cert provided (#15)
     ssl_certificate_key: |-
       -----BEGIN PRIVATE KEY-----
       MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDmvZ/zG0pOhkze
@@ -201,7 +201,7 @@ st2web:
       cpu: "50m"
     limits:
       memory: "100Mi"
-  # TODO: Add Ingress and/or LoadBalancer setting as a way to expose service to public (#31)
+  # TODO: Add Ingress and/or LoadBalancer setting as a way to expose service to public (#6)
   # ingress:
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
@@ -211,7 +211,7 @@ st2web:
 # Multiple st2auth processes can be behind a load balancer in an active-active configuration.
 st2auth:
   replicas: 2
-  # TODO: Find out recommended/default resources for this specific service (#25)
+  # TODO: Find out recommended/default resources for this specific service (#5)
   resources: {}
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
@@ -221,7 +221,7 @@ st2auth:
 # Multiple st2api process can be behind a load balancer in an active-active configuration.
 st2api:
   replicas: 2
-  # TODO: Find out recommended/default resources for this specific service (#25)
+  # TODO: Find out recommended/default resources for this specific service (#5)
   resources: {}
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
@@ -231,7 +231,7 @@ st2api:
 # Multiple st2stream process can be behind a load balancer in an active-active configuration.
 st2stream:
   replicas: 2
-  # TODO: Find out recommended/default resources for this specific service (#25)
+  # TODO: Find out recommended/default resources for this specific service (#5)
   resources: {}
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
@@ -241,7 +241,7 @@ st2stream:
 # Multiple st2rulesengine processes can run in active-active with only connections to MongoDB and RabbitMQ. All these will share the TriggerInstance load and naturally pick up more work if one or more of the processes becomes unavailable.
 st2rulesengine:
   replicas: 2
-  # TODO: Find out recommended/default resources for this specific service (#25)
+  # TODO: Find out recommended/default resources for this specific service (#5)
   resources: {}
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
@@ -250,7 +250,7 @@ st2rulesengine:
 # https://docs.stackstorm.com/reference/ha.html#st2timersengine
 # Only single replica is created via K8s Deployment as timersengine can't work in active-active mode at the moment and it relies on K8s failover/reschedule capabilities to address cases of process failure.
 st2timersengine:
-  # TODO: Find out recommended/default resources for this specific service (#25)
+  # TODO: Find out recommended/default resources for this specific service (#5)
   resources: {}
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
@@ -260,7 +260,7 @@ st2timersengine:
 # Multiple st2workflowengine processes can run in active-active mode and will share the load and pick up more work if one or more of the processes become available.
 st2workflowengine:
   replicas: 2
-  # TODO: Find out recommended/default resources for this specific service (#25)
+  # TODO: Find out recommended/default resources for this specific service (#5)
   resources: {}
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
@@ -270,7 +270,7 @@ st2workflowengine:
 # st2notifier runs in active-active mode and requires for that coordination backend like Redis or Zookeeper
 st2notifier:
   replicas: 2
-  # TODO: Find out recommended/default resources for this specific service (#25)
+  # TODO: Find out recommended/default resources for this specific service (#5)
   resources: {}
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
@@ -280,10 +280,10 @@ st2notifier:
 # It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance. Each sensor node needs to be
 # provided with proper partition information to share work with other sensor nodes so that the same sensor does not run on different nodes.
 st2sensorcontainer:
-  # TODO: Re-work to use single-sensor-per-container mode partitioning instead of running 1 single node of st2sensorcontainer. Proper implementation is now possible with Helm templating (#12)
+  # TODO: Re-work to use single-sensor-per-container mode partitioning instead of running 1 single node of st2sensorcontainer. Proper implementation is now possible with Helm templating (#4)
   # NB! Number of replicas are hardcoded to 1, see above T0D0 about using single-sensor-per-container mode in future as way of Sensor Partitioning.
   # replicas: 1
-  # TODO: Find out recommended/default resources for this specific service (#25)
+  # TODO: Find out recommended/default resources for this specific service (#5)
   resources: {}
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
@@ -294,7 +294,7 @@ st2sensorcontainer:
 # distributed across runners via RabbitMQ. Adding more st2actionrunner processes increases the ability of StackStorm to execute actions.
 st2actionrunner:
   replicas: 5
-  # TODO: Find out recommended/default resources for this specific service (#25)
+  # TODO: Find out recommended/default resources for this specific service (#5)
   resources: {}
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
@@ -306,7 +306,7 @@ st2actionrunner:
 st2garbagecollector:
   # Having 1 st2garbagecollector unique replica is enough for periodic task like st2 history garbage collection
   replicas: 1
-  # TODO: Find out recommended/default resources for this specific service (#25)
+  # TODO: Find out recommended/default resources for this specific service (#5)
   resources: {}
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
@@ -333,8 +333,7 @@ mongodb-ha:
 ##
 rabbitmq-ha:
   rabbitmqUsername: admin
-  # TODO: Use default random 24 character password, but need to fetch this string for use by
-  # downstream services.
+  # TODO: Use default random 24 character password, but need to fetch this string for use by downstream services
   rabbitmqPassword: 9jS+w1u07NbHtZke1m+jW4Cj
   persistentVolume:
     enabled: true

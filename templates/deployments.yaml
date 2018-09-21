@@ -65,7 +65,7 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 9100
-        # TODO: Add liveness/readiness probes (#5)
+        # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
         envFrom:
@@ -181,7 +181,7 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 9101
-        # TODO: Add liveness/readiness probes (#5)
+        # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
         envFrom:
@@ -270,7 +270,7 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 9102
-        # TODO: Add liveness/readiness probes (#5)
+        # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
         envFrom:
@@ -436,7 +436,7 @@ spec:
       - name: st2rulesengine-enterprise
         image: "{{ .Values.image.repository }}/st2rulesengine-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        # TODO: Add liveness/readiness probes (#5)
+        # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
         envFrom:
@@ -510,7 +510,7 @@ spec:
       - name: st2timersengine-enterprise
         image: "{{ .Values.image.repository }}/st2timersengine-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        # TODO: Add liveness/readiness probes (#5)
+        # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
         envFrom:
@@ -583,7 +583,7 @@ spec:
       - name: st2workflowengine-enterprise
         image: "{{ .Values.image.repository }}/st2workflowengine-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        # TODO: Add liveness/readiness probes (#5)
+        # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
         envFrom:
@@ -656,7 +656,7 @@ spec:
       - name: st2notifier-enterprise
         image: "{{ .Values.image.repository }}/st2notifier-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        # TODO: Add liveness/readiness probes (#5)
+        # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
         envFrom:
@@ -711,7 +711,7 @@ spec:
   # It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance. Each sensor node needs to be
   # provided with proper partition information to share work with other sensor nodes so that the same sensor does not run on different nodes.
   # See Partitioning Sensors for information on how to partition sensors.
-  # TODO: Re-work to use single-sensor-per-container mode instead of running 1 node. Proper implementation is possible with Helm templating (#12)
+  # TODO: Re-work to use single-sensor-per-container mode instead of running 1 node. Proper implementation is possible with Helm templating (#4)
   replicas: 1
   template:
     metadata:
@@ -764,7 +764,7 @@ spec:
       - name: st2sensorcontainer-enterprise
         image: "{{ .Values.image.repository }}/st2sensorcontainer-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        # TODO: Add liveness/readiness probes (#5)
+        # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
         envFrom:
@@ -885,7 +885,7 @@ spec:
       - name: st2actionrunner-enterprise
         image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        # TODO: Add liveness/readiness probes (#5)
+        # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
         envFrom:
@@ -983,7 +983,7 @@ spec:
       - name: st2garbagecollector-enterprise
         image: "{{ .Values.image.repository }}/st2garbagecollector-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        # TODO: Add liveness/readiness probes (#5)
+        # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
         envFrom:
