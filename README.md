@@ -2,6 +2,8 @@
 K8s Helm repository index for `stackstorm-enterprise-ha` chart that codifies StackStorm Enterprise
 High Availability fleet as a simple to use reproducible infrastructure-as-code app.
 
+Source code, issues, feature requests: [github.com/StackStorm/stackstorm-enterprise-ha](https://github.com/StackStorm/stackstorm-enterprise-ha)
+
 ## Usage
 ```
 helm repo add stackstorm https://helm.stackstorm.com/
