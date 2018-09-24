@@ -7,8 +7,8 @@
 image:
   # StackStorm Enterprise private Docker Registry used to pull images
   repository: docker.stackstorm.com
-  # Image pull policy. Change to "IfNotPresent" when switching to stable images
-  pullPolicy: Always
+  # Image pull policy. Recommended "IfNotPresent" when switching to stable images, "Always" for dev st2 version.
+  pullPolicy: IfNotPresent
 
 ##
 ## StackStorm shared variables
