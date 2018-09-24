@@ -14,21 +14,12 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-  # TODO: Bundle Docker-friendly defaults like 'host = 0.0.0.0' in original st2.conf during the Docker container build (?)
   # TODO: Bundle DB/MQ login secrets in dynamic ENV-based st2.secrets.conf, leave custom user-defined settings for st2.user.conf (?)
   # Docker/K8s-based st2 config file used for templating service names and common overrides on top of original st2.conf.
   # The order of merging: st2.conf < st2.docker.conf < st2.user.conf
   st2.docker.conf: |
     [auth]
-    enable = True
-    host = 0.0.0.0
     api_url = http://{{ .Release.Name }}-st2api-enterprise:9101/
-    [api]
-    host = 0.0.0.0
-    [stream]
-    host = 0.0.0.0
-    [rbac]
-    enable = True
     [coordination]
     url = etcd://{{ .Release.Name }}-etcd:2379
     [messaging]
