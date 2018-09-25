@@ -3,7 +3,32 @@ entries:
   stackstorm-enterprise-ha:
   - apiVersion: v1
     appVersion: 2.9dev
-    created: 2018-09-21T20:46:20.222054645+01:00
+    created: 2018-09-25T15:02:48.767519354+01:00
+    description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm
+      in HA environment.
+    digest: fc30297ab3fcefd267cf2e5578cd29433d2888a507e3750190a729735c89282b
+    home: https://stackstorm.com/#product
+    icon: https://avatars1.githubusercontent.com/u/4969009
+    keywords:
+    - st2
+    - stackstorm
+    - devops
+    - event-driven
+    - auto-remediation
+    - IFTTT
+    - ha
+    maintainers:
+    - name: Eugen C.
+      url: https://github.com/armab
+    - name: Warren Van Winckel
+      url: https://github.com/warrenvw
+    name: stackstorm-enterprise-ha
+    urls:
+    - https://helm.stackstorm.com/stackstorm-enterprise-ha-0.5.1.tgz
+    version: 0.5.1
+  - apiVersion: v1
+    appVersion: 2.9dev
+    created: 2018-09-25T15:02:48.76453795+01:00
     description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm
       in HA environment.
     digest: 2db68cc6a37a7f7edab6bd509e074944388f41feb263ad49b84df92e2eeb6fdf
@@ -28,7 +53,7 @@ entries:
     version: 0.5.0
   - apiVersion: v1
     appVersion: 2.9dev
-    created: 2018-09-21T20:46:20.219655595+01:00
+    created: 2018-09-25T15:02:48.762013804+01:00
     description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm
       in HA environment.
     digest: 5bc94454bb1d7bb295898cd8f87f924a750ec5bf7f7e289d9fc62fd1e9bb2b38
@@ -53,7 +78,7 @@ entries:
     version: 0.4.0
   - apiVersion: v1
     appVersion: 2.9dev
-    created: 2018-09-21T20:46:20.216204381+01:00
+    created: 2018-09-25T15:02:48.758822231+01:00
     description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm
       in HA environment.
     digest: 35250d1c02950e42f693a575058132ae2fa5eb8bd7aa4a03cdb78f6f671cb5fc
@@ -78,7 +103,7 @@ entries:
     version: 0.3.1
   - apiVersion: v1
     appVersion: 2.9dev
-    created: 2018-09-21T20:46:20.213795054+01:00
+    created: 2018-09-25T15:02:48.756341535+01:00
     description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm
       in HA environment.
     digest: a7bab346c6d34f3acf17d097aca8c2458f7bc5d1ae76e365721e3254ed9623d0
@@ -103,7 +128,7 @@ entries:
     version: 0.3.0
   - apiVersion: v1
     appVersion: 2.9dev
-    created: 2018-09-21T20:46:20.211416241+01:00
+    created: 2018-09-25T15:02:48.75402727+01:00
     description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm
       in HA environment.
     digest: aef78255b623932c6d5b711cd1388002a7cbbfb0c853a8b11a306468bb4ab241
@@ -126,4 +151,4 @@ entries:
     urls:
     - https://helm.stackstorm.com/stackstorm-enterprise-ha-0.2.0.tgz
     version: 0.2.0
-generated: 2018-09-21T20:46:20.208575461+01:00
+generated: 2018-09-25T15:02:48.751527101+01:00
