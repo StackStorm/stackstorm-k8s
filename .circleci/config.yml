@@ -1,0 +1,24 @@
+version: 2
+jobs:
+  # Run Helm Lint checks
+  helm-lint:
+    working_directory: ~/helm
+    docker:
+      - image: lachlanevenson/k8s-helm
+    steps:
+      - checkout
+      - run:
+          name: Helm Lint Check
+          command: helm lint --set secrets.st2.license="123asd456fake"
+
+workflows:
+  version: 2
+  k8s:
+    jobs:
+      - helm-lint
+
+experimental:
+  notify:
+    branches:
+      only:
+        - master
