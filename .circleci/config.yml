@@ -32,12 +32,12 @@ jobs:
 
 workflows:
   version: 2
-  k8s:
+  helm:
     jobs:
       - helm-lint
       - k8s-lint:
-        requires:
-          - helm-lint
+          requires:
+            - helm-lint
 
 experimental:
   notify:
