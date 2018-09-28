@@ -50,4 +50,6 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
+{{- if .Values.st2.rbac.mappings }}
 {{ toYaml .Values.st2.rbac.mappings | indent 2 }}
+{{ end }}
