@@ -12,7 +12,9 @@ jobs:
           command: helm lint --set secrets.st2.license="123asd456fake"
       - run:
           name: Helm template
-          command: helm template --set secrets.st2.license="123asd456fake" . > k8s.yaml
+          command: |
+            helm dependency update
+            helm template --set secrets.st2.license="123asd456fake" . > k8s.yaml
       - persist_to_workspace:
           root: ~/stackstorm-enterprise-ha
           paths:
