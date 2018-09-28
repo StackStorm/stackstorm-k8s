@@ -10,6 +10,7 @@ jobs:
       - run:
           name: Prepare Helm
           command: |
+            set -x
             helm init --client-only
             helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
             helm dependency update
@@ -18,11 +19,13 @@ jobs:
           command: helm lint --set secrets.st2.license="123asd456fake"
       - run:
           name: Helm template
-          command: helm template --set secrets.st2.license="123asd456fake" . > k8s.yaml
+          command: |
+            mkdir -p generated
+            helm template --set secrets.st2.license="123asd456fake" --output-dir generated .
       - persist_to_workspace:
           root: ~/stackstorm-enterprise-ha
           paths:
-            - k8s.yaml
+            - generated
 
   # Run Kubernetes lint checks
   k8s-lint:
@@ -33,7 +36,7 @@ jobs:
           at: .
       - run:
           name: K8s Kubeval Lint Check
-          command: cat k8s.yaml | kubeval
+          command: kubeval $(find . -type f)
 
 workflows:
   version: 2
