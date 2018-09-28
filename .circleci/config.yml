@@ -19,13 +19,11 @@ jobs:
           command: helm lint --set secrets.st2.license="123asd456fake"
       - run:
           name: Helm template
-          command: |
-            mkdir -p generated
-            helm template --set secrets.st2.license="123asd456fake" --output-dir generated .
+          command: helm template --output-dir . --set secrets.st2.license="123asd456fake" .
       - persist_to_workspace:
           root: ~/stackstorm-enterprise-ha
           paths:
-            - generated
+            - stackstorm-enterprise-ha
 
   # Run Kubernetes lint checks
   k8s-lint:
