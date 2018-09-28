@@ -10,12 +10,34 @@ jobs:
       - run:
           name: Helm Lint Check
           command: helm lint --set secrets.st2.license="123asd456fake"
+      - run:
+          name: Helm template
+          command: helm template --set secrets.st2.license="123asd456fake" . > k8s.yaml
+      - persist_to_workspace:
+          root: ~/helm
+          paths:
+            - k8s.yaml
+
+  # Run Kubernetes lint checks
+  k8s-lint:
+    working_directory: ~/k8s
+    docker:
+      - image: garethr/kubeval
+    steps:
+      - attach_workspace:
+          at: ~/k8s
+      - run:
+          name: K8s Kubeval Lint Check
+          command: cat k8s.yaml | kubeval
 
 workflows:
   version: 2
   k8s:
     jobs:
       - helm-lint
+      - k8s-lint:
+        requires:
+          - helm-lint
 
 experimental:
   notify:
