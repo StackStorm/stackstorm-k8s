@@ -26,6 +26,7 @@ jobs:
             - templates
             # TODO: Fill an issue in https://github.com/garethr/kubeval
             # 'charts' contains 3rd party templates which doesn't validate against schema due to minor 'object != null' API validation issues
+            # See: https://circleci.com/gh/StackStorm/stackstorm-enterprise-ha/18
             #- charts
 
   # Run Kubernetes lint checks
