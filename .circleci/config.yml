@@ -23,7 +23,10 @@ jobs:
       - persist_to_workspace:
           root: ~/stackstorm-enterprise-ha/stackstorm-enterprise-ha
           paths:
-            - .
+            - templates
+            # TODO: Fill an issue in https://github.com/garethr/kubeval
+            # 'charts' contains 3rd party templates which doesn't validate against schema due to minor 'object != null' API validation issues
+            #- charts
 
   # Run Kubernetes lint checks
   k8s-lint:
