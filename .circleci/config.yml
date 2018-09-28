@@ -2,6 +2,7 @@ version: 2
 jobs:
   # Run Helm Lint checks
   helm-lint:
+    working_directory: ~/stackstorm-enterprise-ha
     docker:
       - image: lachlanevenson/k8s-helm
     steps:
@@ -13,7 +14,7 @@ jobs:
           name: Helm template
           command: helm template --set secrets.st2.license="123asd456fake" . > k8s.yaml
       - persist_to_workspace:
-          root: .
+          root: ~/stackstorm-enterprise-ha
           paths:
             - k8s.yaml
 
