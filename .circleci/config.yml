@@ -1,0 +1,56 @@
+version: 2
+jobs:
+  # Run Helm Lint checks
+  helm-lint:
+    working_directory: ~/stackstorm-enterprise-ha
+    docker:
+      - image: lachlanevenson/k8s-helm
+    steps:
+      - checkout
+      - run:
+          name: Prepare Helm
+          command: |
+            set -x
+            helm init --client-only
+            helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
+            helm dependency update
+      - run:
+          name: Helm Lint Check
+          command: helm lint --set secrets.st2.license="123asd456fake"
+      - run:
+          name: Helm template
+          command: helm template --output-dir . --set secrets.st2.license="123asd456fake" .
+      - persist_to_workspace:
+          root: ~/stackstorm-enterprise-ha/stackstorm-enterprise-ha
+          paths:
+            - templates
+            # TODO: Fill an issue in https://github.com/garethr/kubeval
+            # 'charts' contains 3rd party templates which doesn't validate against schema due to minor 'object != null' API validation issues
+            # See: https://circleci.com/gh/StackStorm/stackstorm-enterprise-ha/18
+            #- charts
+
+  # Run Kubernetes lint checks
+  k8s-lint:
+    docker:
+      - image: garethr/kubeval
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: K8s Kubeval Lint Check
+          command: kubeval $(find . -type f)
+
+workflows:
+  version: 2
+  helm:
+    jobs:
+      - helm-lint
+      - k8s-lint:
+          requires:
+            - helm-lint
+
+experimental:
+  notify:
+    branches:
+      only:
+        - master

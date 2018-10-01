@@ -1,4 +1,6 @@
 # `stackstorm-enterprise-ha` Helm Chart
+[![Build Status](https://circleci.com/gh/StackStorm/stackstorm-enterprise-ha/tree/master.svg?style=shield)](https://circleci.com/gh/StackStorm/stackstorm-enterprise-ha) 
+
 StackStorm Enterprise K8s Helm Chart for running StackStorm Enterprise cluster in HA mode.
 
 It will install 2 replicas for each component of StackStorm microservices for redundancy, as well as backends like
