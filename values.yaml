@@ -11,6 +11,16 @@ image:
   pullPolicy: Always
 
 ##
+## StackStorm Enterprise settings.
+##
+enterprise:
+  # Enable/Disable StackStorm Enterprise. Disabling enterprise will download StackStorm community Docker images.
+  enabled: true
+  # Required StackStorm Enterprise license key.
+  # Don't have one? Obtain 90-day free trial at https://stackstorm.com/#product
+  license: ""
+
+##
 ## StackStorm shared variables
 ##
 st2:
@@ -86,9 +96,6 @@ st2:
 # TODO: Alternatively as part of reorganizing Helm values, consider moving values to existing `st2` and `st2web` sections ? (#14)
 secrets:
   st2:
-    # Required (!) StackStorm Enterprise license key.
-    # Don't have one? Obtain 90-day free trial at https://stackstorm.com/#product
-    license: ""
     # Username, used to login to StackStorm system
     username: st2admin
     # Password, used to login to StackStorm system

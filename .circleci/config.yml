@@ -16,10 +16,10 @@ jobs:
             helm dependency update
       - run:
           name: Helm Lint Check
-          command: helm lint --set secrets.st2.license="123asd456fake"
+          command: helm lint --set enterprise.license="123asd456fake"
       - run:
           name: Helm template
-          command: helm template --output-dir . --set secrets.st2.license="123asd456fake" .
+          command: helm template --output-dir . --set enterprise.license="123asd456fake" .
       - persist_to_workspace:
           root: ~/stackstorm-enterprise-ha/stackstorm-enterprise-ha
           paths:

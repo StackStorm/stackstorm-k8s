@@ -24,7 +24,7 @@ helm dependency update
 
 3) Install the chart:
 ```
-helm install --set secrets.st2.license=<ST2_LICENSE_KEY> .
+helm install --set enterprise.license=<ST2_LICENSE_KEY> .
 ```
 
 > Don't have StackStorm Enterprise License?<br>
