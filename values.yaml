@@ -20,40 +20,6 @@ enterprise:
   # Don't have one? Obtain 90-day free trial at https://stackstorm.com/#product
   license: ""
 
-##
-## StackStorm shared variables
-##
-st2:
-  # Custom StackStorm config (st2.user.conf) which will apply settings on top of default st2.conf
-  config: |
-    [api]
-    allow_origin = '*'
-
-
-  # Custom pack configs and image settings.
-  #
-  # By default, system packs are available. However, since 'st2 pack install' cannot be run in the k8s cluster,
-  # you will need to bake additional packs into an 'st2packs' image. Please see stackstorm-enterprise-ha/README.md
-  # for details on how to build this image.
-  packs:
-    # Custom StackStorm pack configs. Each record creates a file in '/opt/stackstorm/configs/'
-    # https://docs.stackstorm.com/reference/pack_configs.html#configuration-file
-    configs:
-      core.yaml: |
-        ---
-        # example core pack config yaml
-
-    # Custom packs image settings. The repository, name, tag and pullPolicy for this image
-    # are specified below.
-    image:
-      # If you wish to use a docker registry running in the k8s cluster, set docker-registry.enabled to true.
-      # Uncomment the following line to make the custom packs image available to the necessary pods.
-
-      # repository: localhost:5000
-      name: st2packs
-      tag: latest
-      pullPolicy: Always
-
   # StackStorm Role Based Access Control settings (https://docs.stackstorm.com/rbac.html)
   rbac:
     # Custom StackStorm RBAC roles, shipped in '/opt/stackstorm/rbac/roles/'
@@ -88,6 +54,40 @@ st2:
       #  description: "Automatically grant admin role to all stormers group members."
       #  roles:
       #    - "admin"
+
+##
+## StackStorm shared variables
+##
+st2:
+  # Custom StackStorm config (st2.user.conf) which will apply settings on top of default st2.conf
+  config: |
+    [api]
+    allow_origin = '*'
+
+  # Custom pack configs and image settings.
+  #
+  # By default, system packs are available. However, since 'st2 pack install' cannot be run in the k8s cluster,
+  # you will need to bake additional packs into an 'st2packs' image. Please see stackstorm-enterprise-ha/README.md
+  # for details on how to build this image.
+  packs:
+    # Custom StackStorm pack configs. Each record creates a file in '/opt/stackstorm/configs/'
+    # https://docs.stackstorm.com/reference/pack_configs.html#configuration-file
+    configs:
+      core.yaml: |
+        ---
+        # example core pack config yaml
+
+    # Custom packs image settings. The repository, name, tag and pullPolicy for this image
+    # are specified below.
+    image:
+      # If you wish to use a docker registry running in the k8s cluster, set docker-registry.enabled to true.
+      # Uncomment the following line to make the custom packs image available to the necessary pods.
+
+      # repository: localhost:5000
+      name: st2packs
+      tag: latest
+      pullPolicy: Always
+
 ##
 ## StackStorm Enterprise Cluster Secrets. All fields are required!
 ## NB! It's highly recommended to change ALL defaults!

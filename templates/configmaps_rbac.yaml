@@ -14,7 +14,7 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-{{ toYaml .Values.st2.rbac.roles | indent 2 }}
+{{ toYaml .Values.enterprise.rbac.roles | indent 2 }}
 
 ---
 apiVersion: v1
@@ -32,7 +32,7 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-{{ toYaml .Values.st2.rbac.assignments | indent 2 }}
+{{ toYaml .Values.enterprise.rbac.assignments | indent 2 }}
 
 ---
 apiVersion: v1
@@ -50,8 +50,8 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-{{- if .Values.st2.rbac.mappings }}
-{{ toYaml .Values.st2.rbac.mappings | indent 2 }}
+{{- if .Values.enterprise.rbac.mappings }}
+{{ toYaml .Values.enterprise.rbac.mappings | indent 2 }}
 {{ else }}
   {}
 {{ end }}
