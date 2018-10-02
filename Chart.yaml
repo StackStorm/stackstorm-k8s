@@ -1,13 +1,13 @@
 apiVersion: v1
-# Update StackStorm Enterprise version here to rely on other Docker images tags
+# Update StackStorm version here to rely on other Docker images tags
 appVersion: 2.9dev
-name: stackstorm-enterprise-ha
+name: stackstorm-ha
 version: 0.6.0
-description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm in HA environment.
+description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA environment.
 home: https://stackstorm.com/#product
 icon: https://avatars1.githubusercontent.com/u/4969009
 source:
-  - https://github.com/stackstorm/k8s-st2
+  - https://github.com/stackstorm/stackstorm-ha
 keywords:
   - st2
   - stackstorm
@@ -22,6 +22,5 @@ maintainers:
   - name: Warren Van Winckel
     url: https://github.com/warrenvw
 details:
-  This Helm chart is a fully installable app that codifies StackStorm Enterprise optimized for HA and K8s environment.
-  You'll need to obtain StackStorm Enterprise license to install this chart. The 90-day trial can be requested at (https://stackstorm.com/#product).
+  This Helm chart is a fully installable app that codifies StackStorm cluster optimized for HA and K8s environment.
   For configuration details check 'values.yaml'.
