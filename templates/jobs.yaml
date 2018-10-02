@@ -32,9 +32,11 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") . | sha256sum }}
     spec:
+      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
       - name: {{ .Release.Name }}-st2-license
-      {{ if .Values.st2.packs.image.repository }}
+      {{- end }}
+      {{- if .Values.st2.packs.image.repository }}
       initContainers:
       # Merge packs and virtualenvs from st2actionrunner-enterprise with those from the st2.packs image
       # Custom packs
@@ -86,12 +88,12 @@ spec:
           subPath: st2.user.conf
         - name: st2-pack-configs-vol
           mountPath: /opt/stackstorm/configs/
-        {{ if .Values.st2.packs.image.repository }}
+        {{- if .Values.st2.packs.image.repository }}
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs/
         - name: st2-virtualenvs-vol
           mountPath: /opt/stackstorm/virtualenvs/
-        {{ end }}
+        {{- end }}
         # TODO: Find out default resource limits for this specific service (#5)
         #resources:
       volumes:
@@ -101,14 +103,15 @@ spec:
         - name: st2-pack-configs-vol
           configMap:
             name: {{ .Release.Name }}-st2-pack-configs
-        {{ if .Values.st2.packs.image.repository }}
+        {{- if .Values.st2.packs.image.repository }}
         - name: st2-packs-vol
           emptyDir: {}
         - name: st2-virtualenvs-vol
           emptyDir: {}
-        {{ end }}
+        {{- end }}
       restartPolicy: OnFailure
 
+{{ if .Values.enterprise.enabled }}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -184,3 +187,4 @@ spec:
           configMap:
             name: {{ .Release.Name }}-st2-rbac-mappings
       restartPolicy: OnFailure
+{{ end }}
