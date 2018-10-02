@@ -9,14 +9,14 @@ metadata:
     app: st2auth
     tier: backend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
   selector:
     app: st2auth
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     release: {{ .Release.Name }}
   type: ClusterIP
   ports:
@@ -34,14 +34,14 @@ metadata:
     app: st2api
     tier: backend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
   selector:
     app: st2api
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     release: {{ .Release.Name }}
   type: ClusterIP
   ports:
@@ -59,14 +59,14 @@ metadata:
     app: st2stream
     tier: backend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
   selector:
     app: st2stream
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     release: {{ .Release.Name }}
   type: ClusterIP
   ports:
@@ -84,14 +84,14 @@ metadata:
     app: st2web
     tier: frontend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
   selector:
     app: st2web
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     release: {{ .Release.Name }}
   # TODO: Consider to template it, if needed
   type: NodePort

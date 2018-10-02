@@ -7,7 +7,7 @@ metadata:
     app: st2auth
     tier: backend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -15,7 +15,7 @@ spec:
   selector:
     matchLabels:
       app: st2auth
-      support: enterprise
+      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2auth
   # Multiple st2auth processes can be behind a load balancer in an active-active configuration.
@@ -26,7 +26,7 @@ spec:
         app: st2auth
         tier: backend
         vendor: stackstorm
-        support: enterprise
+        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -115,7 +115,7 @@ metadata:
     app: st2api
     tier: backend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -123,7 +123,7 @@ spec:
   selector:
     matchLabels:
       app: st2api
-      support: enterprise
+      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2api
   # Multiple st2api process can be behind a load balancer in an active-active configuration.
@@ -134,7 +134,7 @@ spec:
         app: st2api
         tier: backend
         vendor: stackstorm
-        support: enterprise
+        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -240,7 +240,7 @@ metadata:
     app: st2stream
     tier: backend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -248,7 +248,7 @@ spec:
   selector:
     matchLabels:
       app: st2stream
-      support: enterprise
+      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2stream
   # Multiple st2stream process can be behind a load balancer in an active-active configuration.
@@ -259,7 +259,7 @@ spec:
         app: st2stream
         tier: backend
         vendor: stackstorm
-        support: enterprise
+        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -317,7 +317,7 @@ metadata:
     app: st2web
     tier: frontend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -325,7 +325,7 @@ spec:
   selector:
     matchLabels:
       app: st2web
-      support: enterprise
+      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   replicas: {{ default 2 .Values.st2web.replicas }}
   template:
@@ -334,7 +334,7 @@ spec:
         app: st2web
         tier: frontend
         vendor: stackstorm
-        support: enterprise
+        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -412,7 +412,7 @@ metadata:
     app: st2rulesengine
     tier: backend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -420,7 +420,7 @@ spec:
   selector:
     matchLabels:
       app: st2rulesengine
-      support: enterprise
+      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2rulesengine
   # Multiple st2rulesengine processes can run in active-active with only connections to MongoDB and RabbitMQ. All these will share the TriggerInstance load and naturally pick up more work if one or more of the processes becomes unavailable.
@@ -431,7 +431,7 @@ spec:
         app: st2rulesengine
         tier: backend
         vendor: stackstorm
-        support: enterprise
+        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -487,7 +487,7 @@ metadata:
     app: st2timersengine
     tier: backend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -495,7 +495,7 @@ spec:
   selector:
     matchLabels:
       app: st2timersengine
-      support: enterprise
+      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2timersengine
   # Only single replica is created as timersengine can't work in active-active mode at the moment and it relies on
@@ -507,7 +507,7 @@ spec:
         app: st2timersengine
         tier: backend
         vendor: stackstorm
-        support: enterprise
+        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -563,7 +563,7 @@ metadata:
     app: st2workflowengine
     tier: backend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -571,7 +571,7 @@ spec:
   selector:
     matchLabels:
       app: st2workflowengine
-      support: enterprise
+      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2workflowengine
   # Multiple st2workflowengine processes can run in active-active mode and will share the load and pick up more work if one or more of the processes become available.
@@ -582,7 +582,7 @@ spec:
         app: st2workflowengine
         tier: backend
         vendor: stackstorm
-        support: enterprise
+        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -638,7 +638,7 @@ metadata:
     app: st2notifier
     tier: backend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -646,7 +646,7 @@ spec:
   selector:
     matchLabels:
       app: st2notifier
-      support: enterprise
+      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2notifier
   # st2notifier runs in active-active mode and requires for that coordination backend like Redis or Zookeeper
@@ -657,7 +657,7 @@ spec:
         app: st2notifier
         tier: backend
         vendor: stackstorm
-        support: enterprise
+        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -713,7 +713,7 @@ metadata:
     app: st2sensorcontainer
     tier: backend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -721,7 +721,7 @@ spec:
   selector:
     matchLabels:
       app: st2sensorcontainer
-      support: enterprise
+      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
   # It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance. Each sensor node needs to be
@@ -735,7 +735,7 @@ spec:
         app: st2sensorcontainer
         tier: backend
         vendor: stackstorm
-        support: enterprise
+        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -837,7 +837,7 @@ metadata:
     app: st2actionrunner
     tier: backend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -845,7 +845,7 @@ spec:
   selector:
     matchLabels:
       app: st2actionrunner
-      support: enterprise
+      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2actionrunner
   # Multiple st2actionrunner processes can run in active-active with only connections to MongoDB and RabbitMQ. Work gets naturally
@@ -857,7 +857,7 @@ spec:
         app: st2actionrunner
         tier: backend
         vendor: stackstorm
-        support: enterprise
+        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -971,7 +971,7 @@ metadata:
     app: st2garbagecollector
     tier: backend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -979,7 +979,7 @@ spec:
   selector:
     matchLabels:
       app: st2garbagecollector
-      support: enterprise
+      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2garbagecollector
   # Having 1 st2garbagecollector unique replica is enough for periodic task like st2 history garbage collection
@@ -990,7 +990,7 @@ spec:
         app: st2garbagecollector
         tier: backend
         vendor: stackstorm
-        support: enterprise
+        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -1046,7 +1046,7 @@ metadata:
     app: st2client
     tier: backend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -1054,7 +1054,7 @@ spec:
   selector:
     matchLabels:
       app: st2client
-      support: enterprise
+      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   replicas: 1
   template:
@@ -1063,7 +1063,7 @@ spec:
         app: st2client
         tier: backend
         vendor: stackstorm
-        support: enterprise
+        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
