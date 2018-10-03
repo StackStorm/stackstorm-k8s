@@ -2,7 +2,7 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: {{ .Release.Name }}-st2auth-enterprise
+  name: {{ .Release.Name }}-st2auth{{ template "enterpriseSuffix" . }}
   annotations:
     description: StackStorm st2auth - all authentication is managed by this service.
   labels:
@@ -27,7 +27,7 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: {{ .Release.Name }}-st2api-enterprise
+  name: {{ .Release.Name }}-st2api{{ template "enterpriseSuffix" . }}
   annotations:
     description: StackStorm st2api - service hosts the REST API endpoints that serve requests from WebUI, CLI, ChatOps and other st2 services.
   labels:
@@ -52,7 +52,7 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: {{ .Release.Name }}-st2stream-enterprise
+  name: {{ .Release.Name }}-st2stream{{ template "enterpriseSuffix" . }}
   annotations:
     description: StackStorm st2stream - exposes a server-sent event stream, used by the clients like WebUI and ChatOps to receive update from the st2stream server.
   labels:
@@ -77,7 +77,7 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: {{ .Release.Name }}-st2web-enterprise
+  name: {{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }}
   annotations:
     description: StackStorm st2web, - an admin Web UI and main entry point for external API requests
   labels:

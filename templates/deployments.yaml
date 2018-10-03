@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2auth-enterprise
+  name: {{ .Release.Name }}-st2auth{{ template "enterpriseSuffix" . }}
   labels:
     app: st2auth
     tier: backend
@@ -41,7 +41,7 @@ spec:
       # Sidecar container for generating .htpasswd with st2 username & password pair and sharing produced file with the main st2auth container
       initContainers:
       - name: generate-htpasswd
-        image: "{{ template "imageRepository" . }}/st2auth-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2auth{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         env:
         - name: ST2_AUTH_USERNAME
@@ -62,8 +62,8 @@ spec:
           - '-ec'
           - printf "${ST2_AUTH_USERNAME}:$(openssl passwd -apr1 "${ST2_AUTH_PASSWORD}")\n" > /tmp/st2/htpasswd
       containers:
-      - name: st2auth-enterprise
-        image: "{{ template "imageRepository" . }}/st2auth-enterprise:{{ .Chart.AppVersion }}"
+      - name: st2auth{{ template "enterpriseSuffix" . }}
+        image: "{{ template "imageRepository" . }}/st2auth{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 9100
@@ -110,7 +110,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2api-enterprise
+  name: {{ .Release.Name }}-st2api{{ template "enterpriseSuffix" . }}
   labels:
     app: st2api
     tier: backend
@@ -147,7 +147,7 @@ spec:
       {{- end }}
       {{- if .Values.st2.packs.image.repository }}
       initContainers:
-      # Merge packs and virtualenvs from st2api-enterprise with those from the st2.packs image
+      # Merge packs and virtualenvs from st2api with those from the st2.packs image
       # Custom packs
       - name: st2-custom-packs
         image: "{{ .Values.st2.packs.image.repository }}/{{ .Values.st2.packs.image.name }}:{{ .Values.st2.packs.image.tag }}"
@@ -165,7 +165,7 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
-        image: "{{ template "imageRepository" . }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         volumeMounts:
         - name: st2-packs-vol
@@ -180,8 +180,8 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       {{- end }}
       containers:
-      - name: st2api-enterprise
-        image: "{{ template "imageRepository" . }}/st2api-enterprise:{{ .Chart.AppVersion }}"
+      - name: st2api{{ template "enterpriseSuffix" . }}
+        image: "{{ template "imageRepository" . }}/st2api{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 9101
@@ -235,7 +235,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2stream-enterprise
+  name: {{ .Release.Name }}-st2stream{{ template "enterpriseSuffix" . }}
   labels:
     app: st2stream
     tier: backend
@@ -271,8 +271,8 @@ spec:
       - name: {{ .Release.Name }}-st2-license
       {{- end }}
       containers:
-      - name: st2stream-enterprise
-        image: "{{ template "imageRepository" . }}/st2stream-enterprise:{{ .Chart.AppVersion }}"
+      - name: st2stream{{ template "enterpriseSuffix" . }}
+        image: "{{ template "imageRepository" . }}/st2stream{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 9102
@@ -312,7 +312,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2web-enterprise
+  name: {{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }}
   labels:
     app: st2web
     tier: frontend
@@ -344,8 +344,8 @@ spec:
       - name: {{ .Release.Name }}-st2-license
       {{- end }}
       containers:
-      - name: st2web-enterprise
-        image: "{{ template "imageRepository" . }}/st2web-enterprise:{{ .Chart.AppVersion }}"
+      - name: st2web{{ template "enterpriseSuffix" . }}
+        image: "{{ template "imageRepository" . }}/st2web{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 443
@@ -407,7 +407,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2rulesengine-enterprise
+  name: {{ .Release.Name }}-st2rulesengine{{ template "enterpriseSuffix" . }}
   labels:
     app: st2rulesengine
     tier: backend
@@ -443,8 +443,8 @@ spec:
       - name: {{ .Release.Name }}-st2-license
       {{- end }}
       containers:
-      - name: st2rulesengine-enterprise
-        image: "{{ template "imageRepository" . }}/st2rulesengine-enterprise:{{ .Chart.AppVersion }}"
+      - name: st2rulesengine{{ template "enterpriseSuffix" . }}
+        image: "{{ template "imageRepository" . }}/st2rulesengine{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -482,7 +482,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2timersengine-enterprise
+  name: {{ .Release.Name }}-st2timersengine{{ template "enterpriseSuffix" . }}
   labels:
     app: st2timersengine
     tier: backend
@@ -519,8 +519,8 @@ spec:
       - name: {{ .Release.Name }}-st2-license
       {{- end }}
       containers:
-      - name: st2timersengine-enterprise
-        image: "{{ template "imageRepository" . }}/st2timersengine-enterprise:{{ .Chart.AppVersion }}"
+      - name: st2timersengine{{ template "enterpriseSuffix" . }}
+        image: "{{ template "imageRepository" . }}/st2timersengine{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -558,7 +558,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2workflowengine-enterprise
+  name: {{ .Release.Name }}-st2workflowengine{{ template "enterpriseSuffix" . }}
   labels:
     app: st2workflowengine
     tier: backend
@@ -594,8 +594,8 @@ spec:
       - name: {{ .Release.Name }}-st2-license
       {{- end }}
       containers:
-      - name: st2workflowengine-enterprise
-        image: "{{ template "imageRepository" . }}/st2workflowengine-enterprise:{{ .Chart.AppVersion }}"
+      - name: st2workflowengine{{ template "enterpriseSuffix" . }}
+        image: "{{ template "imageRepository" . }}/st2workflowengine{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -633,7 +633,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2notifier-enterprise
+  name: {{ .Release.Name }}-st2notifier{{ template "enterpriseSuffix" . }}
   labels:
     app: st2notifier
     tier: backend
@@ -669,8 +669,8 @@ spec:
       - name: {{ .Release.Name }}-st2-license
       {{- end }}
       containers:
-      - name: st2notifier-enterprise
-        image: "{{ template "imageRepository" . }}/st2notifier-enterprise:{{ .Chart.AppVersion }}"
+      - name: st2notifier{{ template "enterpriseSuffix" . }}
+        image: "{{ template "imageRepository" . }}/st2notifier{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -708,7 +708,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2sensorcontainer-enterprise
+  name: {{ .Release.Name }}-st2sensorcontainer{{ template "enterpriseSuffix" . }}
   labels:
     app: st2sensorcontainer
     tier: backend
@@ -748,7 +748,7 @@ spec:
       {{- end }}
       {{- if .Values.st2.packs.image.repository }}
       initContainers:
-      # Merge packs and virtualenvs from st2sensorcontainer-enterprise with those from the st2.packs image
+      # Merge packs and virtualenvs from st2sensorcontainer with those from the st2.packs image
       # Custom packs
       - name: st2-custom-packs
         image: "{{ .Values.st2.packs.image.repository }}/{{ .Values.st2.packs.image.name }}:{{ .Values.st2.packs.image.tag }}"
@@ -766,7 +766,7 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
-        image: "{{ template "imageRepository" . }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         volumeMounts:
         - name: st2-packs-vol
@@ -779,8 +779,8 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       {{- end }}
       containers:
-      - name: st2sensorcontainer-enterprise
-        image: "{{ template "imageRepository" . }}/st2sensorcontainer-enterprise:{{ .Chart.AppVersion }}"
+      - name: st2sensorcontainer{{ template "enterpriseSuffix" . }}
+        image: "{{ template "imageRepository" . }}/st2sensorcontainer{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -832,7 +832,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2actionrunner-enterprise
+  name: {{ .Release.Name }}-st2actionrunner{{ template "enterpriseSuffix" . }}
   labels:
     app: st2actionrunner
     tier: backend
@@ -871,7 +871,7 @@ spec:
       {{- end }}
       {{- if .Values.st2.packs.image.repository }}
       initContainers:
-      # Merge packs and virtualenvs from st2actionrunner-enterprise with those from the st2.packs image
+      # Merge packs and virtualenvs from st2actionrunner with those from the st2.packs image
       # Custom packs
       - name: st2-custom-packs
         image: "{{ .Values.st2.packs.image.repository }}/{{ .Values.st2.packs.image.name }}:{{ .Values.st2.packs.image.tag }}"
@@ -889,7 +889,7 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
-        image: "{{ template "imageRepository" . }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         volumeMounts:
         - name: st2-packs-vol
@@ -902,8 +902,8 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       {{- end }}
       containers:
-      - name: st2actionrunner-enterprise
-        image: "{{ template "imageRepository" . }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+      - name: st2actionrunner{{ template "enterpriseSuffix" . }}
+        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -966,7 +966,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2garbagecollector-enterprise
+  name: {{ .Release.Name }}-st2garbagecollector{{ template "enterpriseSuffix" . }}
   labels:
     app: st2garbagecollector
     tier: backend
@@ -1002,8 +1002,8 @@ spec:
       - name: {{ .Release.Name }}-st2-license
       {{- end }}
       containers:
-      - name: st2garbagecollector-enterprise
-        image: "{{ template "imageRepository" . }}/st2garbagecollector-enterprise:{{ .Chart.AppVersion }}"
+      - name: st2garbagecollector{{ template "enterpriseSuffix" . }}
+        image: "{{ template "imageRepository" . }}/st2garbagecollector{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -1041,7 +1041,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2client-enterprise
+  name: {{ .Release.Name }}-st2client{{ template "enterpriseSuffix" . }}
   labels:
     app: st2client
     tier: backend
@@ -1082,7 +1082,7 @@ spec:
       {{- end }}
       initContainers:
       {{- if .Values.st2.packs.image.repository }}
-      # Merge packs and virtualenvs from st2actionrunner-enterprise with those from the st2.packs image
+      # Merge packs and virtualenvs from st2actionrunner with those from the st2.packs image
       # Custom packs
       - name: st2-custom-packs
         image: "{{ .Values.st2.packs.image.repository }}/{{ .Values.st2.packs.image.name }}:{{ .Values.st2.packs.image.tag }}"
@@ -1100,7 +1100,7 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
-        image: "{{ template "imageRepository" . }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         volumeMounts:
         - name: st2-packs-vol
@@ -1114,7 +1114,7 @@ spec:
       {{- end }}
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       - name: generate-st2client-config
-        image: "{{ template "imageRepository" . }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         envFrom:
         - configMapRef:
@@ -1144,8 +1144,8 @@ spec:
             password = ${ST2_AUTH_PASSWORD}
             EOT
       containers:
-      - name: st2client-enterprise
-        image: "{{ template "imageRepository" . }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+      - name: st2client{{ template "enterpriseSuffix" . }}
+        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         env:
         - name: ST2CLIENT

@@ -38,7 +38,7 @@ spec:
       {{- end }}
       {{- if .Values.st2.packs.image.repository }}
       initContainers:
-      # Merge packs and virtualenvs from st2actionrunner-enterprise with those from the st2.packs image
+      # Merge packs and virtualenvs from st2actionrunner with those from the st2.packs image
       # Custom packs
       - name: st2-custom-packs
         image: "{{ .Values.st2.packs.image.repository }}/{{ .Values.st2.packs.image.name }}:{{ .Values.st2.packs.image.tag }}"
@@ -56,7 +56,7 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
-        image: "{{ template "imageRepository" . }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         volumeMounts:
         - name: st2-packs-vol
@@ -70,7 +70,7 @@ spec:
       {{ end }}
       containers:
       - name: st2-register-content
-        image: "{{ template "imageRepository" . }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         command:
           - st2-register-content
@@ -150,7 +150,7 @@ spec:
       - name: {{ .Release.Name }}-st2-license
       containers:
       - name: st2-apply-rbac-definitions
-        image: "{{ template "imageRepository" . }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         command:
           - st2-apply-rbac-definitions

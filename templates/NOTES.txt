@@ -9,7 +9,7 @@ Congratulations! You have just deployed StackStorm {{ if .Values.enterprise.enab
 
 1. Get the StackStorm Web UI URL by running these commands:
 export ST2WEB_IP=$(minikube ip 2>/dev/null || kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
-export ST2WEB_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ .Release.Name }}-st2web{{ if .Values.enterprise.enabled }}-enterprise{{ end }})
+export ST2WEB_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }})
 echo https://${ST2WEB_IP}:${ST2WEB_PORT}/
 
 2. Login with the following credentials:

@@ -10,7 +10,7 @@ metadata:
     app: st2
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
+    support: enterprise
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -28,7 +28,7 @@ metadata:
     app: st2
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
+    support: enterprise
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -46,7 +46,7 @@ metadata:
     app: st2
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
+    support: enterprise
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
