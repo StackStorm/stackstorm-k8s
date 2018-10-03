@@ -1,4 +1,4 @@
-# Default values for StackStorm Enterprise HA cluster
+# Default values for StackStorm HA cluster
 # This is a YAML-formatted file.
 
 ##
@@ -65,7 +65,7 @@ st2:
   # Custom pack configs and image settings.
   #
   # By default, system packs are available. However, since 'st2 pack install' cannot be run in the k8s cluster,
-  # you will need to bake additional packs into an 'st2packs' image. Please see stackstorm-enterprise-ha/README.md
+  # you will need to bake additional packs into an 'st2packs' image. Please see github.com/stackstorm/stackstorm-ha/README.md
   # for details on how to build this image.
   packs:
     # Custom StackStorm pack configs. Each record creates a file in '/opt/stackstorm/configs/'
@@ -87,7 +87,7 @@ st2:
       pullPolicy: Always
 
 ##
-## StackStorm Enterprise Cluster Secrets. All fields are required!
+## StackStorm HA Cluster Secrets. All fields are required!
 ## NB! It's highly recommended to change ALL defaults!
 ##
 # TODO: Move to `secrets.yaml` when it gets implemented in Helm (https://github.com/kubernetes/helm/issues/2196) ? (#14)
@@ -191,7 +191,7 @@ secrets:
       -----END PRIVATE KEY-----
 
 ##
-## StackStorm Enterprise Cluster pod settings for each individual service/component.
+## StackStorm HA Cluster pod settings for each individual service/component.
 ##
 # Many st2web instances, placed behind a load balancer that serve web app and proxify requests to st2auth, st2api, st2stream.
 st2web:

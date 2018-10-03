@@ -22,12 +22,12 @@ It's more than welcome to fine-tune each component settings to fit specific avai
 helm dependency update
 ```
 
-3) Install the chart:
+3) Install the chart
 ```
 helm install .
 ```
 
-4) Upgrade.
+4) Upgrade
 Once you make any changes to values, upgrade the cluster:
 ```
 helm upgrade <release-name> .
