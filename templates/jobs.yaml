@@ -121,7 +121,7 @@ metadata:
     app: st2-apply-rbac-definitions
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
+    support: enterprise
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -137,7 +137,7 @@ spec:
         app: st2-apply-rbac-definitions
         tier: backend
         vendor: stackstorm
-        support: {{ template "supportMethod" . }}
+        support: enterprise
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
