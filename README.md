@@ -1,7 +1,7 @@
 # `stackstorm-ha` Helm Chart
 [![Build Status](https://circleci.com/gh/StackStorm/stackstorm-ha/tree/master.svg?style=shield)](https://circleci.com/gh/StackStorm/stackstorm-ha) 
 
-K8s Helm Chart for running StackStorm cluster in HA mode.
+K8s Helm Chart for running StackStorm cluster in HA mode. 
 
 It will install 2 replicas for each component of StackStorm microservices for redundancy, as well as backends like
 RabbitMQ HA, MongoDB HA Replicaset and etcd cluster that st2 replies on for MQ, DB and distributed coordination respectively.
