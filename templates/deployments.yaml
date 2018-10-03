@@ -41,7 +41,7 @@ spec:
       # Sidecar container for generating .htpasswd with st2 username & password pair and sharing produced file with the main st2auth container
       initContainers:
       - name: generate-htpasswd
-        image: "{{ .Values.image.repository }}/st2auth-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2auth-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         env:
         - name: ST2_AUTH_USERNAME
@@ -63,7 +63,7 @@ spec:
           - printf "${ST2_AUTH_USERNAME}:$(openssl passwd -apr1 "${ST2_AUTH_PASSWORD}")\n" > /tmp/st2/htpasswd
       containers:
       - name: st2auth-enterprise
-        image: "{{ .Values.image.repository }}/st2auth-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2auth-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 9100
@@ -165,7 +165,7 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
-        image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         volumeMounts:
         - name: st2-packs-vol
@@ -181,7 +181,7 @@ spec:
       {{- end }}
       containers:
       - name: st2api-enterprise
-        image: "{{ .Values.image.repository }}/st2api-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2api-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 9101
@@ -272,7 +272,7 @@ spec:
       {{- end }}
       containers:
       - name: st2stream-enterprise
-        image: "{{ .Values.image.repository }}/st2stream-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2stream-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 9102
@@ -345,7 +345,7 @@ spec:
       {{- end }}
       containers:
       - name: st2web-enterprise
-        image: "{{ .Values.image.repository }}/st2web-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2web-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 443
@@ -444,7 +444,7 @@ spec:
       {{- end }}
       containers:
       - name: st2rulesengine-enterprise
-        image: "{{ .Values.image.repository }}/st2rulesengine-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2rulesengine-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -520,7 +520,7 @@ spec:
       {{- end }}
       containers:
       - name: st2timersengine-enterprise
-        image: "{{ .Values.image.repository }}/st2timersengine-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2timersengine-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -595,7 +595,7 @@ spec:
       {{- end }}
       containers:
       - name: st2workflowengine-enterprise
-        image: "{{ .Values.image.repository }}/st2workflowengine-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2workflowengine-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -670,7 +670,7 @@ spec:
       {{- end }}
       containers:
       - name: st2notifier-enterprise
-        image: "{{ .Values.image.repository }}/st2notifier-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2notifier-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -766,7 +766,7 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
-        image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         volumeMounts:
         - name: st2-packs-vol
@@ -780,7 +780,7 @@ spec:
       {{- end }}
       containers:
       - name: st2sensorcontainer-enterprise
-        image: "{{ .Values.image.repository }}/st2sensorcontainer-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2sensorcontainer-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -889,7 +889,7 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
-        image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         volumeMounts:
         - name: st2-packs-vol
@@ -903,7 +903,7 @@ spec:
       {{- end }}
       containers:
       - name: st2actionrunner-enterprise
-        image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -1003,7 +1003,7 @@ spec:
       {{- end }}
       containers:
       - name: st2garbagecollector-enterprise
-        image: "{{ .Values.image.repository }}/st2garbagecollector-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2garbagecollector-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -1100,7 +1100,7 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
-        image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         volumeMounts:
         - name: st2-packs-vol
@@ -1114,7 +1114,7 @@ spec:
       {{- end }}
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       - name: generate-st2client-config
-        image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         envFrom:
         - configMapRef:
@@ -1145,7 +1145,7 @@ spec:
             EOT
       containers:
       - name: st2client-enterprise
-        image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         env:
         - name: ST2CLIENT

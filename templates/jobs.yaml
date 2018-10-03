@@ -56,7 +56,7 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
-        image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         volumeMounts:
         - name: st2-packs-vol
@@ -70,7 +70,7 @@ spec:
       {{ end }}
       containers:
       - name: st2-register-content
-        image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         command:
           - st2-register-content
@@ -150,7 +150,7 @@ spec:
       - name: {{ .Release.Name }}-st2-license
       containers:
       - name: st2-apply-rbac-definitions
-        image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         command:
           - st2-apply-rbac-definitions
