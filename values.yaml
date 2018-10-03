@@ -9,11 +9,11 @@ image:
   pullPolicy: Always
 
 ##
-## StackStorm Enterprise settings.
+## StackStorm Enterprise settings (Optional)
 ##
 enterprise:
-  # Enable/Disable StackStorm Enterprise. Disabling enterprise will download StackStorm community Docker images.
-  enabled: true
+  # Enable/Disable StackStorm Enterprise. Enabling will download StackStorm Enterprise Docker images.
+  enabled: false
   # Required StackStorm Enterprise license key.
   # Don't have one? Obtain 90-day free trial at https://stackstorm.com/#product
   license: ""
