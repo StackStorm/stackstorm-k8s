@@ -2,7 +2,7 @@ version: 2
 jobs:
   # Run Helm Lint checks
   helm-lint:
-    working_directory: ~/stackstorm-enterprise-ha
+    working_directory: ~/stackstorm-ha
     docker:
       - image: lachlanevenson/k8s-helm
     steps:
@@ -27,7 +27,7 @@ jobs:
             helm template --output-dir community .
             helm template --output-dir enterprise --set enterprise.enabled=true --set enterprise.license=123asd456fake .
       - persist_to_workspace:
-          root: ~/stackstorm-enterprise-ha/
+          root: ~/stackstorm-ha/
           paths:
             - community
             - enterprise
@@ -46,11 +46,11 @@ jobs:
       - run:
           name: K8s Kubeval Lint Check (Community)
           command: kubeval $(find . -type f)
-          working_directory: community/stackstorm-enterprise-ha/templates/
+          working_directory: community/stackstorm-ha/templates/
       - run:
           name: K8s Kubeval Lint Check (Enterprise)
           command: kubeval $(find . -type f)
-          working_directory: enterprise/stackstorm-enterprise-ha/templates/
+          working_directory: enterprise/stackstorm-ha/templates/
 
 workflows:
   version: 2
