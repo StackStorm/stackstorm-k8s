@@ -1,7 +1,7 @@
-# `stackstorm-enterprise-ha` Helm Chart
-[![Build Status](https://circleci.com/gh/StackStorm/stackstorm-enterprise-ha/tree/master.svg?style=shield)](https://circleci.com/gh/StackStorm/stackstorm-enterprise-ha) 
+# `stackstorm-ha` Helm Chart
+[![Build Status](https://circleci.com/gh/StackStorm/stackstorm-ha/tree/master.svg?style=shield)](https://circleci.com/gh/StackStorm/stackstorm-ha) 
 
-StackStorm Enterprise K8s Helm Chart for running StackStorm Enterprise cluster in HA mode.
+K8s Helm Chart for running StackStorm cluster in HA mode.
 
 It will install 2 replicas for each component of StackStorm microservices for redundancy, as well as backends like
 RabbitMQ HA, MongoDB HA Replicaset and etcd cluster that st2 replies on for MQ, DB and distributed coordination respectively.
@@ -13,7 +13,7 @@ It's more than welcome to fine-tune each component settings to fit specific avai
 * [Helm](https://docs.helm.sh/using_helm/#install-helm) and [Tiller](https://docs.helm.sh/using_helm/#initialize-helm-and-install-tiller)
 
 ## Usage
-1) Edit `values.yaml` with configuration for the StackStorm Enterprise HA K8s cluster.
+1) Edit `values.yaml` with configuration for the StackStorm HA K8s cluster.
 > NB! It's highly recommended to set your own secrets as file contains unsafe defaults like self-signed SSL certificates, SSH keys,
 > StackStorm access and DB/MQ passwords!
 
@@ -24,11 +24,8 @@ helm dependency update
 
 3) Install the chart:
 ```
-helm install --set enterprise.license=<ST2_LICENSE_KEY> .
+helm install .
 ```
-
-> Don't have StackStorm Enterprise License?<br>
-> 90-day free trial can be requested at https://stackstorm.com/#product
 
 4) Upgrade.
 Once you make any changes to values, upgrade the cluster:
@@ -36,13 +33,24 @@ Once you make any changes to values, upgrade the cluster:
 helm upgrade <release-name> .
 ```
 
+### $ Enterprise (Optional)
+By default, StackStorm Community FOSS version is configured via Helm chart. If you want to install [StackStorm Enterprise (EWC)](https://docs.stackstorm.com/install/ewc_ha.html), run:
+```
+helm install --set enterprise.enabled=true --set enterprise.license=<ST2_LICENSE_KEY> .
+```
+It will pull enterprise images from private Docker registry as well as allows configuring features like RBAC and LDAP.
+See Helm `values.yaml`, `enterprise` section for configuration examples.
+
+> Don't have StackStorm Enterprise License?<br>
+> 90-day free trial can be requested at https://stackstorm.com/#product
+
 ## Components
 ### st2client
-A helper container to switch into and run st2 CLI commands against the deployed StackStorm Enterprise cluster.
+A helper container to switch into and run st2 CLI commands against the deployed StackStorm cluster.
 All resources like credentials, configs, RBAC, packs, keys and secrets are shared with this container.
 ```
 # obtain st2client pod name
-ST2CLIENT=$(kubectl get pod -l app=st2client,support=enterprise -o jsonpath="{.items[0].metadata.name}")
+ST2CLIENT=$(kubectl get pod -l app=st2client -o jsonpath="{.items[0].metadata.name}")
 
 # run a single st2 client command
 kubectl exec -it ${ST2CLIENT} -- st2 --version
@@ -172,7 +180,7 @@ docker push ${DOCKER_REGISTRY}/st2packs:latest
 ```
 
 ### How to provide custom pack configs
-Update the `pack.configs` section of `stackstorm-enterprise-ha/values.yaml`:
+Update the `pack.configs` section of `stackstorm-ha/values.yaml`:
 
 For example:
 ```
