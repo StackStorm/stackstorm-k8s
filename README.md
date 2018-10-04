@@ -33,7 +33,7 @@ Once you make any changes to values, upgrade the cluster:
 helm upgrade <release-name> .
 ```
 
-### $ Enterprise (Optional)
+### Enterprise (Optional)
 By default, StackStorm Community FOSS version is configured via Helm chart. If you want to install [StackStorm Enterprise (EWC)](https://docs.stackstorm.com/install/ewc_ha.html), run:
 ```
 helm install --set enterprise.enabled=true --set enterprise.license=<ST2_LICENSE_KEY> .
