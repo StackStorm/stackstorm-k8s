@@ -19,4 +19,4 @@ helm install \
 ```
 
 > Don't have StackStorm Enterprise License?<br>
-> 90-day free trial can be requested at https://stackstorm.com/#product 
+> 90-day free trial can be requested at [stackstorm.com/#product](https://stackstorm.com/#product)
