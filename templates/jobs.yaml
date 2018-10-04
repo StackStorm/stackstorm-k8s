@@ -7,7 +7,7 @@ metadata:
     app: st2-register-content
     tier: backend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -23,7 +23,7 @@ spec:
         app: st2-register-content
         tier: backend
         vendor: stackstorm
-        support: enterprise
+        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -32,11 +32,13 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") . | sha256sum }}
     spec:
+      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
       - name: {{ .Release.Name }}-st2-license
-      {{ if .Values.st2.packs.image.repository }}
+      {{- end }}
+      {{- if .Values.st2.packs.image.repository }}
       initContainers:
-      # Merge packs and virtualenvs from st2actionrunner-enterprise with those from the st2.packs image
+      # Merge packs and virtualenvs from st2actionrunner with those from the st2.packs image
       # Custom packs
       - name: st2-custom-packs
         image: "{{ .Values.st2.packs.image.repository }}/{{ .Values.st2.packs.image.name }}:{{ .Values.st2.packs.image.tag }}"
@@ -54,7 +56,7 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
-        image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         volumeMounts:
         - name: st2-packs-vol
@@ -68,7 +70,7 @@ spec:
       {{ end }}
       containers:
       - name: st2-register-content
-        image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         command:
           - st2-register-content
@@ -86,12 +88,12 @@ spec:
           subPath: st2.user.conf
         - name: st2-pack-configs-vol
           mountPath: /opt/stackstorm/configs/
-        {{ if .Values.st2.packs.image.repository }}
+        {{- if .Values.st2.packs.image.repository }}
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs/
         - name: st2-virtualenvs-vol
           mountPath: /opt/stackstorm/virtualenvs/
-        {{ end }}
+        {{- end }}
         # TODO: Find out default resource limits for this specific service (#5)
         #resources:
       volumes:
@@ -101,14 +103,15 @@ spec:
         - name: st2-pack-configs-vol
           configMap:
             name: {{ .Release.Name }}-st2-pack-configs
-        {{ if .Values.st2.packs.image.repository }}
+        {{- if .Values.st2.packs.image.repository }}
         - name: st2-packs-vol
           emptyDir: {}
         - name: st2-virtualenvs-vol
           emptyDir: {}
-        {{ end }}
+        {{- end }}
       restartPolicy: OnFailure
 
+{{ if .Values.enterprise.enabled }}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -147,7 +150,7 @@ spec:
       - name: {{ .Release.Name }}-st2-license
       containers:
       - name: st2-apply-rbac-definitions
-        image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         command:
           - st2-apply-rbac-definitions
@@ -184,3 +187,4 @@ spec:
           configMap:
             name: {{ .Release.Name }}-st2-rbac-mappings
       restartPolicy: OnFailure
+{{ end }}

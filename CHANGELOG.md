@@ -3,6 +3,10 @@
 ## In Development
 
 
+## v0.6.0
+* Add StackStorm FOSS (community version), make Enterprise install optional (#22)
+* Rename chart `stackstorm-enterprise-ha` -> `stackstorm-ha` (#26)
+
 ## v0.5.1
 *  Move some of the defaults into original st2.conf
 

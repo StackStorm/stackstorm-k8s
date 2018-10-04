@@ -1,48 +1,22 @@
-# Default values for StackStorm Enterprise HA cluster
+# Default values for StackStorm HA cluster
 # This is a YAML-formatted file.
 
 ##
 ## Docker image settings, applied to all StackStorm pods
 ##
 image:
-  # StackStorm Enterprise private Docker Registry used to pull images
-  repository: docker.stackstorm.com
   # Image pull policy. Change to "IfNotPresent" when switching to stable images
   pullPolicy: Always
 
 ##
-## StackStorm shared variables
+## StackStorm Enterprise settings (Optional)
 ##
-st2:
-  # Custom StackStorm config (st2.user.conf) which will apply settings on top of default st2.conf
-  config: |
-    [api]
-    allow_origin = '*'
-
-
-  # Custom pack configs and image settings.
-  #
-  # By default, system packs are available. However, since 'st2 pack install' cannot be run in the k8s cluster,
-  # you will need to bake additional packs into an 'st2packs' image. Please see stackstorm-enterprise-ha/README.md
-  # for details on how to build this image.
-  packs:
-    # Custom StackStorm pack configs. Each record creates a file in '/opt/stackstorm/configs/'
-    # https://docs.stackstorm.com/reference/pack_configs.html#configuration-file
-    configs:
-      core.yaml: |
-        ---
-        # example core pack config yaml
-
-    # Custom packs image settings. The repository, name, tag and pullPolicy for this image
-    # are specified below.
-    image:
-      # If you wish to use a docker registry running in the k8s cluster, set docker-registry.enabled to true.
-      # Uncomment the following line to make the custom packs image available to the necessary pods.
-
-      # repository: localhost:5000
-      name: st2packs
-      tag: latest
-      pullPolicy: Always
+enterprise:
+  # Enable/Disable StackStorm Enterprise. Enabling will download StackStorm Enterprise Docker images.
+  enabled: false
+  # Required StackStorm Enterprise license key.
+  # Don't have one? Obtain 90-day free trial at https://stackstorm.com/#product
+  license: ""
 
   # StackStorm Role Based Access Control settings (https://docs.stackstorm.com/rbac.html)
   rbac:
@@ -78,17 +52,48 @@ st2:
       #  description: "Automatically grant admin role to all stormers group members."
       #  roles:
       #    - "admin"
+
 ##
-## StackStorm Enterprise Cluster Secrets. All fields are required!
+## StackStorm shared variables
+##
+st2:
+  # Custom StackStorm config (st2.user.conf) which will apply settings on top of default st2.conf
+  config: |
+    [api]
+    allow_origin = '*'
+
+  # Custom pack configs and image settings.
+  #
+  # By default, system packs are available. However, since 'st2 pack install' cannot be run in the k8s cluster,
+  # you will need to bake additional packs into an 'st2packs' image. Please see github.com/stackstorm/stackstorm-ha/README.md
+  # for details on how to build this image.
+  packs:
+    # Custom StackStorm pack configs. Each record creates a file in '/opt/stackstorm/configs/'
+    # https://docs.stackstorm.com/reference/pack_configs.html#configuration-file
+    configs:
+      core.yaml: |
+        ---
+        # example core pack config yaml
+
+    # Custom packs image settings. The repository, name, tag and pullPolicy for this image
+    # are specified below.
+    image:
+      # If you wish to use a docker registry running in the k8s cluster, set docker-registry.enabled to true.
+      # Uncomment the following line to make the custom packs image available to the necessary pods.
+
+      # repository: localhost:5000
+      name: st2packs
+      tag: latest
+      pullPolicy: Always
+
+##
+## StackStorm HA Cluster Secrets. All fields are required!
 ## NB! It's highly recommended to change ALL defaults!
 ##
 # TODO: Move to `secrets.yaml` when it gets implemented in Helm (https://github.com/kubernetes/helm/issues/2196) ? (#14)
 # TODO: Alternatively as part of reorganizing Helm values, consider moving values to existing `st2` and `st2web` sections ? (#14)
 secrets:
   st2:
-    # Required (!) StackStorm Enterprise license key.
-    # Don't have one? Obtain 90-day free trial at https://stackstorm.com/#product
-    license: ""
     # Username, used to login to StackStorm system
     username: st2admin
     # Password, used to login to StackStorm system
@@ -186,7 +191,7 @@ secrets:
       -----END PRIVATE KEY-----
 
 ##
-## StackStorm Enterprise Cluster pod settings for each individual service/component.
+## StackStorm HA Cluster pod settings for each individual service/component.
 ##
 # Many st2web instances, placed behind a load balancer that serve web app and proxify requests to st2auth, st2api, st2stream.
 st2web:

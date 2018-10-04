@@ -2,12 +2,12 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2auth-enterprise
+  name: {{ .Release.Name }}-st2auth{{ template "enterpriseSuffix" . }}
   labels:
     app: st2auth
     tier: backend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -15,7 +15,7 @@ spec:
   selector:
     matchLabels:
       app: st2auth
-      support: enterprise
+      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2auth
   # Multiple st2auth processes can be behind a load balancer in an active-active configuration.
@@ -26,7 +26,7 @@ spec:
         app: st2auth
         tier: backend
         vendor: stackstorm
-        support: enterprise
+        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -34,12 +34,14 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/auth: {{ include (print $.Template.BasePath "/secrets_st2auth.yaml") . | sha256sum }}
     spec:
+      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
       - name: {{ .Release.Name }}-st2-license
+      {{- end }}
       # Sidecar container for generating .htpasswd with st2 username & password pair and sharing produced file with the main st2auth container
       initContainers:
       - name: generate-htpasswd
-        image: "{{ .Values.image.repository }}/st2auth-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2auth{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         env:
         - name: ST2_AUTH_USERNAME
@@ -60,8 +62,8 @@ spec:
           - '-ec'
           - printf "${ST2_AUTH_USERNAME}:$(openssl passwd -apr1 "${ST2_AUTH_PASSWORD}")\n" > /tmp/st2/htpasswd
       containers:
-      - name: st2auth-enterprise
-        image: "{{ .Values.image.repository }}/st2auth-enterprise:{{ .Chart.AppVersion }}"
+      - name: st2auth{{ template "enterpriseSuffix" . }}
+        image: "{{ template "imageRepository" . }}/st2auth{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 9100
@@ -108,12 +110,12 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2api-enterprise
+  name: {{ .Release.Name }}-st2api{{ template "enterpriseSuffix" . }}
   labels:
     app: st2api
     tier: backend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -121,7 +123,7 @@ spec:
   selector:
     matchLabels:
       app: st2api
-      support: enterprise
+      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2api
   # Multiple st2api process can be behind a load balancer in an active-active configuration.
@@ -132,18 +134,20 @@ spec:
         app: st2api
         tier: backend
         vendor: stackstorm
-        support: enterprise
+        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
+      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
       - name: {{ .Release.Name }}-st2-license
+      {{- end }}
       {{- if .Values.st2.packs.image.repository }}
       initContainers:
-      # Merge packs and virtualenvs from st2api-enterprise with those from the st2.packs image
+      # Merge packs and virtualenvs from st2api with those from the st2.packs image
       # Custom packs
       - name: st2-custom-packs
         image: "{{ .Values.st2.packs.image.repository }}/{{ .Values.st2.packs.image.name }}:{{ .Values.st2.packs.image.tag }}"
@@ -161,7 +165,7 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
-        image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         volumeMounts:
         - name: st2-packs-vol
@@ -176,8 +180,8 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       {{- end }}
       containers:
-      - name: st2api-enterprise
-        image: "{{ .Values.image.repository }}/st2api-enterprise:{{ .Chart.AppVersion }}"
+      - name: st2api{{ template "enterpriseSuffix" . }}
+        image: "{{ template "imageRepository" . }}/st2api{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 9101
@@ -231,12 +235,12 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2stream-enterprise
+  name: {{ .Release.Name }}-st2stream{{ template "enterpriseSuffix" . }}
   labels:
     app: st2stream
     tier: backend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -244,7 +248,7 @@ spec:
   selector:
     matchLabels:
       app: st2stream
-      support: enterprise
+      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2stream
   # Multiple st2stream process can be behind a load balancer in an active-active configuration.
@@ -255,18 +259,20 @@ spec:
         app: st2stream
         tier: backend
         vendor: stackstorm
-        support: enterprise
+        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
+      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
       - name: {{ .Release.Name }}-st2-license
+      {{- end }}
       containers:
-      - name: st2stream-enterprise
-        image: "{{ .Values.image.repository }}/st2stream-enterprise:{{ .Chart.AppVersion }}"
+      - name: st2stream{{ template "enterpriseSuffix" . }}
+        image: "{{ template "imageRepository" . }}/st2stream{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 9102
@@ -306,12 +312,12 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2web-enterprise
+  name: {{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }}
   labels:
     app: st2web
     tier: frontend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -319,7 +325,7 @@ spec:
   selector:
     matchLabels:
       app: st2web
-      support: enterprise
+      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   replicas: {{ default 2 .Values.st2web.replicas }}
   template:
@@ -328,16 +334,18 @@ spec:
         app: st2web
         tier: frontend
         vendor: stackstorm
-        support: enterprise
+        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
     spec:
+      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
       - name: {{ .Release.Name }}-st2-license
+      {{- end }}
       containers:
-      - name: st2web-enterprise
-        image: "{{ .Values.image.repository }}/st2web-enterprise:{{ .Chart.AppVersion }}"
+      - name: st2web{{ template "enterpriseSuffix" . }}
+        image: "{{ template "imageRepository" . }}/st2web{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 443
@@ -399,12 +407,12 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2rulesengine-enterprise
+  name: {{ .Release.Name }}-st2rulesengine{{ template "enterpriseSuffix" . }}
   labels:
     app: st2rulesengine
     tier: backend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -412,7 +420,7 @@ spec:
   selector:
     matchLabels:
       app: st2rulesengine
-      support: enterprise
+      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2rulesengine
   # Multiple st2rulesengine processes can run in active-active with only connections to MongoDB and RabbitMQ. All these will share the TriggerInstance load and naturally pick up more work if one or more of the processes becomes unavailable.
@@ -423,18 +431,20 @@ spec:
         app: st2rulesengine
         tier: backend
         vendor: stackstorm
-        support: enterprise
+        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
+      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
       - name: {{ .Release.Name }}-st2-license
+      {{- end }}
       containers:
-      - name: st2rulesengine-enterprise
-        image: "{{ .Values.image.repository }}/st2rulesengine-enterprise:{{ .Chart.AppVersion }}"
+      - name: st2rulesengine{{ template "enterpriseSuffix" . }}
+        image: "{{ template "imageRepository" . }}/st2rulesengine{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -472,12 +482,12 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2timersengine-enterprise
+  name: {{ .Release.Name }}-st2timersengine{{ template "enterpriseSuffix" . }}
   labels:
     app: st2timersengine
     tier: backend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -485,7 +495,7 @@ spec:
   selector:
     matchLabels:
       app: st2timersengine
-      support: enterprise
+      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2timersengine
   # Only single replica is created as timersengine can't work in active-active mode at the moment and it relies on
@@ -497,18 +507,20 @@ spec:
         app: st2timersengine
         tier: backend
         vendor: stackstorm
-        support: enterprise
+        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
+      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
       - name: {{ .Release.Name }}-st2-license
+      {{- end }}
       containers:
-      - name: st2timersengine-enterprise
-        image: "{{ .Values.image.repository }}/st2timersengine-enterprise:{{ .Chart.AppVersion }}"
+      - name: st2timersengine{{ template "enterpriseSuffix" . }}
+        image: "{{ template "imageRepository" . }}/st2timersengine{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -546,12 +558,12 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2workflowengine-enterprise
+  name: {{ .Release.Name }}-st2workflowengine{{ template "enterpriseSuffix" . }}
   labels:
     app: st2workflowengine
     tier: backend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -559,7 +571,7 @@ spec:
   selector:
     matchLabels:
       app: st2workflowengine
-      support: enterprise
+      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2workflowengine
   # Multiple st2workflowengine processes can run in active-active mode and will share the load and pick up more work if one or more of the processes become available.
@@ -570,18 +582,20 @@ spec:
         app: st2workflowengine
         tier: backend
         vendor: stackstorm
-        support: enterprise
+        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
+      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
       - name: {{ .Release.Name }}-st2-license
+      {{- end }}
       containers:
-      - name: st2workflowengine-enterprise
-        image: "{{ .Values.image.repository }}/st2workflowengine-enterprise:{{ .Chart.AppVersion }}"
+      - name: st2workflowengine{{ template "enterpriseSuffix" . }}
+        image: "{{ template "imageRepository" . }}/st2workflowengine{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -619,12 +633,12 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2notifier-enterprise
+  name: {{ .Release.Name }}-st2notifier{{ template "enterpriseSuffix" . }}
   labels:
     app: st2notifier
     tier: backend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -632,7 +646,7 @@ spec:
   selector:
     matchLabels:
       app: st2notifier
-      support: enterprise
+      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2notifier
   # st2notifier runs in active-active mode and requires for that coordination backend like Redis or Zookeeper
@@ -643,18 +657,20 @@ spec:
         app: st2notifier
         tier: backend
         vendor: stackstorm
-        support: enterprise
+        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
+      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
       - name: {{ .Release.Name }}-st2-license
+      {{- end }}
       containers:
-      - name: st2notifier-enterprise
-        image: "{{ .Values.image.repository }}/st2notifier-enterprise:{{ .Chart.AppVersion }}"
+      - name: st2notifier{{ template "enterpriseSuffix" . }}
+        image: "{{ template "imageRepository" . }}/st2notifier{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -692,12 +708,12 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2sensorcontainer-enterprise
+  name: {{ .Release.Name }}-st2sensorcontainer{{ template "enterpriseSuffix" . }}
   labels:
     app: st2sensorcontainer
     tier: backend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -705,7 +721,7 @@ spec:
   selector:
     matchLabels:
       app: st2sensorcontainer
-      support: enterprise
+      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
   # It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance. Each sensor node needs to be
@@ -719,18 +735,20 @@ spec:
         app: st2sensorcontainer
         tier: backend
         vendor: stackstorm
-        support: enterprise
+        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
+      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
       - name: {{ .Release.Name }}-st2-license
+      {{- end }}
       {{- if .Values.st2.packs.image.repository }}
       initContainers:
-      # Merge packs and virtualenvs from st2sensorcontainer-enterprise with those from the st2.packs image
+      # Merge packs and virtualenvs from st2sensorcontainer with those from the st2.packs image
       # Custom packs
       - name: st2-custom-packs
         image: "{{ .Values.st2.packs.image.repository }}/{{ .Values.st2.packs.image.name }}:{{ .Values.st2.packs.image.tag }}"
@@ -748,7 +766,7 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
-        image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         volumeMounts:
         - name: st2-packs-vol
@@ -761,8 +779,8 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       {{- end }}
       containers:
-      - name: st2sensorcontainer-enterprise
-        image: "{{ .Values.image.repository }}/st2sensorcontainer-enterprise:{{ .Chart.AppVersion }}"
+      - name: st2sensorcontainer{{ template "enterpriseSuffix" . }}
+        image: "{{ template "imageRepository" . }}/st2sensorcontainer{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -814,12 +832,12 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2actionrunner-enterprise
+  name: {{ .Release.Name }}-st2actionrunner{{ template "enterpriseSuffix" . }}
   labels:
     app: st2actionrunner
     tier: backend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -827,7 +845,7 @@ spec:
   selector:
     matchLabels:
       app: st2actionrunner
-      support: enterprise
+      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2actionrunner
   # Multiple st2actionrunner processes can run in active-active with only connections to MongoDB and RabbitMQ. Work gets naturally
@@ -839,7 +857,7 @@ spec:
         app: st2actionrunner
         tier: backend
         vendor: stackstorm
-        support: enterprise
+        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -847,11 +865,13 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/ssh: {{ include (print $.Template.BasePath "/secrets_ssh.yaml") . | sha256sum }}
     spec:
+      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
       - name: {{ .Release.Name }}-st2-license
+      {{- end }}
       {{- if .Values.st2.packs.image.repository }}
       initContainers:
-      # Merge packs and virtualenvs from st2actionrunner-enterprise with those from the st2.packs image
+      # Merge packs and virtualenvs from st2actionrunner with those from the st2.packs image
       # Custom packs
       - name: st2-custom-packs
         image: "{{ .Values.st2.packs.image.repository }}/{{ .Values.st2.packs.image.name }}:{{ .Values.st2.packs.image.tag }}"
@@ -869,7 +889,7 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
-        image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         volumeMounts:
         - name: st2-packs-vol
@@ -882,8 +902,8 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       {{- end }}
       containers:
-      - name: st2actionrunner-enterprise
-        image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+      - name: st2actionrunner{{ template "enterpriseSuffix" . }}
+        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -946,12 +966,12 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2garbagecollector-enterprise
+  name: {{ .Release.Name }}-st2garbagecollector{{ template "enterpriseSuffix" . }}
   labels:
     app: st2garbagecollector
     tier: backend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -959,7 +979,7 @@ spec:
   selector:
     matchLabels:
       app: st2garbagecollector
-      support: enterprise
+      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2garbagecollector
   # Having 1 st2garbagecollector unique replica is enough for periodic task like st2 history garbage collection
@@ -970,18 +990,20 @@ spec:
         app: st2garbagecollector
         tier: backend
         vendor: stackstorm
-        support: enterprise
+        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
+      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
       - name: {{ .Release.Name }}-st2-license
+      {{- end }}
       containers:
-      - name: st2garbagecollector-enterprise
-        image: "{{ .Values.image.repository }}/st2garbagecollector-enterprise:{{ .Chart.AppVersion }}"
+      - name: st2garbagecollector{{ template "enterpriseSuffix" . }}
+        image: "{{ template "imageRepository" . }}/st2garbagecollector{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -1019,12 +1041,12 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2client-enterprise
+  name: {{ .Release.Name }}-st2client{{ template "enterpriseSuffix" . }}
   labels:
     app: st2client
     tier: backend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -1032,7 +1054,7 @@ spec:
   selector:
     matchLabels:
       app: st2client
-      support: enterprise
+      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   replicas: 1
   template:
@@ -1041,22 +1063,26 @@ spec:
         app: st2client
         tier: backend
         vendor: stackstorm
-        support: enterprise
+        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        {{- if .Values.enterprise.enabled }}
         checksum/rbac: {{ include (print $.Template.BasePath "/configmaps_rbac.yaml") . | sha256sum }}
+        {{- end }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") . | sha256sum }}
         checksum/auth: {{ include (print $.Template.BasePath "/secrets_st2auth.yaml") . | sha256sum }}
         checksum/ssh: {{ include (print $.Template.BasePath "/secrets_ssh.yaml") . | sha256sum }}
     spec:
+      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
       - name: {{ .Release.Name }}-st2-license
+      {{- end }}
       initContainers:
       {{- if .Values.st2.packs.image.repository }}
-      # Merge packs and virtualenvs from st2actionrunner-enterprise with those from the st2.packs image
+      # Merge packs and virtualenvs from st2actionrunner with those from the st2.packs image
       # Custom packs
       - name: st2-custom-packs
         image: "{{ .Values.st2.packs.image.repository }}/{{ .Values.st2.packs.image.name }}:{{ .Values.st2.packs.image.tag }}"
@@ -1074,7 +1100,7 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
-        image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         volumeMounts:
         - name: st2-packs-vol
@@ -1088,7 +1114,7 @@ spec:
       {{- end }}
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       - name: generate-st2client-config
-        image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         envFrom:
         - configMapRef:
@@ -1118,8 +1144,8 @@ spec:
             password = ${ST2_AUTH_PASSWORD}
             EOT
       containers:
-      - name: st2client-enterprise
-        image: "{{ .Values.image.repository }}/st2actionrunner-enterprise:{{ .Chart.AppVersion }}"
+      - name: st2client{{ template "enterpriseSuffix" . }}
+        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         env:
         - name: ST2CLIENT
@@ -1134,12 +1160,14 @@ spec:
         - name: st2-config-vol
           mountPath: /etc/st2/st2.user.conf
           subPath: st2.user.conf
+        {{- if .Values.enterprise.enabled }}
         - name: st2-rbac-roles-vol
           mountPath: /opt/stackstorm/rbac/roles/
         - name: st2-rbac-assignments-vol
           mountPath: /opt/stackstorm/rbac/assignments/
         - name: st2-rbac-mappings-vol
           mountPath: /opt/stackstorm/rbac/mappings/
+        {{- end }}
         - name: st2-pack-configs-vol
           mountPath: /opt/stackstorm/configs/
         - name: st2client-config-vol
@@ -1167,6 +1195,7 @@ spec:
         - name: st2-config-vol
           configMap:
             name: {{ .Release.Name }}-st2-config
+        {{- if .Values.enterprise.enabled }}
         - name: st2-rbac-roles-vol
           configMap:
             name: {{ .Release.Name }}-st2-rbac-roles
@@ -1176,6 +1205,7 @@ spec:
         - name: st2-rbac-mappings-vol
           configMap:
             name: {{ .Release.Name }}-st2-rbac-mappings
+        {{- end }}
         - name: st2-pack-configs-vol
           configMap:
             name: {{ .Release.Name }}-st2-pack-configs

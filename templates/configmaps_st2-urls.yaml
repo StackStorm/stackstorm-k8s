@@ -9,11 +9,11 @@ metadata:
     app: st2
     tier: backend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-  ST2_AUTH_URL: http://{{ .Release.Name }}-st2auth-enterprise:9100/
-  ST2_API_URL: http://{{ .Release.Name }}-st2api-enterprise:9101/
-  ST2_STREAM_URL: http://{{ .Release.Name }}-st2stream-enterprise:9102/
+  ST2_AUTH_URL: http://{{ .Release.Name }}-st2auth{{ template "enterpriseSuffix" . }}:9100/
+  ST2_API_URL: http://{{ .Release.Name }}-st2api{{ template "enterpriseSuffix" . }}:9101/
+  ST2_STREAM_URL: http://{{ .Release.Name }}-st2stream{{ template "enterpriseSuffix" . }}:9102/

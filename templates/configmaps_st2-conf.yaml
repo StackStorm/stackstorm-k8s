@@ -9,7 +9,7 @@ metadata:
     app: st2
     tier: backend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -19,7 +19,7 @@ data:
   # The order of merging: st2.conf < st2.docker.conf < st2.user.conf
   st2.docker.conf: |
     [auth]
-    api_url = http://{{ .Release.Name }}-st2api-enterprise:9101/
+    api_url = http://{{ .Release.Name }}-st2api{{ template "enterpriseSuffix" . }}:9101/
     [coordination]
     url = etcd://{{ .Release.Name }}-etcd:2379
     [messaging]
