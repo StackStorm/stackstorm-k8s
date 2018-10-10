@@ -46,7 +46,7 @@ See Helm `values.yaml`, `enterprise` section for configuration examples.
 
 ## Components
 
-The Dockerfiles used to generate the docker images for each of the following components are available at
+The Dockerfiles used to generate the docker images for each st2 component are available at
 github.com/stackstorm/st2-dockerfiles.
 
 ### st2client
