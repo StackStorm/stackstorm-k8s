@@ -47,7 +47,7 @@ See Helm `values.yaml`, `enterprise` section for configuration examples.
 ## Components
 
 The Dockerfiles used to generate the docker images for each st2 component are available at
-github.com/stackstorm/st2-dockerfiles.
+[st2-dockerfiles](https://github.com/stackstorm/st2-dockerfiles).
 
 ### st2client
 A helper container to switch into and run st2 CLI commands against the deployed StackStorm cluster.
