@@ -45,6 +45,10 @@ See Helm `values.yaml`, `enterprise` section for configuration examples.
 > 90-day free trial can be requested at https://stackstorm.com/#product
 
 ## Components
+
+The Community FOSS Dockerfiles used to generate the docker images for each st2 component are available at
+[st2-dockerfiles](https://github.com/stackstorm/st2-dockerfiles).
+
 ### st2client
 A helper container to switch into and run st2 CLI commands against the deployed StackStorm cluster.
 All resources like credentials, configs, RBAC, packs, keys and secrets are shared with this container.
