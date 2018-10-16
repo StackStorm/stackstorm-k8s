@@ -1,7 +1,7 @@
 # Changelog
 
 ## In Development
-
+* Add new Helm `st2.keyvalue` to import data into st2 K/V storage  (#30)
 
 ## v0.6.0
 * Add StackStorm FOSS (community version), make Enterprise install optional (#22)
