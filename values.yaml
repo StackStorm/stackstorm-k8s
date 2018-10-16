@@ -85,6 +85,13 @@ st2:
       name: st2packs
       tag: latest
       pullPolicy: Always
+  # Import data into StackStorm's Key/Value datastore (https://docs.stackstorm.com/datastore.html)
+  keyvalue:
+    #- name: st2_version
+    #  scope: st2kv.system
+    #  secret: false
+    #  encrypted: false
+    #  value: "2.9"
 
 ##
 ## StackStorm HA Cluster Secrets. All fields are required!
