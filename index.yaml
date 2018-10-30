@@ -3,7 +3,7 @@ entries:
   stackstorm-enterprise-ha:
   - apiVersion: v1
     appVersion: 2.9dev
-    created: 2018-10-04T21:02:03.321108554+01:00
+    created: 2018-10-30T22:15:21.960053133Z
     description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm
       in HA environment.
     digest: 927ac131186f6a7d358f98be99df2932f5a3ecf7dc73c1670a7411c632154613
@@ -24,11 +24,11 @@ entries:
       url: https://github.com/warrenvw
     name: stackstorm-enterprise-ha
     urls:
-    - https://helm.stackstorm.com/stackstorm-enterprise-ha-0.5.2.tgz
+    - stackstorm-enterprise-ha-0.5.2.tgz
     version: 0.5.2
   - apiVersion: v1
     appVersion: 2.9dev
-    created: 2018-10-04T21:02:03.317195676+01:00
+    created: 2018-10-30T22:15:21.957505141Z
     description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm
       in HA environment.
     digest: fc30297ab3fcefd267cf2e5578cd29433d2888a507e3750190a729735c89282b
@@ -49,11 +49,11 @@ entries:
       url: https://github.com/warrenvw
     name: stackstorm-enterprise-ha
     urls:
-    - https://helm.stackstorm.com/stackstorm-enterprise-ha-0.5.1.tgz
+    - stackstorm-enterprise-ha-0.5.1.tgz
     version: 0.5.1
   - apiVersion: v1
     appVersion: 2.9dev
-    created: 2018-10-04T21:02:03.314631685+01:00
+    created: 2018-10-30T22:15:21.955032137Z
     description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm
       in HA environment.
     digest: 2db68cc6a37a7f7edab6bd509e074944388f41feb263ad49b84df92e2eeb6fdf
@@ -74,11 +74,11 @@ entries:
       url: https://github.com/warrenvw
     name: stackstorm-enterprise-ha
     urls:
-    - https://helm.stackstorm.com/stackstorm-enterprise-ha-0.5.0.tgz
+    - stackstorm-enterprise-ha-0.5.0.tgz
     version: 0.5.0
   - apiVersion: v1
     appVersion: 2.9dev
-    created: 2018-10-04T21:02:03.311344707+01:00
+    created: 2018-10-30T22:15:21.951667946Z
     description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm
       in HA environment.
     digest: 5bc94454bb1d7bb295898cd8f87f924a750ec5bf7f7e289d9fc62fd1e9bb2b38
@@ -99,11 +99,11 @@ entries:
       url: https://github.com/warrenvw
     name: stackstorm-enterprise-ha
     urls:
-    - https://helm.stackstorm.com/stackstorm-enterprise-ha-0.4.0.tgz
+    - stackstorm-enterprise-ha-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
     appVersion: 2.9dev
-    created: 2018-10-04T21:02:03.305020077+01:00
+    created: 2018-10-30T22:15:21.948662358Z
     description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm
       in HA environment.
     digest: 35250d1c02950e42f693a575058132ae2fa5eb8bd7aa4a03cdb78f6f671cb5fc
@@ -124,11 +124,11 @@ entries:
       url: https://github.com/warrenvw
     name: stackstorm-enterprise-ha
     urls:
-    - https://helm.stackstorm.com/stackstorm-enterprise-ha-0.3.1.tgz
+    - stackstorm-enterprise-ha-0.3.1.tgz
     version: 0.3.1
   - apiVersion: v1
     appVersion: 2.9dev
-    created: 2018-10-04T21:02:03.301055009+01:00
+    created: 2018-10-30T22:15:21.945898684Z
     description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm
       in HA environment.
     digest: a7bab346c6d34f3acf17d097aca8c2458f7bc5d1ae76e365721e3254ed9623d0
@@ -149,11 +149,11 @@ entries:
       url: https://github.com/warrenvw
     name: stackstorm-enterprise-ha
     urls:
-    - https://helm.stackstorm.com/stackstorm-enterprise-ha-0.3.0.tgz
+    - stackstorm-enterprise-ha-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
     appVersion: 2.9dev
-    created: 2018-10-04T21:02:03.296732653+01:00
+    created: 2018-10-30T22:15:21.943353483Z
     description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm
       in HA environment.
     digest: aef78255b623932c6d5b711cd1388002a7cbbfb0c853a8b11a306468bb4ab241
@@ -174,12 +174,37 @@ entries:
       url: https://github.com/warrenvw
     name: stackstorm-enterprise-ha
     urls:
-    - https://helm.stackstorm.com/stackstorm-enterprise-ha-0.2.0.tgz
+    - stackstorm-enterprise-ha-0.2.0.tgz
     version: 0.2.0
   stackstorm-ha:
   - apiVersion: v1
     appVersion: 3.0dev
-    created: 2018-10-04T21:02:03.333012177+01:00
+    created: 2018-10-30T22:15:21.966772673Z
+    description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
+      environment.
+    digest: 4f8c28e440a960c7dd697292fd44706dc7293b1397a5ddc06addcf4686a6c1ed
+    home: https://stackstorm.com/#product
+    icon: https://avatars1.githubusercontent.com/u/4969009
+    keywords:
+    - st2
+    - stackstorm
+    - devops
+    - event-driven
+    - auto-remediation
+    - IFTTT
+    - HA
+    maintainers:
+    - name: Eugen C.
+      url: https://github.com/armab
+    - name: Warren Van Winckel
+      url: https://github.com/warrenvw
+    name: stackstorm-ha
+    urls:
+    - stackstorm-ha-0.7.0.tgz
+    version: 0.7.0
+  - apiVersion: v1
+    appVersion: 3.0dev
+    created: 2018-10-30T22:15:21.962767878Z
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 296a0d0303b2f720c06e344cbb2d10c4d8953e0047fa47534320452376fb12eb
@@ -200,6 +225,6 @@ entries:
       url: https://github.com/warrenvw
     name: stackstorm-ha
     urls:
-    - https://helm.stackstorm.com/stackstorm-ha-0.6.0.tgz
+    - stackstorm-ha-0.6.0.tgz
     version: 0.6.0
-generated: 2018-10-04T21:02:03.29375323+01:00
+generated: 2018-10-30T22:15:21.940368699Z
