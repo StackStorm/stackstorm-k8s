@@ -212,8 +212,13 @@ st2web:
       cpu: "50m"
     limits:
       memory: "100Mi"
-  # TODO: Add Ingress and/or LoadBalancer setting as a way to expose service to public (#6)
+  # TODO: Add Ingress setting as a way to expose service to public (#6).
+  # For now, use LoadBalancer or NodePort (default to LoadBalancer).
   # ingress:
+  service:
+    # NodePort | LoadBalancer
+    type: "LoadBalancer"
+    hostname: "st2admin.stackstorm.net"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
