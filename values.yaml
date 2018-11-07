@@ -393,3 +393,16 @@ kube-registry-proxy:
     host: st2packs-docker-registry.default.svc.cluster.local
     port: 5000
   hostPort: 5000
+
+##
+## External DNS configuration (3rd party chart dependency)
+##
+## Creates a deployment of external-dns within the cluster to update DNS with CNAME -> ELB
+##
+## For values.yaml reference:
+## https://github.com/helm/charts/tree/master/stable/external-dns
+##
+external-dns:
+  aws:
+    zoneType: "public"
+  domainFilters: []
