@@ -218,7 +218,7 @@ st2web:
   service:
     # NodePort | LoadBalancer
     type: "LoadBalancer"
-    hostname: "st2admin.stackstorm.net"
+    # hostname: ""
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
