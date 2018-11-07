@@ -3,6 +3,9 @@
 ## In Development
 
 
+## v0.7.1
+* Fix st2web re-deployment is not triggered when updating SSL cert (#33)
+
 ## v0.7.0
 * Add new Helm `st2.keyvalue` to import data into st2 K/V storage  (#30)
 * Include new st2 component `st2scheduler`, introduced since st2 `v3.0` (#32)
