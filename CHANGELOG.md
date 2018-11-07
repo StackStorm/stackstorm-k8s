@@ -1,7 +1,7 @@
 # Changelog
 
 ## In Development
-
+* Add ability to specify service type for st2web (#35)
 
 ## v0.7.0
 * Add new Helm `st2.keyvalue` to import data into st2 K/V storage  (#30)
