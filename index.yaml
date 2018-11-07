@@ -3,7 +3,7 @@ entries:
   stackstorm-enterprise-ha:
   - apiVersion: v1
     appVersion: 2.9dev
-    created: 2018-10-30T22:15:21.960053133Z
+    created: 2018-11-07T21:38:50.543231716Z
     description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm
       in HA environment.
     digest: 927ac131186f6a7d358f98be99df2932f5a3ecf7dc73c1670a7411c632154613
@@ -28,7 +28,7 @@ entries:
     version: 0.5.2
   - apiVersion: v1
     appVersion: 2.9dev
-    created: 2018-10-30T22:15:21.957505141Z
+    created: 2018-11-07T21:38:50.540723107Z
     description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm
       in HA environment.
     digest: fc30297ab3fcefd267cf2e5578cd29433d2888a507e3750190a729735c89282b
@@ -53,7 +53,7 @@ entries:
     version: 0.5.1
   - apiVersion: v1
     appVersion: 2.9dev
-    created: 2018-10-30T22:15:21.955032137Z
+    created: 2018-11-07T21:38:50.53823539Z
     description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm
       in HA environment.
     digest: 2db68cc6a37a7f7edab6bd509e074944388f41feb263ad49b84df92e2eeb6fdf
@@ -78,7 +78,7 @@ entries:
     version: 0.5.0
   - apiVersion: v1
     appVersion: 2.9dev
-    created: 2018-10-30T22:15:21.951667946Z
+    created: 2018-11-07T21:38:50.535810512Z
     description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm
       in HA environment.
     digest: 5bc94454bb1d7bb295898cd8f87f924a750ec5bf7f7e289d9fc62fd1e9bb2b38
@@ -103,7 +103,7 @@ entries:
     version: 0.4.0
   - apiVersion: v1
     appVersion: 2.9dev
-    created: 2018-10-30T22:15:21.948662358Z
+    created: 2018-11-07T21:38:50.531723415Z
     description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm
       in HA environment.
     digest: 35250d1c02950e42f693a575058132ae2fa5eb8bd7aa4a03cdb78f6f671cb5fc
@@ -128,7 +128,7 @@ entries:
     version: 0.3.1
   - apiVersion: v1
     appVersion: 2.9dev
-    created: 2018-10-30T22:15:21.945898684Z
+    created: 2018-11-07T21:38:50.529298714Z
     description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm
       in HA environment.
     digest: a7bab346c6d34f3acf17d097aca8c2458f7bc5d1ae76e365721e3254ed9623d0
@@ -153,7 +153,7 @@ entries:
     version: 0.3.0
   - apiVersion: v1
     appVersion: 2.9dev
-    created: 2018-10-30T22:15:21.943353483Z
+    created: 2018-11-07T21:38:50.526964485Z
     description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm
       in HA environment.
     digest: aef78255b623932c6d5b711cd1388002a7cbbfb0c853a8b11a306468bb4ab241
@@ -179,7 +179,32 @@ entries:
   stackstorm-ha:
   - apiVersion: v1
     appVersion: 3.0dev
-    created: 2018-10-30T22:15:21.966772673Z
+    created: 2018-11-07T21:38:50.554589139Z
+    description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
+      environment.
+    digest: 6ea909176c0c40cb95c8c066598cb9c11e60ffa681772ee9606c1bc6f3c2c086
+    home: https://stackstorm.com/#product
+    icon: https://avatars1.githubusercontent.com/u/4969009
+    keywords:
+    - st2
+    - stackstorm
+    - devops
+    - event-driven
+    - auto-remediation
+    - IFTTT
+    - HA
+    maintainers:
+    - name: Eugen C.
+      url: https://github.com/armab
+    - name: Warren Van Winckel
+      url: https://github.com/warrenvw
+    name: stackstorm-ha
+    urls:
+    - stackstorm-ha-0.7.1.tgz
+    version: 0.7.1
+  - apiVersion: v1
+    appVersion: 3.0dev
+    created: 2018-11-07T21:38:50.552089781Z
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 4f8c28e440a960c7dd697292fd44706dc7293b1397a5ddc06addcf4686a6c1ed
@@ -204,7 +229,7 @@ entries:
     version: 0.7.0
   - apiVersion: v1
     appVersion: 3.0dev
-    created: 2018-10-30T22:15:21.962767878Z
+    created: 2018-11-07T21:38:50.545806029Z
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 296a0d0303b2f720c06e344cbb2d10c4d8953e0047fa47534320452376fb12eb
@@ -227,4 +252,4 @@ entries:
     urls:
     - stackstorm-ha-0.6.0.tgz
     version: 0.6.0
-generated: 2018-10-30T22:15:21.940368699Z
+generated: 2018-11-07T21:38:50.524536793Z
