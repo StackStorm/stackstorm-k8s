@@ -216,9 +216,9 @@ st2web:
   # For now, use LoadBalancer or NodePort (default to LoadBalancer).
   # ingress:
   service:
-    # NodePort | LoadBalancer
-    type: "LoadBalancer"
-    # hostname: ""
+    # type can be one of "ClusterIP", "NodePort", "LoadBalancer" or "ExternalName"
+    type: "NodePort"
+    hostname: ""
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
@@ -403,6 +403,7 @@ kube-registry-proxy:
 ## https://github.com/helm/charts/tree/master/stable/external-dns
 ##
 external-dns:
+  enabled: false
   aws:
     zoneType: "public"
   domainFilters: []
