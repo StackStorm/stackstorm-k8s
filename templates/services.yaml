@@ -84,6 +84,7 @@ metadata:
     external-dns.alpha.kubernetes.io/hostname: {{ .Values.st2web.service.hostname | quote }}
     {{- end }}
     # For more information, see https://kubernetes.io/docs/concepts/services-networking/service/#ssl-support-on-aws
+    {{- if eq .Values.st2web.service.type "LoadBalancer" }}
     {{- if .Values.st2web.service.loadBalancer.sslCert }}
     service.beta.kubernetes.io/aws-load-balancer-ssl-cert: {{ .Values.st2web.service.loadBalancer.sslCert | quote }}
     {{- end }}
@@ -95,6 +96,7 @@ metadata:
     {{- end }}
     {{- if .Values.st2web.service.loadBalancer.sslNegotiationPolicy }}
     service.beta.kubernetes.io/aws-load-balancer-ssl-negotiation-policy: {{ .Values.st2web.service.loadBalancer.sslNegotiationPolicy | quote }}
+    {{- end }}
     {{- end }}
   labels:
     app: st2web

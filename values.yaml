@@ -407,6 +407,7 @@ kube-registry-proxy:
 ## For values.yaml reference:
 ## https://github.com/helm/charts/tree/master/stable/external-dns
 ##
+## TODO: If eq st2web.service.type "LoadBalancer", set enabled to true. Any other cases?
 external-dns:
   enabled: false
   aws:
