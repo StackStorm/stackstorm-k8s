@@ -7,14 +7,32 @@ Congratulations! You have just deployed StackStorm {{ if .Values.enterprise.enab
   ███████║   ██║   ███████╗    ██║  ██║██║  ██║    ╚██████╔╝██║  ██╗
   ╚══════╝   ╚═╝   ╚══════╝    ╚═╝  ╚═╝╚═╝  ╚═╝     ╚═════╝ ╚═╝  ╚═╝
 
-1. Get the StackStorm Web UI URL by running these commands:
-{{- if ne .Values.st2web.service.type "LoadBalancer" }}
-export ST2WEB_IP=$(minikube ip 2>/dev/null || kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
-export ST2WEB_PORT=":$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }})"
-{{- else }}
+1. Get the StackStorm Web UI URL:
+{{- if .Values.st2web.ingress.hostname }}
+
+echo https://{{ .Values.st2web.ingress.hostname }}
+
+{{- else if contains "LoadBalancer" .Values.st2web.service.type }}
+
+NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+      Watch the status with "kubectl get service st2cicd-st2web-enterprise -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'"
+
 export ST2WEB_IP=$(kubectl get service st2cicd-st2web-enterprise -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+echo https://${ST2WEB_IP}/
+
+{{- else if contains "ClusterIP" .Values.st2web.service.type }}
+
+echo https://127.0.0.1:8080
+kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ .Release.Name }}-st2web-{{ if .Values.enterprise.enabled }}-enterprise {{ end }} 8080:80
+
 {{- end }}
-echo https://${ST2WEB_IP}${ST2WEB_PORT:-}/
+{{- if contains "NodePort" .Values.st2web.service.type }}
+
+export ST2WEB_IP=$(minikube ip 2>/dev/null || kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+export ST2WEB_PORT="$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }})"
+echo https://${ST2WEB_IP}:${ST2WEB_PORT}/
+
+{{- end }}
 
 2. Login with the following credentials:
 username: {{ .Values.secrets.st2.username }}

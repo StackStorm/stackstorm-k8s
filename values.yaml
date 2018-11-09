@@ -213,17 +213,20 @@ st2web:
     limits:
       memory: "100Mi"
   # TODO: Add Ingress setting as a way to expose service to public (#6).
-  # For now, use LoadBalancer or NodePort (default to LoadBalancer).
-  # ingress:
+  ingress: {}
+  #  hostname:
   service:
     # type can be one of "ClusterIP", "NodePort", "LoadBalancer" or "ExternalName"
     type: "NodePort"
     hostname: ""
-    loadBalancer:
-      backendProtocol: "https"
-      sslCert: ""
-      sslPorts: "443"
-      sslNegotiationPolicy: "ELBSecurityPolicy-TLS-1-2-2017-01"
+  annotations: {}
+  ## Example annotations. For more information, see
+  #https://kubernetes.io/docs/concepts/services-networking/service/#ssl-support-on-aws
+    #loadBalancer:
+    #  backendProtocol: "https"
+    #  sslCert: ""
+    #  sslPorts: "443"
+    #  sslNegotiationPolicy: "ELBSecurityPolicy-TLS-1-2-2017-01"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
