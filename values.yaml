@@ -219,6 +219,11 @@ st2web:
     # type can be one of "ClusterIP", "NodePort", "LoadBalancer" or "ExternalName"
     type: "NodePort"
     hostname: ""
+    loadBalancer:
+      backendProtocol: "https"
+      sslCert: ""
+      sslPorts: "443"
+      sslNegotiationPolicy: "ELBSecurityPolicy-TLS-1-2-2017-01"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []

@@ -80,7 +80,22 @@ metadata:
   name: {{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }}
   annotations:
     description: StackStorm st2web, - an admin Web UI and main entry point for external API requests
+    {{- if .Values.st2web.service.hostname }}
     external-dns.alpha.kubernetes.io/hostname: {{ .Values.st2web.service.hostname | quote }}
+    {{- end }}
+    # For more information, see https://kubernetes.io/docs/concepts/services-networking/service/#ssl-support-on-aws
+    {{- if .Values.st2web.service.loadBalancer.sslCert }}
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: {{ .Values.st2web.service.loadBalancer.sslCert | quote }}
+    {{- end }}
+    {{- if .Values.st2web.service.loadBalancer.backendProtocol }}
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: {{ .Values.st2web.service.loadBalancer.backendProtocol | quote }}
+    {{- end }}
+    {{- if .Values.st2web.service.loadBalancer.sslPorts }}
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: {{ .Values.st2web.service.loadBalancer.sslPorts | quote }}
+    {{- end }}
+    {{- if .Values.st2web.service.loadBalancer.sslNegotiationPolicy }}
+    service.beta.kubernetes.io/aws-load-balancer-ssl-negotiation-policy: {{ .Values.st2web.service.loadBalancer.sslNegotiationPolicy | quote }}
+    {{- end }}
   labels:
     app: st2web
     tier: frontend
