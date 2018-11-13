@@ -212,8 +212,16 @@ st2web:
       cpu: "50m"
     limits:
       memory: "100Mi"
-  # TODO: Add Ingress and/or LoadBalancer setting as a way to expose service to public (#6)
+  # TODO: Add Ingress setting as a way to expose service to public (#6).
   # ingress:
+  service:
+    # type can be one of "ClusterIP", "NodePort", "LoadBalancer" or "ExternalName"
+    type: "NodePort"
+    # The hostname associated with st2web service (externalName, added to external DNS, etc.)
+    hostname: ""
+    # For more information regarding annotations, see
+    # https://kubernetes.io/docs/concepts/services-networking/service/#ssl-support-on-aws
+    annotations: {}
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
@@ -388,3 +396,18 @@ kube-registry-proxy:
     host: st2packs-docker-registry.default.svc.cluster.local
     port: 5000
   hostPort: 5000
+
+##
+## External DNS configuration (3rd party chart dependency)
+##
+## Creates a deployment of external-dns within the cluster to update DNS with CNAME -> ELB
+##
+## For values.yaml reference:
+## https://github.com/helm/charts/tree/master/stable/external-dns
+##
+## TODO: If eq st2web.service.type "LoadBalancer", set enabled to true. Any other cases?
+external-dns:
+  enabled: false
+  aws:
+    zoneType: "public"
+  domainFilters: []

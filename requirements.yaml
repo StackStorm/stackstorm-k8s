@@ -14,3 +14,7 @@ dependencies:
     version: 0.2.2
     repository: https://kubernetes-charts-incubator.storage.googleapis.com/
     condition: docker-registry.enabled
+  - name: external-dns
+    version: 1.0.2
+    repository: https://kubernetes-charts.storage.googleapis.com/
+    condition: external-dns.enabled

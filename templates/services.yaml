@@ -80,6 +80,12 @@ metadata:
   name: {{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }}
   annotations:
     description: StackStorm st2web, - an admin Web UI and main entry point for external API requests
+    {{- if .Values.st2web.service.hostname }}
+    external-dns.alpha.kubernetes.io/hostname: {{ .Values.st2web.service.hostname | quote }}
+    {{- end }}
+{{- if .Values.st2web.annotations }}
+{{ toYaml .Values.st2web.annotations | indent 4 }}
+{{- end }}
   labels:
     app: st2web
     tier: frontend
@@ -93,8 +99,12 @@ spec:
     app: st2web
     support: {{ template "supportMethod" . }}
     release: {{ .Release.Name }}
-  # TODO: Consider to template it, if needed
-  type: NodePort
+  type: {{ .Values.st2web.service.type }}
+  {{- if contains "ExternalName" .Values.st2web.service.type }}
+  {{- if .Values.st2web.service.hostname }}
+  externalName: {{ .Values.st2web.service.hostname }}
+  {{- end }}
+  {{- end }}
   ports:
   - protocol: TCP
     port: 443
