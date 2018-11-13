@@ -1,6 +1,8 @@
 # Changelog
 
 ## In Development
+
+## v0.8.0
 * Add ability to specify service type for st2web (#35)
 
 ## v0.7.1
