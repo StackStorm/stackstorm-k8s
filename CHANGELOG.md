@@ -2,6 +2,9 @@
 
 ## In Development
 
+## v0.8.1
+* Ensure st2sensorcontainer is re-deployed on `st2.packs.configs` change (#37)
+
 ## v0.8.0
 * Add ability to specify service type for st2web (#35)
 
