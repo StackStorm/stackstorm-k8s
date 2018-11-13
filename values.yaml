@@ -217,7 +217,7 @@ st2web:
   service:
     # type can be one of "ClusterIP", "NodePort", "LoadBalancer" or "ExternalName"
     type: "NodePort"
-    # st2web hostname
+    # The hostname associated with st2web service (externalName, added to external DNS, etc.)
     hostname: ""
     annotations: {}
     # Example annotations. For more information, see
