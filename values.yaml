@@ -219,9 +219,9 @@ st2web:
     type: "NodePort"
     # The hostname associated with st2web service (externalName, added to external DNS, etc.)
     hostname: ""
-    annotations: {}
-    # Example annotations. For more information, see
+    # For more information regarding annotations, see
     # https://kubernetes.io/docs/concepts/services-networking/service/#ssl-support-on-aws
+    annotations: {}
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
