@@ -8,11 +8,7 @@ Congratulations! You have just deployed StackStorm {{ if .Values.enterprise.enab
   ╚══════╝   ╚═╝   ╚══════╝    ╚═╝  ╚═╝╚═╝  ╚═╝     ╚═════╝ ╚═╝  ╚═╝
 
 1. Get the StackStorm Web UI URL:
-{{- if .Values.st2web.ingress.hostname }}
-
-echo https://{{ .Values.st2web.ingress.hostname }}
-
-{{- else if contains "LoadBalancer" .Values.st2web.service.type }}
+{{- if contains "LoadBalancer" .Values.st2web.service.type }}
 
 NOTE: It may take a few minutes for the LoadBalancer IP to be available.
       Watch the status with "kubectl get service st2cicd-st2web-enterprise -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'"

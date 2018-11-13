@@ -213,6 +213,7 @@ st2web:
     limits:
       memory: "100Mi"
   # TODO: Add Ingress setting as a way to expose service to public (#6).
+  # ingress:
   service:
     # type can be one of "ClusterIP", "NodePort", "LoadBalancer" or "ExternalName"
     type: "NodePort"
