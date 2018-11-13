@@ -18,8 +18,8 @@ echo https://${ST2WEB_IP}/
 
 {{- else if contains "ClusterIP" .Values.st2web.service.type }}
 
-echo https://127.0.0.1:8080
-kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ .Release.Name }}-st2web-{{ if .Values.enterprise.enabled }}-enterprise {{ end }} 8080:80
+echo https://127.0.0.1:8443
+kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ .Release.Name }}-st2web-{{ if .Values.enterprise.enabled }}-enterprise {{ end }} 8443:443
 
 {{- end }}
 {{- if contains "NodePort" .Values.st2web.service.type }}
