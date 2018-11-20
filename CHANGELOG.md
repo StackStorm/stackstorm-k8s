@@ -2,6 +2,9 @@
 
 ## In Development
 
+## v0.8.2
+* Fix LoadBalancer templating to utilize correct service endpoints in NOTES (#39)
+
 ## v0.8.1
 * Ensure st2sensorcontainer is re-deployed on `st2.packs.configs` change (#37)
 
