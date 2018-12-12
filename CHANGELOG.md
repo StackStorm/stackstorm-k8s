@@ -3,7 +3,7 @@
 ## In Development
 
 ## v0.8.3
-* Switch st2 version from `v3.0dev` to `v2.10dev` due to release new plans (#40)
+* Switch st2 version from `v3.0dev` to `v2.10dev` due to new release plans (#40)
 
 ## v0.8.2
 * Fix LoadBalancer templating to utilize correct service endpoints in NOTES (#39)
