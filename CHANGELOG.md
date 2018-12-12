@@ -19,7 +19,7 @@
 
 ## v0.7.0
 * Add new Helm `st2.keyvalue` to import data into st2 K/V storage  (#30)
-* Include new st2 component `st2scheduler`, introduced since st2 `v2.10` (#32)
+* Include new st2 component `st2scheduler`, introduced in st2 `v2.10` (#32)
 
 ## v0.6.0
 * Add StackStorm FOSS (community version), make Enterprise install optional (#22)
