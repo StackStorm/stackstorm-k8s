@@ -67,7 +67,7 @@ kubectl exec -it ${ST2CLIENT} /bin/bash
 st2web is a StackStorm Web UI admin dashboard. By default, st2web K8s config includes a Pod Deployment and a Service.
 `2` replicas (configurable) of st2web serve the web app and proxy requests to st2auth, st2api, st2stream.
 > **Note!** K8s Service uses only NodePort at the moment, so installing this chart will not provision a K8s resource of type LoadBalancer or Ingress (TODO!).
-  Depending on your Kubernetes cluster setup you may need to add additional configuration to access the Web UI service or expose it to public net.
+  Depending on your Kubernetes cluster setup you may need to add additional [configuration](https://github.com/StackStorm/stackstorm-ha/blob/master/values.yaml#L218-L219) to access the Web UI service or expose it to public net.
 
 ### [st2auth](https://docs.stackstorm.com/reference/ha.html#st2auth)
 All authentication is managed by `st2auth` service.
