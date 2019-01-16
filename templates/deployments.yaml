@@ -347,16 +347,15 @@ spec:
       {{- end }}
       containers:
       - name: st2web{{ template "enterpriseSuffix" . }}
-        image: "{{ template "imageRepository" . }}/st2web{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        image: "ggabriele/st2web"
         ports:
-        - containerPort: 443
+        - containerPort: 80
         # Probe to check if app is running. Failure will lead to a pod restart.
         livenessProbe:
           httpGet:
-            scheme: HTTPS
+            scheme: HTTP
             path: /
-            port: 443
+            port: 80
           initialDelaySeconds: 1
         # Probe to check if app is ready to serve traffic. Failure will lead to temp stop serving traffic.
         # TODO: Failing to add readinessProbe, since st2 requires authorization (401) and we don't have `/healthz` endpoints yet (https://github.com/StackStorm/st2/issues/4020)

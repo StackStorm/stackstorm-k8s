@@ -107,4 +107,4 @@ spec:
   {{- end }}
   ports:
   - protocol: TCP
-    port: 443
+    port: 80
