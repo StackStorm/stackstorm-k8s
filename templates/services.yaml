@@ -107,4 +107,8 @@ spec:
   {{- end }}
   ports:
   - protocol: TCP
+    {{ if .Values.st2web.protocol.http -}}
+    port: 80
+    {{ else -}}
     port: 443
+    {{ end -}}
