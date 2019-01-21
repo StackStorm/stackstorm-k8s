@@ -66,8 +66,8 @@ kubectl exec -it ${ST2CLIENT} /bin/bash
 ### [st2web](https://docs.stackstorm.com/latest/reference/ha.html#nginx-and-load-balancing)
 st2web is a StackStorm Web UI admin dashboard. By default, st2web K8s config includes a Pod Deployment and a Service.
 `2` replicas (configurable) of st2web serve the web app and proxy requests to st2auth, st2api, st2stream.
-> **Note!** K8s Service uses only NodePort at the moment, so installing this chart will not provision a K8s resource of type LoadBalancer or Ingress (TODO!).
-  Depending on your Kubernetes cluster setup you may need to add additional configuration to access the Web UI service or expose it to public net.
+> **Note!** By default, st2web is a NodePort Service and is not exposed to the public net.
+  If your Kubernetes cluster setup supports the LoadBalancer service type, you can edit the corresponding helm values to configure st2web as a LoadBalancer service in order to expose it and the services it proxies to the public net.
 
 ### [st2auth](https://docs.stackstorm.com/reference/ha.html#st2auth)
 All authentication is managed by `st2auth` service.
