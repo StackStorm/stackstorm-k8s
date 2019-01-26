@@ -63,7 +63,11 @@ spec:
           - printf "${ST2_AUTH_USERNAME}:$(openssl passwd -apr1 "${ST2_AUTH_PASSWORD}")\n" > /tmp/st2/htpasswd
       containers:
       - name: st2auth{{ template "enterpriseSuffix" . }}
+        {{ if .Values.st2auth.image.imageName -}}
+        image: "{{.Values.secrets.images.customRegistry}}/{{.Values.st2auth.image.imageName}}"
+        {{ else -}}
         image: "{{ template "imageRepository" . }}/st2auth{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        {{ end -}}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 9100
@@ -181,7 +185,11 @@ spec:
       {{- end }}
       containers:
       - name: st2api{{ template "enterpriseSuffix" . }}
+        {{ if .Values.st2api.image.imageName -}}
+        image: "{{.Values.secrets.images.customRegistry}}/{{.Values.st2api.image.imageName}}"
+        {{ else -}}
         image: "{{ template "imageRepository" . }}/st2api{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        {{ end -}}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 9101
@@ -272,7 +280,11 @@ spec:
       {{- end }}
       containers:
       - name: st2stream{{ template "enterpriseSuffix" . }}
+        {{ if .Values.st2stream.image.imageName -}}
+        image: "{{.Values.secrets.images.customRegistry}}/{{.Values.st2stream.image.imageName}}"
+        {{ else -}}
         image: "{{ template "imageRepository" . }}/st2stream{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        {{ end -}}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 9102
@@ -347,7 +359,11 @@ spec:
       {{- end }}
       containers:
       - name: st2web{{ template "enterpriseSuffix" . }}
-        image: "ggabriele/st2web"
+        {{ if .Values.st2web.image.imageName -}}
+        image: "{{.Values.secrets.images.customRegistry}}/{{.Values.st2web.image.imageName}}"
+        {{ else -}}
+        image: "{{ template "imageRepository" . }}/st2web{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        {{ end -}}
         ports:
         - containerPort: 80
         # Probe to check if app is running. Failure will lead to a pod restart.
@@ -445,7 +461,11 @@ spec:
       {{- end }}
       containers:
       - name: st2rulesengine{{ template "enterpriseSuffix" . }}
+        {{ if .Values.st2rulesengine.image.imageName -}}
+        image: "{{.Values.secrets.images.customRegistry}}/{{.Values.st2rulesengine.image.imageName}}"
+        {{ else -}}
         image: "{{ template "imageRepository" . }}/st2rulesengine{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        {{ end -}}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -521,7 +541,11 @@ spec:
       {{- end }}
       containers:
       - name: st2timersengine{{ template "enterpriseSuffix" . }}
+        {{ if .Values.st2timersengine.image.imageName -}}
+        image: "{{.Values.secrets.images.customRegistry}}/{{.Values.st2timersengine.image.imageName}}"
+        {{ else -}}
         image: "{{ template "imageRepository" . }}/st2timersengine{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        {{ end -}}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -596,7 +620,11 @@ spec:
       {{- end }}
       containers:
       - name: st2workflowengine{{ template "enterpriseSuffix" . }}
+        {{ if .Values.st2workflowengine.image.imageName -}}
+        image: "{{.Values.secrets.images.customRegistry}}/{{.Values.st2workflowengine.image.imageName}}"
+        {{ else -}}
         image: "{{ template "imageRepository" . }}/st2workflowengine{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        {{ end -}}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -670,7 +698,11 @@ spec:
       {{- end }}
       containers:
       - name: st2scheduler{{ template "enterpriseSuffix" . }}
+        {{ if .Values.st2scheduler.image.imageName -}}
+        image: "{{.Values.secrets.images.customRegistry}}/{{.Values.st2scheduler.image.imageName}}"
+        {{ else -}}
         image: "{{ template "imageRepository" . }}/st2scheduler{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        {{ end -}}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -745,7 +777,11 @@ spec:
       {{- end }}
       containers:
       - name: st2notifier{{ template "enterpriseSuffix" . }}
+        {{ if .Values.st2notifier.image.imageName -}}
+        image: "{{.Values.secrets.images.customRegistry}}/{{.Values.st2notifier.image.imageName}}"
+        {{ else -}}
         image: "{{ template "imageRepository" . }}/st2notifier{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        {{ end -}}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -856,7 +892,11 @@ spec:
       {{- end }}
       containers:
       - name: st2sensorcontainer{{ template "enterpriseSuffix" . }}
+        {{ if .Values.st2sensorcontainer.image.imageName -}}
+        image: "{{.Values.secrets.images.customRegistry}}/{{.Values.st2sensorcontainer.image.imageName}}"
+        {{ else -}}
         image: "{{ template "imageRepository" . }}/st2sensorcontainer{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        {{ end -}}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -979,7 +1019,11 @@ spec:
       {{- end }}
       containers:
       - name: st2actionrunner{{ template "enterpriseSuffix" . }}
+        {{ if .Values.st2actionrunner.image.imageName -}}
+        image: "{{.Values.secrets.images.customRegistry}}/{{.Values.st2actionrunner.image.imageName}}"
+        {{ else -}}
         image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        {{ end -}}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -1079,7 +1123,11 @@ spec:
       {{- end }}
       containers:
       - name: st2garbagecollector{{ template "enterpriseSuffix" . }}
+        {{ if .Values.st2garbagecollector.image.imageName -}}
+        image: "{{.Values.secrets.images.customRegistry}}/{{.Values.st2garbagecollector.image.imageName}}"
+        {{ else -}}
         image: "{{ template "imageRepository" . }}/st2garbagecollector{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        {{ end -}}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
