@@ -204,6 +204,8 @@ secrets:
 ##
 # Many st2web instances, placed behind a load balancer that serve web app and proxify requests to st2auth, st2api, st2stream.
 st2web:
+  protocol:
+    http: false
   # Minimum 2 replicas are recommended to run st2web in HA mode
   replicas: 2
   # Tested resource consumption based on multiple requests to st2web within nginx
