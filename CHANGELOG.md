@@ -2,6 +2,9 @@
 
 ## In Development
 
+## v0.9.0
+* Add new Helm value setting `st2.apikeys` to allow importing predefined ST2 API keys (#36)
+
 ## v0.8.4
 * Pin st2 version to `v3.0dev` as a new latest development version (#41)
 
