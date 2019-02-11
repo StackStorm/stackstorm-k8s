@@ -178,7 +178,7 @@ kubectl port-forward $(kubectl get pod -l app=docker-registry -o jsonpath="{.ite
 
 NOTE: If running on MacOS, before deploying the image, open another terminal and execute:
 ```
-docker run --privileged --pid=host stackstorm/docker-socat:latest nsenter -t 1 -u -n -i socat TCP-LISTEN:5000,fork TCP:docker.for.mac.localhost:5000
+docker run --privileged --pid=host stackstorm/socat:latest nsenter -t 1 -u -n -i socat TCP-LISTEN:5000,fork TCP:docker.for.mac.localhost:5000
 ```
 
 The source for the `stackstorm/socat` image is found at https://github.com/StackStorm/docker-socat.
