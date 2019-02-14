@@ -2,6 +2,105 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
+  name: {{ .Release.Name }}-job-st2-apikey-load
+  labels:
+    app: st2
+    tier: backend
+    vendor: stackstorm
+    support: {{ template "supportMethod" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  annotations:
+    helm.sh/hook: post-install, post-upgrade, post-rollback
+    helm.sh/hook-delete-policy: before-hook-creation
+    helm.sh/hook-weight: "5"
+spec:
+  template:
+    metadata:
+      name: job-st2-apikey-load
+      labels:
+        app: st2
+        tier: backend
+        vendor: stackstorm
+        support: {{ template "supportMethod" . }}
+        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+        release: {{ .Release.Name }}
+        heritage: {{ .Release.Service }}
+      annotations:
+        # TODO: Investigate/propose running Helm hook only on condition when ConfigMap or Secret has changed
+        checksum/urls: {{ include (print $.Template.BasePath "/configmaps_st2-urls.yaml") . | sha256sum }}
+        checksum/apikeys: {{ include (print $.Template.BasePath "/secrets_st2apikeys.yaml") . | sha256sum }}
+    spec:
+      {{- if .Values.enterprise.enabled }}
+      imagePullSecrets:
+      - name: {{ .Release.Name }}-st2-license
+      {{- end }}
+      initContainers:
+      # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
+      - name: generate-st2client-config
+        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        envFrom:
+        - configMapRef:
+            name: {{ .Release.Name }}-st2-urls
+        env:
+        - name: ST2_AUTH_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-st2-auth
+              key: username
+        - name: ST2_AUTH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-st2-auth
+              key: password
+        volumeMounts:
+        - name: st2client-config-vol
+          mountPath: /root/.st2/
+        # `st2 login` doesn't exit on failure correctly, use old methods instead. See bug: https://github.com/StackStorm/st2/issues/4338
+        command:
+          - 'sh'
+          - '-ec'
+          - |
+            cat <<EOT > /root/.st2/config
+            [credentials]
+            username = ${ST2_AUTH_USERNAME}
+            password = ${ST2_AUTH_PASSWORD}
+            EOT
+      containers:
+      - name: st2-apikey-load
+        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command:
+          - st2
+          - apikey
+          - load
+          - /etc/st2/apikeys.yaml
+        envFrom:
+        - configMapRef:
+            name: {{ .Release.Name }}-st2-urls
+        volumeMounts:
+        - name: st2client-config-vol
+          mountPath: /root/.st2/
+        - name: st2-apikeys-vol
+          mountPath: /etc/st2/apikeys.yaml
+          subPath: apikeys.yaml
+        # TODO: Find out default resource limits for this specific service (#5)
+        #resources:
+      volumes:
+        - name: st2client-config-vol
+          emptyDir:
+            medium: Memory
+        - name: st2-apikeys-vol
+          secret:
+            secretName: {{ .Release.Name }}-st2-apikeys
+      restartPolicy: OnFailure
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
   name: {{ .Release.Name }}-job-st2-key-load
   labels:
     app: st2

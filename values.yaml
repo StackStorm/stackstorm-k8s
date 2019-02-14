@@ -92,6 +92,15 @@ st2:
     #  secret: false
     #  encrypted: false
     #  value: "2.9"
+  # Import a list of ST2 API Keys (https://docs.stackstorm.com/authentication.html#api-key-migration)
+  apikeys:
+    #- created_at: '2018-12-15T00:21:48.507388Z'
+    #  enabled: true
+    #  id: 5c14491c6cb8de1a9207e3a2
+    #  key_hash: 56928c2d9637ce44338e9564d4b939df8b258410db23b5a80f8ad69d58e648b574f35f9293c3a76bde263738be9aa8379a81553cd55513ad672540b7b0ec0cac
+    #  metadata: {"comment": "Example unsecure ST2 API key from K8s HA Helm values.yaml"}
+    #  uid: api_key:56928c2d9637ce44338e9564d4b939df8b258410db23b5a80f8ad69d58e648b574f35f9293c3a76bde263738be9aa8379a81553cd55513ad672540b7b0ec0cac
+    #  user: st2admin
 
 ##
 ## StackStorm HA Cluster Secrets. All fields are required!
