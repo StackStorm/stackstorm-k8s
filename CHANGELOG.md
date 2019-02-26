@@ -2,6 +2,9 @@
 
 ## In Development
 
+## v0.10.0
+* Bump dependencies
+
 ## v0.9.0
 * Add new Helm value setting `st2.apikeys` to allow importing predefined ST2 API keys (#36)
 
