@@ -7,14 +7,14 @@ dependencies:
     repository: https://kubernetes-charts.storage.googleapis.com/
     alias: mongodb-ha
   - name: docker-registry
-    version: 1.5.3
+    version: 1.7.0
     repository: https://kubernetes-charts.storage.googleapis.com/
     condition: docker-registry.enabled
   - name: kube-registry-proxy
-    version: 0.2.2
+    version: 0.3.0
     repository: https://kubernetes-charts-incubator.storage.googleapis.com/
     condition: docker-registry.enabled
   - name: external-dns
-    version: 1.0.2
+    version: 1.6.1
     repository: https://kubernetes-charts.storage.googleapis.com/
     condition: external-dns.enabled
