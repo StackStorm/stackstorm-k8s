@@ -1,6 +1,7 @@
 # Changelog
 
 ## In Development
+* Replace single-node `etcd` coordination backend with 3-node etcd HA cluster, deployed as a Helm dependency (#52)
 
 ## v0.9.0
 * Add new Helm value setting `st2.apikeys` to allow importing predefined ST2 API keys (#36)
