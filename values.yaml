@@ -377,6 +377,15 @@ rabbitmq-ha:
     enabled: true
 
 ##
+## Etcd HA configuration (3rd party chart dependency)
+##
+## For values.yaml reference:
+## https://github.com/helm/charts/blob/master/incubator/etcd/values.yaml
+##
+etcd:
+  resources: {}
+
+##
 ## Docker registry configuration (3rd party chart dependency)
 ##
 ## The docker registry is useful if custom images need to be made available in the cluster.

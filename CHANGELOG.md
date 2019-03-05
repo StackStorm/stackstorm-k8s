@@ -1,6 +1,8 @@
 # Changelog
 
 ## In Development
+* Replace single-node `etcd` coordination backend with 3-node etcd HA cluster, deployed as a Helm dependency (#52)
+* Fixed improper job load order for enterprise edition failing due to missing RBAC roles & assignments (#53)
 
 ## v0.10.0
 * Bump dependencies
