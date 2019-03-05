@@ -1,9 +1,9 @@
 dependencies:
   - name: rabbitmq-ha
-    version: 1.20.0
+    version: 1.20.1
     repository: https://kubernetes-charts.storage.googleapis.com/
   - name: mongodb-replicaset
-    version: 3.9.0
+    version: 3.9.2
     repository: https://kubernetes-charts.storage.googleapis.com/
     alias: mongodb-ha
   - name: docker-registry
