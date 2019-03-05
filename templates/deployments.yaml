@@ -785,9 +785,9 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ $.Release.Name }}-st2sensorcontainer-{{ .name }}{{ template "enterpriseSuffix" $ }}
+  name: {{ $.Release.Name }}-st2sensorcontainer{{ template "hyphenPrefix" .name }}{{ template "enterpriseSuffix" $ }}
   labels:
-    app: st2sensorcontainer-{{ .name }}
+    app: st2sensorcontainer{{ template "hyphenPrefix" .name }}
     tier: backend
     vendor: stackstorm
     support: {{ template "supportMethod" $ }}
@@ -797,7 +797,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: st2sensorcontainer-{{ .name }}
+      app: st2sensorcontainer{{ template "hyphenPrefix" .name }}
       support: {{ template "supportMethod" $ }}
       release: {{ $.Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
@@ -808,7 +808,7 @@ spec:
   template:
     metadata:
       labels:
-        app: st2sensorcontainer-{{ .name }}
+        app: st2sensorcontainer{{ template "hyphenPrefix" .name }}
         tier: backend
         vendor: stackstorm
         support: {{ template "supportMethod" $ }}
@@ -856,20 +856,20 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       {{- end }}
       containers:
-      - name: st2sensorcontainer-{{ .name }}{{ template "enterpriseSuffix" $ }}
+      - name: st2sensorcontainer{{ template "hyphenPrefix" .name }}{{ template "enterpriseSuffix" $ }}
         image: "{{ template "imageRepository" $ }}/st2sensorcontainer{{ template "enterpriseSuffix" $ }}:{{ $.Chart.AppVersion }}"
         imagePullPolicy: {{ $.Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
-        {{- if .settings.ref }}
+        {{- if .ref }}
         command:
           - /opt/stackstorm/st2/bin/st2sensorcontainer
           - --config-file=/etc/st2/st2.conf
           - --config-file=/etc/st2/st2.docker.conf
           - --config-file=/etc/st2/st2.user.conf
           - --single-sensor-mode
-          - --sensor-ref={{ .settings.ref }}
+          - --sensor-ref={{ .ref }}
         {{- end }}
         envFrom:
         - configMapRef:
@@ -890,7 +890,7 @@ spec:
           readOnly: true
         {{- end }}
         resources:
-{{ toYaml .settings.resources | indent 10 }}
+{{ toYaml .resources | indent 10 }}
       volumes:
         - name: st2-config-vol
           configMap:
@@ -901,15 +901,15 @@ spec:
         - name: st2-virtualenvs-vol
           emptyDir: {}
         {{- end }}
-    {{- with .settings.nodeSelector }}
+    {{- with .nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
     {{- end }}
-    {{- with .settings.affinity }}
+    {{- with .affinity }}
       affinity:
 {{ toYaml . | indent 8 }}
     {{- end }}
-    {{- with .settings.tolerations }}
+    {{- with .tolerations }}
       tolerations:
 {{ toYaml . | indent 8 }}
     {{- end }}

@@ -94,15 +94,14 @@ st2:
       # Default "all-in-one" sensorcontainer that runs all sensors.
       # To partition sensors with one sensor per node, override st2.packs.sensors.
       # NOTE: Do not modify this file.
-      - name: aio
-        settings:
-          # ref: circle_ci.CircleCIWebhookSensor
-          # TODO: Find out recommended/default resources for this specific service (#5)
-          resources: {}
-          # Additional advanced settings to control pod/deployment placement
-          affinity: {}
-          nodeSelector: {}
-          tolerations: []
+      - name:
+        # ref: circle_ci.CircleCIWebhookSensor
+        # TODO: Find out recommended/default resources for this specific service (#5)
+        resources: {}
+        # Additional advanced settings to control pod/deployment placement
+        affinity: {}
+        nodeSelector: {}
+        tolerations: []
   # Import data into StackStorm's Key/Value datastore (https://docs.stackstorm.com/datastore.html)
   keyvalue:
     #- name: st2_version
