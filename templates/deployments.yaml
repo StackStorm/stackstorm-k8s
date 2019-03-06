@@ -859,9 +859,18 @@ spec:
       - name: st2sensorcontainer{{ template "hyphenPrefix" .name }}{{ template "enterpriseSuffix" $ }}
         image: "{{ template "imageRepository" $ }}/st2sensorcontainer{{ template "enterpriseSuffix" $ }}:{{ $.Chart.AppVersion }}"
         imagePullPolicy: {{ $.Values.image.pullPolicy }}
-        # TODO: Add liveness/readiness probes (#3)
-        #livenessProbe:
-        #readinessProbe:
+        {{- if .port }}
+        readinessProbe:
+          tcpSocket:
+            port: {{ .port }}
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: {{ .port }}
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        {{- end }}
         {{- if .ref }}
         command:
           - /opt/stackstorm/st2/bin/st2sensorcontainer
