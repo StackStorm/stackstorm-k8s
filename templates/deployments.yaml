@@ -859,17 +859,14 @@ spec:
       - name: st2sensorcontainer{{ template "hyphenPrefix" .name }}{{ template "enterpriseSuffix" $ }}
         image: "{{ template "imageRepository" $ }}/st2sensorcontainer{{ template "enterpriseSuffix" $ }}:{{ $.Chart.AppVersion }}"
         imagePullPolicy: {{ $.Values.image.pullPolicy }}
-        {{- if .port }}
+        {{- with .readinessProbe }}
+        # Probe to check if app is running. Failure will lead to a pod restart.
         readinessProbe:
-          tcpSocket:
-            port: {{ .port }}
-          initialDelaySeconds: 5
-          periodSeconds: 10
+{{ toYaml . | indent 10 }}
+        {{- end }}
+        {{- with .livenessProbe }}
         livenessProbe:
-          tcpSocket:
-            port: {{ .port }}
-          initialDelaySeconds: 5
-          periodSeconds: 10
+{{ toYaml . | indent 10 }}
         {{- end }}
         {{- if .ref }}
         command:
