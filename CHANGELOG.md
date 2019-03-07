@@ -1,5 +1,7 @@
 # Changelog
 
+## In Development
+
 ## v0.10.0
 * Bump versions of all dependencies (#50)
 * Allow st2sensorcontainer to be partitioned (#51)
