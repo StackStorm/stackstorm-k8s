@@ -112,11 +112,44 @@ In an HA deployment there must be a minimum of `2` replicas of st2notifier runni
 which in our case is `etcd`.
 
 ### [st2sensorcontainer](https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer)
-st2sensorcontainer manages StackStorm sensors: starts, stops and restarts them as a subprocesses.
-At the moment K8s configuration consists of Deployment with hardcoded `1` replica.
-Future plans are to re-work this setup and benefit from Docker-friendly [single-sensor-per-container mode #4179](https://github.com/StackStorm/st2/pull/4179)
-(since st2 `v2.9`) as a way of [Sensor Partitioning](https://docs.stackstorm.com/latest/reference/sensor_partitioning.html), distributing the computing load
-between many pods and relying on K8s failover/reschedule mechanisms, instead of running everything on `1` single instance of st2sensorcontainer.
+st2sensorcontainer manages StackStorm sensors: It starts, stops and restarts them as subprocesses.
+By default, deployment is configured with `1` replica containing all the sensors.
+
+st2sensorcontainer also supports a more Docker-friendly single-sensor-per-container mode as a way of
+[Sensor Partitioning](https://docs.stackstorm.com/latest/reference/sensor_partitioning.html). This
+distributes the computing load between many pods and relies on K8s failover/reschedule mechanisms,
+instead of running everything on a single instance of st2sensorcontainer. To partition the sensors,
+create a yaml file containing `st2.packs.sensors`, and at a minimum, the `name` and `ref` elements.
+You can also specify a `livenessProbe` and `readinessProbe` that Kubernetes will use to check
+whether the sensor is healthy. If these probes fail, then the sensor will be restarted. Each sensor
+container can also specify `resources`, `nodeSelector`, `affinity` and `tolerations`.
+
+As an example:
+
+```
+st2:
+  packs:
+    sensors:
+      - name: github
+        ref: githubwebhook.GitHubWebhookSensor
+        livenessProbe:
+          tcpSocket:
+            port: 8642
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 8642
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources: {}
+        nodeSelector: {}
+        affinity: {}
+        tolerations: {}
+```
+
+Pass the name of this file to `helm install` using the `-f <file>` option. Add additional sensors to
+the `sensors:` list following the same format as above.
 
 ### [st2actionrunner](https://docs.stackstorm.com/reference/ha.html#st2actionrunner)
 Stackstorm workers that actually execute actions.
