@@ -177,9 +177,9 @@ For more advanced RabbitMQ configuration, please refer to official [rabbitmq-ha]
 Helm chart repository, - all settings could be overridden via `values.yaml`.
 
 ### [etcd](https://docs.stackstorm.com/latest/reference/ha.html#zookeeper-redis)
-StackStorm employs etcd as a distributed coordination backend, required for StackStorm cluster components to work properly in HA scenario.
-Currently, due to low demands, only `1` instance of etcd is created via K8s Deployment.
-Future plans to switch to official Helm chart and configure etcd/Raft cluster properly with `3` nodes by default (TODO).
+StackStorm employs etcd as a distributed coordination backend, required for st2 cluster components to work properly in HA scenario.
+`3` node Raft cluster is deployed via external official Helm chart dependency [etcd](https://github.com/helm/charts/tree/master/incubator/etcd).
+As any other Helm dependency, it's possible to further configure it for specific scaling needs via `values.yaml`.
 
 ### Docker registry
 If you do not already have an appropriate docker registry for storing custom st2 packs images, we made it
