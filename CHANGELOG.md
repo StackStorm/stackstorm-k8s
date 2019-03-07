@@ -1,7 +1,8 @@
 # Changelog
 
-## In Development
+## v0.10.0
 * Bump versions of all dependencies (#50)
+* Allow st2sensorcontainer to be partitioned (#51)
 * Replace single-node `etcd` coordination backend with 3-node etcd HA cluster, deployed as a Helm dependency (#52)
 * Fixed improper job load order for enterprise edition failing due to missing RBAC roles & assignments (#53)
 
