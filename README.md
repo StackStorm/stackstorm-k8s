@@ -120,36 +120,7 @@ st2sensorcontainer also supports a more Docker-friendly single-sensor-per-contai
 distributes the computing load between many pods and relies on K8s failover/reschedule mechanisms,
 instead of running everything on a single instance of st2sensorcontainer. To partition the sensors,
 create a yaml file containing `st2.packs.sensors`, and at a minimum, the `name` and `ref` elements.
-You can also specify a `livenessProbe` and `readinessProbe` that Kubernetes will use to check
-whether the sensor is healthy. If these probes fail, then the sensor will be restarted. Each sensor
-container can also specify `resources`, `nodeSelector`, `affinity` and `tolerations`.
-
-As an example:
-
-```
-st2:
-  packs:
-    sensors:
-      - name: github
-        ref: githubwebhook.GitHubWebhookSensor
-        livenessProbe:
-          tcpSocket:
-            port: 8642
-          initialDelaySeconds: 5
-          periodSeconds: 10
-        readinessProbe:
-          tcpSocket:
-            port: 8642
-          initialDelaySeconds: 5
-          periodSeconds: 10
-        resources: {}
-        nodeSelector: {}
-        affinity: {}
-        tolerations: {}
-```
-
-Pass the name of this file to `helm install` using the `-f <file>` option. Add additional sensors to
-the `sensors:` list following the same format as above.
+The sensor(s) must be deployed as part of the dockerized packs image.
 
 ### [st2actionrunner](https://docs.stackstorm.com/reference/ha.html#st2actionrunner)
 Stackstorm workers that actually execute actions.
