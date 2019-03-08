@@ -95,7 +95,6 @@ st2:
       # To partition sensors with one sensor per node, override st2.packs.sensors.
       # NOTE: Do not modify this file.
       - name:
-        # ref: circle_ci.CircleCIWebhookSensor
         livenessProbe: {}
         readinessProbe: {}
         # TODO: Find out recommended/default resources for this specific service (#5)
