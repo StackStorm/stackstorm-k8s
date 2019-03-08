@@ -118,9 +118,8 @@ By default, deployment is configured with `1` replica containing all the sensors
 st2sensorcontainer also supports a more Docker-friendly single-sensor-per-container mode as a way of
 [Sensor Partitioning](https://docs.stackstorm.com/latest/reference/sensor_partitioning.html). This
 distributes the computing load between many pods and relies on K8s failover/reschedule mechanisms,
-instead of running everything on a single instance of st2sensorcontainer. To partition the sensors,
-create a yaml file containing `st2.packs.sensors`, and at a minimum, the `name` and `ref` elements.
-The sensor(s) must be deployed as part of the dockerized packs image.
+instead of running everything on a single instance of st2sensorcontainer. The sensor(s) must be
+deployed as part of the custom packs image.
 
 ### [st2actionrunner](https://docs.stackstorm.com/reference/ha.html#st2actionrunner)
 Stackstorm workers that actually execute actions.
