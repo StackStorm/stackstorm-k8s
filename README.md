@@ -121,6 +121,18 @@ distributes the computing load between many pods and relies on K8s failover/resc
 instead of running everything on a single instance of st2sensorcontainer. The sensor(s) must be
 deployed as part of the custom packs image.
 
+As an example, override the default Helm values as follows:
+
+```
+st2:
+  packs:
+    sensors:
+      - name: github
+        ref: githubwebhook.GitHubWebhookSensor
+      - name: circleci
+        ref: circle_ci.CircleCIWebhookSensor
+```
+	
 ### [st2actionrunner](https://docs.stackstorm.com/reference/ha.html#st2actionrunner)
 Stackstorm workers that actually execute actions.
 `5` replicas for K8s Deployment are configured by default to increase StackStorm ability to execute actions without excessive queuing.
