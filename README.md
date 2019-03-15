@@ -112,27 +112,12 @@ In an HA deployment there must be a minimum of `2` replicas of st2notifier runni
 which in our case is `etcd`.
 
 ### [st2sensorcontainer](https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer)
-st2sensorcontainer manages StackStorm sensors: It starts, stops and restarts them as subprocesses.
-By default, deployment is configured with `1` replica containing all the sensors.
+st2sensorcontainer manages StackStorm sensors: starts, stops and restarts them as a subprocesses.
+At the moment K8s configuration consists of Deployment with hardcoded `1` replica.
+Future plans are to re-work this setup and benefit from Docker-friendly [single-sensor-per-container mode #4179](https://github.com/StackStorm/st2/pull/4179)
+(since st2 `v2.9`) as a way of [Sensor Partitioning](https://docs.stackstorm.com/latest/reference/sensor_partitioning.html), distributing the computing load
+between many pods and relying on K8s failover/reschedule mechanisms, instead of running everything on `1` single instance of st2sensorcontainer.
 
-st2sensorcontainer also supports a more Docker-friendly single-sensor-per-container mode as a way of
-[Sensor Partitioning](https://docs.stackstorm.com/latest/reference/sensor_partitioning.html). This
-distributes the computing load between many pods and relies on K8s failover/reschedule mechanisms,
-instead of running everything on a single instance of st2sensorcontainer. The sensor(s) must be
-deployed as part of the custom packs image.
-
-As an example, override the default Helm values as follows:
-
-```
-st2:
-  packs:
-    sensors:
-      - name: github
-        ref: githubwebhook.GitHubWebhookSensor
-      - name: circleci
-        ref: circle_ci.CircleCIWebhookSensor
-```
-	
 ### [st2actionrunner](https://docs.stackstorm.com/reference/ha.html#st2actionrunner)
 Stackstorm workers that actually execute actions.
 `5` replicas for K8s Deployment are configured by default to increase StackStorm ability to execute actions without excessive queuing.
@@ -159,9 +144,9 @@ For more advanced RabbitMQ configuration, please refer to official [rabbitmq-ha]
 Helm chart repository, - all settings could be overridden via `values.yaml`.
 
 ### [etcd](https://docs.stackstorm.com/latest/reference/ha.html#zookeeper-redis)
-StackStorm employs etcd as a distributed coordination backend, required for st2 cluster components to work properly in HA scenario.
-`3` node Raft cluster is deployed via external official Helm chart dependency [etcd](https://github.com/helm/charts/tree/master/incubator/etcd).
-As any other Helm dependency, it's possible to further configure it for specific scaling needs via `values.yaml`.
+StackStorm employs etcd as a distributed coordination backend, required for StackStorm cluster components to work properly in HA scenario.
+Currently, due to low demands, only `1` instance of etcd is created via K8s Deployment.
+Future plans to switch to official Helm chart and configure etcd/Raft cluster properly with `3` nodes by default (TODO).
 
 ### Docker registry
 If you do not already have an appropriate docker registry for storing custom st2 packs images, we made it
@@ -193,10 +178,8 @@ kubectl port-forward $(kubectl get pod -l app=docker-registry -o jsonpath="{.ite
 
 NOTE: If running on MacOS, before deploying the image, open another terminal and execute:
 ```
-docker run --privileged --pid=host stackstorm/socat:latest nsenter -t 1 -u -n -i socat TCP-LISTEN:5000,fork TCP:docker.for.mac.localhost:5000
+docker run --privileged --pid=host socat:latest nsenter -t 1 -u -n -i socat TCP-LISTEN:5000,fork TCP:docker.for.mac.localhost:5000
 ```
-
-The source for the `stackstorm/socat` image is found at https://github.com/StackStorm/docker-socat.
 
 To deploy the image to the registry, execute:
 ```

@@ -2,15 +2,6 @@
 
 ## In Development
 
-## v0.10.0
-* Bump versions of all dependencies (#50)
-* Allow st2sensorcontainer to be partitioned (#51)
-* Replace single-node `etcd` coordination backend with 3-node etcd HA cluster, deployed as a Helm dependency (#52)
-* Fixed improper job load order for enterprise edition failing due to missing RBAC roles & assignments (#53)
-
-## v0.9.0
-* Add new Helm value setting `st2.apikeys` to allow importing predefined ST2 API keys (#36)
-
 ## v0.8.4
 * Pin st2 version to `v3.0dev` as a new latest development version (#41)
 

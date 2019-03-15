@@ -1,23 +1,20 @@
 dependencies:
   - name: rabbitmq-ha
-    version: 1.20.1
+    version: 1.8.1
     repository: https://kubernetes-charts.storage.googleapis.com/
   - name: mongodb-replicaset
-    version: 3.9.2
+    version: 3.5.3
     repository: https://kubernetes-charts.storage.googleapis.com/
     alias: mongodb-ha
   - name: docker-registry
-    version: 1.7.0
+    version: 1.5.3
     repository: https://kubernetes-charts.storage.googleapis.com/
     condition: docker-registry.enabled
   - name: kube-registry-proxy
-    version: 0.3.0
-    repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+    version: 0.2.2
+    repository: http://storage.googleapis.com/kubernetes-charts-incubator/
     condition: docker-registry.enabled
   - name: external-dns
-    version: 1.6.1
+    version: 1.0.2
     repository: https://kubernetes-charts.storage.googleapis.com/
     condition: external-dns.enabled
-  - name: etcd
-    version: 0.6.2
-    repository: https://kubernetes-charts-incubator.storage.googleapis.com/

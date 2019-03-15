@@ -14,4 +14,4 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-{{ toYaml .Values.chatops.global | indent 2 }}
+{{ toYaml .Values.st2.chatops | indent 2 }}

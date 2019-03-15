@@ -73,6 +73,7 @@ st2:
     configs:
       core.yaml: |
         ---
+
         # example core pack config yaml
 
     # Custom packs image settings. The repository, name, tag and pullPolicy for this image
@@ -85,24 +86,6 @@ st2:
       name: st2packs
       tag: latest
       pullPolicy: Always
-
-    # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
-    # It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance.
-    # Each sensor node needs to be provided with proper partition information to share work with other sensor
-    # nodes so that the same sensor does not run on different nodes.
-    sensors:
-      # Specify default container that executes all sensors.
-      # To partition sensors with one sensor per node, override st2.packs.sensors.
-      # NOTE: Do not modify this file.
-      - name:
-        livenessProbe: {}
-        readinessProbe: {}
-        # TODO: Find out recommended/default resources for this specific service (#5)
-        resources: {}
-        # Additional advanced settings to control pod/deployment placement
-        affinity: {}
-        nodeSelector: {}
-        tolerations: []
   # Import data into StackStorm's Key/Value datastore (https://docs.stackstorm.com/datastore.html)
   keyvalue:
     #- name: st2_version
@@ -110,16 +93,59 @@ st2:
     #  secret: false
     #  encrypted: false
     #  value: "2.9"
-  # Import a list of ST2 API Keys (https://docs.stackstorm.com/authentication.html#api-key-migration)
-  apikeys:
-    #- created_at: '2018-12-15T00:21:48.507388Z'
-    #  enabled: true
-    #  id: 5c14491c6cb8de1a9207e3a2
-    #  key_hash: 56928c2d9637ce44338e9564d4b939df8b258410db23b5a80f8ad69d58e648b574f35f9293c3a76bde263738be9aa8379a81553cd55513ad672540b7b0ec0cac
-    #  metadata: {"comment": "Example unsecure ST2 API key from K8s HA Helm values.yaml"}
-    #  uid: api_key:56928c2d9637ce44338e9564d4b939df8b258410db23b5a80f8ad69d58e648b574f35f9293c3a76bde263738be9aa8379a81553cd55513ad672540b7b0ec0cac
-    #  user: st2admin
+  # Experimental st2chatops integration for StackStorm-HA Helm chart.  (https://github.com/mosn/stackstorm-ha/issues/17)
+  chatops:
+    gloal.yaml: |
+      ---
+      image: "stackstorm/st2chatops"
+      reoisitory:
+      hubot_name: hubot
+      hubot_alias: '!'
+      node_tls_reject_unauthorized: false
+      express_port: 8081
+      hubot_log_level: info
+      hubot_adapter: matteruser
+    st2.yaml: |
+      ---
+      ip: 
+      groups:
+      user:
+      password:
+      wss_port: 443
+      http_port: 443
+      reply: true
+      log_level: info
+      reply: true
+    mattermost.yaml: |
+      ---
+      mattermost_host: 
+      mattermost_group:
+      mattermost_user:
+      mattermost_password:
+      mattermost_wss: 443
+      mattermost_http_port: 443
+      mattermost_tls_verify: true
+      mattermost_use_tls: info
+      mattermost_log_level: true
+      mattermost_reply: true
+    slack.yaml: |
+      ---
+      hubot_slack_token: 
+      hubot_slack_exit_on_disconnect:
 
+#   # StackStorm offer a handy chatops pack with sets of tools ready to connect to st2. We need to install these tool separately, in similar fashion as custompacks.
+#   # are specified below.
+#   experimental_custome_image: {}
+#   # If you wish to use a docker registry running in the k8s cluster, set docker-registry.enabled to true.
+#   # Uncomment the following line to make the custom packs image available to the necessary pods.
+#   # repos'itory: localhost:5000
+#     name: "chatops"
+#     tag: "latest"
+#     pullPolicy: always
+# # Package installation can reduce build steps by handling all phases necessary at a single stage. 
+# # The package comes in with chatops packs, st2chaops and is possible to integrate with external adapters. 
+# # On the down-side, we're losing some of the cloud-native advantages that we can get using docker installation. 
+#   experimental_package_installation: {}
 ##
 ## StackStorm HA Cluster Secrets. All fields are required!
 ## NB! It's highly recommended to change ALL defaults!
@@ -224,6 +250,7 @@ secrets:
       BjdoJBzImjVB5znOgIui3ME5
       -----END PRIVATE KEY-----
 
+# Import data into StackStorm's Key/Value datastore (https://docs.stackstorm.com/datastore.html)
 ##
 ## StackStorm HA Cluster pod settings for each individual service/component.
 ##
@@ -332,6 +359,19 @@ st2notifier:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+# https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
+# It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance. Each sensor node needs to be
+# provided with proper partition information to share work with other sensor nodes so that the same sensor does not run on different nodes.
+st2sensorcontainer:
+  # TODO: Re-work to use single-sensor-per-container mode partitioning instead of running 1 single node of st2sensorcontainer. Proper implementation is now possible with Helm templating (#4)
+  # NB! Number of replicas are hardcoded to 1, see above T0D0 about using single-sensor-per-container mode in future as way of Sensor Partitioning.
+  # replicas: 1
+  # TODO: Find out recommended/default resources for this specific service (#5)
+  resources: {}
+  # Additional advanced settings to control pod/deployment placement
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
 # https://docs.stackstorm.com/reference/ha.html#st2actionrunner
 # Multiple st2actionrunner processes can run in active-active with only connections to MongoDB and RabbitMQ. Work gets naturally
 # distributed across runners via RabbitMQ. Adding more st2actionrunner processes increases the ability of StackStorm to execute actions.
@@ -355,7 +395,18 @@ st2garbagecollector:
   nodeSelector: {}
   tolerations: []
   affinity: {}
-
+  
+# Chatops service settings  
+st2chatops:
+  replicas: 1
+  # TODO: Find out recommended/default resources for this specific service (#5)
+  resources: {}
+  # Additional advanced settings to control pod/deployment placement
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+# https://docs.stackstorm.com/reference/ha.html#st2api
+# Multiple st2api process can be behind a load balancer in an a
 ##
 ## MongoDB HA configuration (3rd party chart dependency)
 ##
@@ -380,15 +431,6 @@ rabbitmq-ha:
   rabbitmqPassword: 9jS+w1u07NbHtZke1m+jW4Cj
   persistentVolume:
     enabled: true
-
-##
-## Etcd HA configuration (3rd party chart dependency)
-##
-## For values.yaml reference:
-## https://github.com/helm/charts/blob/master/incubator/etcd/values.yaml
-##
-etcd:
-  resources: {}
 
 ##
 ## Docker registry configuration (3rd party chart dependency)
