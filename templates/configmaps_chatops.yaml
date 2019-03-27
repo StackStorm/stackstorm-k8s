@@ -15,5 +15,3 @@ metadata:
     heritage: {{ .Release.Service }}
 data:
 {{ toYaml .Values.st2.chatops | indent 2 }}
-
-
