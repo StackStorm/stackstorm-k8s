@@ -196,9 +196,6 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-chatops-configs
         command:
-          - |
-              docker inspect -f {{.State.Status}} stackstorm-hubot
-              docker logs stackstorm-hubot
         resources:
           requests:
             memory: "5Mi"

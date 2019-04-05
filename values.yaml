@@ -52,7 +52,6 @@ enterprise:
       #  description: "Automatically grant admin role to all stormers group members."
       #  roles:
       #    - "admin"
-
 ##
 ## StackStorm shared variables
 ##
@@ -93,59 +92,6 @@ st2:
     #  secret: false
     #  encrypted: false
     #  value: "2.9"
-  # Experimental st2chatops integration for StackStorm-HA Helm chart.  (https://github.com/mosn/stackstorm-ha/issues/17)
-  chatops:
-    gloal.yaml: |
-      ---
-      image: "stackstorm/st2chatops"
-      reoisitory:
-      hubot_name: hubot
-      hubot_alias: '!'
-      node_tls_reject_unauthorized: false
-      express_port: 8081
-      hubot_log_level: info
-      hubot_adapter: matteruser
-    st2.yaml: |
-      ---
-      ip: 
-      groups:
-      user:
-      password:
-      wss_port: 443
-      http_port: 443
-      reply: true
-      log_level: info
-      reply: true
-    mattermost.yaml: |
-      ---
-      mattermost_host: 
-      mattermost_group:
-      mattermost_user:
-      mattermost_password:
-      mattermost_wss: 443
-      mattermost_http_port: 443
-      mattermost_tls_verify: true
-      mattermost_use_tls: info
-      mattermost_log_level: true
-      mattermost_reply: true
-    slack.yaml: |
-      ---
-      hubot_slack_token: 
-      hubot_slack_exit_on_disconnect:
-
-#   # StackStorm offer a handy chatops pack with sets of tools ready to connect to st2. We need to install these tool separately, in similar fashion as custompacks.
-#   # are specified below.
-#   experimental_custome_image: {}
-#   # If you wish to use a docker registry running in the k8s cluster, set docker-registry.enabled to true.
-#   # Uncomment the following line to make the custom packs image available to the necessary pods.
-#   # repos'itory: localhost:5000
-#     name: "chatops"
-#     tag: "latest"
-#     pullPolicy: always
-# # Package installation can reduce build steps by handling all phases necessary at a single stage. 
-# # The package comes in with chatops packs, st2chaops and is possible to integrate with external adapters. 
-# # On the down-side, we're losing some of the cloud-native advantages that we can get using docker installation. 
-#   experimental_package_installation: {}
 ##
 ## StackStorm HA Cluster Secrets. All fields are required!
 ## NB! It's highly recommended to change ALL defaults!
