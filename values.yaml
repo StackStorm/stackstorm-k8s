@@ -388,6 +388,9 @@ rabbitmq-ha:
 ## https://github.com/helm/charts/blob/master/incubator/etcd/values.yaml
 ##
 etcd:
+  image:
+    # At least etcd 'v3.0' is required by StackStorm
+    tag: "3.3.10"
   resources: {}
 
 ##
