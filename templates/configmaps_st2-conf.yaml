@@ -21,6 +21,7 @@ data:
     [auth]
     api_url = http://{{ .Release.Name }}-st2api{{ template "enterpriseSuffix" . }}:9101/
     [coordination]
+    # TODO: Use 'etcd3+http' driver for tooz, per https://github.com/StackStorm/st2/pull/4608
     url = etcd://{{ .Release.Name }}-etcd:2379
     [messaging]
     # TODO: RabbitMQ HQ connection string needs templating based on number of nodes
