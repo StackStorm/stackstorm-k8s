@@ -28,6 +28,11 @@ stackstorm
 {{ if required "Missing context '.Values.enterprise.enabled'!" .Values.enterprise.enabled }}-enterprise{{ end }}
 {{- end -}}
 
+# Generate '-' prefix only when the variable is defined
+{{- define "hyphenPrefix" -}}
+{{ if . }}-{{ . }}{{end}}
+{{- end -}}
+
 # Generate stanley SSH private key for StackStorm if one not provided in Helm values
 {{- define "st2.gen_ssh_key" -}}
 {{- if not .Values.secrets.st2.ssh_key -}}

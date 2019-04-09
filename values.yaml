@@ -85,6 +85,24 @@ st2:
       name: st2packs
       tag: latest
       pullPolicy: Always
+
+    # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
+    # It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance.
+    # Each sensor node needs to be provided with proper partition information to share work with other sensor
+    # nodes so that the same sensor does not run on different nodes.
+    sensors:
+      # Specify default container that executes all sensors.
+      # To partition sensors with one sensor per node, override st2.packs.sensors.
+      # NOTE: Do not modify this file.
+      - name:
+        livenessProbe: {}
+        readinessProbe: {}
+        # TODO: Find out recommended/default resources for this specific service (#5)
+        resources: {}
+        # Additional advanced settings to control pod/deployment placement
+        affinity: {}
+        nodeSelector: {}
+        tolerations: []
   # Import data into StackStorm's Key/Value datastore (https://docs.stackstorm.com/datastore.html)
   keyvalue:
     #- name: st2_version
@@ -308,19 +326,6 @@ st2scheduler:
 # st2notifier runs in active-active mode and requires for that coordination backend like Redis or Zookeeper
 st2notifier:
   replicas: 2
-  # TODO: Find out recommended/default resources for this specific service (#5)
-  resources: {}
-  # Additional advanced settings to control pod/deployment placement
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-# https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
-# It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance. Each sensor node needs to be
-# provided with proper partition information to share work with other sensor nodes so that the same sensor does not run on different nodes.
-st2sensorcontainer:
-  # TODO: Re-work to use single-sensor-per-container mode partitioning instead of running 1 single node of st2sensorcontainer. Proper implementation is now possible with Helm templating (#4)
-  # NB! Number of replicas are hardcoded to 1, see above T0D0 about using single-sensor-per-container mode in future as way of Sensor Partitioning.
-  # replicas: 1
   # TODO: Find out recommended/default resources for this specific service (#5)
   resources: {}
   # Additional advanced settings to control pod/deployment placement
