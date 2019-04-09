@@ -7,7 +7,7 @@ jobs:
       - image: lachlanevenson/k8s-helm
     steps:
       - checkout
-      - run: 
+      - run:
           name: Prepare Helm
           command: |
             set -x
