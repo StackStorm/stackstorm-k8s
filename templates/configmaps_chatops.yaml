@@ -14,4 +14,6 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-{{ toYaml .Values.st2.chatops | indent 2 }}
+# see configmaps_st2-conf.yaml for indepth explanantion of mappings here. 
+
+{{ toYaml .Values.st2.chatops | indent 4 }}

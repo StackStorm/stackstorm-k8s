@@ -93,7 +93,7 @@ st2:
     #  secret: false
     #  encrypted: false
     #  value: "2.9"
-
+##
 ## StackStorm HA Cluster Secrets. All fields are required!
 ## NB! It's highly recommended to change ALL defaults!
 ##
