@@ -27,3 +27,8 @@ stackstorm
 {{- define "enterpriseSuffix" -}}
 {{ if required "Missing context '.Values.enterprise.enabled'!" .Values.enterprise.enabled }}-enterprise{{ end }}
 {{- end -}}
+
+# Generate '-' prefix only when the variable is defined
+{{- define "hyphenPrefix" -}}
+{{ if . }}-{{ . }}{{end}}
+{{- end -}}
