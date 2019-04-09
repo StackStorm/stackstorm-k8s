@@ -17,6 +17,8 @@ spec:
       app: st2auth
       support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
+  # https://docs.stackstorm.com/reference/ha.html#st2auth
+  # Multiple st2auth processes can be behind a load balancer in an active-active configuration.
   replicas: {{ default 2 .Values.st2auth.replicas }}
   template:
     metadata:
@@ -104,68 +106,6 @@ spec:
 {{ toYaml . | indent 8 }}
     {{- end }}
 
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: {{ .Release.Name }}-st2chatops{{ template "enterpriseSuffix" . }}
-  labels:
-    app: st2chatops
-    tier: backend
-    vendor: stackstorm
-    support: {{ template "supportMethod" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
-spec:
-  selector:
-    matchLabels:
-      app: st2chatops
-      support: {{ template "supportMethod" . }}
-      release: {{ .Release.Name }}
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        app: st2chatops
-        tier: backend
-        vendor: stackstorm
-        support: {{ template "supportMethod" . }}
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
-      annotations:
-        checksum/chatops: {{ include (print $.Template.BasePath "/configmaps_chatops.yaml") . | sha256sum }}
-    spec:
-      containers:
-      - name: st2chatops{{ template "enterpriseSuffix" . }}
-        image: "{{ template "imageRepository" . }}/st2chatops{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        volumeMounts:
-        - name: st2-chatops-vol
-          mountPath: /opt/stackstorm/chatops/st2chatops.env
-        env:
-        - name: ST2_AUTH_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: username
-        - name: ST2_AUTH_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: username
-        envFrom:
-        - configMapRef:
-            name: {{ .Release.Name }}-st2chatops
-        resources:
-          requests:
-            memory: "5Mi"
-            cpu: "5m"
-      volumes:
-        - name: st2-chatops-vol
-          configMap:
-            name: {{ .Release.Name }}-st2chatops
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -840,56 +780,56 @@ spec:
 {{ toYaml . | indent 8 }}
     {{- end }}
 
+{{- range .Values.st2.packs.sensors }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2sensorcontainer{{ template "enterpriseSuffix" . }}
+  name: {{ $.Release.Name }}-st2sensorcontainer{{ template "hyphenPrefix" .name }}{{ template "enterpriseSuffix" $ }}
   labels:
-    app: st2sensorcontainer
+    app: st2sensorcontainer{{ template "hyphenPrefix" .name }}
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    support: {{ template "supportMethod" $ }}
+    chart: {{ $.Chart.Name }}-{{ $.Chart.Version }}
+    release: {{ $.Release.Name }}
+    heritage: {{ $.Release.Service }}
 spec:
   selector:
     matchLabels:
-      app: st2sensorcontainer
-      support: {{ template "supportMethod" . }}
-      release: {{ .Release.Name }}
+      app: st2sensorcontainer{{ template "hyphenPrefix" .name }}
+      support: {{ template "supportMethod" $ }}
+      release: {{ $.Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
   # It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance. Each sensor node needs to be
   # provided with proper partition information to share work with other sensor nodes so that the same sensor does not run on different nodes.
   # See Partitioning Sensors for information on how to partition sensors.
-  # TODO: Re-work to use single-sensor-per-container mode instead of running 1 node. Proper implementation is possible with Helm templating (#4)
   replicas: 1
   template:
     metadata:
       labels:
-        app: st2sensorcontainer
+        app: st2sensorcontainer{{ template "hyphenPrefix" .name }}
         tier: backend
         vendor: stackstorm
-        support: {{ template "supportMethod" . }}
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+        support: {{ template "supportMethod" $ }}
+        chart: {{ $.Chart.Name }}-{{ $.Chart.Version }}
+        release: {{ $.Release.Name }}
+        heritage: {{ $.Release.Service }}
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
-        checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") $ | sha256sum }}
+        checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") $ | sha256sum }}
     spec:
-      {{- if .Values.enterprise.enabled }}
+      {{- if $.Values.enterprise.enabled }}
       imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
+      - name: {{ $.Release.Name }}-st2-license
       {{- end }}
-      {{- if .Values.st2.packs.image.repository }}
+      {{- if $.Values.st2.packs.image.repository }}
       initContainers:
       # Merge packs and virtualenvs from st2sensorcontainer with those from the st2.packs image
       # Custom packs
       - name: st2-custom-packs
-        image: "{{ .Values.st2.packs.image.repository }}/{{ .Values.st2.packs.image.name }}:{{ .Values.st2.packs.image.tag }}"
-        imagePullPolicy: {{ .Values.st2.packs.image.pullPolicy | quote }}
+        image: "{{ $.Values.st2.packs.image.repository }}/{{ $.Values.st2.packs.image.name }}:{{ $.Values.st2.packs.image.tag }}"
+        imagePullPolicy: {{ $.Values.st2.packs.image.pullPolicy | quote }}
         volumeMounts:
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs-shared
@@ -903,8 +843,8 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        image: "{{ template "imageRepository" $ }}/st2actionrunner{{ template "enterpriseSuffix" $ }}:{{ $.Chart.AppVersion }}"
+        imagePullPolicy: {{ $.Values.image.pullPolicy }}
         volumeMounts:
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs-shared
@@ -916,15 +856,30 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       {{- end }}
       containers:
-      - name: st2sensorcontainer{{ template "enterpriseSuffix" . }}
-        image: "{{ template "imageRepository" . }}/st2sensorcontainer{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        # TODO: Add liveness/readiness probes (#3)
-        #livenessProbe:
-        #readinessProbe:
+      - name: st2sensorcontainer{{ template "hyphenPrefix" .name }}{{ template "enterpriseSuffix" $ }}
+        image: "{{ template "imageRepository" $ }}/st2sensorcontainer{{ template "enterpriseSuffix" $ }}:{{ $.Chart.AppVersion }}"
+        imagePullPolicy: {{ $.Values.image.pullPolicy }}
+        {{- with .readinessProbe }}
+        # Probe to check if app is running. Failure will lead to a pod restart.
+        readinessProbe:
+{{ toYaml . | indent 10 }}
+        {{- end }}
+        {{- with .livenessProbe }}
+        livenessProbe:
+{{ toYaml . | indent 10 }}
+        {{- end }}
+        {{- if .ref }}
+        command:
+          - /opt/stackstorm/st2/bin/st2sensorcontainer
+          - --config-file=/etc/st2/st2.conf
+          - --config-file=/etc/st2/st2.docker.conf
+          - --config-file=/etc/st2/st2.user.conf
+          - --single-sensor-mode
+          - --sensor-ref={{ .ref }}
+        {{- end }}
         envFrom:
         - configMapRef:
-            name: {{ .Release.Name }}-st2-urls
+            name: {{ $.Release.Name }}-st2-urls
         volumeMounts:
         - name: st2-config-vol
           mountPath: /etc/st2/st2.docker.conf
@@ -932,7 +887,7 @@ spec:
         - name: st2-config-vol
           mountPath: /etc/st2/st2.user.conf
           subPath: st2.user.conf
-        {{- if .Values.st2.packs.image.repository }}
+        {{- if $.Values.st2.packs.image.repository }}
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs
           readOnly: true
@@ -941,29 +896,30 @@ spec:
           readOnly: true
         {{- end }}
         resources:
-{{ toYaml .Values.st2sensorcontainer.resources | indent 10 }}
+{{ toYaml .resources | indent 10 }}
       volumes:
         - name: st2-config-vol
           configMap:
-            name: {{ .Release.Name }}-st2-config
-        {{- if .Values.st2.packs.image.repository }}
+            name: {{ $.Release.Name }}-st2-config
+        {{- if $.Values.st2.packs.image.repository }}
         - name: st2-packs-vol
           emptyDir: {}
         - name: st2-virtualenvs-vol
           emptyDir: {}
         {{- end }}
-    {{- with .Values.st2sensorcontainer.nodeSelector }}
+    {{- with .nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
     {{- end }}
-    {{- with .Values.st2sensorcontainer.affinity }}
+    {{- with .affinity }}
       affinity:
 {{ toYaml . | indent 8 }}
     {{- end }}
-    {{- with .Values.st2sensorcontainer.tolerations }}
+    {{- with .tolerations }}
       tolerations:
 {{ toYaml . | indent 8 }}
     {{- end }}
+{{- end }}
 
 ---
 apiVersion: apps/v1
@@ -1363,3 +1319,65 @@ spec:
         - name: st2-virtualenvs-vol
           emptyDir: {}
         {{- end }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-st2chatops{{ template "enterpriseSuffix" . }}
+  labels:
+    app: st2chatops
+    tier: backend
+    vendor: stackstorm
+    support: {{ template "supportMethod" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  selector:
+    matchLabels:
+      app: st2chatops
+      support: {{ template "supportMethod" . }}
+      release: {{ .Release.Name }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: st2chatops
+        tier: backend
+        vendor: stackstorm
+        support: {{ template "supportMethod" . }}
+        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+        release: {{ .Release.Name }}
+        heritage: {{ .Release.Service }}
+      annotations:
+        checksum/chatops: {{ include (print $.Template.BasePath "/configmaps_chatops.yaml") . | sha256sum }}
+    spec:
+      containers:
+      - name: st2chatops{{ template "enterpriseSuffix" . }}
+        image: "{{ template "imageRepository" . }}/st2chatops{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        volumeMounts:
+        - name: st2-chatops-vol
+          mountPath: /opt/stackstorm/chatops/st2chatops.env
+        env:
+        - name: ST2_AUTH_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-st2-auth
+              key: username
+        - name: ST2_AUTH_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-st2-auth
+              key: username
+        envFrom:
+        - configMapRef:
+            name: {{ .Release.Name }}-st2chatops
+        resources:
+          requests:
+            memory: "5Mi"
+            cpu: "5m"
+      volumes:
+        - name: st2-chatops-vol
+          configMap:
+            name: {{ .Release.Name }}-st2chatops
