@@ -1,6 +1,7 @@
 # Changelog
 
 ## In Development
+* Generate `stanley` private SSH key if no one provided in Helm values, remove insecure defaults (#62)
 
 ## v0.10.0
 * Bump versions of all dependencies (#50)
