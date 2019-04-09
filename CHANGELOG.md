@@ -1,6 +1,7 @@
 # Changelog
 
 ## In Development
+* Pin etcd to latest 3 version per new st2 coordination requirement (#61)
 
 ## v0.10.0
 * Bump versions of all dependencies (#50)
