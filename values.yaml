@@ -73,7 +73,6 @@ st2:
     configs:
       core.yaml: |
         ---
-
         # example core pack config yaml
 
     # Custom packs image settings. The repository, name, tag and pullPolicy for this image
@@ -86,6 +85,24 @@ st2:
       name: st2packs
       tag: latest
       pullPolicy: Always
+
+    # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
+    # It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance.
+    # Each sensor node needs to be provided with proper partition information to share work with other sensor
+    # nodes so that the same sensor does not run on different nodes.
+    sensors:
+      # Specify default container that executes all sensors.
+      # To partition sensors with one sensor per node, override st2.packs.sensors.
+      # NOTE: Do not modify this file.
+      - name:
+        livenessProbe: {}
+        readinessProbe: {}
+        # TODO: Find out recommended/default resources for this specific service (#5)
+        resources: {}
+        # Additional advanced settings to control pod/deployment placement
+        affinity: {}
+        nodeSelector: {}
+        tolerations: []
   # Import data into StackStorm's Key/Value datastore (https://docs.stackstorm.com/datastore.html)
   keyvalue:
     #- name: st2_version
@@ -93,6 +110,16 @@ st2:
     #  secret: false
     #  encrypted: false
     #  value: "2.9"
+  # Import a list of ST2 API Keys (https://docs.stackstorm.com/authentication.html#api-key-migration)
+  apikeys:
+    #- created_at: '2018-12-15T00:21:48.507388Z'
+    #  enabled: true
+    #  id: 5c14491c6cb8de1a9207e3a2
+    #  key_hash: 56928c2d9637ce44338e9564d4b939df8b258410db23b5a80f8ad69d58e648b574f35f9293c3a76bde263738be9aa8379a81553cd55513ad672540b7b0ec0cac
+    #  metadata: {"comment": "Example unsecure ST2 API key from K8s HA Helm values.yaml"}
+    #  uid: api_key:56928c2d9637ce44338e9564d4b939df8b258410db23b5a80f8ad69d58e648b574f35f9293c3a76bde263738be9aa8379a81553cd55513ad672540b7b0ec0cac
+    #  user: st2admin
+
 ##
 ## StackStorm HA Cluster Secrets. All fields are required!
 ## NB! It's highly recommended to change ALL defaults!
@@ -197,7 +224,6 @@ secrets:
       BjdoJBzImjVB5znOgIui3ME5
       -----END PRIVATE KEY-----
 
-# Import data into StackStorm's Key/Value datastore (https://docs.stackstorm.com/datastore.html)
 ##
 ## StackStorm HA Cluster pod settings for each individual service/component.
 ##
@@ -306,19 +332,6 @@ st2notifier:
   nodeSelector: {}
   tolerations: []
   affinity: {}
-# https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
-# It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance. Each sensor node needs to be
-# provided with proper partition information to share work with other sensor nodes so that the same sensor does not run on different nodes.
-st2sensorcontainer:
-  # TODO: Re-work to use single-sensor-per-container mode partitioning instead of running 1 single node of st2sensorcontainer. Proper implementation is now possible with Helm templating (#4)
-  # NB! Number of replicas are hardcoded to 1, see above T0D0 about using single-sensor-per-container mode in future as way of Sensor Partitioning.
-  # replicas: 1
-  # TODO: Find out recommended/default resources for this specific service (#5)
-  resources: {}
-  # Additional advanced settings to control pod/deployment placement
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
 # https://docs.stackstorm.com/reference/ha.html#st2actionrunner
 # Multiple st2actionrunner processes can run in active-active with only connections to MongoDB and RabbitMQ. Work gets naturally
 # distributed across runners via RabbitMQ. Adding more st2actionrunner processes increases the ability of StackStorm to execute actions.
@@ -342,29 +355,12 @@ st2garbagecollector:
   nodeSelector: {}
   tolerations: []
   affinity: {}
-  
-# StackStorm ChatOps (https://docs.stackstorm.com/chatops/index.html)
-# As hubot can't be HA scaled properly, we deploy only single replica of st2chatops
-st2chatops:
-  # Enable st2chatops (default: false)
-  enabled: true
-  # Custom hubot adapter ENV variables to pass through which will override st2chatops.env defaults.
-  # See https://github.com/StackStorm/st2chatops/blob/master/st2chatops.env
-  # for the full list of supported adapters and example ENV variables.
-  env:
-    HUBOT_ADAPTER: slack
-    HUBOT_SLACK_TOKEN: xoxb-CHANGE-ME-PLEASE
-  # Use custom generated st2chatops Docker image 
-  image:
-  #  repository: stackstorm
-  #  name: st2chatops
-  #  tag: {{ .Chart.AppVersion }}
-  #  pullPolicy: Always
-  resources: {}
-  # Additional advanced settings to control pod/deployment placement
-  nodeSelector: {}
-  tolerations: []
-affinity: {}
+
+##
+## MongoDB HA configuration (3rd party chart dependency)
+##
+## For values.yaml reference:
+## https://github.com/helm/charts/tree/master/stable/mongodb-replicaset
 ##
 # Specs for the MongoDB image
 mongodb-ha:
@@ -384,6 +380,15 @@ rabbitmq-ha:
   rabbitmqPassword: 9jS+w1u07NbHtZke1m+jW4Cj
   persistentVolume:
     enabled: true
+
+##
+## Etcd HA configuration (3rd party chart dependency)
+##
+## For values.yaml reference:
+## https://github.com/helm/charts/blob/master/incubator/etcd/values.yaml
+##
+etcd:
+  resources: {}
 
 ##
 ## Docker registry configuration (3rd party chart dependency)
@@ -429,3 +434,25 @@ external-dns:
   aws:
     zoneType: "public"
   domainFilters: []
+# StackStorm ChatOps (https://docs.stackstorm.com/chatops/index.html)
+# As hubot can't be HA scaled properly, we deploy only single replica of st2chatops
+st2chatops:
+  # Enable st2chatops (default: false)
+  enabled: true
+  # Custom hubot adapter ENV variables to pass through which will override st2chatops.env defaults.
+  # See https://github.com/StackStorm/st2chatops/blob/master/st2chatops.env
+  # for the full list of supported adapters and example ENV variables.
+  env:
+    HUBOT_ADAPTER: slack
+    HUBOT_SLACK_TOKEN: xoxb-CHANGE-ME-PLEASE
+  # Use custom generated st2chatops Docker image 
+  image:
+  #  repository: stackstorm
+  #  name: st2chatops
+  #  tag: {{ .Chart.AppVersion }}
+  #  pullPolicy: Always
+  resources: {}
+  # Additional advanced settings to control pod/deployment placement
+  nodeSelector: {}
+  tolerations: []
+affinity: {}
