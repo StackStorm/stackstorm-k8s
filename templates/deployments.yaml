@@ -138,9 +138,12 @@ spec:
         checksum/chatops: {{ include (print $.Template.BasePath "/configmaps_chatops.yaml") . | sha256sum }}
     spec:
       containers:
-      - name: st2chatops
+      - name: st2chatops{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2chatops{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        volumeMounts:
+        - name: st2-chatops-vol
+          mountPath: /opt/stackstorm/chatops/st2chatops.env
         env:
         - name: ST2_AUTH_USERNAME
           valueFrom:
@@ -155,13 +158,14 @@ spec:
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2chatops
-        command:
-          - docker run  -e HUBOT_ADAPTER=slack 
-          - printf "${ST2_AUTH_USERNAME}:$(openssl passwd -apr1 "${ST2_AUTH_PASSWORD}")\n" > /tmp/st2/htpasswd
         resources:
           requests:
             memory: "5Mi"
             cpu: "5m"
+      volumes:
+        - name: st2-chatops-vol
+          configMap:
+            name: {{ .Release.Name }}-st2chatops
 ---
 apiVersion: apps/v1
 kind: Deployment
