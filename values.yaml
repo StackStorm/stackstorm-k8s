@@ -93,60 +93,7 @@ st2:
     #  secret: false
     #  encrypted: false
     #  value: "2.9"
-  # Experimental st2chatops integration for StackStorm-HA Helm chart.  (https://github.com/mosn/stackstorm-ha/issues/17)
-  chatops:
-    gloal.yaml: |
-      ---
-      image: "stackstorm/st2chatops"
-      reoisitory:
-      hubot_name: hubot
-      hubot_alias: '!'
-      node_tls_reject_unauthorized: false
-      express_port: 8081
-      hubot_log_level: info
-      hubot_adapter: matteruser
-    st2.yaml: |
-      ---
-      ip: 
-      groups:
-      user:
-      password:
-      wss_port: 443
-      http_port: 443
-      reply: true
-      log_level: info
-      reply: true
-    mattermost.yaml: |
-      ---
-      mattermost_host: 
-      mattermost_group:
-      mattermost_user:
-      mattermost_password:
-      mattermost_wss: 443
-      mattermost_http_port: 443
-      mattermost_tls_verify: true
-      mattermost_use_tls: info
-      mattermost_log_level: true
-      mattermost_reply: true
-    slack.yaml: |
-      ---
-      hubot_slack_token: 
-      hubot_slack_exit_on_disconnect:
 
-#   # StackStorm offer a handy chatops pack with sets of tools ready to connect to st2. We need to install these tool separately, in similar fashion as custompacks.
-#   # are specified below.
-#   experimental_custome_image: {}
-#   # If you wish to use a docker registry running in the k8s cluster, set docker-registry.enabled to true.
-#   # Uncomment the following line to make the custom packs image available to the necessary pods.
-#   # repos'itory: localhost:5000
-#     name: "chatops"
-#     tag: "latest"
-#     pullPolicy: always
-# # Package installation can reduce build steps by handling all phases necessary at a single stage. 
-# # The package comes in with chatops packs, st2chaops and is possible to integrate with external adapters. 
-# # On the down-side, we're losing some of the cloud-native advantages that we can get using docker installation. 
-#   experimental_package_installation: {}
-##
 ## StackStorm HA Cluster Secrets. All fields are required!
 ## NB! It's highly recommended to change ALL defaults!
 ##
@@ -396,22 +343,28 @@ st2garbagecollector:
   tolerations: []
   affinity: {}
   
-# Chatops service settings  
+# StackStorm ChatOps (https://docs.stackstorm.com/chatops/index.html)
+# As hubot can't be HA scaled properly, we deploy only single replica of st2chatops
 st2chatops:
-  replicas: 1
-  # TODO: Find out recommended/default resources for this specific service (#5)
+  # Enable st2chatops (default: false)
+  enabled: true
+  # Custom hubot adapter ENV variables to pass through which will override st2chatops.env defaults.
+  # See https://github.com/StackStorm/st2chatops/blob/master/st2chatops.env
+  # for the full list of supported adapters and example ENV variables.
+  env:
+    HUBOT_ADAPTER: slack
+    HUBOT_SLACK_TOKEN: xoxb-CHANGE-ME-PLEASE
+  # Use custom generated st2chatops Docker image 
+  image:
+  #  repository: stackstorm
+  #  name: st2chatops
+  #  tag: {{ .Chart.AppVersion }}
+  #  pullPolicy: Always
   resources: {}
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
-  affinity: {}
-# https://docs.stackstorm.com/reference/ha.html#st2api
-# Multiple st2api process can be behind a load balancer in an a
-##
-## MongoDB HA configuration (3rd party chart dependency)
-##
-## For values.yaml reference:
-## https://github.com/helm/charts/tree/master/stable/mongodb-replicaset
+affinity: {}
 ##
 # Specs for the MongoDB image
 mongodb-ha:

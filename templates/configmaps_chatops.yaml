@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-chatops-configs
+  name: {{ .Release.Name }}-st2chatops
   annotations: 
     description: Custom StackStorm chatops configs, shipped in '/opt/stackstorm/chatops/'
   labels:
