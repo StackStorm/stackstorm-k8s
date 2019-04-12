@@ -378,7 +378,7 @@ st2chatops:
   # Please adjust based on your conscious choice
   resources:
     requests:
-      memory: "100Mi"
+      memory: "50Mi"
       cpu: "5m"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
