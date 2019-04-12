@@ -109,6 +109,7 @@ spec:
   - protocol: TCP
     port: 443
 
+{{ if .Values.st2chatops.enabled }}
 ---
 kind: Service
 apiVersion: v1
@@ -133,3 +134,4 @@ spec:
   ports:
   - protocol: TCP
     port: 8081
+{{ end }}

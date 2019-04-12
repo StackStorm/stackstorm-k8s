@@ -1319,6 +1319,8 @@ spec:
         - name: st2-virtualenvs-vol
           emptyDir: {}
         {{- end }}
+
+{{ if .Values.st2chatops.enabled }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -1338,6 +1340,7 @@ spec:
       app: st2chatops
       support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
+  # As hubot can't be HA scaled properly, we deploy only single replica of st2chatops
   replicas: 1
   template:
     metadata:
@@ -1381,3 +1384,4 @@ spec:
         - name: st2-chatops-vol
           configMap:
             name: {{ .Release.Name }}-st2chatops
+{{ end }}
