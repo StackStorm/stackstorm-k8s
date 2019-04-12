@@ -115,7 +115,7 @@ apiVersion: v1
 metadata:
   name: {{ .Release.Name }}-st2chatops{{ template "enterpriseSuffix" . }}
   annotations:
-    description: StackStorm st2chatops -  Conversation-driven Automation.
+    description: StackStorm st2chatops -  Conversation-driven Automation
   labels:
     app: st2chatops
     tier: backend
@@ -132,4 +132,4 @@ spec:
   type: ClusterIP
   ports:
   - protocol: TCP
-    port: 8080
+    port: 8081
