@@ -355,6 +355,7 @@ st2garbagecollector:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+
 ##
 ## StackStorm ChatOps (https://docs.stackstorm.com/chatops/index.html)
 ## As hubot can't be HA scaled properly, we deploy only single replica of st2chatops
