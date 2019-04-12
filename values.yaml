@@ -374,7 +374,12 @@ st2chatops:
   #  name: st2chatops
   #  tag: {{ .Chart.AppVersion }}
   #  pullPolicy: Always
-  resources: {}
+  # Tested requested resource consumption for st2chatops & hubot in normal mode
+  # Please adjust based on your conscious choice
+  resources:
+    requests:
+      memory: "100Mi"
+      cpu: "5m"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []

@@ -1376,7 +1376,5 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2chatops
         resources:
-          requests:
-            memory: "5Mi"
-            cpu: "5m"
+{{ toYaml .Values.st2chatops.resources | indent 10 }}
 {{ end }}
