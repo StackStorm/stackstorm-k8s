@@ -1358,7 +1358,7 @@ spec:
       containers:
       - name: st2chatops{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2chatops:{{ .Chart.AppVersion }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        imagePullPolicy: {{ .Values.st2chatops.image.pullPolicy | default .Values.image.pullPolicy }}
         env:
         - name: ST2_AUTH_USERNAME
           valueFrom:

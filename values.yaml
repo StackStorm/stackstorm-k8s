@@ -372,7 +372,7 @@ st2chatops:
   image:
   #  repository: stackstorm
   #  name: st2chatops
-  #  tag: {{ .Chart.AppVersion }}
+  #  tag: "{{ .Chart.AppVersion }}"
   #  pullPolicy: Always
   # Tested requested resource consumption for st2chatops & hubot in normal mode
   # Please adjust based on your conscious choice
