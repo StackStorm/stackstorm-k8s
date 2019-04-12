@@ -25,4 +25,3 @@ details:
   This Helm chart is a fully installable app that codifies StackStorm cluster optimized for HA and K8s environment.
   By default FOSS community version of st2 will be installed. Enterprise version can be enabled as an option.
   For configuration details check 'values.yaml'.
-  

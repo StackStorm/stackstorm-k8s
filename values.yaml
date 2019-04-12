@@ -355,6 +355,30 @@ st2garbagecollector:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+##
+## StackStorm ChatOps (https://docs.stackstorm.com/chatops/index.html)
+## As hubot can't be HA scaled properly, we deploy only single replica of st2chatops
+##
+st2chatops:
+  # Enable st2chatops (default: false)
+  enabled: true
+  # Custom hubot adapter ENV variables to pass through which will override st2chatops.env defaults.
+  # See https://github.com/StackStorm/st2chatops/blob/master/st2chatops.env
+  # for the full list of supported adapters and example ENV variables.
+  env:
+    HUBOT_ADAPTER: slack
+    HUBOT_SLACK_TOKEN: xoxb-CHANGE-ME-PLEASE
+  # Use custom generated st2chatops Docker image
+  image:
+  #  repository: stackstorm
+  #  name: st2chatops
+  #  tag: {{ .Chart.AppVersion }}
+  #  pullPolicy: Always
+  resources: {}
+  # Additional advanced settings to control pod/deployment placement
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
 
 ##
 ## MongoDB HA configuration (3rd party chart dependency)
@@ -434,25 +458,3 @@ external-dns:
   aws:
     zoneType: "public"
   domainFilters: []
-# StackStorm ChatOps (https://docs.stackstorm.com/chatops/index.html)
-# As hubot can't be HA scaled properly, we deploy only single replica of st2chatops
-st2chatops:
-  # Enable st2chatops (default: false)
-  enabled: true
-  # Custom hubot adapter ENV variables to pass through which will override st2chatops.env defaults.
-  # See https://github.com/StackStorm/st2chatops/blob/master/st2chatops.env
-  # for the full list of supported adapters and example ENV variables.
-  env:
-    HUBOT_ADAPTER: slack
-    HUBOT_SLACK_TOKEN: xoxb-CHANGE-ME-PLEASE
-  # Use custom generated st2chatops Docker image 
-  image:
-  #  repository: stackstorm
-  #  name: st2chatops
-  #  tag: {{ .Chart.AppVersion }}
-  #  pullPolicy: Always
-  resources: {}
-  # Additional advanced settings to control pod/deployment placement
-  nodeSelector: {}
-  tolerations: []
-affinity: {}
