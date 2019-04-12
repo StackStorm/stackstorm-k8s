@@ -109,14 +109,14 @@ spec:
   - protocol: TCP
     port: 443
 
-{{ if .Values.st2chatops.enabled }}
+{{ if .Values.st2chatops.enabled -}}
 ---
 kind: Service
 apiVersion: v1
 metadata:
   name: {{ .Release.Name }}-st2chatops{{ template "enterpriseSuffix" . }}
   annotations:
-    description: StackStorm st2chatops -  Conversation-driven Automation
+    description: StackStorm st2chatops, - conversation-driven automation service exposed as hubot instance with predefined list of chat adapters
   labels:
     app: st2chatops
     tier: backend
@@ -134,4 +134,4 @@ spec:
   ports:
   - protocol: TCP
     port: 8081
-{{ end }}
+{{- end }}

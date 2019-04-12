@@ -1320,7 +1320,7 @@ spec:
           emptyDir: {}
         {{- end }}
 
-{{ if .Values.st2chatops.enabled }}
+{{ if .Values.st2chatops.enabled -}}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -1389,4 +1389,4 @@ spec:
       tolerations:
 {{ toYaml . | indent 8 }}
     {{- end }}
-{{ end }}
+{{- end }}
