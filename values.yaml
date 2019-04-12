@@ -362,7 +362,7 @@ st2garbagecollector:
 ##
 st2chatops:
   # Enable st2chatops (default: false)
-  enabled: true
+  enabled: false
   # Custom hubot adapter ENV variables to pass through which will override st2chatops.env defaults.
   # See https://github.com/StackStorm/st2chatops/blob/master/st2chatops.env
   # for the full list of supported adapters and example ENV variables.
