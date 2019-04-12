@@ -1357,31 +1357,26 @@ spec:
     spec:
       containers:
       - name: st2chatops{{ template "enterpriseSuffix" . }}
-        image: "{{ template "imageRepository" . }}/st2chatops{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2chatops:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        volumeMounts:
-        - name: st2-chatops-vol
-          mountPath: /opt/stackstorm/chatops/st2chatops.env
         env:
         - name: ST2_AUTH_USERNAME
           valueFrom:
             secretKeyRef:
               name: {{ .Release.Name }}-st2-auth
               key: username
-        - name: ST2_AUTH_USERNAME
+        - name: ST2_AUTH_PASSWORD
           valueFrom:
             secretKeyRef:
               name: {{ .Release.Name }}-st2-auth
-              key: username
+              key: password
         envFrom:
+        - configMapRef:
+            name: {{ .Release.Name }}-st2-urls
         - configMapRef:
             name: {{ .Release.Name }}-st2chatops
         resources:
           requests:
             memory: "5Mi"
             cpu: "5m"
-      volumes:
-        - name: st2-chatops-vol
-          configMap:
-            name: {{ .Release.Name }}-st2chatops
 {{ end }}
