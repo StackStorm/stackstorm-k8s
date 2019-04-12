@@ -5,7 +5,7 @@ kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-st2chatops
   annotations: 
-    description: Custom StackStorm chatops configs, shipped in '/opt/stackstorm/chatops/'
+    description: Custom StackStorm chatops config, passed to hubot as ENV vars
   labels:
     app: st2chatops
     tier: backend
