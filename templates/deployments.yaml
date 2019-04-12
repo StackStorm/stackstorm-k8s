@@ -1375,6 +1375,19 @@ spec:
             name: {{ .Release.Name }}-st2-urls
         - secretRef:
             name: {{ .Release.Name }}-st2chatops
+        ports:
+        - containerPort: 8081
+        # TODO: Add to st2chatops Docker image https://github.com/joelwallis/hubot-health for a little bit more reliable HTTP health endpoint check
+        readinessProbe:
+          tcpSocket:
+            port: 8081
+          initialDelaySeconds: 3
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 8081
+          initialDelaySeconds: 10
+          periodSeconds: 30
         resources:
 {{ toYaml .Values.st2chatops.resources | indent 10 }}
     {{- with .Values.st2chatops.nodeSelector }}
