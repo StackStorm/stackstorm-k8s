@@ -103,7 +103,8 @@ All the workflow engine processes will share the load and pick up more work if o
 >  [Orquesta st2workflowengine](https://docs.stackstorm.com/orchestra/index.html) as a new native workflow engine.
 
 ### [st2scheduler](https://docs.stackstorm.com/reference/ha.html#st2scheduler)
-TODO: Description TBD
+`st2scheduler` is responsible for handling ingress action execution requests.
+`2` replicas for K8s Deployment are configured by default to increase StackStorm scheduling throughput.
 
 ### [st2notifier](https://docs.stackstorm.com/reference/ha.html#st2notifier)
 Multiple st2notifier processes can run in active-active mode, using connections to RabbitMQ and MongoDB and generating triggers based on
