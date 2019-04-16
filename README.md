@@ -103,7 +103,8 @@ All the workflow engine processes will share the load and pick up more work if o
 >  [Orquesta st2workflowengine](https://docs.stackstorm.com/orchestra/index.html) as a new native workflow engine.
 
 ### [st2scheduler](https://docs.stackstorm.com/reference/ha.html#st2scheduler)
-TODO: Description TBD
+`st2scheduler` is responsible for handling ingress action execution requests.
+`2` replicas for K8s Deployment are configured by default to increase StackStorm scheduling throughput.
 
 ### [st2notifier](https://docs.stackstorm.com/reference/ha.html#st2notifier)
 Multiple st2notifier processes can run in active-active mode, using connections to RabbitMQ and MongoDB and generating triggers based on
@@ -144,6 +145,11 @@ Service that cleans up old executions and other operations data based on setup c
 Having `1` st2garbagecollector replica for K8s Deployment is enough, considering its periodic execution nature.
 By default this process does nothing and needs to be configured in st2.conf settings (via `values.yaml`).
 Purging stale data can significantly improve cluster abilities to perform faster and so it's recommended to configure st2garbagecollector in production.
+
+### [st2chatops](https://docs.stackstorm.com/chatops/index.html)
+StackStorm ChatOps service, based on hubot engine, custom stackstorm integration module and preinstalled list of chat adapters.
+Due to Hubot limitation, st2chatops doesn't provide mechanisms to guarantee high availability and so only single `1` node of st2chatops is deployed.
+This service is disabled by default. Please refer to Helm `values.yaml` about how to enable and configure st2chatops with ENV vars for your preferred chat service.
 
 ### [MongoDB HA ReplicaSet](https://github.com/helm/charts/tree/master/stable/mongodb-replicaset)
 StackStorm works with MongoDB as a database engine. External Helm Chart is used to configure MongoDB HA [ReplicaSet](https://docs.mongodb.com/manual/tutorial/deploy-replica-set/).
