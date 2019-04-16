@@ -1319,3 +1319,87 @@ spec:
         - name: st2-virtualenvs-vol
           emptyDir: {}
         {{- end }}
+
+{{ if .Values.st2chatops.enabled -}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-st2chatops{{ template "enterpriseSuffix" . }}
+  labels:
+    app: st2chatops
+    tier: backend
+    vendor: stackstorm
+    support: {{ template "supportMethod" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  selector:
+    matchLabels:
+      app: st2chatops
+      support: {{ template "supportMethod" . }}
+      release: {{ .Release.Name }}
+  # As hubot can't be HA scaled properly, we deploy only single replica of st2chatops
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: st2chatops
+        tier: backend
+        vendor: stackstorm
+        support: {{ template "supportMethod" . }}
+        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+        release: {{ .Release.Name }}
+        heritage: {{ .Release.Service }}
+      annotations:
+        checksum/chatops: {{ include (print $.Template.BasePath "/secrets_st2chatops.yaml") . | sha256sum }}
+    spec:
+      containers:
+      - name: st2chatops{{ template "enterpriseSuffix" . }}
+        image: "{{ .Values.st2chatops.image.repository | default "stackstorm" }}/{{ .Values.st2chatops.image.name | default "st2chatops" }}:{{ tpl (.Values.st2chatops.image.tag | default .Chart.AppVersion) . }}"
+        imagePullPolicy: {{ .Values.st2chatops.image.pullPolicy | default .Values.image.pullPolicy }}
+        env:
+        - name: ST2_AUTH_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-st2-auth
+              key: username
+        - name: ST2_AUTH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-st2-auth
+              key: password
+        envFrom:
+        - configMapRef:
+            name: {{ .Release.Name }}-st2-urls
+        - secretRef:
+            name: {{ .Release.Name }}-st2chatops
+        ports:
+        - containerPort: 8081
+        # TODO: Add to st2chatops Docker image https://github.com/joelwallis/hubot-health for a little bit more reliable HTTP health endpoint check
+        readinessProbe:
+          tcpSocket:
+            port: 8081
+          initialDelaySeconds: 3
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 8081
+          initialDelaySeconds: 10
+          periodSeconds: 30
+        resources:
+{{ toYaml .Values.st2chatops.resources | indent 10 }}
+    {{- with .Values.st2chatops.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.st2chatops.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.st2chatops.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+{{- end }}
