@@ -146,6 +146,11 @@ Having `1` st2garbagecollector replica for K8s Deployment is enough, considering
 By default this process does nothing and needs to be configured in st2.conf settings (via `values.yaml`).
 Purging stale data can significantly improve cluster abilities to perform faster and so it's recommended to configure st2garbagecollector in production.
 
+### [st2chatops](https://docs.stackstorm.com/chatops/index.html)
+StackStorm ChatOps service, based on hubot engine, custom stackstorm integration module and preinstalled list of chat adapters.
+Due to Hubot limitation, st2chatops doesn't provide mechanisms to guarantee high availability and so only single `1` node of st2chatops is deployed.
+This service is disabled by default. Please refer to Helm `values.yaml` about how to enable and configure st2chatops with ENV vars for your preferred chat service.
+
 ### [MongoDB HA ReplicaSet](https://github.com/helm/charts/tree/master/stable/mongodb-replicaset)
 StackStorm works with MongoDB as a database engine. External Helm Chart is used to configure MongoDB HA [ReplicaSet](https://docs.mongodb.com/manual/tutorial/deploy-replica-set/).
 By default `3` nodes (1 primary and 2 secondaries) of MongoDB are deployed via K8s StatefulSet.
