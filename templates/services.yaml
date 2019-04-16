@@ -83,8 +83,8 @@ metadata:
     {{- if .Values.st2web.service.hostname }}
     external-dns.alpha.kubernetes.io/hostname: {{ .Values.st2web.service.hostname | quote }}
     {{- end }}
-{{- if .Values.st2web.annotations }}
-{{ toYaml .Values.st2web.annotations | indent 4 }}
+{{- if .Values.st2web.service.annotations }}
+{{ toYaml .Values.st2web.service.annotations | indent 4 }}
 {{- end }}
   labels:
     app: st2web
