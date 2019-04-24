@@ -385,7 +385,7 @@ spec:
             {{ else -}}
             port: 443
             {{ end -}}
-          initialDelaySeconds: 1
+          initialDelaySeconds: 30
         # Probe to check if app is ready to serve traffic. Failure will lead to temp stop serving traffic.
         # TODO: Failing to add readinessProbe, since st2 requires authorization (401) and we don't have `/healthz` endpoints yet (https://github.com/StackStorm/st2/issues/4020)
 #        readinessProbe:
@@ -1044,6 +1044,11 @@ spec:
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
+        env:
+        - name: AWS_ACCESS_KEY_ID
+          value: "{{.Values.secrets.s3.AWS_ACCESS_KEY_ID}}"
+        - name: AWS_SECRET_ACCESS_KEY
+          value: "{{.Values.secrets.s3.AWS_SECRET_ACCESS_KEY}}"
         volumeMounts:
         - name: st2-config-vol
           mountPath: /etc/st2/st2.docker.conf
