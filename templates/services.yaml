@@ -83,8 +83,8 @@ metadata:
     {{- if .Values.st2web.service.hostname }}
     external-dns.alpha.kubernetes.io/hostname: {{ .Values.st2web.service.hostname | quote }}
     {{- end }}
-{{- if .Values.st2web.annotations }}
-{{ toYaml .Values.st2web.annotations | indent 4 }}
+{{- if .Values.st2web.service.annotations }}
+{{ toYaml .Values.st2web.service.annotations | indent 4 }}
 {{- end }}
   labels:
     app: st2web
@@ -108,3 +108,30 @@ spec:
   ports:
   - protocol: TCP
     port: 443
+
+{{ if .Values.st2chatops.enabled -}}
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ .Release.Name }}-st2chatops{{ template "enterpriseSuffix" . }}
+  annotations:
+    description: StackStorm st2chatops, - conversation-driven automation service exposed as hubot instance with predefined list of chat adapters
+  labels:
+    app: st2chatops
+    tier: backend
+    vendor: stackstorm
+    support: {{ template "supportMethod" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  selector:
+    app: st2chatops
+    support: {{ template "supportMethod" . }}
+    release: {{ .Release.Name }}
+  type: ClusterIP
+  ports:
+  - protocol: TCP
+    port: 8081
+{{- end }}

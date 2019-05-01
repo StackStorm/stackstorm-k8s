@@ -2,6 +2,12 @@
 
 ## In Development
 
+## v0.12.0
+* Move `st2web.annotations` to `st2web.service.annotations` to match `values.yaml` (#66)
+
+## v0.11.0
+* Add st2chatops support (@mosn, @rapittdev) (#55)
+
 ## v0.10.0
 * Bump versions of all dependencies (#50)
 * Allow st2sensorcontainer to be partitioned (#51)
