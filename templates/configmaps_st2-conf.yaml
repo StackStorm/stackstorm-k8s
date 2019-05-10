@@ -27,7 +27,11 @@ data:
     url = amqp://{{ required "rabbitmq-ha.rabbitmqUsername is required!" (index .Values "rabbitmq-ha" "rabbitmqUsername") }}:{{ required "rabbitmq-ha.rabbitmqPassword is required!" (index .Values "rabbitmq-ha" "rabbitmqPassword") }}@{{ .Release.Name }}-rabbitmq-ha-discovery:5672
     [database]
     # TODO: ReplicaSet connection string needs templating based on number of MongoDB nodes
+    {{- if index .Values "mongodb-ha" "auth" "enabled" }}
+    host = mongodb://{{ required "mongodb-ha.auth.adminUser is required!" (index .Values "mongodb-ha" "auth" "adminUser") }}:{{ required "mongodb-ha.auth.adminPassword is required!" (index .Values "mongodb-ha" "auth" "adminPassword") }}@{{ .Release.Name }}-mongodb-ha/?authSource=admin&replicaSet=rs0
+    {{ else }}
     host = mongodb://{{ .Release.Name }}-mongodb-ha/?replicaSet=rs0
+    {{- end }}
 
   # User-defined st2 config with custom settings applied on top of everything else.
   # The order of merging: st2.conf < st2.docker.conf < st2.user.conf

@@ -398,6 +398,13 @@ mongodb-ha:
   image:
     # StackStorm currently supports maximum MongoDB v3.4
     tag: 3.4
+  auth:
+    enabled: true
+    # NB! It's highly recommended to change ALL defaults!
+    adminUser: "admin"
+    adminPassword: "XeL5Rxwj7F0Wt43tFZVTN7H8Sg5XDHmK"
+    # Minimal key length is 6 symbols
+    key: "82PItDpqroti5RngOA7UqbHH7c6bFUwy"
 
 ##
 ## RabbitMQ HA configuration (3rd party chart dependency)
