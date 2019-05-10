@@ -2,6 +2,9 @@
 
 ## In Development
 
+## v0.13.0
+* Mongodb authentication is enabled by default (#63)
+
 ## v0.12.0
 * Move `st2web.annotations` to `st2web.service.annotations` to match `values.yaml` (#66)
 
