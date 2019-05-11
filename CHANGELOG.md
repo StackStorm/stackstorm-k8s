@@ -2,7 +2,7 @@
 
 ## In Development
 
-## v0.13.1
+## v0.14.0
 * Pin st2 version to `v3.1dev` as a new latest development version (#67)
 
 ## v0.13.0
