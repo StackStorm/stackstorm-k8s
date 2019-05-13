@@ -2,6 +2,9 @@
 
 ## In Development
 
+## v0.14.0
+* Pin st2 version to `v3.1dev` as a new latest development version (#67)
+
 ## v0.13.0
 * Mongodb authentication is enabled by default (#63)
 
