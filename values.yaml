@@ -120,6 +120,9 @@ st2:
     #  uid: api_key:56928c2d9637ce44338e9564d4b939df8b258410db23b5a80f8ad69d58e648b574f35f9293c3a76bde263738be9aa8379a81553cd55513ad672540b7b0ec0cac
     #  user: st2admin
 
+ingress:
+  enabled: false
+
 ##
 ## StackStorm HA Cluster Secrets. All fields are required!
 ## NB! It's highly recommended to change ALL defaults!
