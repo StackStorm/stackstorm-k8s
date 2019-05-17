@@ -1,1 +1,39 @@
-# TODO: Research & add Ingress controller for exposing st2web service to public net (#6)
+{{- if .Values.ingress.enabled }}
+{{- range .Values.ingress.hosts }}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  {{- $name := printf "%s-%s" $.Release.Name .name | trunc 63 | trimSuffix "-" | quote }}
+  name: {{ $name }}
+  labels:
+    app: {{ $name }}
+    chart: "{{ $.Chart.Name }}-{{ $.Chart.Version }}"
+    release: "{{ $.Release.Name }}"
+    heritage: "{{ $.Release.Service }}"
+  annotations:
+    {{- if .tls }}
+    ingress.kubernetes.io/secure-backends: "true"
+    {{- end }}
+    {{- range $key, $value := .annotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+spec:
+  rules:
+  - host: {{ .host }}
+    http:
+      paths:
+      {{- range .paths }}
+        - path: {{ default "/" .path }}
+          backend:
+            serviceName: {{ .serviceName }}
+            servicePort: {{ .servicePort }}
+      {{- end }}
+{{- if .tls }}
+  tls:
+  - hosts:
+    - {{ .name }}
+    secretName: {{ .tlsSecret }}
+{{- end }}
+---
+{{- end }}
+{{- end }}
