@@ -237,3 +237,15 @@ Grab all logs only for stackstorm backend services, excluding st2web and DB/MQ/e
 ```
 kubectl logs -l release=<release-name>,tier=backend
 ```
+
+## Extending this chart
+If you have any suggestions or ideas about how to extend this chart functionality,
+we welcome you to collaborate in [Issues](https://github.com/stackstorm/stackstorm-ha/issues)
+and contribute via [Pull Requests](https://github.com/stackstorm/stackstorm-ha/pulls).  
+However if you need something very custom and specific to your infra that doesn't fit official chart plans,
+we strongly recommend you to create a parent Helm chart with custom K8s objects and referencing `stackstorm-ha` chart
+as a child dependency.
+This approach allows not only extending sub-chart with custom objects and templates within the same deployment,
+but also adds flexibility to include many sub-chart dependencies and pin versions as well as include all the sub-chart values in one single place.
+This approach is infra-as-code friendly and more reproducible. See official Helm documentation about
+[Subcharts](https://helm.sh/docs/chart_template_guide/#subcharts-and-global-values) and [Dependencies](https://helm.sh/docs/developing_charts/#managing-dependencies-manually-via-the-charts-directory).
