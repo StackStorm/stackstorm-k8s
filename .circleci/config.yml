@@ -75,7 +75,7 @@ jobs:
             kind create cluster
             echo 'export KUBECONFIG="$(kind get kubeconfig-path)"' >> $BASH_ENV
       - helm/install-helm-on-cluster:
-        enable-cluster-wide-admin-access: true
+          enable-cluster-wide-admin-access: true
       - run:
           name: Update Helm repo dependencies
           command: |
