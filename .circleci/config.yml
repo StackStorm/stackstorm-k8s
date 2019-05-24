@@ -62,7 +62,9 @@ jobs:
 
   # Spin up lightweight K8s cluster with 'KIND' and run Helm chart & e2e tests on it
   e2e:
-    machine: true
+    machine:
+      # Available images https://circleci.com/docs/2.0/configuration-reference/#available-machine-images
+      image: ubuntu-1604:201903-01
     steps:
       - checkout
       - kube/install
