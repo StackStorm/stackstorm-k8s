@@ -19,6 +19,7 @@ It's more than welcome to fine-tune each component settings to fit specific avai
 
 2) Pull 3rd party Helm dependencies:
 ```
+helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
 helm dependency update
 ```
 

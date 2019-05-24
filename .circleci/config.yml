@@ -71,13 +71,24 @@ jobs:
           command: sudo wget -O /usr/local/bin/kind https://github.com/kubernetes-sigs/kind/releases/download/v0.3.0/kind-linux-amd64 && sudo chmod +x /usr/local/bin/kind
       - run:
           name: Create new K8s cluster
-          command: kind create cluster
-      - run:
           command: |
-            export KUBECONFIG="$(kind get kubeconfig-path)"
-            kubectl get all
+            kind create cluster
+            echo 'export KUBECONFIG="$(kind get kubeconfig-path)"' >> $BASH_ENV
       - helm/install-helm-on-cluster
-
+      - run:
+          name: Update Helm repo dependencies
+          command: |
+            helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
+            helm dependency update
+      - run:
+          name: Resolv.conf workaround for RabbitMQ DNS issues
+          command: |
+            sudo sed '/^search/ d' /etc/resolv.conf
+      - run:
+          name: Helm install stackstorm-ha chart
+          command: |
+            helm install --name stackstorm-ha . \
+              --set mongodb-ha.persistentVolume.enabled=false
 
 workflows:
   version: 2
