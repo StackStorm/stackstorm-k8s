@@ -1,4 +1,11 @@
-version: 2
+version: 2.1
+
+# Add additional CircleCI Orbs dependencies
+orbs:
+  # https://circleci.com/orbs/registry/orb/circleci/kubernetes
+  kube: circleci/kubernetes@0.3.0
+  helm: circleci/helm@0.1.2
+
 jobs:
   # Run Helm Lint checks
   helm-lint:
@@ -52,6 +59,26 @@ jobs:
           command: kubeval $(find . -type f)
           working_directory: enterprise/stackstorm-ha/templates/
 
+  # Spin up lightweight K8s cluster with 'KIND' and run Helm chart & e2e tests on it
+  e2e:
+    machine: true
+    steps:
+      - checkout
+      - kube/install
+      - helm/install-helm-client
+      - run:
+          name: Install K8s in Docker (KinD)
+          command: sudo wget -O /usr/local/bin/kind https://github.com/kubernetes-sigs/kind/releases/download/v0.3.0/kind-linux-amd64 && sudo chmod +x /usr/local/bin/kind
+      - run:
+          name: Create new K8s cluster
+          command: kind create cluster
+      - run:
+          command: |
+            export KUBECONFIG="$(kind get kubeconfig-path)"
+            kubectl get all
+      - helm/install-helm-on-cluster
+
+
 workflows:
   version: 2
   helm:
@@ -60,6 +87,10 @@ workflows:
       - k8s-lint:
           requires:
             - helm-lint
+      - e2e:
+          requires:
+            - helm-lint
+            - k8s-lint
 
 experimental:
   notify:
