@@ -70,6 +70,9 @@ jobs:
       - kube/install
       - helm/install-helm-client
       - run:
+          name: Apply workaround for RabbitMQ-HA chart DNS issue
+          command: sudo sed -i '/^search/ d' /etc/resolv.conf
+      - run:
           name: Install K8s in Docker (KinD)
           command: sudo wget -O /usr/local/bin/kind https://github.com/kubernetes-sigs/kind/releases/download/v0.3.0/kind-linux-amd64 && sudo chmod +x /usr/local/bin/kind
       - run:
@@ -84,9 +87,6 @@ jobs:
           command: |
             helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
             helm dependency update
-      - run:
-          name: Resolv.conf workaround for RabbitMQ DNS issues
-          command: sudo sed -i '/^search/ d' /etc/resolv.conf
       - run:
           name: Helm install stackstorm-ha chart
           command: |
