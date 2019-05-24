@@ -44,6 +44,10 @@ See Helm `values.yaml`, `enterprise` section for configuration examples.
 > Don't have StackStorm Enterprise License?<br>
 > 90-day free trial can be requested at https://stackstorm.com/#product
 
+## Configuration
+
+The default configuration values for this chart are described in `values.yaml`.
+
 ## Components
 
 The Community FOSS Dockerfiles used to generate the docker images for each st2 component are available at
