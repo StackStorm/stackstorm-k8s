@@ -70,8 +70,12 @@ jobs:
       - kube/install
       - helm/install-helm-client
       - run:
-          name: Apply workaround for RabbitMQ-HA chart DNS issue
-          command: sudo sed -i '/^search/ d' /etc/resolv.conf
+          name: Apply workaround for rabbitmq-ha chart DNS issue
+          command: |
+            # busybox image used in rabbitmq-ha chart timeouts on DNS resolution
+            # multiple 'search' domains in resolv.conf makes it even worse
+            # https://github.com/kubernetes/kubernetes/issues/66924
+            sudo sed -i '/^search/ d' /etc/resolv.conf
       - run:
           name: Install K8s in Docker (KinD)
           command: sudo wget -O /usr/local/bin/kind https://github.com/kubernetes-sigs/kind/releases/download/v0.3.0/kind-linux-amd64 && sudo chmod +x /usr/local/bin/kind
@@ -90,6 +94,7 @@ jobs:
       - run:
           name: Helm install stackstorm-ha chart
           command: |
+            # disable mongodb-ha chart persistent volumes as cluster can't start in CircleCI/KinD env
             helm install --debug --name stackstorm-ha . \
               --set mongodb-ha.persistentVolume.enabled=false
       - run:
