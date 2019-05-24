@@ -4,6 +4,7 @@ version: 2.1
 orbs:
   # https://circleci.com/orbs/registry/orb/circleci/kubernetes
   kube: circleci/kubernetes@0.3.0
+  # https://circleci.com/orbs/registry/orb/circleci/helm
   helm: circleci/helm@0.1.2
 
 jobs:
@@ -83,13 +84,16 @@ jobs:
             helm dependency update
       - run:
           name: Resolv.conf workaround for RabbitMQ DNS issues
-          command: |
-            sudo sed '/^search/ d' /etc/resolv.conf
+          command: sudo sed -i '/^search/ d' /etc/resolv.conf
       - run:
           name: Helm install stackstorm-ha chart
           command: |
-            helm install --name stackstorm-ha . \
+            helm install --debug --name stackstorm-ha . \
               --set mongodb-ha.persistentVolume.enabled=false
+      - run:
+          when: always
+          name: Show created K8s resources
+          command: kubectl get all
 
 workflows:
   version: 2
