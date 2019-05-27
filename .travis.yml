@@ -14,7 +14,7 @@ jobs:
     - stage: e2e tests
       before_script:
         # Download and install kubectl
-        - curl -Lo https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && chmod +x $HOME/bin/kubectl
+        - curl -Lo $HOME/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && chmod +x $HOME/bin/kubectl
         # Download and install Helm
         - curl -L https://git.io/get_helm.sh | bash
         # Download and install KinD
