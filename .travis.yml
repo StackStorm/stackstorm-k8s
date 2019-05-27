@@ -42,8 +42,5 @@ jobs:
       script:
         # Install stackstorm-ha Helm chart in CI K8s cluster
         - helm install --debug --name stackstorm-ha . --set mongodb-ha.persistentVolume.enabled=false
+        # Show created K8s resources
         - kubectl get all
-        - kubectl describe pod stackstorm-ha-rabbitmq-ha-0
-        - cat /etc/resolv.conf
-        - kubectl logs stackstorm-ha-rabbitmq-ha-0 --all-containers
-        - kubectl logs stackstorm-ha-rabbitmq-ha-0 --all-containers -p
