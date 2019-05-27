@@ -10,19 +10,29 @@ jobs:
   include:
     - stage: e2e tests
       before_script:
-        # Download and install kubectl
-        - curl -fLo $HOME/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && chmod +x $HOME/bin/kubectl
-        # Download and install Helm
-        - curl -fL https://git.io/get_helm.sh | bash
         # Download and install KinD
-        - curl -fLo $HOME/bin/kind https://github.com/kubernetes-sigs/kind/releases/download/v${KIND_VERSION}/kind-linux-amd64 && chmod +x $HOME/bin/kind
         - |
-          kubectl version
-          helm version
-          kind version
+          curl -fLo $HOME/bin/kind https://github.com/kubernetes-sigs/kind/releases/download/v${KIND_VERSION}/kind-linux-amd64 && chmod +x $HOME/bin/kind
+          kind --version
         # Create a new Kubernetes cluster using KinD
-        - kind create cluster
-        # Set KUBECONFIG environment variable
-        - export KUBECONFIG="$(kind get kubeconfig-path)"
-        - kubectl get pods
-      script: echo 'e2e'
+        - |
+          kind create cluster
+          export KUBECONFIG="$(kind get kubeconfig-path)"
+        # Download and install kubectl
+        - |
+          curl -fLo $HOME/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && chmod +x $HOME/bin/kubectl
+          kubectl version
+          kubectl get pods
+        # Download and install Helm
+        - |
+          curl -fL https://git.io/get_helm.sh | bash
+          helm version
+          helm init
+        # Pull stackstorm-ha chart dependencies
+        - |
+          helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
+          helm dependency update
+      script:
+        # Install stackstorm-ha Helm chart in CI K8s cluster
+        - helm install --debug --name stackstorm-ha .
+        - kubectl get all
