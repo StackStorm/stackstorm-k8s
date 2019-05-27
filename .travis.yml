@@ -28,6 +28,7 @@ jobs:
           curl -fL https://git.io/get_helm.sh | bash
           helm version
           helm init
+          sleep 30
         # Pull stackstorm-ha chart dependencies
         - |
           helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
