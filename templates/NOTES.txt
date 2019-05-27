@@ -37,6 +37,7 @@ Ingress is enabled. You may access following endpoints:
   http{{- if $.Values.ingress.tls }}s{{- end -}}://{{ $host }}{{ .path }}
   {{- end }}
 {{- end }}
+{{- end }}
 
 2. Login with the following credentials:
 username: {{ .Values.secrets.st2.username }}
