@@ -28,9 +28,7 @@ jobs:
           kubectl create serviceaccount --namespace kube-system tiller
           kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
           curl -fL https://git.io/get_helm.sh | bash
-          helm init --service-account tiller
-          # wait for tiller
-          kubectl rollout status -w deployment/tiller-deploy --namespace=kube-system
+          helm init --wait --service-account tiller
           helm version
         # Pull stackstorm-ha chart dependencies
         - |
@@ -38,6 +36,7 @@ jobs:
           helm dependency update
       script:
         # Install stackstorm-ha Helm chart in CI K8s cluster
-        - helm install --debug --name stackstorm-ha .
+        - helm install --debug --name stackstorm-ha . --set mongodb-ha.persistentVolume.enabled=false
         - kubectl get all
-        - kubectl -n kube-system get po
+        - kubectl describe pod stackstorm-ha-rabbitmq-ha-0
+        - kubectl logs stackstorm-ha-rabbitmq-ha-0 --all-containers
