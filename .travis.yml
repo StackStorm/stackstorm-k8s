@@ -44,6 +44,6 @@ jobs:
         - helm install --debug --name stackstorm-ha . --set mongodb-ha.persistentVolume.enabled=false
         - kubectl get all
         - kubectl describe pod stackstorm-ha-rabbitmq-ha-0
-        - cat /etc/resolv.conf
+        - cat /etc/resolv.conf; echo 'options timeout:30' >> /etc/resolv.conf
         - kubectl logs stackstorm-ha-rabbitmq-ha-0 --all-containers
         - kubectl logs stackstorm-ha-rabbitmq-ha-0 --all-containers -p
