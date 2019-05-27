@@ -120,8 +120,30 @@ st2:
     #  uid: api_key:56928c2d9637ce44338e9564d4b939df8b258410db23b5a80f8ad69d58e648b574f35f9293c3a76bde263738be9aa8379a81553cd55513ad672540b7b0ec0cac
     #  user: st2admin
 
+##
+## StackStorm HA Ingress
+##
 ingress:
+  # As recommended, ingress is disabled by default.
   enabled: false
+  # Annotations are used to configure the ingress controller
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  # Map hosts to paths
+  hosts: []
+  # - name: chart-example.test
+  #   host: hostname.domain.tld
+  #   # Map paths to services
+  #   paths:
+  #     - path: /
+  #       serviceName: service
+  #       servicePort: port
+  # Secure the Ingress by specifying a secret that contains a TLS private key and certificate
+  tls: []
+  # - secretName: chart-example-tls
+  #   hosts:
+  #     - chart-example.test
 
 ##
 ## StackStorm HA Cluster Secrets. All fields are required!
