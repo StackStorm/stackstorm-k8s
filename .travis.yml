@@ -1,0 +1,35 @@
+language: go
+
+go:
+  - '1.12.x'
+
+services:
+  - docker
+
+branches:
+  only:
+    - master
+
+env:
+  - KIND_VERSION=0.0.3
+
+jobs:
+  include:
+    - stage: e2e tests
+      before_script:
+        # Download and install kubectl
+        - curl -Lo https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && chmod +x $HOME/bin/kubectl
+        # Download and install Helm
+        - curl -L https://git.io/get_helm.sh | bash
+        # Download and install KinD
+        - sudo -Lo $HOME/bin/kind https://github.com/kubernetes-sigs/kind/releases/download/v${KIND_VERSION}/kind-linux-amd64 && sudo chmod +x $HOME/bin/kind
+        # Create a new Kubernetes cluster using KinD
+        - kind create cluster
+        # Set KUBECONFIG environment variable
+        - export KUBECONFIG="$(kind get kubeconfig-path)"
+        - |
+          kubectl version
+          helm version
+          kind version
+        - kubectl get pods
+      script: echo 'e2e'
