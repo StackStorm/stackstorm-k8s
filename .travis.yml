@@ -25,9 +25,10 @@ jobs:
           kubectl get pods
         # Download and install Helm
         - |
-          curl -fL https://git.io/get_helm.sh | bash
+          set -x
           kubectl create serviceaccount --namespace kube-system tiller
           kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
+          curl -fL https://git.io/get_helm.sh | bash
           helm init --service-account tiller
           helm version
         # Pull stackstorm-ha chart dependencies
