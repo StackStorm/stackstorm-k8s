@@ -18,7 +18,7 @@ jobs:
         # Download and install Helm
         - curl -L https://git.io/get_helm.sh | bash
         # Download and install KinD
-        - sudo -Lo $HOME/bin/kind https://github.com/kubernetes-sigs/kind/releases/download/v${KIND_VERSION}/kind-linux-amd64 && sudo chmod +x $HOME/bin/kind
+        - curl -Lo $HOME/bin/kind https://github.com/kubernetes-sigs/kind/releases/download/v${KIND_VERSION}/kind-linux-amd64 && sudo chmod +x $HOME/bin/kind
         # Create a new Kubernetes cluster using KinD
         - kind create cluster
         # Set KUBECONFIG environment variable
