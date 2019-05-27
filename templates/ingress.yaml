@@ -29,10 +29,9 @@ spec:
             serviceName: {{ .serviceName }}
             servicePort: {{ .servicePort }}
       {{- end }}
-  {{- if .tls }}
-  tls:
-  - hosts:
-    - {{ .Values.name }}
-    secretName: {{ .tlsSecret }}
   {{- end }}
+  {{- if .Values.ingress.tls }}
+  tls:
+{{ toYaml .Values.ingress.tls | indent 4 }}
+  {{- end -}}
 {{- end }}
