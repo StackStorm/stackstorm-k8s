@@ -10,6 +10,11 @@ jobs:
   include:
     - stage: e2e tests
       before_script:
+        - |
+          # busybox image used in rabbitmq-ha chart timeouts on DNS resolution
+          # multiple 'search' domains in resolv.conf makes it even worse
+          # https://github.com/kubernetes/kubernetes/issues/66924
+          sudo sed -i '/^search/ d' /etc/resolv.conf
         # Download and install KinD
         - |
           curl -fLo $HOME/bin/kind https://github.com/kubernetes-sigs/kind/releases/download/v${KIND_VERSION}/kind-linux-amd64 && chmod +x $HOME/bin/kind
@@ -34,12 +39,6 @@ jobs:
         - |
           helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
           helm dependency update
-        - |
-          # busybox image used in rabbitmq-ha chart timeouts on DNS resolution
-          # multiple 'search' domains in resolv.conf makes it even worse
-          # https://github.com/kubernetes/kubernetes/issues/66924
-          sudo sed -i '/^search/ d' /etc/resolv.conf
-          echo 'options timeout:30' >> /etc/resolv.conf
       script:
         # Install stackstorm-ha Helm chart in CI K8s cluster
         - helm install --debug --name stackstorm-ha . --set mongodb-ha.persistentVolume.enabled=false
