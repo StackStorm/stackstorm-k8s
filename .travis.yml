@@ -12,7 +12,7 @@ before_script:
   # Download and install Minikube
   - |
     curl -fLo $HOME/bin/minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x $HOME/bin/minikube
-    minikube --version
+    minikube version
   # Create a new Kubernetes cluster using minikube
   - minikube start --vm-driver=none
   # Download and install kubectl
