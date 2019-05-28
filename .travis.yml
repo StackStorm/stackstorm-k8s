@@ -20,12 +20,10 @@ before_script:
     export MINIKUBE_WANTREPORTERRORPROMPT=false
     export MINIKUBE_HOME=$HOME
     export CHANGE_MINIKUBE_NONE_USER=true
-    #export KUBECONFIG=$HOME/.kube/config
-    #mkdir -p $HOME/.kube $HOME/.minikube
-    #touch $KUBECONFIG
+    sudo apt-get install -y util-linux socat
   # Create a new Kubernetes cluster using minikube
   - |
-    sudo -E minikube start --vm-driver=none --v=7
+    sudo -E minikube start --vm-driver=none
   # Download and install kubectl
   - |
     curl -fLo $HOME/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && chmod +x $HOME/bin/kubectl
