@@ -132,8 +132,7 @@ ingress:
     # kubernetes.io/tls-acme: "true"
   # Map hosts to paths
   hosts: []
-  # - name: chart-example.test
-  #   host: hostname.domain.tld
+  # - host: hostname.domain.tld
   #   # Map paths to services
   #   paths:
   #     - path: /
