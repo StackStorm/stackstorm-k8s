@@ -10,7 +10,7 @@ before_script:
     # busybox image used in rabbitmq-ha chart timeouts on DNS resolution
     # multiple 'search' domains in resolv.conf makes it even worse
     # https://github.com/kubernetes/kubernetes/issues/66924
-    sudo sed -i '/^search/ d' /etc/resolv.conf
+    #sudo sed -i '/^search/ d' /etc/resolv.conf
   # Download and install Minikube
   - |
     sudo curl -fLo /usr/local/bin/minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && sudo chmod +x /usr/local/bin/minikube
@@ -22,7 +22,7 @@ before_script:
     export CHANGE_MINIKUBE_NONE_USER=true
     sudo apt-get install -y socat
   # Create a new Kubernetes cluster using minikube
-  - sudo -E minikube start --vm-driver=none
+  - sudo -E minikube start --vm-driver=none --cpus $(nproc) --memory 4096
   # Download and install kubectl
   - |
     curl -fLo $HOME/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && chmod +x $HOME/bin/kubectl
@@ -30,8 +30,6 @@ before_script:
     kubectl get pods
   # Download and install Helm
   - |
-    #kubectl create serviceaccount --namespace kube-system tiller
-    #kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
     curl -fL https://git.io/get_helm.sh | bash
     helm init --wait
     helm version
@@ -42,6 +40,6 @@ script:
     helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
     helm dependency update
   # Install stackstorm-ha Helm chart in CI K8s cluster
-  - helm install --debug --name stackstorm-ha .
+  - helm install --debug --wait --name stackstorm-ha .
   # Show created K8s resources
   - kubectl get all
