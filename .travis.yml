@@ -20,10 +20,9 @@ before_script:
     export MINIKUBE_WANTREPORTERRORPROMPT=false
     export MINIKUBE_HOME=$HOME
     export CHANGE_MINIKUBE_NONE_USER=true
-    sudo apt-get install -y util-linux socat
+    sudo apt-get install -y socat
   # Create a new Kubernetes cluster using minikube
-  - |
-    sudo -E minikube start --vm-driver=none
+  - sudo -E minikube start --vm-driver=none
   # Download and install kubectl
   - |
     curl -fLo $HOME/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && chmod +x $HOME/bin/kubectl
@@ -31,17 +30,17 @@ before_script:
     kubectl get pods
   # Download and install Helm
   - |
-    kubectl create serviceaccount --namespace kube-system tiller
-    kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
+    #kubectl create serviceaccount --namespace kube-system tiller
+    #kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
     curl -fL https://git.io/get_helm.sh | bash
-    helm init --wait --service-account tiller
+    helm init --wait
     helm version
+
+script:
   # Pull stackstorm-ha chart dependencies
   - |
     helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
     helm dependency update
-
-script:
   # Install stackstorm-ha Helm chart in CI K8s cluster
   - helm install --debug --name stackstorm-ha .
   # Show created K8s resources
