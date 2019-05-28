@@ -61,7 +61,7 @@ jobs:
           working_directory: enterprise/stackstorm-ha/templates/
 
   # Spin up lightweight K8s cluster with 'KIND' and run Helm chart & e2e tests on it
-  e2e:
+  helm-e2e:
     machine:
       # Available images https://circleci.com/docs/2.0/configuration-reference/#available-machine-images
       image: ubuntu-1604:201903-01
@@ -110,7 +110,7 @@ workflows:
       - k8s-lint:
           requires:
             - helm-lint
-      - e2e:
+      - helm-e2e:
           requires:
             - helm-lint
             - k8s-lint
