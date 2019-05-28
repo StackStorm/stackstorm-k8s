@@ -6,11 +6,6 @@ services:
   - docker
 
 before_script:
-  - |
-    # busybox image used in rabbitmq-ha chart timeouts on DNS resolution
-    # multiple 'search' domains in resolv.conf makes it even worse
-    # https://github.com/kubernetes/kubernetes/issues/66924
-    #sudo sed -i '/^search/ d' /etc/resolv.conf
   # Download and install Minikube
   - |
     sudo curl -fLo /usr/local/bin/minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && sudo chmod +x /usr/local/bin/minikube
