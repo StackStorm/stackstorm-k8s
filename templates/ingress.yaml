@@ -31,6 +31,16 @@ spec:
             serviceName: {{ .serviceName }}
             servicePort: {{ .servicePort }}
       {{- end }}
+  {{- else }}
+    {{- if required "Missing context '.Values.st2web.service.hostname'!" .Values.st2web.service.hostname }}
+  - hosts: {{ .Values.st2web.service.hostname }}
+    {{- end }}
+    http:
+      paths:
+        - path: "/*"
+          backend:
+            serviceName: {{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }}
+            servicePort: "443"
   {{- end }}
   {{- if .Values.ingress.tls }}
   tls:
