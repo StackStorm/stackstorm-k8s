@@ -3,13 +3,15 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  {{- $name := printf "%s-%s" $.Release.Name .Values.ingress.name | trunc 63 | trimSuffix "-" | quote }}
-  name: {{ $name }}
+  name: {{ .Release.Name }}-ingress{{ template "enterpriseSuffix" . }}
   labels:
-    app: {{ $name }}
-    chart: "{{ $.Chart.Name }}-{{ $.Chart.Version }}"
-    release: "{{ $.Release.Name }}"
-    heritage: "{{ $.Release.Service }}"
+    app: ingress
+    tier: frontend
+    vendor: stackstorm
+    support: {{ template "supportMethod" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
   annotations:
     {{- if .Values.ingress.tls }}
     ingress.kubernetes.io/secure-backends: "true"
@@ -20,7 +22,7 @@ metadata:
 spec:
   rules:
   {{- range .Values.ingress.hosts }}
-  - host: {{ .name }}
+  - host: {{ .host }}
     http:
       paths:
       {{- range .paths }}
