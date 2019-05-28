@@ -32,7 +32,7 @@ echo https://${ST2WEB_IP}:${ST2WEB_PORT}/
 {{- if .Values.ingress.enabled -}}
 Ingress is enabled. You may access following endpoints:
 {{- range .Values.ingress.hosts }}
-  {{- $host = .host -}}
+  {{- $host := .host -}}
   {{- range .paths }}
   http{{- if $.Values.ingress.tls }}s{{- end -}}://{{ $host }}{{ .path }}
   {{- end }}
