@@ -50,14 +50,15 @@ The default configuration values for this chart are described in `values.yaml`.
 
 ## Ingress
 
-Use an ingress if you need to expose HTTP and HTTPS routes from outside the cluster to services
-within the cluster. Ingress provides load balancing, SSL termination and name-based virtual
-hosting. See the ingress section in `values.yaml` for configuration details.
+Ingress is worth considering if you want to expose multiple services under the same IP address, and
+these services all use the same L7 protocol (typically HTTP). You only pay for one load balancer if
+you are using native cloud integration, and because Ingress is "smart", you can get a lot of
+features out of the box (like SSL, Auth, Routing, etc.). See the ingress section in `values.yaml`
+for configuration details.
 
-You will need to deploy an ingress controller such as
-https://github.com/helm/charts/tree/master/incubator/aws-alb-ingress-controller or
-https://www.nginx.com/products/nginx/kubernetes-ingress-controller. More are available
-at https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/.
+You will first need to deploy an ingress controller of your preference. See
+https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/#additional-controllers
+for more information.
 
 ## Components
 
