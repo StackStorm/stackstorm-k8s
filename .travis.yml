@@ -13,10 +13,10 @@ before_script:
     sudo sed -i '/^search/ d' /etc/resolv.conf
   # Download and install Minikube
   - |
-    curl -fLo $HOME/bin/minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x $HOME/bin/minikube
+    sudo curl -fLo /usr/local/bin/minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && sudo chmod +x /usr/local/bin/minikube
     minikube version
   # Create a new Kubernetes cluster using minikube
-  - minikube start --vm-driver=none --v=7
+  - sudo minikube start --vm-driver=none --v=7
   # Download and install kubectl
   - |
     curl -fLo $HOME/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && chmod +x $HOME/bin/kubectl
