@@ -1,4 +1,12 @@
-version: 2
+version: 2.1
+
+# Add additional CircleCI Orbs dependencies
+orbs:
+  # https://circleci.com/orbs/registry/orb/circleci/kubernetes
+  kube: circleci/kubernetes@0.3.0
+  # https://circleci.com/orbs/registry/orb/circleci/helm
+  helm: circleci/helm@0.1.2
+
 jobs:
   # Run Helm Lint checks
   helm-lint:
@@ -52,6 +60,48 @@ jobs:
           command: kubeval $(find . -type f)
           working_directory: enterprise/stackstorm-ha/templates/
 
+  # Spin up lightweight K8s cluster with 'KIND' and run Helm chart & e2e tests on it
+  helm-e2e:
+    machine:
+      # Available images https://circleci.com/docs/2.0/configuration-reference/#available-machine-images
+      image: ubuntu-1604:201903-01
+    steps:
+      - checkout
+      - kube/install
+      - helm/install-helm-client
+      - run:
+          name: Apply workaround for rabbitmq-ha chart DNS issue
+          command: |
+            # busybox image used in rabbitmq-ha chart timeouts on DNS resolution
+            # multiple 'search' domains in resolv.conf makes it even worse
+            # https://github.com/kubernetes/kubernetes/issues/66924
+            sudo sed -i '/^search/ d' /etc/resolv.conf
+      - run:
+          name: Install K8s in Docker (KinD)
+          command: sudo wget -O /usr/local/bin/kind https://github.com/kubernetes-sigs/kind/releases/download/v0.3.0/kind-linux-amd64 && sudo chmod +x /usr/local/bin/kind
+      - run:
+          name: Create new K8s cluster
+          command: |
+            kind create cluster
+            echo 'export KUBECONFIG="$(kind get kubeconfig-path)"' >> $BASH_ENV
+      - helm/install-helm-on-cluster:
+          enable-cluster-wide-admin-access: true
+      - run:
+          name: Update Helm repo dependencies
+          command: |
+            helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
+            helm dependency update
+      - run:
+          name: Helm install stackstorm-ha chart
+          command: |
+            # disable mongodb-ha chart persistent volumes as cluster can't start in CircleCI/KinD env
+            helm install --debug --name stackstorm-ha . \
+              --set mongodb-ha.persistentVolume.enabled=false
+      - run:
+          when: always
+          name: Show created K8s resources
+          command: kubectl get all
+
 workflows:
   version: 2
   helm:
@@ -60,6 +110,10 @@ workflows:
       - k8s-lint:
           requires:
             - helm-lint
+      - helm-e2e:
+          requires:
+            - helm-lint
+            - k8s-lint
 
 experimental:
   notify:
