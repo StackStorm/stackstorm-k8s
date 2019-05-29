@@ -338,8 +338,6 @@ spec:
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
-      annotations:
-        checksum/ssl: {{ include (print $.Template.BasePath "/secrets_st2web.yaml") . | sha256sum }}
     spec:
       {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
