@@ -2,6 +2,9 @@
 
 ## In Development
 
+## v0.15.0
+* Add support for ingress (#68)
+
 ## v0.14.0
 * Pin st2 version to `v3.1dev` as a new latest development version (#67)
 

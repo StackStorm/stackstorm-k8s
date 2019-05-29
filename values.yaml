@@ -121,6 +121,32 @@ st2:
     #  user: st2admin
 
 ##
+## StackStorm HA Ingress
+##
+ingress:
+  # As recommended, ingress is disabled by default.
+  enabled: false
+  # Annotations are used to configure the ingress controller
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  # Map hosts to paths
+  hosts: []
+  # - host: hostname.domain.tld
+  #   # NOTE: Both path and service details are optional. A working default will be used to
+  #   # automatically configure st2web for ingress.
+  #   # Map paths to services
+  #   paths:
+  #     - path: /
+  #       serviceName: service
+  #       servicePort: port
+  # Secure the Ingress by specifying a secret that contains a TLS private key and certificate
+  tls: []
+  # - secretName: chart-example-tls
+  #   hosts:
+  #     - chart-example.test
+
+##
 ## StackStorm HA Cluster Secrets. All fields are required!
 ## NB! It's highly recommended to change ALL defaults!
 ##

@@ -1,1 +1,49 @@
-# TODO: Research & add Ingress controller for exposing st2web service to public net (#6)
+{{- if .Values.ingress.enabled }}
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-ingress{{ template "enterpriseSuffix" . }}
+  labels:
+    app: ingress
+    tier: frontend
+    vendor: stackstorm
+    support: {{ template "supportMethod" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+  annotations:
+    {{- if .Values.ingress.tls }}
+    ingress.kubernetes.io/secure-backends: "true"
+    {{- end }}
+    {{- range $key, $value := .Values.ingress.annotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+spec:
+  rules:
+  {{- range .Values.ingress.hosts }}
+  - host: {{ .host }}
+    http:
+      paths:
+      {{- range .paths }}
+        - path: {{ default "/*" .path }}
+          backend:
+            serviceName: {{ .serviceName }}
+            servicePort: {{ .servicePort }}
+      {{- end }}
+  {{- else }}
+    {{- if required "Missing context '.Values.st2web.service.hostname'!" .Values.st2web.service.hostname }}
+  - host: {{ .Values.st2web.service.hostname }}
+    {{- end }}
+    http:
+      paths:
+        - path: "/*"
+          backend:
+            serviceName: {{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }}
+            servicePort: "443"
+  {{- end }}
+  {{- if .Values.ingress.tls }}
+  tls:
+{{ toYaml .Values.ingress.tls | indent 4 }}
+  {{- end -}}
+{{- end }}

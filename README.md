@@ -45,6 +45,22 @@ See Helm `values.yaml`, `enterprise` section for configuration examples.
 > Don't have StackStorm Enterprise License?<br>
 > 90-day free trial can be requested at https://stackstorm.com/#product
 
+## Configuration
+
+The default configuration values for this chart are described in `values.yaml`.
+
+## Ingress
+
+Ingress is worth considering if you want to expose multiple services under the same IP address, and
+these services all use the same L7 protocol (typically HTTP). You only pay for one load balancer if
+you are using native cloud integration, and because Ingress is "smart", you can get a lot of
+features out of the box (like SSL, Auth, Routing, etc.). See the ingress section in `values.yaml`
+for configuration details.
+
+You will first need to deploy an ingress controller of your preference. See
+https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/#additional-controllers
+for more information.
+
 ## Components
 
 The Community FOSS Dockerfiles used to generate the docker images for each st2 component are available at
