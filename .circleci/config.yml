@@ -85,11 +85,18 @@ jobs:
             helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
             helm dependency update
       - run:
-          name: Helm install stackstorm-ha chart
+          name: Helm install stackstorm-ha chart (Community)
           command: helm install --debug --wait --name stackstorm-ha .
       - run:
           when: always
-          name: Show created K8s resources
+          name: Show created K8s resources (Community)
+          command: kubectl get all
+      - run:
+          name: Helm upgrade stackstorm-ha (Community -> Enterprise)
+          command: helm upgrade --wait stackstorm-ha . --set enterprise.enabled=true --set enterprise.license=${EWC_LICENSE}
+      - run:
+          when: always
+          name: Show created K8s resources (Enterprise)
           command: kubectl get all
 
 workflows:
