@@ -33,7 +33,7 @@ spec:
       {{- end }}
   {{- else }}
     {{- if required "Missing context '.Values.st2web.service.hostname'!" .Values.st2web.service.hostname }}
-  - hosts: {{ .Values.st2web.service.hostname }}
+  - host: {{ .Values.st2web.service.hostname }}
     {{- end }}
     http:
       paths:
