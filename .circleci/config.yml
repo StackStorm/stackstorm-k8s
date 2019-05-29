@@ -3,7 +3,7 @@ version: 2.1
 # Add additional CircleCI Orbs dependencies
 orbs:
   # https://circleci.com/orbs/registry/orb/circleci/kubernetes
-  kube: circleci/kubernetes@0.3.0
+  kubernetes: circleci/kubernetes@0.3.0
   # https://circleci.com/orbs/registry/orb/circleci/helm
   helm: circleci/helm@0.1.2
 
@@ -60,43 +60,33 @@ jobs:
           command: kubeval $(find . -type f)
           working_directory: enterprise/stackstorm-ha/templates/
 
-  # Spin up lightweight K8s cluster with 'KIND' and run Helm chart & e2e tests on it
+  # Spin up minikube K8s cluster and run Helm chart & e2e tests on it
   helm-e2e:
     machine:
       # Available images https://circleci.com/docs/2.0/configuration-reference/#available-machine-images
       image: ubuntu-1604:201903-01
     steps:
       - checkout
-      - kube/install
-      - helm/install-helm-client
+      - kubernetes/install
       - run:
-          name: Apply workaround for rabbitmq-ha chart DNS issue
+          name: Install Minikube
           command: |
-            # busybox image used in rabbitmq-ha chart timeouts on DNS resolution
-            # multiple 'search' domains in resolv.conf makes it even worse
-            # https://github.com/kubernetes/kubernetes/issues/66924
-            sudo sed -i '/^search/ d' /etc/resolv.conf
-      - run:
-          name: Install K8s in Docker (KinD)
-          command: sudo wget -O /usr/local/bin/kind https://github.com/kubernetes-sigs/kind/releases/download/v0.3.0/kind-linux-amd64 && sudo chmod +x /usr/local/bin/kind
+            sudo curl -fLo /usr/local/bin/minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && sudo chmod +x /usr/local/bin/minikube
+            minikube version
       - run:
           name: Create new K8s cluster
-          command: |
-            kind create cluster
-            echo 'export KUBECONFIG="$(kind get kubeconfig-path)"' >> $BASH_ENV
-      - helm/install-helm-on-cluster:
-          enable-cluster-wide-admin-access: true
+          command: sudo -E minikube start --vm-driver=none --cpus $(nproc) --memory 4096
+          environment:
+            CHANGE_MINIKUBE_NONE_USER: true
+      - helm/install-helm-on-cluster
       - run:
-          name: Update Helm repo dependencies
+          name: Update stackstorm-ha chart dependencies
           command: |
             helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
             helm dependency update
       - run:
           name: Helm install stackstorm-ha chart
-          command: |
-            # disable mongodb-ha chart persistent volumes as cluster can't start in CircleCI/KinD env
-            helm install --debug --name stackstorm-ha . \
-              --set mongodb-ha.persistentVolume.enabled=false
+          command: helm install --debug --wait --name stackstorm-ha .
       - run:
           when: always
           name: Show created K8s resources
