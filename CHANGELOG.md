@@ -2,6 +2,9 @@
 
 ## In Development
 
+## v0.16.0
+* st2web now uses HTTP by default (#72)
+
 ## v0.15.0
 * Add support for ingress (#68)
 
