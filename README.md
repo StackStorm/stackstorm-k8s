@@ -83,8 +83,7 @@ kubectl exec -it ${ST2CLIENT} /bin/bash
 ### [st2web](https://docs.stackstorm.com/latest/reference/ha.html#nginx-and-load-balancing)
 st2web is a StackStorm Web UI admin dashboard. By default, st2web K8s config includes a Pod Deployment and a Service.
 `2` replicas (configurable) of st2web serve the web app and proxy requests to st2auth, st2api, st2stream.
-By default, st2web uses HTTP instead of HTTPS. Pass in ST2WEB_HTTPS environment variable with a non-zero value
-(e.g. "1") and ensure SSL certificates are configured.
+By default, st2web uses HTTP instead of HTTPS. We recommend you rely on `LoadBalancer` or `Ingress` to add HTTPS layer on top of it.
 > **Note!** By default, st2web is a NodePort Service and is not exposed to the public net.
   If your Kubernetes cluster setup supports the LoadBalancer service type, you can edit the corresponding helm values to configure st2web as a LoadBalancer service in order to expose it and the services it proxies to the public net.
 
