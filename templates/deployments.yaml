@@ -338,8 +338,6 @@ spec:
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
-      annotations:
-        checksum/ssl: {{ include (print $.Template.BasePath "/secrets_st2web.yaml") . | sha256sum }}
     spec:
       {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
@@ -350,13 +348,13 @@ spec:
         image: "{{ template "imageRepository" . }}/st2web{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
-        - containerPort: 443
+        - containerPort: 80
         # Probe to check if app is running. Failure will lead to a pod restart.
         livenessProbe:
           httpGet:
-            scheme: HTTPS
+            scheme: HTTP
             path: /
-            port: 443
+            port: 80
           initialDelaySeconds: 1
         # Probe to check if app is ready to serve traffic. Failure will lead to temp stop serving traffic.
         # TODO: Failing to add readinessProbe, since st2 requires authorization (401) and we don't have `/healthz` endpoints yet (https://github.com/StackStorm/st2/issues/4020)
@@ -373,25 +371,10 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
             optional: true
-        volumeMounts:
-        - name: st2web-ssl-cert
-          mountPath: /etc/ssl/st2/
-          readOnly: true
+        volumeMounts: []
         resources:
 {{ toYaml .Values.st2web.resources | indent 10 }}
-      volumes:
-      - name: st2web-ssl-cert
-        secret:
-          secretName: {{ .Release.Name }}-st2web
-          items:
-          - key: ssl_certificate
-            path: st2.crt
-            # 0400 file permission
-            mode: 256
-          - key: ssl_certificate_key
-            path: st2.key
-            # 0400 file permission
-            mode: 256
+      volumes: []
     {{- with .Values.st2web.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}

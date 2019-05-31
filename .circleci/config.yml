@@ -95,7 +95,7 @@ jobs:
           name: Helm install stackstorm-ha chart
           command: |
             # disable mongodb-ha chart persistent volumes as cluster can't start in CircleCI/KinD env
-            helm install --debug --name stackstorm-ha . \
+            helm install --debug --wait --name stackstorm-ha . \
               --set mongodb-ha.persistentVolume.enabled=false
       - run:
           when: always
