@@ -18,16 +18,25 @@ echo https://${ST2WEB_IP}/
 
 {{- else if contains "ClusterIP" .Values.st2web.service.type }}
 
-echo https://127.0.0.1:8443
-kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }} 8443:443
+echo http://127.0.0.1:8080
+kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }} 8080:80
 
-{{- end }}
-{{- if contains "NodePort" .Values.st2web.service.type }}
+{{- else if contains "NodePort" .Values.st2web.service.type }}
 
 export ST2WEB_IP=$(minikube ip 2>/dev/null || kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
 export ST2WEB_PORT="$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }})"
-echo https://${ST2WEB_IP}:${ST2WEB_PORT}/
+echo http://${ST2WEB_IP}:${ST2WEB_PORT}/
 
+{{- end }}
+
+{{- if .Values.ingress.enabled -}}
+Ingress is enabled. You may access following endpoints:
+{{- range .Values.ingress.hosts }}
+  {{- $host := .host -}}
+  {{- range .paths }}
+  http{{- if $.Values.ingress.tls }}s{{- end -}}://{{ $host }}{{ .path }}
+  {{- end }}
+{{- end }}
 {{- end }}
 
 2. Login with the following credentials:

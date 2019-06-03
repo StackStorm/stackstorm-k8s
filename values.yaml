@@ -121,6 +121,32 @@ st2:
     #  user: st2admin
 
 ##
+## StackStorm HA Ingress
+##
+ingress:
+  # As recommended, ingress is disabled by default.
+  enabled: false
+  # Annotations are used to configure the ingress controller
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  # Map hosts to paths
+  hosts: []
+  # - host: hostname.domain.tld
+  #   # NOTE: Both path and service details are optional. A working default will be used to
+  #   # automatically configure st2web for ingress.
+  #   # Map paths to services
+  #   paths:
+  #     - path: /
+  #       serviceName: service
+  #       servicePort: port
+  # Secure the Ingress by specifying a secret that contains a TLS private key and certificate
+  tls: []
+  # - secretName: chart-example-tls
+  #   hosts:
+  #     - chart-example.test
+
+##
 ## StackStorm HA Cluster Secrets. All fields are required!
 ## NB! It's highly recommended to change ALL defaults!
 ##
@@ -163,66 +189,6 @@ secrets:
       WE8BWLQ1vBV6c7V4Q0Wp6LuTnNnvu/lvVugJW/TbrzFw6CFe5fEISmIHAMnqVz8x
       OdOJyinSM1svoBGnYfyAqINKrqCSGSKmprlMo0Ma3erI7SuojWBS
       -----END RSA PRIVATE KEY-----
-  st2web:
-    # SSL Certificate used for StackStorm Web UI in nginx (HTTPS)
-    # Warning! This is dummy auto-generated self-signed SSL cert. Use your own instead!
-    # TODO: For prod/stable consider auto-generating if no cert provided (#15)
-    ssl_certificate: |-
-      -----BEGIN CERTIFICATE-----
-      MIID2zCCAsOgAwIBAgIJANcrpXluUyomMA0GCSqGSIb3DQEBCwUAMIGDMQswCQYD
-      VQQGEwJVUzETMBEGA1UECAwKQ2FsaWZvcm5pYTESMBAGA1UEBwwJUGFsbyBBbHRv
-      MRMwEQYDVQQKDApTdGFja1N0b3JtMSEwHwYDVQQLDBhJbmZvcm1hdGlvbiAgIFRl
-      Y2hub2xvZ3kxEzARBgNVBAMMCnN0YWNrc3Rvcm0wHhcNMTgwNTIzMTQxMDMyWhcN
-      MTkwNTIzMTQxMDMyWjCBgzELMAkGA1UEBhMCVVMxEzARBgNVBAgMCkNhbGlmb3Ju
-      aWExEjAQBgNVBAcMCVBhbG8gQWx0bzETMBEGA1UECgwKU3RhY2tTdG9ybTEhMB8G
-      A1UECwwYSW5mb3JtYXRpb24gICBUZWNobm9sb2d5MRMwEQYDVQQDDApzdGFja3N0
-      b3JtMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5r2f8xtKToZM3rMS
-      J+gcpRjCIACv4ivJDxhhOJ1L9WXpR5UGUtftuiRKvhQA6lW0buPyAWnIDdEyUKHa
-      QoPPYfB/mmuu5qc14JLJ9swzqkfHkgcgi1DjXFg8GkfWKXymtD2F/jU+Mf94NS9P
-      kfZO7mAfOMjsX18J7Vmq/Jk2dYOmbQHsj549VNUcaj4HEmf52cqHlJCAdl8gVJ0H
-      8NDJwDkb1okNKqCMLu5sR3ffmTnVO+zxsNIZMnngevWfhkLkYdEpxraL0Dyi8HkA
-      004cvPryoit4sucYvEWU2ZWBjBtOFJmqH8QQYei/G9JDVjfXk8KoRm1EvH1G3Hab
-      6wmB0QIDAQABo1AwTjAdBgNVHQ4EFgQUrTArdEoZeiCoYs5xp+BDp9/AlhowHwYD
-      VR0jBBgwFoAUrTArdEoZeiCoYs5xp+BDp9/AlhowDAYDVR0TBAUwAwEB/zANBgkq
-      hkiG9w0BAQsFAAOCAQEAjhMlepcXlWlbr7HcwDX0bNAAze+tJ/NVQGAkl92Nu/9L
-      KsJmObhFEJmok4ZuYhzeVlNRVkC465oHhDLOjUzZoZ6y4hiyH8YJacnZ8mpFFxcc
-      /s18QEw5+G6/xTAzTsrvN2aS+M6qVfEM2tmtwzb7cE14nExLrKq9MGZ6c9qBbH/k
-      YP18QVLx89mBcrWHzbUmCXkVzVxcII2U2CyPhGoHpN054oZ9XT5r0p/JqWLl2wEh
-      6iNbkxysfAeB2J0tY10uSWCzQuQ1UtzDaBkGUHd+UKR98EcduoNqMoUIwkAu0gjk
-      k8kkryYUKpQ/OAiyXIDJiR9lWPGG1Kr8ZqOwjeCRKw==
-      -----END CERTIFICATE-----
-    # SSL Certificate private key used for StackStorm Web UI in nginx (HTTPS)
-    # Warning! This is dummy auto-generated self-signed SSL cert. Use your own instead!
-    # TODO: For prod/stable consider auto-generating if no cert provided (#15)
-    ssl_certificate_key: |-
-      -----BEGIN PRIVATE KEY-----
-      MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDmvZ/zG0pOhkze
-      sxIn6BylGMIgAK/iK8kPGGE4nUv1ZelHlQZS1+26JEq+FADqVbRu4/IBacgN0TJQ
-      odpCg89h8H+aa67mpzXgksn2zDOqR8eSByCLUONcWDwaR9YpfKa0PYX+NT4x/3g1
-      L0+R9k7uYB84yOxfXwntWar8mTZ1g6ZtAeyPnj1U1RxqPgcSZ/nZyoeUkIB2XyBU
-      nQfw0MnAORvWiQ0qoIwu7mxHd9+ZOdU77PGw0hkyeeB69Z+GQuRh0SnGtovQPKLw
-      eQDTThy8+vKiK3iy5xi8RZTZlYGMG04UmaofxBBh6L8b0kNWN9eTwqhGbUS8fUbc
-      dpvrCYHRAgMBAAECggEBAKiTETCDV55W8AIjwbf2FDdqBylqVxVd995XaW/7O2tl
-      sTDi52PO7Zd4vEJyStjpFJGPZ1cw+T9e/ut51AOUWQastg0TbwyETRBtLbBpL7XQ
-      CzXcjyI5TmJA9Gge45AbyY8VA7fdHjtY8XGpxvBUiwYMo8LQyCBFRvNo90rkhK0E
-      xk+mk+DhVFTFvJbYhENTAA8iCq3GeeA7tC+hwOkyNUeyiroIYa1m9uwIPFHS4gxF
-      +uCRsTnhOxUVzxfAWsWBZDe0Yo5zVHl7xwFfse1T//vbwoF5ouIP2IjbwGveCbeW
-      hunsYOPdkkT8rdszyLmrfrpA6Bc0tHKuOz9fJRcCuSECgYEA+9RIc/mzz0AI09oA
-      8vNWYImgPRa0l+AxX3EuL/xx49i8swpELtjNzsz0H1J0nY6baPMaoxj4TEJFxT7c
-      X5NSltcZlxxAxi5WdEpJSdSvznNTKpYVqyDkJWN+1NuoW5e8LOMOuR3NRx7ogA2P
-      o2NpsbShIp22odMaj1tW9kED+N8CgYEA6o/uBVs+y2Fv7Y86PSnaBJPzO07YO1xG
-      tan0zr4TBp2o4YX5sgSdCSlZmSsrGi5Vq20RsBkOg4w8o4ZFYPBZmi+xDyomiibA
-      qssbYTTovwooy5y5LMO+HSz0ClWe17v+o/M0OWwM/uLZ/dOb309NT81A58f0jZIn
-      6ghnWscF608CgYBmAxRmhpxkNBhfWUxRHmm7KYUTugLmExdtBjgjkCvClKW8EUiV
-      gZW9VCEAHzLGMGKcHP6JWzAaFC6XPGOhA9jM6c2f/P3wSg0ThpQxqEqfYvAprCqS
-      6/v/eVKDf4evssOzmzb3ni7txIOCe/vXwAmsxvMPRrwYyZ9Uuzd7AdNOGQKBgB8G
-      Alk7BEcqD/+/ndhRHMDWQKlreDYBsmh8niBqC2IooBmT+r6M1ahMi8kyaHUCA9q0
-      hk5gQgcsGSkXrT1xDKjT/fsffBFxprHwQyLMOKxrz5F+nQ9KpG5/b5eeU2/9MWTF
-      2fZuUBm2L1bfEhKrDnKrlxYQ4EuJNTZC/kiHYkUJAoGBAICBQqCOkFaugy0obNvD
-      BRmc3S5gNeMQHangZKKO1I0hnK0WeWV/D/sTNY1GxxPNhHfU3yfQvfI+Kswspi/b
-      ofUOhwAXuMsTtuLagOMyAJVs+KRVrvnXGT/p9l213ZAnDtFSpkvcjD9WUcupeTca
-      BjdoJBzImjVB5znOgIui3ME5
-      -----END PRIVATE KEY-----
 
 ##
 ## StackStorm HA Cluster pod settings for each individual service/component.

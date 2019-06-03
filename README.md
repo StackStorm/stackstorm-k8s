@@ -45,6 +45,22 @@ See Helm `values.yaml`, `enterprise` section for configuration examples.
 > Don't have StackStorm Enterprise License?<br>
 > 90-day free trial can be requested at https://stackstorm.com/#product
 
+## Configuration
+
+The default configuration values for this chart are described in `values.yaml`.
+
+## Ingress
+
+Ingress is worth considering if you want to expose multiple services under the same IP address, and
+these services all use the same L7 protocol (typically HTTP). You only pay for one load balancer if
+you are using native cloud integration, and because Ingress is "smart", you can get a lot of
+features out of the box (like SSL, Auth, Routing, etc.). See the ingress section in `values.yaml`
+for configuration details.
+
+You will first need to deploy an ingress controller of your preference. See
+https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/#additional-controllers
+for more information.
+
 ## Components
 
 The Community FOSS Dockerfiles used to generate the docker images for each st2 component are available at
@@ -67,6 +83,7 @@ kubectl exec -it ${ST2CLIENT} /bin/bash
 ### [st2web](https://docs.stackstorm.com/latest/reference/ha.html#nginx-and-load-balancing)
 st2web is a StackStorm Web UI admin dashboard. By default, st2web K8s config includes a Pod Deployment and a Service.
 `2` replicas (configurable) of st2web serve the web app and proxy requests to st2auth, st2api, st2stream.
+By default, st2web uses HTTP instead of HTTPS. We recommend you rely on `LoadBalancer` or `Ingress` to add HTTPS layer on top of it.
 > **Note!** By default, st2web is a NodePort Service and is not exposed to the public net.
   If your Kubernetes cluster setup supports the LoadBalancer service type, you can edit the corresponding helm values to configure st2web as a LoadBalancer service in order to expose it and the services it proxies to the public net.
 
