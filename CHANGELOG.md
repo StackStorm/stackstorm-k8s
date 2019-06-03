@@ -2,6 +2,9 @@
 
 ## In Development
 
+## v0.17.0
+* Add chart e2e `helm test` with BATS. Run CI checks with minikube and CircleCI on every PR/push and nightly.
+
 ## v0.16.0
 * st2web now uses HTTP by default (#72). We now recommend you rely on `LoadBalancer` or `Ingress` to add HTTPS layer on top of it.
 
