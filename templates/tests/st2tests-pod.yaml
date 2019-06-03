@@ -18,7 +18,7 @@ spec:
   - name: {{ .Release.Name }}-st2-license
   {{- end }}
   initContainers:
-  # Sidecar container to copy BATS framework to target to the main container
+  # Sidecar container to copy BATS framework to the main container
   - name: test-framework
     image: dduportal/bats:latest
     command:
