@@ -117,6 +117,24 @@ workflows:
           requires:
             - helm-lint
             - k8s-lint
+  # Run periodic nightly Helm tests to ensure there are no regressions
+  helm-nightly:
+    jobs:
+      - helm-lint
+      - k8s-lint:
+          requires:
+            - helm-lint
+      - helm-e2e:
+          requires:
+            - helm-lint
+            - k8s-lint
+    triggers:
+      - schedule:
+          cron: "0 1 * * *"
+          filters:
+            branches:
+              only:
+                - master
 
 experimental:
   notify:
