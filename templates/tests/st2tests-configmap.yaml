@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-st2tests
+  labels:
+    app: st2tests
+    tier: tests
+    vendor: stackstorm
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  st2tests.sh: |
+{{ .Files.Get "tests/st2tests.sh" | indent 4 }}
