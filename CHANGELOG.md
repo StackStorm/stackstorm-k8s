@@ -2,6 +2,9 @@
 
 ## In Development
 
+## v0.18.0
+* Pin st2 to `v3.2dev` as a new latest development version (#77)
+
 ## v0.17.0
 * Add chart e2e `helm test` with BATS. Run CI checks with minikube and CircleCI on every PR/push and nightly.
 
