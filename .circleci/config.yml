@@ -6,6 +6,8 @@ orbs:
   kubernetes: circleci/kubernetes@0.3.0
   # https://circleci.com/orbs/registry/orb/circleci/helm
   helm: circleci/helm@0.1.2
+  # https://circleci.com/orbs/registry/orb/ccpgames/minikube
+  minikube: ccpgames/minikube@0.0.1
 
 jobs:
   # Run Helm Lint checks
@@ -68,11 +70,9 @@ jobs:
     steps:
       - checkout
       - kubernetes/install
-      - run:
-          name: Install Minikube
-          command: |
-            sudo curl -fLo /usr/local/bin/minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && sudo chmod +x /usr/local/bin/minikube
-            minikube version
+      - minikube/minikube-install:
+          # Temporary pin minikube to 1.2.0 due to regression in 1.3.0 (https://github.com/kubernetes/minikube/issues/5014)
+          version: v1.2.0
       - run:
           name: Create new K8s cluster
           command: sudo -E minikube start --vm-driver=none --cpus $(nproc) --memory 4096
