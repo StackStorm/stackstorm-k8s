@@ -384,6 +384,12 @@ rabbitmq-ha:
   rabbitmqPassword: 9jS+w1u07NbHtZke1m+jW4Cj
   persistentVolume:
     enabled: true
+  # RabbitMQ application vhost, should match with 'ha' Queue Mirroring definition policy
+  rabbitmqVhost: "/"
+  definitions:
+    # Enable Queue Mirroring between nodes
+    # See https://www.rabbitmq.com/ha.html
+    policies: '{"vhost":"/","name":"ha","pattern":"", "definition":{"ha-mode":"all","ha-sync-mode":"automatic","ha-sync-batch-size":10}}'
 
 ##
 ## Etcd HA configuration (3rd party chart dependency)
