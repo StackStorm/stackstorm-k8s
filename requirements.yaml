@@ -1,6 +1,6 @@
 dependencies:
   - name: rabbitmq-ha
-    version: 1.20.1
+    version: 1.31.0
     repository: https://kubernetes-charts.storage.googleapis.com/
   - name: mongodb-replicaset
     version: 3.9.2
