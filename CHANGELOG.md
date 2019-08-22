@@ -2,6 +2,10 @@
 
 ## In Development
 
+
+## v0.19.0
+* Configure RabbitMQ Queue mirroring by default, see https://www.rabbitmq.com/ha.html (#78)
+
 ## v0.18.0
 * Pin st2 to `v3.2dev` as a new latest development version (#77)
 
