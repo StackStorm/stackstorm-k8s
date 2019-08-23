@@ -22,10 +22,10 @@ data:
     api_url = http://{{ .Release.Name }}-st2api{{ template "enterpriseSuffix" . }}:9101/
     [coordination]
     url = etcd://{{ .Release.Name }}-etcd:2379
-    {{- if index .Values "rabbitmq-ha" "enabled" }}
     [messaging]
-    {{- end }}
+    {{- if index .Values "rabbitmq-ha" "enabled" }}
     url = amqp://{{ required "rabbitmq-ha.rabbitmqUsername is required!" (index .Values "rabbitmq-ha" "rabbitmqUsername") }}:{{ required "rabbitmq-ha.rabbitmqPassword is required!" (index .Values "rabbitmq-ha" "rabbitmqPassword") }}@{{ .Release.Name }}-rabbitmq-ha-discovery:5672
+    {{- end }}
     [database]
     {{- if index .Values "mongodb-ha" "enabled" }}
     # TODO: ReplicaSet connection string needs templating based on number of MongoDB nodes
