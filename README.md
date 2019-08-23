@@ -175,12 +175,16 @@ By default `3` nodes (1 primary and 2 secondaries) of MongoDB are deployed via K
 For more advanced MongoDB configuration, refer to official [mongodb-replicaset](https://github.com/helm/charts/tree/master/stable/mongodb-replicaset)
 Helm chart settings, which might be fine-tuned via `values.yaml`.
 
+The deployment of MongoDB to the k8s cluster can be disabled by setting the mongodb-ha.enabled key in values.yaml to false.  *Note: Stackstorm relies heavily on connections to a MongoDB instance.  If the in-cluster deployment of MongoDB is disabled, a connection to an external instance of MongoDB must be configured.  The st2.config key in values.yaml provides a way to configure stackstorm.  See [Configure MongoDB](https://docs.stackstorm.com/install/config/config.html#configure-mongodb) for configuration details.*
+
 ### [RabbitMQ HA Cluster](https://docs.stackstorm.com/latest/reference/ha.html#rabbitmq)
 RabbitMQ is a message bus StackStorm relies on for inter-process communication and load distribution.
 External Helm Chart is used to deploy [RabbitMQ cluster](https://www.rabbitmq.com/clustering.html) in Highly Available mode.
 By default `3` nodes of RabbitMQ are deployed via K8s StatefulSet.
 For more advanced RabbitMQ configuration, please refer to official [rabbitmq-ha](https://github.com/helm/charts/tree/master/stable/rabbitmq-ha)
 Helm chart repository, - all settings could be overridden via `values.yaml`.
+
+The deployment of RabbitMQ to the k8s cluster can be disabled by setting the rabbitmq-ha.enabled key in values.yaml to false.  *Note: Stackstorm relies heavily on connections to a RabbitMQ instance.  If the in-cluster deployment of RabbitMQ is disabled, a connection to an external instance of RabbitMQ must be configured.  The st2.config key in values.yaml provides a way to configure stackstorm.  See [Configure RabbitMQ](https://docs.stackstorm.com/install/config/config.html#configure-rabbitmq) for configuration details.*
 
 ### [etcd](https://docs.stackstorm.com/latest/reference/ha.html#zookeeper-redis)
 StackStorm employs etcd as a distributed coordination backend, required for st2 cluster components to work properly in HA scenario.

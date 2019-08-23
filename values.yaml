@@ -361,6 +361,9 @@ st2chatops:
 ##
 # Specs for the MongoDB image
 mongodb-ha:
+  # Change to `false` to disable in-cluster mongodb deployment.
+  # Specify your external [database] connection parameters under st2.config
+  enabled: true
   image:
     # StackStorm currently supports maximum MongoDB v3.4
     tag: 3.4
@@ -379,6 +382,9 @@ mongodb-ha:
 ## https://github.com/helm/charts/tree/master/stable/rabbitmq-ha
 ##
 rabbitmq-ha:
+  # Change to `false` to disable in-cluster rabbitmq deployment.
+  # Specify your external [messaging] connection parameters under st2.config
+  enabled: true
   rabbitmqUsername: admin
   # TODO: Use default random 24 character password, but need to fetch this string for use by downstream services
   rabbitmqPassword: 9jS+w1u07NbHtZke1m+jW4Cj
