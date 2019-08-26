@@ -4,6 +4,7 @@
 
 ## v0.20.0
 * Add option to disable MongoDB and RabbitMQ in-cluster deployment and configuration (#79)
+* Compose multi-node connection string for MongoDB cluster instead of using loadbalancer single host (#80)
 
 ## v0.19.0
 * Configure RabbitMQ Queue mirroring by default, see https://www.rabbitmq.com/ha.html (#78)
