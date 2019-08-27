@@ -43,7 +43,7 @@ stackstorm
 {{- $template := index . 2 }}
 {{- $values := $dot.Values }}
 {{- range $subchart }}
-{{- $values = index $values . }}
+{{- $values := index $values . }}
 {{- end }}
 {{- include $template (dict "Chart" (dict "Name" (last $subchart)) "Values" $values "Release" $dot.Release "Capabilities" $dot.Capabilities) }}
 {{- end }}
