@@ -404,7 +404,7 @@ rabbitmq-ha:
 ## https://github.com/helm/charts/tree/master/stable/etcd-operator
 ##
 etcd-operator:
-  # we don't need backup & restore etcd for simple coordination operations
+  # we don't need backup & restore etcd for short-lived coordination operations
   deployments:
     backupOperator: false
     restoreOperator: false
