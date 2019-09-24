@@ -20,6 +20,6 @@ dependencies:
     version: 1.6.1
     repository: https://kubernetes-charts.storage.googleapis.com/
     condition: external-dns.enabled
-  - name: etcd
-    version: 0.6.2
-    repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+  - name: etcd-operator
+    version: 0.10.0
+    repository: https://kubernetes-charts.storage.googleapis.com/

@@ -86,7 +86,7 @@ jobs:
             helm dependency update
       - run:
           name: Helm install stackstorm-ha chart (Community)
-          command: helm install --debug --wait --name stackstorm-ha .
+          command: helm install --timeout 500 --debug --wait --name stackstorm-ha .
       - run:
           name: Helm test (Community)
           command: helm test stackstorm-ha --parallel --cleanup

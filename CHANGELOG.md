@@ -2,6 +2,9 @@
 
 ## In Development
 
+## v0.21.0
+* Change etcd dependency from incubator/etcd to stable/etcd-operator (#81)
+
 ## v0.20.0
 * Add option to disable MongoDB and RabbitMQ in-cluster deployment and configuration (#79)
 * Compose multi-node connection string for MongoDB cluster instead of using loadbalancer single host (#80)

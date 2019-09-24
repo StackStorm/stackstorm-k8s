@@ -188,7 +188,7 @@ The deployment of RabbitMQ to the k8s cluster can be disabled by setting the rab
 
 ### [etcd](https://docs.stackstorm.com/latest/reference/ha.html#zookeeper-redis)
 StackStorm employs etcd as a distributed coordination backend, required for st2 cluster components to work properly in HA scenario.
-`3` node Raft cluster is deployed via external official Helm chart dependency [etcd](https://github.com/helm/charts/tree/master/incubator/etcd).
+`3` node Raft cluster is deployed via external official Helm chart dependency [etcd-operator](https://github.com/helm/charts/tree/master/stable/etcd-operator).
 As any other Helm dependency, it's possible to further configure it for specific scaling needs via `values.yaml`.
 
 ### Docker registry

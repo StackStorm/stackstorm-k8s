@@ -401,10 +401,16 @@ rabbitmq-ha:
 ## Etcd HA configuration (3rd party chart dependency)
 ##
 ## For values.yaml reference:
-## https://github.com/helm/charts/blob/master/incubator/etcd/values.yaml
+## https://github.com/helm/charts/tree/master/stable/etcd-operator
 ##
-etcd:
-  resources: {}
+etcd-operator:
+  # we don't need backup & restore etcd for short-lived coordination operations
+  deployments:
+    backupOperator: false
+    restoreOperator: false
+  customResources:
+    # create default etcd cluster
+    createEtcdClusterCRD: true
 
 ##
 ## Docker registry configuration (3rd party chart dependency)
