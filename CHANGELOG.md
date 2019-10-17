@@ -2,6 +2,9 @@
 
 ## In Development
 
+## v0.22.0
+* Add an option to pull custom st2packs image from private Docker repository (#87)
+
 ## v0.21.0
 * Change etcd dependency from incubator/etcd to stable/etcd-operator (#81)
 
