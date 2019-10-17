@@ -85,8 +85,8 @@ st2:
       name: st2packs
       tag: latest
       pullPolicy: Always
-      # Optional name of the imagePullSecret secret if your custom packs image is hosted by private Docker registry with auth
-      # pullSecret: st2packs-auth
+      # Optional name of the imagePullSecret if your custom packs image is hosted by a private Docker registry behind the auth
+      #pullSecret: st2packs-auth
 
     # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
     # It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance.
