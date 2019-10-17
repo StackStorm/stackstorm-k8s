@@ -321,8 +321,8 @@ spec:
       {{- if .Values.enterprise.enabled }}
       - name: {{ .Release.Name }}-st2-license
       {{- end }}
-      {{- if .Values.st2.packs.image.imagePullSecret }}
-      - name: {{ .Values.st2.packs.image.imagePullSecret }}
+      {{- if .Values.st2.packs.image.pullSecret }}
+      - name: {{ .Values.st2.packs.image.pullSecret }}
       {{- end }}
       {{- if .Values.st2.packs.image.repository }}
       initContainers:
