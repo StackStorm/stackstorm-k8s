@@ -192,7 +192,7 @@ StackStorm employs etcd as a distributed coordination backend, required for st2 
 As any other Helm dependency, it's possible to further configure it for specific scaling needs via `values.yaml`.
 
 ## Install custom st2 packs in the cluster
-In the Kubernetes cluster `st2 pack install` won’t work in a distributed environment.
+In distributed environment of the Kubernetes cluster `st2 pack install` won’t work.
 Instead, you need to bake the packs into a custom docker image, push it to a private or public docker registry and reference that image in Helm values.
 Helm chart will take it from there, sharing `/opt/stackstorm/{packs,virtualenvs}` via a sidecar container in pods which require access to the packs.
 
