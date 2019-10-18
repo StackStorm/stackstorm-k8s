@@ -191,62 +191,20 @@ StackStorm employs etcd as a distributed coordination backend, required for st2 
 `3` node Raft cluster is deployed via external official Helm chart dependency [etcd-operator](https://github.com/helm/charts/tree/master/stable/etcd-operator).
 As any other Helm dependency, it's possible to further configure it for specific scaling needs via `values.yaml`.
 
-### Docker registry
-If you do not already have an appropriate docker registry for storing custom st2 packs images, we made it
-very easy to deploy one in your k8s cluster. You can optionally enable in-cluster Docker registry via
-`values.yaml` by setting `docker-registry.enabled: true` and additional 3rd party charts [docker-registry](https://github.com/helm/charts/tree/master/stable/docker-registry)
-and [kube-registry-proxy](https://github.com/helm/charts/tree/master/incubator/kube-registry-proxy) will be configured.
-
 ## Install custom st2 packs in the cluster
-In the kubernetes cluster, the `st2 pack install` command will not work. Instead, you need to bake the packs into a custom
-docker image, and push it to a private or public docker registry. The image will provide `/opt/stackstorm/{packs,virtualenvs}`
-via a sidecar container in pods which need access to the packs.
+In the Kubernetes cluster `st2 pack install` won’t work in a distributed environment.
+Instead, you need to bake the packs into a custom docker image, push it to a private or public docker registry and reference that image in Helm values.
+Helm chart will take it from there, sharing `/opt/stackstorm/{packs,virtualenvs}` via a sidecar container in pods which require access to the packs.
 
-If you do not already have an appropriate docker registry, we made it very easy to deploy one in your k8s cluster.
-See below for details.
-
-### Build st2packs image
-To build the st2packs image which contains your required packs installed in `/opt/stackstorm/packs` and
-`/opt/stackstorm/virtualenvs`, define the `PACKS` build argument using a space separated list of pack names.
-Set DOCKER_REGISTRY to the docker registry URL. If using the private docker registry in the k8s cluster,
-set `DOCKER_REGISTRY`to `localhost:5000`.
-
-Please see https://hub.docker.com/r/stackstorm/st2packs/ for details on how to build your custom `st2packs` image.
-
-### Push st2packs image to a docker registry
-If you're pushing to a private docker registry in the k8s cluster, you will need to port forward from your local host to the registry. You can use:
-```
-kubectl port-forward $(kubectl get pod -l app=docker-registry -o jsonpath="{.items[0].metadata.name}") 5000:5000
-```
-
-NOTE: If running on MacOS, before deploying the image, open another terminal and execute:
-```
-docker run --privileged --pid=host stackstorm/socat:latest nsenter -t 1 -u -n -i socat TCP-LISTEN:5000,fork TCP:docker.for.mac.localhost:5000
-```
-
-The source for the `stackstorm/socat` image is found at https://github.com/StackStorm/docker-socat.
-
-To deploy the image to the registry, execute:
-```
-docker push ${DOCKER_REGISTRY}/st2packs:latest
-```
-
-### Pull st2packs from a private Docker registry
-If you need to pull your packs Docker image from a private registry, you need to create a Kubernetes Docker registry secret and pass it to helm.
-See [K8s documentation](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) for more info.
-```
-# Create a Docker registry secret called 'st2packs-auth'
-kubectl create secret docker-registry st2packs-auth --docker-server=<your-registry-server> --docker-username=<your-name> --docker-password=<your-password>
-```
-
-Once secret created, you pass its name to helm value: `st2.packs.image.pullSecret`.
+### Building st2packs image
+For your convenience, we created a new `st2-pack-install <pack1> <pack2> <pack3>` utility and included it in a container that will help to install custom packs during the Docker build process without relying on live DB and MQ connection.
+Please see https://github.com/StackStorm/st2packs-dockerfiles/ for instructions on how to build your custom `st2packs` image.
 
 ### How to provide custom pack configs
-Update the `pack.configs` section of `stackstorm-ha/values.yaml`:
+Update the `st2.packs.configs` section of Helm values:
 
 For example:
 ```
-pack
   configs:
     email.yaml: |
       ---
@@ -257,6 +215,15 @@ pack
       # example vault pack config file
 ```
 Don't forget running Helm upgrade to apply new changes.
+
+### Pull st2packs from a private Docker registry
+If you need to pull your custom packs Docker image from a private repository, create a Kubernetes Docker registry secret and pass it to Helm values.
+See [K8s documentation](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) for more info.
+```
+# Create a Docker registry secret called 'st2packs-auth'
+kubectl create secret docker-registry st2packs-auth --docker-server=<your-registry-server> --docker-username=<your-name> --docker-password=<your-password>
+```
+Once secret created, reference its name in helm value: `st2.packs.image.pullSecret`.
 
 
 ## Tips & Tricks
