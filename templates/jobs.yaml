@@ -317,9 +317,12 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") . | sha256sum }}
     spec:
-      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
+      {{- if .Values.enterprise.enabled }}
       - name: {{ .Release.Name }}-st2-license
+      {{- end }}
+      {{- if .Values.st2.packs.image.pullSecret }}
+      - name: {{ .Values.st2.packs.image.pullSecret }}
       {{- end }}
       {{- if .Values.st2.packs.image.repository }}
       initContainers:

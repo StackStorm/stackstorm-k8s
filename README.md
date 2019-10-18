@@ -231,6 +231,16 @@ To deploy the image to the registry, execute:
 docker push ${DOCKER_REGISTRY}/st2packs:latest
 ```
 
+### Pull st2packs from a private Docker registry
+If you need to pull your packs Docker image from a private registry, you need to create a Kubernetes Docker registry secret and pass it to helm.
+See [K8s documentation](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) for more info.
+```
+# Create a Docker registry secret called 'st2packs-auth'
+kubectl create secret docker-registry st2packs-auth --docker-server=<your-registry-server> --docker-username=<your-name> --docker-password=<your-password>
+```
+
+Once secret created, you pass its name to helm value: `st2.packs.image.pullSecret`.
+
 ### How to provide custom pack configs
 Update the `pack.configs` section of `stackstorm-ha/values.yaml`:
 
