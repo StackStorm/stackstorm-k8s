@@ -50,7 +50,7 @@ stackstorm
 
 # Generate comma-separated list of nodes for MongoDB-HA connection string, based on number of replicas and service name
 {{- define "mongodb-ha-nodes" -}}
-{{- $replicas := (int (index .Values "mongodb-ha" "replicas")) }}
+{{- $replicas := (int (toString (index .Values "mongodb-ha" "replicas"))) }}
 {{- $mongo_fullname := include "nested" (list $ "mongodb-ha" "mongodb-replicaset.fullname") }}
   {{- range $index0 := until $replicas -}}
     {{- $index1 := $index0 | add1 -}}
