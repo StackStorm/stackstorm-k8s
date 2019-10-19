@@ -2,6 +2,9 @@
 
 ## In Development
 
+## v0.22.1
+* Fix MongoDB connection string templating due to regression in Helm 2.15 (#89)
+
 ## v0.22.0
 * Add an option to pull custom st2packs image from private Docker repository (#87)
 * Remove local 'docker-registry' dependency for hosting custom packs in-cluster that doesn't fit prod expectations (#88)
