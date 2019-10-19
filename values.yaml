@@ -79,7 +79,7 @@ st2:
     # are specified below.
     image:
       # Uncomment the following block to make the custom packs image available to the necessary pods
-      #repository: you-remote-docker-registry.io
+      #repository: your-remote-docker-registry.io
       name: st2packs
       tag: latest
       pullPolicy: Always
