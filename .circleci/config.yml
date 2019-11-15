@@ -16,6 +16,7 @@ jobs:
   helm-lint:
     working_directory: ~/stackstorm-ha
     docker:
+      # Pin Helm to v2.x, see https://github.com/StackStorm/stackstorm-ha/issues/98
       - image: lachlanevenson/k8s-helm:v2.16.1
     steps:
       - checkout
