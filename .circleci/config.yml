@@ -16,7 +16,7 @@ jobs:
   helm-lint:
     working_directory: ~/stackstorm-ha
     docker:
-      - image: lachlanevenson/k8s-helm
+      - image: lachlanevenson/k8s-helm:v2.16.1
     steps:
       - checkout
       - run:
