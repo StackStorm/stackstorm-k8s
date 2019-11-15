@@ -73,8 +73,8 @@ jobs:
       - checkout
       - kubernetes/install
       - minikube/minikube-install:
-          # Temporary pin minikube to 1.2.0 due to regression in 1.3.0 (https://github.com/kubernetes/minikube/issues/5014)
-          version: v1.2.0
+          # TODO: Update Minikube to latest, switch to new K8s version
+          version: v1.3.1
       - run:
           name: Create new K8s cluster
           command: sudo -E minikube start --vm-driver=none --cpus $(nproc) --memory 4096
