@@ -4,8 +4,10 @@ version: 2.1
 orbs:
   # https://circleci.com/orbs/registry/orb/circleci/kubernetes
   kubernetes: circleci/kubernetes@0.3.0
+  # Pins Helm to v2.x
+  # TODO: Consider upgrading Helm to v3.0 (https://github.com/StackStorm/stackstorm-ha/issues/98)
   # https://circleci.com/orbs/registry/orb/circleci/helm
-  helm: circleci/helm@0.1.2
+  helm: circleci/helm@0.2.0
   # https://circleci.com/orbs/registry/orb/ccpgames/minikube
   minikube: ccpgames/minikube@0.0.1
 
@@ -14,7 +16,8 @@ jobs:
   helm-lint:
     working_directory: ~/stackstorm-ha
     docker:
-      - image: lachlanevenson/k8s-helm
+      # Pin Helm to v2.x, see https://github.com/StackStorm/stackstorm-ha/issues/98
+      - image: lachlanevenson/k8s-helm:v2.16.1
     steps:
       - checkout
       - run:
@@ -70,8 +73,8 @@ jobs:
       - checkout
       - kubernetes/install
       - minikube/minikube-install:
-          # Temporary pin minikube to 1.2.0 due to regression in 1.3.0 (https://github.com/kubernetes/minikube/issues/5014)
-          version: v1.2.0
+          # TODO: Update Minikube to latest, switch to new K8s version
+          version: v1.3.1
       - run:
           name: Create new K8s cluster
           command: sudo -E minikube start --vm-driver=none --cpus $(nproc) --memory 4096

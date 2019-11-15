@@ -10,7 +10,7 @@ It's more than welcome to fine-tune each component settings to fit specific avai
 
 ## Requirements
 * [Kubernetes](https://kubernetes.io/docs/setup/pick-right-solution/) cluster
-* [Helm](https://docs.helm.sh/using_helm/#install-helm) and [Tiller](https://docs.helm.sh/using_helm/#initialize-helm-and-install-tiller)
+* [Helm](https://docs.helm.sh/using_helm/#install-helm) and [Tiller](https://docs.helm.sh/using_helm/#initialize-helm-and-install-tiller) `v2.x`
 
 ## Usage
 1) Edit `values.yaml` with configuration for the StackStorm HA K8s cluster.
