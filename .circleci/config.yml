@@ -75,7 +75,7 @@ jobs:
       - minikube/minikube-install
       - run:
           name: Create new K8s cluster
-          command: sudo -E minikube start --vm-driver=none --cpus $(nproc) --memory 4096
+          command: sudo -E minikube start --vm-driver=none --cpus $(nproc) --memory 4096 --extra-config kubeadm.ignore-preflight-errors=SystemVerification
           environment:
             CHANGE_MINIKUBE_NONE_USER: true
       - helm/install-helm-on-cluster
