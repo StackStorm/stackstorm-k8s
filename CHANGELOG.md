@@ -2,6 +2,10 @@
 
 ## In Development
 
+## v0.23.0
+* Add support for latest K8s version `1.16`, update e2e CI
+* Fix `StatefulSet` validation failure due to new K8s APIs, update `rabbitmq-ha` 3rd party chart to `v1.36.4` (#85)
+
 ## v0.22.0
 * Add an option to pull custom st2packs image from private Docker repository (#87)
 * Remove local 'docker-registry' dependency for hosting custom packs in-cluster that doesn't fit prod expectations (#88)
