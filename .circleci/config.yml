@@ -72,9 +72,7 @@ jobs:
     steps:
       - checkout
       - kubernetes/install
-      - minikube/minikube-install:
-          # TODO: Update Minikube to latest, switch to new K8s version
-          version: v1.3.1
+      - minikube/minikube-install
       - run:
           name: Create new K8s cluster
           command: sudo -E minikube start --vm-driver=none --cpus $(nproc) --memory 4096
