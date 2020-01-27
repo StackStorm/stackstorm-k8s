@@ -133,8 +133,6 @@ ingress:
   # Map hosts to paths
   hosts: []
   # - host: hostname.domain.tld
-  #   # NOTE: Both path and service details are optional. A working default will be used to
-  #   # automatically configure st2web for ingress.
   #   # Map paths to services
   #   paths:
   #     - path: /
