@@ -66,6 +66,8 @@ jobs:
 
   # Spin up minikube K8s cluster and run Helm chart & e2e tests on it
   helm-e2e:
+    # 4CPUs & 8GB RAM CircleCI machine
+    resource_class: large
     machine:
       # Available images https://circleci.com/docs/2.0/configuration-reference/#available-machine-images
       image: ubuntu-1604:201903-01
