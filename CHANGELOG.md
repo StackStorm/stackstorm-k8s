@@ -1,6 +1,7 @@
 # Changelog
 
 ## In Development
+* Add ability of templating on `st2.kv`
 
 ## v0.23.0
 * Add support for latest K8s version `1.16`, update e2e CI
