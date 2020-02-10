@@ -110,6 +110,11 @@ st2:
     #  secret: false
     #  encrypted: false
     #  value: "2.9"
+    #- name: release_name
+    #  scope: st2kv.system
+    #  secret: false
+    #  encrypted: false
+    #  value: "{{ .Release.Name }}"
   # Import a list of ST2 API Keys (https://docs.stackstorm.com/authentication.html#api-key-migration)
   apikeys:
     #- created_at: '2018-12-15T00:21:48.507388Z'
