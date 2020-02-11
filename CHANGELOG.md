@@ -1,6 +1,9 @@
 # Changelog
 
 ## In Development
+
+## v0.24.0
+* Fix st2web ingress to use `/` path by default instead of `/*`, useful for nginx ingress controller (#103)
 * Add ability of templating on `st2.keyvalue` in Helm Values (#108)
 
 ## v0.23.0
