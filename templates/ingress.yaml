@@ -37,7 +37,7 @@ spec:
     {{- end }}
     http:
       paths:
-        - path: "/*"
+        - path: "/"
           backend:
             serviceName: {{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }}
             servicePort: "80"
