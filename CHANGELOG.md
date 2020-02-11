@@ -1,7 +1,7 @@
 # Changelog
 
 ## In Development
-* Add ability of templating on `st2.kv`
+* Add ability of templating on `st2.keyvalue` in Helm Values (#108)
 
 ## v0.23.0
 * Add support for latest K8s version `1.16`, update e2e CI
