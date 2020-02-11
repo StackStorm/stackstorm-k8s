@@ -1,7 +1,11 @@
 # Changelog
 
 ## In Development
-* Add ability of templating on `st2.keyvalue` in Helm Values (#108)
+
+## v0.24.0
+* Fix st2web ingress to use `/` path by default instead of `/*`, useful for nginx ingress controller (#103) (by @erenatas)
+* Add ability of templating on `st2.keyvalue` in Helm Values (#108) (by @erenatas)
+* Update Ingress documentation in Helm values (#105) (by @AngryDeveloper)
 
 ## v0.23.0
 * Add support for latest K8s version `1.16`, update e2e CI
@@ -12,10 +16,10 @@
 * Remove local 'docker-registry' dependency for hosting custom packs in-cluster that doesn't fit prod expectations (#88)
 
 ## v0.21.0
-* Change etcd dependency from incubator/etcd to stable/etcd-operator (#81)
+* Change etcd dependency from incubator/etcd to stable/etcd-operator (#81) (by @trstruth)
 
 ## v0.20.0
-* Add option to disable MongoDB and RabbitMQ in-cluster deployment and configuration (#79)
+* Add option to disable MongoDB and RabbitMQ in-cluster deployment and configuration (#79) (by @trstruth)
 * Compose multi-node connection string for MongoDB cluster instead of using loadbalancer single host (#80)
 
 ## v0.19.0
@@ -37,13 +41,13 @@
 * Pin st2 version to `v3.1dev` as a new latest development version (#67)
 
 ## v0.13.0
-* Mongodb authentication is enabled by default (#63)
+* Mongodb authentication is enabled by default (#63) (by @Lomonosow)
 
 ## v0.12.0
 * Move `st2web.annotations` to `st2web.service.annotations` to match `values.yaml` (#66)
 
 ## v0.11.0
-* Add st2chatops support (@mosn, @rapittdev) (#55)
+* Add st2chatops support (#55) (by @mosn, @rapittdev)
 
 ## v0.10.0
 * Bump versions of all dependencies (#50)
