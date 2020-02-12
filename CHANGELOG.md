@@ -1,6 +1,7 @@
 # Changelog
 
 ## In Development
+* Fix st2web ingress which should have been defined as an Integer instead of a String (#111) (by @erenatas)
 
 ## v0.24.0
 * Fix st2web ingress to use `/` path by default instead of `/*`, useful for nginx ingress controller (#103) (by @erenatas)
