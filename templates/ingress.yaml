@@ -40,7 +40,7 @@ spec:
         - path: "/"
           backend:
             serviceName: {{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }}
-            servicePort: "80"
+            servicePort: 80
   {{- end }}
   {{- if .Values.ingress.tls }}
   tls:
