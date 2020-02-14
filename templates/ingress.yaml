@@ -3,7 +3,7 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: {{ .Release.Name }}-ingress{{ template "enterpriseSuffix" . }}
+  name: {{ .Release.Name }}-st2web-ingress{{ template "enterpriseSuffix" . }}
   labels:
     app: ingress
     tier: frontend
