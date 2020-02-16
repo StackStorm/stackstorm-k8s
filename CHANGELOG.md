@@ -1,6 +1,7 @@
 # Changelog
 
 ## In Development
+* Change ingress name from `<release name>-ingress` to <release name>-st2web-ingress, useful when using `stackstorm-ha` as a requirement for another chart. (#112) (by @erenatas)
 * Fix st2web ingress which should have been defined as an Integer instead of a String (#111) (by @erenatas)
 
 ## v0.24.0
