@@ -313,6 +313,7 @@ st2actionrunner:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  hostAliases: []
 # https://docs.stackstorm.com/reference/ha.html#st2garbagecollector
 # Optional service that cleans up old executions and other operations data based on setup configurations.
 # By default this process does nothing and needs to be setup in st2.conf to perform any work.
