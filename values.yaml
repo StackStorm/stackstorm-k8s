@@ -62,6 +62,17 @@ st2:
     [api]
     allow_origin = '*'
 
+  # Optional configuration for handling a precomputed datastore encryption key
+  datastoreEncryption:
+    enabled: false
+    # Where will the key be mounted in the containers
+    encryptionKeyPath: /etc/st2/keys
+  # secret:
+  #   # The name of the secret in which the key is stored
+  #   name: st2-encryption-key
+  #   # The key containing the json formated encryption key
+  #   key: datastore_encryption_key.json
+
   # Custom pack configs and image settings.
   #
   # By default, system packs are available. However, since 'st2 pack install' cannot be run in the k8s cluster,
