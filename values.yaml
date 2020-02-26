@@ -313,7 +313,16 @@ st2actionrunner:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  # Allow the injection of hostAliases (https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/#adding-additional-entries-with-hostaliases)
+  # records in the st2actionrunner containers to handle edge case in DNS accessibility/topology
   hostAliases: []
+  # - hostnames:
+  #     - foo
+  #   ip: 1.1.1.1
+  #  - hostnames:
+  #      - bar
+  #   ip: 8.8.8.8
+
 # https://docs.stackstorm.com/reference/ha.html#st2garbagecollector
 # Optional service that cleans up old executions and other operations data based on setup configurations.
 # By default this process does nothing and needs to be setup in st2.conf to perform any work.
