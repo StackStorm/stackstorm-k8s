@@ -986,6 +986,10 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/ssh: {{ include (print $.Template.BasePath "/secrets_ssh.yaml") . | sha256sum }}
     spec:
+      {{- if .Values.st2actionrunner.hostAliases }}
+      hostAliases:
+{{ toYaml .Values.st2actionrunner.hostAliases | indent 8 }}
+      {{- end }}
       imagePullSecrets:
       {{- if .Values.enterprise.enabled }}
       - name: {{ .Release.Name }}-st2-license
