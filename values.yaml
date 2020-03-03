@@ -62,17 +62,6 @@ st2:
     [api]
     allow_origin = '*'
 
-  # Optional configuration for handling a precomputed datastore encryption key
-  datastoreEncryption:
-    enabled: false
-    # Where will the key be mounted in the containers
-    encryptionKeyPath: /etc/st2/keys
-  # secret:
-  #   # The name of the secret in which the key is stored
-  #   name: st2-encryption-key
-  #   # The key containing the json formated encryption key
-  #   key: datastore_encryption_key.json
-
   # Custom pack configs and image settings.
   #
   # By default, system packs are available. However, since 'st2 pack install' cannot be run in the k8s cluster,
@@ -162,7 +151,7 @@ ingress:
   #     - chart-example.test
 
 ##
-## StackStorm HA Cluster Secrets. All fields are required!
+## StackStorm HA Cluster Secrets.
 ## NB! It's highly recommended to change ALL defaults!
 ##
 # TODO: Move to `secrets.yaml` when it gets implemented in Helm (https://github.com/kubernetes/helm/issues/2196) ? (#14)
@@ -204,6 +193,10 @@ secrets:
       WE8BWLQ1vBV6c7V4Q0Wp6LuTnNnvu/lvVugJW/TbrzFw6CFe5fEISmIHAMnqVz8x
       OdOJyinSM1svoBGnYfyAqINKrqCSGSKmprlMo0Ma3erI7SuojWBS
       -----END RSA PRIVATE KEY-----
+    # ST2 crypto key for the  K/V datastore.
+    # See https://docs.stackstorm.com/datastore.html#securing-secrets-admin-only for more info.
+    # Warning! Replace with your own generated key!
+    #datastore_crypto_key: {"hmacKey": {"hmacKeyString": "", "size": 256}, "size": 256, "aesKeyString": "", "mode": "CBC"}
 
 ##
 ## StackStorm HA Cluster pod settings for each individual service/component.
