@@ -282,7 +282,6 @@ spec:
           secret:
             secretName: {{ .Release.Name }}-st2-kv
       restartPolicy: OnFailure
-{{- if .Values.st2.packs.image.repository }}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -398,4 +397,3 @@ spec:
           emptyDir: {}
         {{- end }}
       restartPolicy: OnFailure
-{{- end }}
