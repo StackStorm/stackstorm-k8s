@@ -57,3 +57,21 @@ stackstorm
 {{ $mongo_fullname }}-{{ $index0 }}.{{ $mongo_fullname }}{{ if ne $index1 $replicas }},{{ end }}
   {{- end -}}
 {{- end -}}
+
+{{- define "packs-volumes" -}}
+{{- if .Values.st2.packs.image.repository }}
+- name: st2-packs-vol
+  emptyDir: {}
+- name: st2-virtualenvs-vol
+  emptyDir: {}
+{{- else if .Values.st2.packs.nfs.server }}
+- name: st2-packs-vol
+  nfs:
+    server: {{ .Values.st2.packs.nfs.server }}
+    path: {{ .Values.st2.packs.nfs.packsPath }}
+- name: st2-virtualenvs-vol
+  nfs:
+    server: {{ .Values.st2.packs.nfs.server }}
+    path: {{ .Values.st2.packs.nfs.virtualenvsPath }}
+{{- end }}
+{{- end -}}

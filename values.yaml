@@ -86,6 +86,18 @@ st2:
       # Optional name of the imagePullSecret if your custom packs image is hosted by a private Docker registry behind the auth
       #pullSecret: st2packs-auth
 
+    # Custom packs and virtualenvs can be mounted using NFS.
+    # Disclaimer: if you chose to use an NFS mount, be advised that the responsibility of installing and registering the
+    # packs is deferred to you.
+    # If both st2.packs.image.repository and st2.packs.nfs.server are set, the st2packs image will be used
+    nfs:
+      # Uncommend the following block to enabled NFS mounting of the packs
+      #server: 0.0.0.0
+      # Required. This should point to a directory containing all the packs folders
+      virtualenvsPath: /var/nfsshare/packs
+      # Required. This should point to an empty directoy, or a directory containing pre built venvs for the packs
+      packsPath: /var/nfsshare/virtualenvs
+
     # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
     # It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance.
     # Each sensor node needs to be provided with proper partition information to share work with other sensor
