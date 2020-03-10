@@ -70,6 +70,13 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        {{- if .Values.st2auth.env }}
+        env:
+        {{- range $env, $value := .Values.st2auth.env }}
+        - name: {{ $env | quote }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -191,6 +198,13 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        {{- if .Values.st2api.env }}
+        env:
+        {{- range $env, $value := .Values.st2api.env }}
+        - name: {{ $env | quote }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -282,6 +296,13 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        {{- if .Values.st2stream.env }}
+        env:
+        {{- range $env, $value := .Values.st2stream.env }}
+        - name: {{ $env | quote }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -370,6 +391,13 @@ spec:
 #            path: /api/
 #            port: 443
 #          initialDelaySeconds: 3
+        {{- if .Values.st2web.env }}
+        env:
+        {{- range $env, $value := .Values.st2web.env }}
+        - name: {{ $env | quote }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -437,6 +465,13 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        {{- if .Values.st2rulesengine.env }}
+        env:
+        {{- range $env, $value := .Values.st2rulesengine.env }}
+        - name: {{ $env | quote }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -513,6 +548,13 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        {{- if .Values.st2timersengine.env }}
+        env:
+        {{- range $env, $value := .Values.st2timersengine.env }}
+        - name: {{ $env | quote }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -588,6 +630,13 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        {{- if .Values.st2workflowengine.env }}
+        env:
+        {{- range $env, $value := .Values.st2workflowengine.env }}
+        - name: {{ $env | quote }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -662,6 +711,13 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        {{- if .Values.st2scheduler.env }}
+        env:
+        {{- range $env, $value := .Values.st2scheduler.env }}
+        - name: {{ $env | quote }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -737,6 +793,13 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        {{- if .Values.st2notifier.env }}
+        env:
+        {{- range $env, $value := .Values.st2notifier.env }}
+        - name: {{ $env | quote }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -865,6 +928,13 @@ spec:
           - --config-file=/etc/st2/st2.user.conf
           - --single-sensor-mode
           - --sensor-ref={{ .ref }}
+        {{- end }}
+        {{- if .env }}
+        env:
+        {{- range $env, $value := .env }}
+        - name: {{ $env | quote }}
+          value: {{ $value | quote }}
+        {{- end }}
         {{- end }}
         envFrom:
         - configMapRef:
@@ -997,6 +1067,13 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        {{- if .Values.st2actionrunner.env }}
+        env:
+        {{- range $env, $value := .Values.st2actionrunner.env }}
+        - name: {{ $env | quote }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -1097,6 +1174,13 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        {{- if .Values.st2garbagecollector.env }}
+        env:
+        {{- range $env, $value := .Values.st2garbagecollector.env }}
+        - name: {{ $env | quote }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -1242,6 +1326,10 @@ spec:
         env:
         - name: ST2CLIENT
           value: "1"
+{{- range $env, $value := .Values.st2client.env }}
+        - name: {{ $env | quote }}
+          value: {{ $value | quote }}
+{{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -1369,6 +1457,10 @@ spec:
             secretKeyRef:
               name: {{ .Release.Name }}-st2-auth
               key: password
+{{- range $env, $value := .Values.st2chatops.env }}
+        - name: {{ $env | quote }}
+          value: {{ $value | quote }}
+{{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls

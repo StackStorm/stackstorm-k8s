@@ -103,6 +103,8 @@ st2:
         affinity: {}
         nodeSelector: {}
         tolerations: []
+        env: {}
+        # HTTP_PROXY: http://proxy:1234
   # Import data into StackStorm's Key/Value datastore (https://docs.stackstorm.com/datastore.html)
   keyvalue:
     #- name: st2_version
@@ -158,6 +160,9 @@ ingress:
 # TODO: Alternatively as part of reorganizing Helm values, consider moving values to existing `st2` and `st2web` sections ? (#14)
 secrets:
   st2:
+    st2chatops:
+      env:
+        HUBOT_SLACK_TOKEN: xoxb-CHANGE-ME-PLEASE
     # Username, used to login to StackStorm system
     username: st2admin
     # Password, used to login to StackStorm system
@@ -223,6 +228,8 @@ st2web:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
 # https://docs.stackstorm.com/reference/ha.html#st2auth
 # Multiple st2auth processes can be behind a load balancer in an active-active configuration.
 st2auth:
@@ -233,6 +240,8 @@ st2auth:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
 # https://docs.stackstorm.com/reference/ha.html#st2api
 # Multiple st2api process can be behind a load balancer in an active-active configuration.
 st2api:
@@ -243,6 +252,8 @@ st2api:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
 # https://docs.stackstorm.com/reference/ha.html#st2stream
 # Multiple st2stream process can be behind a load balancer in an active-active configuration.
 st2stream:
@@ -253,6 +264,8 @@ st2stream:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
 # https://docs.stackstorm.com/reference/ha.html#st2rulesengine
 # Multiple st2rulesengine processes can run in active-active with only connections to MongoDB and RabbitMQ. All these will share the TriggerInstance load and naturally pick up more work if one or more of the processes becomes unavailable.
 st2rulesengine:
@@ -263,6 +276,8 @@ st2rulesengine:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
 # https://docs.stackstorm.com/reference/ha.html#st2timersengine
 # Only single replica is created via K8s Deployment as timersengine can't work in active-active mode at the moment and it relies on K8s failover/reschedule capabilities to address cases of process failure.
 st2timersengine:
@@ -272,6 +287,8 @@ st2timersengine:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
 # https://docs.stackstorm.com/reference/ha.html#st2workflowengine
 # Multiple st2workflowengine processes can run in active-active mode and will share the load and pick up more work if one or more of the processes become available.
 st2workflowengine:
@@ -282,6 +299,8 @@ st2workflowengine:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
 # https://docs.stackstorm.com/reference/ha.html#st2scheduler
 # TODO: Description TBD
 st2scheduler:
@@ -292,6 +311,8 @@ st2scheduler:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
 # https://docs.stackstorm.com/reference/ha.html#st2notifier
 # st2notifier runs in active-active mode and requires for that coordination backend like Redis or Zookeeper
 st2notifier:
@@ -302,6 +323,8 @@ st2notifier:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
 # https://docs.stackstorm.com/reference/ha.html#st2actionrunner
 # Multiple st2actionrunner processes can run in active-active with only connections to MongoDB and RabbitMQ. Work gets naturally
 # distributed across runners via RabbitMQ. Adding more st2actionrunner processes increases the ability of StackStorm to execute actions.
@@ -322,6 +345,8 @@ st2actionrunner:
   #  - hostnames:
   #      - bar
   #   ip: 8.8.8.8
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
 
 # https://docs.stackstorm.com/reference/ha.html#st2garbagecollector
 # Optional service that cleans up old executions and other operations data based on setup configurations.
@@ -335,6 +360,12 @@ st2garbagecollector:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
+
+st2client:
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
 
 ##
 ## StackStorm ChatOps (https://docs.stackstorm.com/chatops/index.html)
@@ -348,7 +379,6 @@ st2chatops:
   # for the full list of supported adapters and example ENV variables.
   env:
     HUBOT_ADAPTER: slack
-    HUBOT_SLACK_TOKEN: xoxb-CHANGE-ME-PLEASE
   # Set custom generated st2chatops Docker image source
   # Otherwise default https://hub.docker.com/r/stackstorm/st2chatops is used
   image: {}
