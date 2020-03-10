@@ -1427,7 +1427,7 @@ spec:
 {{ toYaml .Values.st2chatops.resources | indent 10 }}
     {{- if .Values.st2chatops.serviceAccount.attach }}
         serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
-      {{- end }}
+    {{- end }}
     {{- with .Values.st2chatops.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
