@@ -94,9 +94,9 @@ st2:
       # Uncommend the following block to enabled NFS mounting of the packs
       #server: 0.0.0.0
       # Required. This should point to a directory containing all the packs folders
-      virtualenvsPath: /var/nfsshare/packs
+      virtualenvsPath: /var/nfsshare/virtualenvs
       # Required. This should point to an empty directoy, or a directory containing pre built venvs for the packs
-      packsPath: /var/nfsshare/virtualenvs
+      packsPath: /var/nfsshare/packs
 
     # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
     # It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance.

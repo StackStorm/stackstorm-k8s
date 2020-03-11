@@ -323,8 +323,8 @@ spec:
       {{- if .Values.st2.packs.image.pullSecret }}
       - name: {{ .Values.st2.packs.image.pullSecret }}
       {{- end }}
-      {{- if .Values.st2.packs.image.repository }}
       initContainers:
+      {{- if .Values.st2.packs.image.repository }}
       # Merge packs and virtualenvs from st2actionrunner with those from the st2.packs image
       # Custom packs
       - name: st2-custom-packs
@@ -341,6 +341,7 @@ spec:
           - |
             /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
+      {{ end }}
       # System packs
       - name: st2-system-packs
         image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -354,7 +355,6 @@ spec:
           - |
             /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
-      {{ end }}
       containers:
       - name: st2-register-content
         image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -377,9 +377,16 @@ spec:
           mountPath: /opt/stackstorm/configs/
         {{- if .Values.st2.packs.image.repository }}
         - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs/
+          mountPath: /opt/stackstorm/packs
+          readOnly: true
         - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs/
+          mountPath: /opt/stackstorm/virtualenvs
+          readOnly: true
+        {{- else if .Values.st2.packs.nfs.server }}
+        - name: st2-packs-vol
+          mountPath: /opt/stackstorm/packs
+        - name: st2-virtualenvs-vol
+          mountPath: /opt/stackstorm/virtualenvs
         {{- end }}
         # TODO: Find out default resource limits for this specific service (#5)
         #resources:
@@ -390,10 +397,5 @@ spec:
         - name: st2-pack-configs-vol
           configMap:
             name: {{ .Release.Name }}-st2-pack-configs
-        {{- if .Values.st2.packs.image.repository }}
-        - name: st2-packs-vol
-          emptyDir: {}
-        - name: st2-virtualenvs-vol
-          emptyDir: {}
-        {{- end }}
+        {{- include "packs-volumes" . | indent 8 }}
       restartPolicy: OnFailure
