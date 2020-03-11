@@ -342,6 +342,7 @@ spec:
             /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       {{ end }}
+      {{- if (.Values.st2.packs.image.repository) or (.Values.st2.packs.nfs.server) }}
       # System packs
       - name: st2-system-packs
         image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -355,6 +356,7 @@ spec:
           - |
             /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
+      {{ end }}
       containers:
       - name: st2-register-content
         image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
