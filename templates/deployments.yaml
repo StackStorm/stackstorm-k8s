@@ -650,7 +650,7 @@ spec:
             secretName: {{ .Release.Name }}-st2-datastore-crypto-key
             items:
             - key: datastore_crypto_key
-              path: encryption_key.json
+              path: datastore_key.json
         {{- end }}
     {{- with .Values.st2workflowengine.nodeSelector }}
       nodeSelector:
