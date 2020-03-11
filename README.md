@@ -191,13 +191,56 @@ StackStorm employs etcd as a distributed coordination backend, required for st2 
 As any other Helm dependency, it's possible to further configure it for specific scaling needs via `values.yaml`.
 
 ## Install custom st2 packs in the cluster
-In distributed environment of the Kubernetes cluster `st2 pack install` won’t work.
-Instead, you need to bake the packs into a custom docker image, push it to a private or public docker registry and reference that image in Helm values.
-Helm chart will take it from there, sharing `/opt/stackstorm/{packs,virtualenvs}` via a sidecar container in pods which require access to the packs.
+There are two ways of installing packs in the cluster. Using a dedicated packs image or using NFS volumes.
 
-### Building st2packs image
+### Using a docker image
+You need to bake the packs into a custom docker image, push it to a private or public docker registry and reference that image in Helm values.
+Helm chart will take it from there, sharing `/opt/stackstorm/{packs,virtualenvs}` via a sidecar container in pods which require access to the packs.
+In this mode the packs and virtualenvs volume are mounted read only, so `st2 pack install` won't work
+
+#### Building st2packs image
 For your convenience, we created a new `st2-pack-install <pack1> <pack2> <pack3>` utility and included it in a container that will help to install custom packs during the Docker build process without relying on live DB and MQ connection.
 Please see https://github.com/StackStorm/st2packs-dockerfiles/ for instructions on how to build your custom `st2packs` image.
+
+#### Pull st2packs from a private Docker registry
+If you need to pull your custom packs Docker image from a private repository, create a Kubernetes Docker registry secret and pass it to Helm values.
+See [K8s documentation](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) for more info.
+```
+# Create a Docker registry secret called 'st2packs-auth'
+kubectl create secret docker-registry st2packs-auth --docker-server=<your-registry-server> --docker-username=<your-name> --docker-password=<your-password>
+```
+Once secret created, reference its name in helm value: `st2.packs.image.pullSecret`.
+
+### Using an NFS mount
+You can also mount an NFS export inside the cluster, using the provided `st2.packs.nfs.*` configurations variables.
+A very simple example would be to create two exports as follow on your NFS server:
+```shell script
+$ cat /etc/exports
+/var/nfsshare/packs    *(rw,sync,no_root_squash,no_all_squash)
+/var/nfsshare/virtualenvs    *(rw,sync,no_root_squash,no_all_squash)
+```
+
+Then setup stackstorm-ha to mount those exports:
+```yaml
+st2:
+  packs:
+    nfs: YOUR_NFS_SERVER_ADDRESS
+    virtualenvsPath: /var/nfsshare/virtualenvs
+    packsPath: /var/nfsshare/packs
+```
+You can now either copy your custom packs directly inside the exported `/var/nfsshare/packs` directory, or use stackstorm's
+API to install packs from Stackstorm Exchange
+
+#### NFS caveats
+Manually copied packs are not automatically registered nor installed, you'll need to trigger the process through the st2's API using
+the following endpoints: [install](https://api.stackstorm.com/api/v1/packs/#/packs_controller.install.post),
+[registration](https://api.stackstorm.com/api/v1/packs/#/packs_controller.register.post)
+
+You will have to repeat the process each time the packs code is modified.
+
+On first provisionning of the Stackstorm deployment, the system packs will be copied and registered. 
+
+
 
 ### How to provide custom pack configs
 Update the `st2.packs.configs` section of Helm values:
@@ -214,16 +257,6 @@ For example:
       # example vault pack config file
 ```
 Don't forget running Helm upgrade to apply new changes.
-
-### Pull st2packs from a private Docker registry
-If you need to pull your custom packs Docker image from a private repository, create a Kubernetes Docker registry secret and pass it to Helm values.
-See [K8s documentation](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) for more info.
-```
-# Create a Docker registry secret called 'st2packs-auth'
-kubectl create secret docker-registry st2packs-auth --docker-server=<your-registry-server> --docker-username=<your-name> --docker-password=<your-password>
-```
-Once secret created, reference its name in helm value: `st2.packs.image.pullSecret`.
-
 
 ## Tips & Tricks
 Grab all logs for entire StackStorm cluster with dependent services in Helm release:
