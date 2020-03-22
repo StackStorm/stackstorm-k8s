@@ -86,6 +86,9 @@ spec:
           readOnly: true
         resources:
 {{ toYaml .Values.st2auth.resources | indent 10 }}
+    {{- if .Values.st2auth.serviceAccount.attach }}
+      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
+    {{- end }}
       volumes:
         - name: st2-config-vol
           configMap:
@@ -211,6 +214,9 @@ spec:
         {{- end }}
         resources:
 {{ toYaml .Values.st2api.resources | indent 10 }}
+    {{- if .Values.st2api.serviceAccount.attach }}
+      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
+    {{- end }}
       volumes:
         - name: st2-config-vol
           configMap:
@@ -294,6 +300,9 @@ spec:
           subPath: st2.user.conf
         resources:
 {{ toYaml .Values.st2stream.resources | indent 10 }}
+    {{- if .Values.st2stream.serviceAccount.attach }}
+      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
+    {{- end }}
       volumes:
         - name: st2-config-vol
           configMap:
@@ -377,6 +386,9 @@ spec:
         volumeMounts: []
         resources:
 {{ toYaml .Values.st2web.resources | indent 10 }}
+    {{- if .Values.st2web.serviceAccount.attach }}
+      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
+    {{- end }}
       volumes: []
     {{- with .Values.st2web.nodeSelector }}
       nodeSelector:
@@ -449,6 +461,9 @@ spec:
           subPath: st2.user.conf
         resources:
 {{ toYaml .Values.st2rulesengine.resources | indent 10 }}
+    {{- if .Values.st2rulesengine.serviceAccount.attach }}
+      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
+    {{- end }}
       volumes:
         - name: st2-config-vol
           configMap:
@@ -525,6 +540,9 @@ spec:
           subPath: st2.user.conf
         resources:
 {{ toYaml .Values.st2timersengine.resources | indent 10 }}
+    {{- if .Values.st2timersengine.serviceAccount.attach }}
+      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
+    {{- end }}
       volumes:
         - name: st2-config-vol
           configMap:
@@ -600,6 +618,9 @@ spec:
           subPath: st2.user.conf
         resources:
 {{ toYaml .Values.st2workflowengine.resources | indent 10 }}
+    {{- if .Values.st2workflowengine.serviceAccount.attach }}
+      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
+    {{- end }}
       volumes:
         - name: st2-config-vol
           configMap:
@@ -674,6 +695,9 @@ spec:
           subPath: st2.user.conf
         resources:
 {{ toYaml .Values.st2scheduler.resources | indent 10 }}
+    {{- if .Values.st2scheduler.serviceAccount.attach }}
+      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
+    {{- end }}
       volumes:
         - name: st2-config-vol
           configMap:
@@ -749,6 +773,9 @@ spec:
           subPath: st2.user.conf
         resources:
 {{ toYaml .Values.st2notifier.resources | indent 10 }}
+    {{- if .Values.st2notifier.serviceAccount.attach }}
+      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
+    {{- end }}
       volumes:
         - name: st2-config-vol
           configMap:
@@ -886,6 +913,9 @@ spec:
         {{- end }}
         resources:
 {{ toYaml .resources | indent 10 }}
+    {{- if .serviceAccount.attach }}
+      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" $ }}
+    {{- end }}
       volumes:
         - name: st2-config-vol
           configMap:
@@ -1020,6 +1050,9 @@ spec:
         {{- end }}
         resources:
 {{ toYaml .Values.st2actionrunner.resources | indent 10 }}
+    {{- if .Values.st2actionrunner.serviceAccount.attach }}
+      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
+    {{- end }}
       volumes:
         - name: st2-config-vol
           configMap:
@@ -1109,6 +1142,9 @@ spec:
           subPath: st2.user.conf
         resources:
 {{ toYaml .Values.st2garbagecollector.resources | indent 10 }}
+    {{- if .Values.st2garbagecollector.serviceAccount.attach }}
+      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
+    {{- end }}
       volumes:
         - name: st2-config-vol
           configMap:
@@ -1389,6 +1425,9 @@ spec:
           periodSeconds: 30
         resources:
 {{ toYaml .Values.st2chatops.resources | indent 10 }}
+    {{- if .Values.st2chatops.serviceAccount.attach }}
+        serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
+    {{- end }}
     {{- with .Values.st2chatops.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
