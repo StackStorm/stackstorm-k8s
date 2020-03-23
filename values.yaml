@@ -54,6 +54,17 @@ enterprise:
       #    - "admin"
 
 ##
+## Service Account
+##
+serviceAccount:
+  # Whether the Chart should create the service account or not
+  create: true
+  # Used to define service account annotations
+  serviceAccountAnnotations: {}
+  # Used to override service account name
+  serviceAccountName:
+
+##
 ## StackStorm shared variables
 ##
 st2:
@@ -103,6 +114,8 @@ st2:
         affinity: {}
         nodeSelector: {}
         tolerations: []
+        serviceAccount:
+          attach: false
   # Import data into StackStorm's Key/Value datastore (https://docs.stackstorm.com/datastore.html)
   keyvalue:
     #- name: st2_version
@@ -227,6 +240,8 @@ st2web:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 # https://docs.stackstorm.com/reference/ha.html#st2auth
 # Multiple st2auth processes can be behind a load balancer in an active-active configuration.
 st2auth:
@@ -237,6 +252,8 @@ st2auth:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 # https://docs.stackstorm.com/reference/ha.html#st2api
 # Multiple st2api process can be behind a load balancer in an active-active configuration.
 st2api:
@@ -247,6 +264,8 @@ st2api:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 # https://docs.stackstorm.com/reference/ha.html#st2stream
 # Multiple st2stream process can be behind a load balancer in an active-active configuration.
 st2stream:
@@ -257,6 +276,8 @@ st2stream:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 # https://docs.stackstorm.com/reference/ha.html#st2rulesengine
 # Multiple st2rulesengine processes can run in active-active with only connections to MongoDB and RabbitMQ. All these will share the TriggerInstance load and naturally pick up more work if one or more of the processes becomes unavailable.
 st2rulesengine:
@@ -267,6 +288,8 @@ st2rulesengine:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 # https://docs.stackstorm.com/reference/ha.html#st2timersengine
 # Only single replica is created via K8s Deployment as timersengine can't work in active-active mode at the moment and it relies on K8s failover/reschedule capabilities to address cases of process failure.
 st2timersengine:
@@ -276,6 +299,8 @@ st2timersengine:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 # https://docs.stackstorm.com/reference/ha.html#st2workflowengine
 # Multiple st2workflowengine processes can run in active-active mode and will share the load and pick up more work if one or more of the processes become available.
 st2workflowengine:
@@ -286,6 +311,8 @@ st2workflowengine:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 # https://docs.stackstorm.com/reference/ha.html#st2scheduler
 # TODO: Description TBD
 st2scheduler:
@@ -296,6 +323,8 @@ st2scheduler:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 # https://docs.stackstorm.com/reference/ha.html#st2notifier
 # st2notifier runs in active-active mode and requires for that coordination backend like Redis or Zookeeper
 st2notifier:
@@ -306,6 +335,8 @@ st2notifier:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 # https://docs.stackstorm.com/reference/ha.html#st2actionrunner
 # Multiple st2actionrunner processes can run in active-active with only connections to MongoDB and RabbitMQ. Work gets naturally
 # distributed across runners via RabbitMQ. Adding more st2actionrunner processes increases the ability of StackStorm to execute actions.
@@ -326,6 +357,8 @@ st2actionrunner:
   #  - hostnames:
   #      - bar
   #   ip: 8.8.8.8
+  serviceAccount:
+    attach: false
 
 # https://docs.stackstorm.com/reference/ha.html#st2garbagecollector
 # Optional service that cleans up old executions and other operations data based on setup configurations.
@@ -339,6 +372,8 @@ st2garbagecollector:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 
 ##
 ## StackStorm ChatOps (https://docs.stackstorm.com/chatops/index.html)
@@ -371,6 +406,8 @@ st2chatops:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 
 ##
 ## MongoDB HA configuration (3rd party chart dependency)
