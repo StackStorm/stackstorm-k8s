@@ -108,6 +108,7 @@ st2:
       - name:
         livenessProbe: {}
         readinessProbe: {}
+        annotations: {}
         # TODO: Find out recommended/default resources for this specific service (#5)
         resources: {}
         # Additional advanced settings to control pod/deployment placement
@@ -340,6 +341,7 @@ st2actionrunner:
   replicas: 5
   # TODO: Find out recommended/default resources for this specific service (#5)
   resources: {}
+  annotations: {}
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
