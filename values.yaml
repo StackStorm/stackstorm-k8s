@@ -426,6 +426,7 @@ mongodb-ha:
     adminPassword: "XeL5Rxwj7F0Wt43tFZVTN7H8Sg5XDHmK"
     # Minimal key length is 6 symbols
     key: "82PItDpqroti5RngOA7UqbHH7c6bFUwy"
+  resources: {}
 
 ##
 ## RabbitMQ HA configuration (3rd party chart dependency)
@@ -440,6 +441,11 @@ rabbitmq-ha:
   rabbitmqUsername: admin
   # TODO: Use default random 24 character password, but need to fetch this string for use by downstream services
   rabbitmqPassword: 9jS+w1u07NbHtZke1m+jW4Cj
+  # RabbitMQ available memory
+  rabbitmqMemoryHighWatermark: "0.8"
+  rabbitmqMemoryHighWatermarkType: relative
+  # Up to 255 character string
+  rabbitmqErlangCookie: 8MrqQdCQ6AQ8U3MacSubHE5RqkSfvNaRHzvxuFcG
   persistentVolume:
     enabled: true
   # RabbitMQ application vhost, should match with 'ha' Queue Mirroring definition policy
@@ -448,6 +454,7 @@ rabbitmq-ha:
     # Enable Queue Mirroring between nodes
     # See https://www.rabbitmq.com/ha.html
     policies: '{"vhost":"/","name":"ha","pattern":"", "definition":{"ha-mode":"all","ha-sync-mode":"automatic","ha-sync-batch-size":10}}'
+  resources: {}
 
 ##
 ## Etcd HA configuration (3rd party chart dependency)
