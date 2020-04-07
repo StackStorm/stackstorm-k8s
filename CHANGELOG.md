@@ -1,6 +1,7 @@
 # Changelog
 
 ## In Development
+* Added custom annotations to sensorcontainer and actionrunner Pods (#123) (by @stefangusa)
 
 
 ## v0.25.0

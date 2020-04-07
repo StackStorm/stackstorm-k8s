@@ -831,6 +831,9 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") $ | sha256sum }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") $ | sha256sum }}
+        {{- if .annotations }}
+{{ toYaml .annotations | indent 8 }}
+        {{- end }}
     spec:
       imagePullSecrets:
       {{- if $.Values.enterprise.enabled }}
@@ -976,6 +979,9 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/ssh: {{ include (print $.Template.BasePath "/secrets_ssh.yaml") . | sha256sum }}
+        {{- if .Values.st2actionrunner.annotations }}
+{{ toYaml .Values.st2actionrunner.annotations | indent 8 }}
+        {{- end }}
     spec:
       {{- if .Values.st2actionrunner.hostAliases }}
       hostAliases:
