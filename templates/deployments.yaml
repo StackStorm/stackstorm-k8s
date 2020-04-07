@@ -832,9 +832,7 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") $ | sha256sum }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") $ | sha256sum }}
         {{- if .annotations }}
-        {{- range $key, $value := .annotations }}
-        {{ $key }}: {{ $value | quote }}
-        {{- end }}
+{{ toYaml .annotations | indent 8 }}
         {{- end }}
     spec:
       imagePullSecrets:
