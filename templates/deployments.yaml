@@ -982,9 +982,7 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/ssh: {{ include (print $.Template.BasePath "/secrets_ssh.yaml") . | sha256sum }}
         {{- if .Values.st2actionrunner.annotations }}
-        {{- range $key, $value := .Values.st2actionrunner.annotations }}
-        {{ $key }}: {{ $value | quote }}
-        {{- end }}
+{{ toYaml .Values.st2actionrunner.annotations | indent 8 }}
         {{- end }}
     spec:
       {{- if .Values.st2actionrunner.hostAliases }}
