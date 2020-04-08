@@ -455,6 +455,9 @@ rabbitmq-ha:
     # Enable Queue Mirroring between nodes
     # See https://www.rabbitmq.com/ha.html
     policies: '{"vhost":"/","name":"ha","pattern":"", "definition":{"ha-mode":"all","ha-sync-mode":"automatic","ha-sync-batch-size":10}}'
+  # We recommend to set the memory limit for RabbitMQ-HA Pods in production deployments.
+  # Make sure to also change the rabbitmqMemoryHighWatermark following the formula:
+  # rabbitmqMemoryHighWatermark = 0.4 * resources.limits.memory
   resources: {}
 
 ##
