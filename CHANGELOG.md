@@ -1,8 +1,10 @@
 # Changelog
 
 ## In Development
-* Added custom annotations to sensorcontainer and actionrunner Pods (#123) (by @stefangusa)
 
+## v0.26.0
+* Added custom annotations to sensorcontainer and actionrunner Pods (#123) (by @stefangusa)
+* Improve Helm values recommendations to configure 3rd party chart dependencies `rabbitmq-ha` and `mongodb-ha` in prod (#125) (by @stefangusa)
 
 ## v0.25.0
 * Change ingress name from `<release name>-ingress` to `<release name>-st2web-ingress`, useful when using `stackstorm-ha` as a requirement for another chart. (#112) (by @erenatas)
