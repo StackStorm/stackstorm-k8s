@@ -1,6 +1,7 @@
 # Changelog
 
 ## In Development
+* Added support to toggle etcd-operator as a coordination backend (#127) (by @rrahman-nv)
 
 ## v0.26.0
 * Added custom annotations to sensorcontainer and actionrunner Pods (#123) (by @stefangusa)
