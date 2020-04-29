@@ -470,6 +470,7 @@ rabbitmq-ha:
 ##
 etcd-operator:
   # we don't need backup & restore etcd for short-lived coordination operations
+  enabled: true
   deployments:
     backupOperator: false
     restoreOperator: false
