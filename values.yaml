@@ -470,6 +470,8 @@ rabbitmq-ha:
 ##
 etcd-operator:
   # we don't need backup & restore etcd for short-lived coordination operations
+  # Change to `false` to disable in-cluster ectd deployment.
+  # Specify your external [coordination] connection parameters under st2.config
   enabled: true
   deployments:
     backupOperator: false
