@@ -1,6 +1,9 @@
 # Changelog
 
 ## In Development
+
+
+## v0.27.0
 * Added support to toggle etcd-operator as a coordination backend (#127) (by @rrahman-nv)
 
 ## v0.26.0
