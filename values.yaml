@@ -7,6 +7,12 @@
 image:
   # Image pull policy. Change to "IfNotPresent" when switching to stable images
   pullPolicy: Always
+  # st2 image repository. Set this to override the default ("stackstorm") or enterprise
+  # docker image repository ("docker.stackstorm.com"). Applies to all st2 containers except
+  # st2chatops and st2packs (which have their own override). This also does not impact 
+  # dependencies such as mongo or redis, which have their own helm chart settings.
+  st2Repository: ""
+
 
 ##
 ## StackStorm Enterprise settings (Optional)

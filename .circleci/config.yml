@@ -33,6 +33,9 @@ jobs:
           name: Helm Lint Check (Enterprise)
           command: helm lint --set enterprise.enabled=true --set enterprise.license=123asd456fake
       - run:
+          name: Helm Lint Check (st2Repository)
+          command: helm lint --set image.st2Repository="docker.example.com/st2modified"
+      - run:
           name: Helm template
           command: |
             mkdir -p enterprise community
