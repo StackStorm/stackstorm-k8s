@@ -1,7 +1,7 @@
 # Changelog
 
 ## In Development
-
+* Added support for custom image repository (#131) (by @ytjohn)
 
 ## v0.27.0
 * Added support to toggle etcd-operator as a coordination backend (#127) (by @rrahman-nv)
