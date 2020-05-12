@@ -11,7 +11,7 @@ image:
   # docker image repository ("docker.stackstorm.com"). Applies to all st2 containers except
   # st2chatops and st2packs (which have their own override). This also does not impact 
   # dependencies such as mongo or redis, which have their own helm chart settings.
-  st2Repository: ""
+  repository: ""
 
 
 ##
