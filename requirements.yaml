@@ -1,6 +1,6 @@
 dependencies:
   - name: rabbitmq-ha
-    version: 1.44.4
+    version: 1.44.1
     repository: https://kubernetes-charts.storage.googleapis.com/
     condition: rabbitmq-ha.enabled
   - name: mongodb-replicaset
