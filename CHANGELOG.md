@@ -9,7 +9,7 @@
 * Switch from MongoDB `3.4` to `4.0` for the mongodb-ha Helm chart (#129)
 * Update `etcd-operator` 3rd party chart from `0.10.0` to latest `0.10.3` (#129)
 * Update `rabbitmq-ha` 3rd party chart from `1.36.4` to `1.44.1` (#129)
-
+* Update `mongodb-replicaset` 3rd party chart from `3.9.6` to `3.14.0` (#129)
 
 ## v0.27.0
 * Added support to toggle etcd-operator as a coordination backend (#127) (by @rrahman-nv)
