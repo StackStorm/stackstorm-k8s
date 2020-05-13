@@ -419,8 +419,8 @@ mongodb-ha:
   # Specify your external [database] connection parameters under st2.config
   enabled: true
   image:
-    # StackStorm currently supports maximum MongoDB v3.4
-    tag: 3.4
+    # StackStorm currently supports maximum MongoDB v4.0
+    tag: "4.0"
   auth:
     enabled: true
     # NB! It's highly recommended to change ALL defaults!

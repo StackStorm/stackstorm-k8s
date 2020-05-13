@@ -5,7 +5,8 @@
 
 ## v0.30.0
 * Pin st2 version to `v3.3dev` as a new latest development version (#129)
-* Switch from `py2` `Ubuntu Xenial` to `py3` `Ubuntu Bionic` as a base StackStorm OS (StackStorm/st2-dockerfiles#16, #129)
+* Migrate from `py2` `Ubuntu Xenial` to `py3` `Ubuntu Bionic` as a base StackStorm OS (StackStorm/st2-dockerfiles#16, #129)
+* Switch from MongoDB `3.4` to `4.0` for the mongodb-ha Helm chart (#129)
 
 ## v0.27.0
 * Added support to toggle etcd-operator as a coordination backend (#127) (by @rrahman-nv)
