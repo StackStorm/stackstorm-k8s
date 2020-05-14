@@ -7,7 +7,7 @@ orbs:
   # Pins Helm to v2.x
   # TODO: Consider upgrading Helm to v3.0 (https://github.com/StackStorm/stackstorm-ha/issues/98)
   # https://circleci.com/orbs/registry/orb/circleci/helm
-  helm: circleci/helm@0.2.0
+  helm: circleci/helm@0.2.3
   # https://circleci.com/orbs/registry/orb/ccpgames/minikube
   minikube: ccpgames/minikube@0.0.1
 
@@ -17,7 +17,7 @@ jobs:
     working_directory: ~/stackstorm-ha
     docker:
       # Pin Helm to v2.x, see https://github.com/StackStorm/stackstorm-ha/issues/98
-      - image: lachlanevenson/k8s-helm:v2.16.1
+      - image: lachlanevenson/k8s-helm:v2.16.7
     steps:
       - checkout
       - run:
