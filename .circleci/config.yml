@@ -82,10 +82,10 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            sudo apt -y update
+            sudo apt update || true
             # K8s 1.18 requires conntrack
             # See: https://github.com/kubernetes/minikube/issues/7179
-            sudo apt -y install conntrack
+            sudo apt install -y conntrack
       - run:
           name: Create new K8s cluster
           command: sudo -E minikube start --vm-driver=none
