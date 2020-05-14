@@ -78,7 +78,7 @@ jobs:
       - kubernetes/install
       - minikube/minikube-install:
           # https://github.com/kubernetes/minikube/releases
-          version: v1.5.2
+          version: v1.10.1
       - run:
           name: Create new K8s cluster
           command: sudo -E minikube start --vm-driver=none --cpus $(nproc) --memory 4096
