@@ -23,6 +23,8 @@ community
 {{- define "imageRepository" -}}
 {{- if required "Missing context '.Values.enterprise.enabled'!" .Values.enterprise.enabled -}}
 docker.stackstorm.com
+{{- else if .Values.image.repository -}}
+{{ .Values.image.repository }}
 {{- else -}}
 stackstorm
 {{- end -}}

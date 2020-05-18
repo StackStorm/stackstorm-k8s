@@ -11,6 +11,9 @@
 * Update `mongodb-replicaset` 3rd party chart from `3.9.6` to `3.14.0` (#129)
 * Update CI infrastructure env, run tests on updated Helm `v2.16.7`, latest minikube `v1.10.1` and K8s `1.18` (#129)
 
+## v0.28.0
+* Added support for custom image repository (#131) (by @ytjohn)
+
 ## v0.27.0
 * Added support to toggle etcd-operator as a coordination backend (#127) (by @rrahman-nv)
 
