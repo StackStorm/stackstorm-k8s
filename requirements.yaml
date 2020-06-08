@@ -1,10 +1,10 @@
 dependencies:
   - name: rabbitmq-ha
-    version: 1.36.4
+    version: 1.44.1
     repository: https://kubernetes-charts.storage.googleapis.com/
     condition: rabbitmq-ha.enabled
   - name: mongodb-replicaset
-    version: 3.9.6
+    version: 3.14.0
     repository: https://kubernetes-charts.storage.googleapis.com/
     alias: mongodb-ha
     condition: mongodb-ha.enabled
@@ -13,5 +13,7 @@ dependencies:
     repository: https://kubernetes-charts.storage.googleapis.com/
     condition: external-dns.enabled
   - name: etcd-operator
-    version: 0.10.0
+    version: 0.10.3
     repository: https://kubernetes-charts.storage.googleapis.com/
+    condition: etcd-operator.enabled
+

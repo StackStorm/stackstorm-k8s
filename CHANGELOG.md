@@ -3,6 +3,25 @@
 ## In Development
 * Allow injection of datastore key in cluster (#115) (by @AngryDeveloper)
 
+## v0.30.0
+* Pin st2 version to `v3.3dev` as a new latest development version (#129)
+* Migrate from `py2` `Ubuntu Xenial` to `py3` `Ubuntu Bionic` as a base StackStorm OS (StackStorm/st2-dockerfiles#16, #129)
+* Switch from MongoDB `3.4` to `4.0` for the mongodb-ha Helm chart (#129)
+* Update `etcd-operator` 3rd party chart from `0.10.0` to latest `0.10.3` (#129)
+* Update `rabbitmq-ha` 3rd party chart from `1.36.4` to `1.44.1` (#129)
+* Update `mongodb-replicaset` 3rd party chart from `3.9.6` to `3.14.0` (#129)
+* Update CI infrastructure env, run tests on updated Helm `v2.16.7`, latest minikube `v1.10.1` and K8s `1.18` (#129)
+
+## v0.28.0
+* Added support for custom image repository (#131) (by @ytjohn)
+
+## v0.27.0
+* Added support to toggle etcd-operator as a coordination backend (#127) (by @rrahman-nv)
+
+## v0.26.0
+* Added custom annotations to sensorcontainer and actionrunner Pods (#123) (by @stefangusa)
+* Improve Helm values recommendations to configure 3rd party chart dependencies `rabbitmq-ha` and `mongodb-ha` in prod (#125) (by @stefangusa)
+
 ## v0.25.0
 * Change ingress name from `<release name>-ingress` to `<release name>-st2web-ingress`, useful when using `stackstorm-ha` as a requirement for another chart. (#112) (by @erenatas)
 * Fix st2web ingress which should have been defined as an Integer instead of a String (#111) (by @erenatas)

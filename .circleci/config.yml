@@ -3,11 +3,11 @@ version: 2.1
 # Add additional CircleCI Orbs dependencies
 orbs:
   # https://circleci.com/orbs/registry/orb/circleci/kubernetes
-  kubernetes: circleci/kubernetes@0.10.1
+  kubernetes: circleci/kubernetes@0.11.0
   # Pins Helm to v2.x
   # TODO: Consider upgrading Helm to v3.0 (https://github.com/StackStorm/stackstorm-ha/issues/98)
   # https://circleci.com/orbs/registry/orb/circleci/helm
-  helm: circleci/helm@0.2.0
+  helm: circleci/helm@0.2.3
   # https://circleci.com/orbs/registry/orb/ccpgames/minikube
   minikube: ccpgames/minikube@0.0.1
 
@@ -17,7 +17,7 @@ jobs:
     working_directory: ~/stackstorm-ha
     docker:
       # Pin Helm to v2.x, see https://github.com/StackStorm/stackstorm-ha/issues/98
-      - image: lachlanevenson/k8s-helm:v2.16.1
+      - image: lachlanevenson/k8s-helm:v2.16.7
     steps:
       - checkout
       - run:
@@ -78,10 +78,17 @@ jobs:
       - kubernetes/install
       - minikube/minikube-install:
           # https://github.com/kubernetes/minikube/releases
-          version: v1.5.2
+          version: v1.10.1
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt update || true
+            # K8s 1.18 requires conntrack
+            # See: https://github.com/kubernetes/minikube/issues/7179
+            sudo apt install -y conntrack
       - run:
           name: Create new K8s cluster
-          command: sudo -E minikube start --vm-driver=none --cpus $(nproc) --memory 4096
+          command: sudo -E minikube start --vm-driver=none
           environment:
             CHANGE_MINIKUBE_NONE_USER: true
       - helm/install-helm-on-cluster

@@ -20,8 +20,10 @@ data:
   st2.docker.conf: |
     [auth]
     api_url = http://{{ .Release.Name }}-st2api{{ template "enterpriseSuffix" . }}:9101/
+    {{- if index .Values "etcd-operator" "enabled" }}
     [coordination]
     url = etcd://{{ index .Values "etcd-operator" "etcdCluster" "name" }}-client:2379
+    {{- end }}
     {{- if index .Values "rabbitmq-ha" "enabled" }}
     [messaging]
     url = amqp://{{ required "rabbitmq-ha.rabbitmqUsername is required!" (index .Values "rabbitmq-ha" "rabbitmqUsername") }}:{{ required "rabbitmq-ha.rabbitmqPassword is required!" (index .Values "rabbitmq-ha" "rabbitmqPassword") }}@{{ .Release.Name }}-rabbitmq-ha-discovery:5672

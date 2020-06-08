@@ -880,7 +880,9 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") $ | sha256sum }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") $ | sha256sum }}
         {{- if $.Values.secrets.st2.datastore_crypto_key }}
-        checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+        checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") & | sha256sum }}
+        {{- if .annotations }}
+{{ toYaml .annotations | indent 8 }}
         {{- end }}
     spec:
       imagePullSecrets:
@@ -1042,6 +1044,8 @@ spec:
         checksum/ssh: {{ include (print $.Template.BasePath "/secrets_ssh.yaml") . | sha256sum }}
         {{- if $.Values.secrets.st2.datastore_crypto_key }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+        {{- if .Values.st2actionrunner.annotations }}
+{{ toYaml .Values.st2actionrunner.annotations | indent 8 }}
         {{- end }}
     spec:
       {{- if .Values.st2actionrunner.hostAliases }}

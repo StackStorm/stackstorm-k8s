@@ -1,8 +1,8 @@
 apiVersion: v1
 # Update StackStorm version here to rely on other Docker images tags
-appVersion: 3.2dev
+appVersion: 3.3dev
 name: stackstorm-ha
-version: 0.25.0
+version: 0.30.0
 description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA environment.
 home: https://stackstorm.com/#product
 icon: https://avatars1.githubusercontent.com/u/4969009
