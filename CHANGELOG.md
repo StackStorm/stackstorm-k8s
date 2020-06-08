@@ -28,7 +28,6 @@
 * Add an option to inject hostAliases in the st2actionrunner containers (#114)
 * Add support for Service Accounts (#117) (by @Vince-Chenal)
 
-
 ## v0.24.0
 * Fix st2web ingress to use `/` path by default instead of `/*`, useful for nginx ingress controller (#103) (by @erenatas)
 * Add ability of templating on `st2.keyvalue` in Helm Values (#108) (by @erenatas)
