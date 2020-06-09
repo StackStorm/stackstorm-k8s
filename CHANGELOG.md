@@ -1,6 +1,7 @@
 # Changelog
 
 ## In Development
+* Allow injection of datastore key in cluster (#115) (by @AngryDeveloper)
 
 ## v0.30.0
 * Pin st2 version to `v3.3dev` as a new latest development version (#129)

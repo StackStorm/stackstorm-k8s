@@ -143,6 +143,7 @@ spec:
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
     spec:
       imagePullSecrets:
       {{- if .Values.enterprise.enabled }}
@@ -204,6 +205,11 @@ spec:
         - name: st2-config-vol
           mountPath: /etc/st2/st2.user.conf
           subPath: st2.user.conf
+        {{- if .Values.secrets.st2.datastore_crypto_key }}
+        - name: st2-encryption-key-vol
+          mountPath: /etc/st2/keys
+          readOnly: true
+        {{- end }}
         {{- if .Values.st2.packs.image.repository }}
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs
@@ -218,6 +224,14 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
+        {{- if .Values.secrets.st2.datastore_crypto_key }}
+        - name: st2-encryption-key-vol
+          secret:
+            secretName: {{ .Release.Name }}-st2-datastore-crypto-key
+            items:
+            - key: datastore_crypto_key
+              path: datastore_key.json
+        {{- end }}
         - name: st2-config-vol
           configMap:
             name: {{ .Release.Name }}-st2-config
@@ -468,6 +482,14 @@ spec:
         - name: st2-config-vol
           configMap:
             name: {{ .Release.Name }}-st2-config
+        {{- if .Values.secrets.st2.datastore_crypto_key }}
+        - name: st2-encryption-key-vol
+          secret:
+            secretName: datastore_crypto_key
+            items:
+            - key: datastore_crypto_key
+              path: datastore_key.json
+        {{- end }}
     {{- with .Values.st2rulesengine.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
@@ -594,6 +616,7 @@ spec:
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
     spec:
       {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
@@ -616,6 +639,11 @@ spec:
         - name: st2-config-vol
           mountPath: /etc/st2/st2.user.conf
           subPath: st2.user.conf
+        {{- if .Values.secrets.st2.datastore_crypto_key }}
+        - name: st2-encryption-key-vol
+          mountPath: /etc/st2/keys
+          readOnly: true
+        {{- end }}
         resources:
 {{ toYaml .Values.st2workflowengine.resources | indent 10 }}
     {{- if .Values.st2workflowengine.serviceAccount.attach }}
@@ -625,6 +653,14 @@ spec:
         - name: st2-config-vol
           configMap:
             name: {{ .Release.Name }}-st2-config
+        {{- if .Values.secrets.st2.datastore_crypto_key }}
+        - name: st2-encryption-key-vol
+          secret:
+            secretName: {{ .Release.Name }}-st2-datastore-crypto-key
+            items:
+            - key: datastore_crypto_key
+              path: datastore_key.json
+        {{- end }}
     {{- with .Values.st2workflowengine.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
@@ -831,6 +867,7 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") $ | sha256sum }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") $ | sha256sum }}
+        checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") $ | sha256sum }}
         {{- if .annotations }}
 {{ toYaml .annotations | indent 8 }}
         {{- end }}
@@ -914,12 +951,25 @@ spec:
           mountPath: /opt/stackstorm/virtualenvs
           readOnly: true
         {{- end }}
+        {{- if $.Values.secrets.st2.datastore_crypto_key }}
+        - name: st2-encryption-key-vol
+          mountPath: /etc/st2/keys
+          readOnly: true
+        {{- end }}
         resources:
 {{ toYaml .resources | indent 10 }}
     {{- if .serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" $ }}
     {{- end }}
       volumes:
+        {{- if $.Values.secrets.st2.datastore_crypto_key }}
+        - name: st2-encryption-key-vol
+          secret:
+            secretName: {{ $.Release.Name }}-st2-datastore-crypto-key
+            items:
+            - key: datastore_crypto_key
+              path: datastore_key.json
+        {{- end }}
         - name: st2-config-vol
           configMap:
             name: {{ $.Release.Name }}-st2-config
@@ -979,6 +1029,7 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/ssh: {{ include (print $.Template.BasePath "/secrets_ssh.yaml") . | sha256sum }}
+        checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
         {{- if .Values.st2actionrunner.annotations }}
 {{ toYaml .Values.st2actionrunner.annotations | indent 8 }}
         {{- end }}
@@ -1046,6 +1097,11 @@ spec:
         - name: st2-ssh-key-vol
           mountPath: /home/stanley/.ssh/
           readOnly: true
+        {{- if .Values.secrets.st2.datastore_crypto_key }}
+        - name: st2-encryption-key-vol
+          mountPath: /etc/st2/keys
+          readOnly: true
+        {{- end }}
         {{- if .Values.st2.packs.image.repository }}
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs
@@ -1060,6 +1116,14 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
+        {{- if .Values.secrets.st2.datastore_crypto_key }}
+        - name: st2-encryption-key-vol
+          secret:
+            secretName: {{ .Release.Name }}-st2-datastore-crypto-key
+            items:
+            - key: datastore_crypto_key
+              path: datastore_key.json
+        {{- end }}
         - name: st2-config-vol
           configMap:
             name: {{ .Release.Name }}-st2-config
@@ -1206,6 +1270,7 @@ spec:
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") . | sha256sum }}
         checksum/auth: {{ include (print $.Template.BasePath "/secrets_st2auth.yaml") . | sha256sum }}
         checksum/ssh: {{ include (print $.Template.BasePath "/secrets_ssh.yaml") . | sha256sum }}
+        checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
     spec:
       imagePullSecrets:
       {{- if .Values.enterprise.enabled }}
@@ -1309,6 +1374,11 @@ spec:
         - name: st2-ssh-key-vol
           mountPath: /home/stanley/.ssh/
           readOnly: true
+        {{- if .Values.secrets.st2.datastore_crypto_key }}
+        - name: st2-encryption-key-vol
+          mountPath: /etc/st2/keys
+          readOnly: true
+        {{- end }}
         {{- if .Values.st2.packs.image.repository }}
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs
@@ -1326,6 +1396,14 @@ spec:
             memory: "5Mi"
             cpu: "5m"
       volumes:
+        {{- if .Values.secrets.st2.datastore_crypto_key }}
+        - name: st2-encryption-key-vol
+          secret:
+            secretName: {{ .Release.Name }}-st2-datastore-crypto-key
+            items:
+            - key: datastore_crypto_key
+              path: datastore_key.json
+        {{- end }}
         - name: st2-config-vol
           configMap:
             name: {{ .Release.Name }}-st2-config
