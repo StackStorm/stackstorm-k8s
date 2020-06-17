@@ -1,8 +1,7 @@
 # Changelog
 
 ## v0.31.0
-
-* Makes the chart compatible with Helm versions >= `2.16.8` by downgrading `mongodb-replicaset` from `3.14.0` to `3.12.0` (#137) (by @AbhyudayaSharma)
+* Fix chart compatibility with Helm versions >= `2.16.8` by downgrading `mongodb-replicaset` from `3.14.0` to `3.12.0` (#137) (by @AbhyudayaSharma)
 * Allow injection of datastore key in cluster (#115) (by @AngryDeveloper)
 
 ## v0.30.0
