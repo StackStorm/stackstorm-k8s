@@ -3,6 +3,10 @@
 ## In Development
 * Allow injection of datastore key in cluster (#115) (by @AngryDeveloper)
 
+## v0.31.0
+
+* Makes the chart compatible with Helm versions >= `2.16.8` by downgrading `mongodb-replicaset` from `3.14.0` to `3.12.0` (#137) (by @AbhyudayaSharma)
+
 ## v0.30.0
 * Pin st2 version to `v3.3dev` as a new latest development version (#129)
 * Migrate from `py2` `Ubuntu Xenial` to `py3` `Ubuntu Bionic` as a base StackStorm OS (StackStorm/st2-dockerfiles#16, #129)
