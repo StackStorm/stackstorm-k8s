@@ -1079,8 +1079,8 @@ spec:
       {{- end }}
       containers:
       - name: st2actionrunner{{ template "enterpriseSuffix" . }}
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        image: "{{ .Values.st2actionrunner.image.repository | default template "imageRepository" . }}/{{ .Values.st2actionrunner.image.name | default st2actionrunner }}{{ template "enterpriseSuffix" . }}:{{ .Values.st2actionrunner.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.st2actionrunner.image.imagePullPolicy | default .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:

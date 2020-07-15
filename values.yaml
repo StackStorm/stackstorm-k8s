@@ -350,6 +350,14 @@ st2notifier:
 st2actionrunner:
   replicas: 5
   # TODO: Find out recommended/default resources for this specific service (#5)
+  image:
+    # Uncomment the following block to use your own at2actionrunner docker image
+    #repository: your-remote-docker-registry.io
+    #name: st2actionrunner
+    #tag: latest
+    #pullPolicy: Always
+    # Optional name of the imagePullSecret if your custom action runner image is hosted by a private Docker registry behind the auth
+    #pullSecret: st2actionrunner-auth
   resources: {}
   annotations: {}
   # Additional advanced settings to control pod/deployment placement
