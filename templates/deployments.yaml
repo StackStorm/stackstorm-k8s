@@ -1045,6 +1045,9 @@ spec:
       {{- if .Values.st2.packs.image.pullSecret }}
       - name: {{ .Values.st2.packs.image.pullSecret }}
       {{- end }}
+      {{- if .Values.st2actionrunner.image.pullSecret }}
+      - name: {{ .Values.st2actionrunner.image.pullSecret }}
+      {{- end }}
       {{- if .Values.st2.packs.image.repository }}
       initContainers:
       # Merge packs and virtualenvs from st2actionrunner with those from the st2.packs image
@@ -1079,7 +1082,7 @@ spec:
       {{- end }}
       containers:
       - name: st2actionrunner{{ template "enterpriseSuffix" . }}
-        image: "{{ .Values.st2actionrunner.image.repository | default template "imageRepository" . }}/{{ .Values.st2actionrunner.image.name | default st2actionrunner }}{{ template "enterpriseSuffix" . }}:{{ .Values.st2actionrunner.image.tag | default .Chart.AppVersion }}"
+        image: "{{ template "st2actionrunnerImageRepository" . }}/{{ .Values.st2actionrunner.image.name | default "st2actionrunner" }}{{ template "enterpriseSuffix" . }}:{{ .Values.st2actionrunner.image.tag | default .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.st2actionrunner.image.imagePullPolicy | default .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
