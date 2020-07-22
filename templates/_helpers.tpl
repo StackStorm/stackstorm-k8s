@@ -68,6 +68,6 @@ Create the name of the stackstorm-ha service account to use
 {{- $mongo_fullname := include "nested" (list $ "mongodb-ha" "mongodb-replicaset.fullname") }}
   {{- range $index0 := until $replicas -}}
     {{- $index1 := $index0 | add1 -}}
-{{ $mongo_fullname }}-{{ $index0 }}.{{ $mongo_fullname }}{{ if ne $index1 $replicas }},{{ end }}
+{{ $mongo_fullname }}-{{ $index0 }}.{{ $mongo_fullname }}.{{ $.Release.Namespace }}.svc.cluster.local{{ if ne $index1 $replicas }},{{ end }}
   {{- end -}}
 {{- end -}}
