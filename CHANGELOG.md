@@ -1,5 +1,8 @@
 # Changelog
 
+## In Development
+* Fix a bug when datastore encrypted keys didn't work in scheduled rules. datastore_crypto_key is now shared with the ``st2scheduler`` pods (#148) (by @rahulshinde26)
+
 ## v0.31.0
 * Fix chart compatibility with Helm versions >= `2.16.8` by downgrading `mongodb-replicaset` from `3.14.0` to `3.12.0` (#137) (by @AbhyudayaSharma)
 * Allow injection of datastore key in cluster (#115) (by @AngryDeveloper)
