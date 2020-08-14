@@ -45,7 +45,7 @@ password: {{ .Values.secrets.st2.password }}
 
 3. Use st2 CLI:
 export ST2CLIENT=$(kubectl get --namespace {{ .Release.Namespace }} pod -l app=st2client,release={{ .Release.Name }} -o jsonpath="{.items[0].metadata.name}")
-kubectl exec -it ${ST2CLIENT} -- st2 --version
+kubectl exec -it ${ST2CLIENT} --namespace {{ .Release.Namespace }} -- st2 --version
 
 -----------------------------------------------------
 Thanks for trying StackStorm!
