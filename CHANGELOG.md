@@ -3,6 +3,7 @@
 ## In Development
 * Fix a bug when datastore encrypted keys didn't work in scheduled rules. datastore_crypto_key is now shared with the ``st2scheduler`` pods (#148) (by @rahulshinde26)
 * Change NOTES.txt template for using ST2 CLI to include namespace argument in 'kubectl exec' command (#150) (by @rahulshinde26)
+* Move the apiVersion `extensions/v1beta1` to `networking.k8s.io/v1beta1` for ingress (#149) (by @jb-abbadie)
 
 ## v0.31.0
 * Fix chart compatibility with Helm versions >= `2.16.8` by downgrading `mongodb-replicaset` from `3.14.0` to `3.12.0` (#137) (by @AbhyudayaSharma)
