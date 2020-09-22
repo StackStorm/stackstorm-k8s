@@ -1,3 +1,8 @@
+# Expand the name of the chart.
+{{- define "stackstorm-ha.name" -}}
+{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
 # Image pull secret used to access private docker.stackstorm.com Docker registry with Enterprise images
 {{- define "imagePullSecret" }}
 {{- if required "Missing context '.Values.enterprise.enabled'!" .Values.enterprise.enabled -}}
@@ -18,9 +23,18 @@ community
 {{- define "imageRepository" -}}
 {{- if required "Missing context '.Values.enterprise.enabled'!" .Values.enterprise.enabled -}}
 docker.stackstorm.com
+{{- else if .Values.image.repository -}}
+{{ .Values.image.repository }}
 {{- else -}}
 stackstorm
 {{- end -}}
+{{- end -}}
+
+{{/*
+Create the name of the stackstorm-ha service account to use
+*/}}
+{{- define "stackstorm-ha.serviceAccountName" -}}
+{{- default .Chart.Name .Values.serviceAccount.serviceAccountName -}}
 {{- end -}}
 
 # Generate '-enterprise' suffix only when it's needed for resource names, docker images, etc

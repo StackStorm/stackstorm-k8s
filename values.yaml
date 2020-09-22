@@ -7,6 +7,12 @@
 image:
   # Image pull policy. Change to "IfNotPresent" when switching to stable images
   pullPolicy: Always
+  # st2 image repository. Set this to override the default ("stackstorm") or enterprise
+  # docker image repository ("docker.stackstorm.com"). Applies to all st2 containers except
+  # st2chatops and st2packs (which have their own override). This also does not impact 
+  # dependencies such as mongo or redis, which have their own helm chart settings.
+  repository: ""
+
 
 ##
 ## StackStorm Enterprise settings (Optional)
@@ -52,6 +58,17 @@ enterprise:
       #  description: "Automatically grant admin role to all stormers group members."
       #  roles:
       #    - "admin"
+
+##
+## Service Account
+##
+serviceAccount:
+  # Whether the Chart should create the service account or not
+  create: true
+  # Used to define service account annotations
+  serviceAccountAnnotations: {}
+  # Used to override service account name
+  serviceAccountName:
 
 ##
 ## StackStorm shared variables
@@ -109,12 +126,15 @@ st2:
       - name:
         livenessProbe: {}
         readinessProbe: {}
+        annotations: {}
         # TODO: Find out recommended/default resources for this specific service (#5)
         resources: {}
         # Additional advanced settings to control pod/deployment placement
         affinity: {}
         nodeSelector: {}
         tolerations: []
+        serviceAccount:
+          attach: false
   # Import data into StackStorm's Key/Value datastore (https://docs.stackstorm.com/datastore.html)
   keyvalue:
     #- name: st2_version
@@ -163,7 +183,7 @@ ingress:
   #     - chart-example.test
 
 ##
-## StackStorm HA Cluster Secrets. All fields are required!
+## StackStorm HA Cluster Secrets.
 ## NB! It's highly recommended to change ALL defaults!
 ##
 # TODO: Move to `secrets.yaml` when it gets implemented in Helm (https://github.com/kubernetes/helm/issues/2196) ? (#14)
@@ -205,6 +225,10 @@ secrets:
       WE8BWLQ1vBV6c7V4Q0Wp6LuTnNnvu/lvVugJW/TbrzFw6CFe5fEISmIHAMnqVz8x
       OdOJyinSM1svoBGnYfyAqINKrqCSGSKmprlMo0Ma3erI7SuojWBS
       -----END RSA PRIVATE KEY-----
+    # ST2 crypto key for the  K/V datastore.
+    # See https://docs.stackstorm.com/datastore.html#securing-secrets-admin-only for more info.
+    # Warning! Replace with your own generated key!
+    #datastore_crypto_key: {"hmacKey": {"hmacKeyString": "", "size": 256}, "size": 256, "aesKeyString": "", "mode": "CBC"}
 
 ##
 ## StackStorm HA Cluster pod settings for each individual service/component.
@@ -235,6 +259,8 @@ st2web:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 # https://docs.stackstorm.com/reference/ha.html#st2auth
 # Multiple st2auth processes can be behind a load balancer in an active-active configuration.
 st2auth:
@@ -245,6 +271,8 @@ st2auth:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 # https://docs.stackstorm.com/reference/ha.html#st2api
 # Multiple st2api process can be behind a load balancer in an active-active configuration.
 st2api:
@@ -255,6 +283,8 @@ st2api:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 # https://docs.stackstorm.com/reference/ha.html#st2stream
 # Multiple st2stream process can be behind a load balancer in an active-active configuration.
 st2stream:
@@ -265,6 +295,8 @@ st2stream:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 # https://docs.stackstorm.com/reference/ha.html#st2rulesengine
 # Multiple st2rulesengine processes can run in active-active with only connections to MongoDB and RabbitMQ. All these will share the TriggerInstance load and naturally pick up more work if one or more of the processes becomes unavailable.
 st2rulesengine:
@@ -275,6 +307,8 @@ st2rulesengine:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 # https://docs.stackstorm.com/reference/ha.html#st2timersengine
 # Only single replica is created via K8s Deployment as timersengine can't work in active-active mode at the moment and it relies on K8s failover/reschedule capabilities to address cases of process failure.
 st2timersengine:
@@ -284,6 +318,8 @@ st2timersengine:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 # https://docs.stackstorm.com/reference/ha.html#st2workflowengine
 # Multiple st2workflowengine processes can run in active-active mode and will share the load and pick up more work if one or more of the processes become available.
 st2workflowengine:
@@ -294,6 +330,8 @@ st2workflowengine:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 # https://docs.stackstorm.com/reference/ha.html#st2scheduler
 # TODO: Description TBD
 st2scheduler:
@@ -304,6 +342,8 @@ st2scheduler:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 # https://docs.stackstorm.com/reference/ha.html#st2notifier
 # st2notifier runs in active-active mode and requires for that coordination backend like Redis or Zookeeper
 st2notifier:
@@ -314,6 +354,8 @@ st2notifier:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 # https://docs.stackstorm.com/reference/ha.html#st2actionrunner
 # Multiple st2actionrunner processes can run in active-active with only connections to MongoDB and RabbitMQ. Work gets naturally
 # distributed across runners via RabbitMQ. Adding more st2actionrunner processes increases the ability of StackStorm to execute actions.
@@ -321,6 +363,7 @@ st2actionrunner:
   replicas: 5
   # TODO: Find out recommended/default resources for this specific service (#5)
   resources: {}
+  annotations: {}
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
@@ -334,6 +377,8 @@ st2actionrunner:
   #  - hostnames:
   #      - bar
   #   ip: 8.8.8.8
+  serviceAccount:
+    attach: false
 
 # https://docs.stackstorm.com/reference/ha.html#st2garbagecollector
 # Optional service that cleans up old executions and other operations data based on setup configurations.
@@ -347,6 +392,8 @@ st2garbagecollector:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 
 ##
 ## StackStorm ChatOps (https://docs.stackstorm.com/chatops/index.html)
@@ -379,6 +426,8 @@ st2chatops:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 
 ##
 ## MongoDB HA configuration (3rd party chart dependency)
@@ -392,8 +441,8 @@ mongodb-ha:
   # Specify your external [database] connection parameters under st2.config
   enabled: true
   image:
-    # StackStorm currently supports maximum MongoDB v3.4
-    tag: 3.4
+    # StackStorm currently supports maximum MongoDB v4.0
+    tag: "4.0"
   auth:
     enabled: true
     # NB! It's highly recommended to change ALL defaults!
@@ -401,6 +450,7 @@ mongodb-ha:
     adminPassword: "XeL5Rxwj7F0Wt43tFZVTN7H8Sg5XDHmK"
     # Minimal key length is 6 symbols
     key: "82PItDpqroti5RngOA7UqbHH7c6bFUwy"
+  resources: {}
 
 ##
 ## RabbitMQ HA configuration (3rd party chart dependency)
@@ -415,6 +465,12 @@ rabbitmq-ha:
   rabbitmqUsername: admin
   # TODO: Use default random 24 character password, but need to fetch this string for use by downstream services
   rabbitmqPassword: 9jS+w1u07NbHtZke1m+jW4Cj
+  # RabbitMQ Memory high watermark. See: http://www.rabbitmq.com/memory.html
+  # Default values might not be enough for StackStorm deployment to work properly. We recommend to adjust these settings for you needs as well as enable Pod memory limits via "resources".
+  #rabbitmqMemoryHighWatermark: 512MB
+  #rabbitmqMemoryHighWatermarkType: absolute
+  # Up to 255 character string, should be fixed so that re-deploying the chart does not fail (see: https://github.com/helm/charts/issues/12371)
+  #rabbitmqErlangCookie: 8MrqQdCQ6AQ8U3MacSubHE5RqkSfvNaRHzvxuFcG
   persistentVolume:
     enabled: true
   # RabbitMQ application vhost, should match with 'ha' Queue Mirroring definition policy
@@ -423,6 +479,10 @@ rabbitmq-ha:
     # Enable Queue Mirroring between nodes
     # See https://www.rabbitmq.com/ha.html
     policies: '{"vhost":"/","name":"ha","pattern":"", "definition":{"ha-mode":"all","ha-sync-mode":"automatic","ha-sync-batch-size":10}}'
+  # We recommend to set the memory limit for RabbitMQ-HA Pods in production deployments.
+  # Make sure to also change the rabbitmqMemoryHighWatermark following the formula:
+  # rabbitmqMemoryHighWatermark = 0.4 * resources.limits.memory
+  resources: {}
 
 ##
 ## Etcd HA configuration (3rd party chart dependency)
@@ -432,6 +492,9 @@ rabbitmq-ha:
 ##
 etcd-operator:
   # we don't need backup & restore etcd for short-lived coordination operations
+  # Change to `false` to disable in-cluster ectd deployment.
+  # Specify your external [coordination] connection parameters under st2.config
+  enabled: true
   deployments:
     backupOperator: false
     restoreOperator: false
