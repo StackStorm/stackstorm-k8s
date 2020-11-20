@@ -1,6 +1,7 @@
 # Changelog
 
 ## In Development
+* Change pullPolicy to "IfNotPresent", as Docker-Hub Ratelimits now (#159) (by @moonrail)
 
 
 ## v0.32.0

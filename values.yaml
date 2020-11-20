@@ -5,8 +5,8 @@
 ## Docker image settings, applied to all StackStorm pods
 ##
 image:
-  # Image pull policy. Change to "IfNotPresent" when switching to stable images
-  pullPolicy: Always
+  # Image pull policy
+  pullPolicy: IfNotPresent
   # st2 image repository. Set this to override the default ("stackstorm") or enterprise
   # docker image repository ("docker.stackstorm.com"). Applies to all st2 containers except
   # st2chatops and st2packs (which have their own override). This also does not impact 
@@ -99,7 +99,7 @@ st2:
       #repository: your-remote-docker-registry.io
       name: st2packs
       tag: latest
-      pullPolicy: Always
+      pullPolicy: IfNotPresent
       # Optional name of the imagePullSecret if your custom packs image is hosted by a private Docker registry behind the auth
       #pullSecret: st2packs-auth
 
@@ -403,7 +403,7 @@ st2chatops:
     #name: st2chatops
     ## Note that Helm templating is supported in this block!
     #tag: "{{ .Chart.AppVersion }}"
-    #pullPolicy: Always
+    #pullPolicy: IfNotPresent
   # Tested requested resource consumption for st2chatops & hubot in normal mode
   # Please adjust based on your conscious choice
   resources:
