@@ -1,7 +1,7 @@
 # Changelog
 
 ## In Development
-
+* Add post-delete to jobs hook definition to remove them on uninstall (#161) (by @moonrail)
 
 ## v0.32.0
 * Fix a bug when datastore encrypted keys didn't work in scheduled rules. datastore_crypto_key is now shared with the ``st2scheduler`` pods (#148) (by @rahulshinde26)

@@ -14,7 +14,7 @@ metadata:
     heritage: {{ .Release.Service }}
   annotations:
     helm.sh/hook: post-install, post-upgrade, post-rollback
-    helm.sh/hook-delete-policy: before-hook-creation
+    helm.sh/hook-delete-policy: before-hook-creation, post-delete
     helm.sh/hook-weight: "5"
 spec:
   template:
@@ -91,7 +91,7 @@ metadata:
     heritage: {{ .Release.Service }}
   annotations:
     helm.sh/hook: post-install, post-upgrade, post-rollback
-    helm.sh/hook-delete-policy: before-hook-creation
+    helm.sh/hook-delete-policy: before-hook-creation, post-delete
     helm.sh/hook-weight: "6"
 spec:
   template:
@@ -190,7 +190,7 @@ metadata:
     heritage: {{ .Release.Service }}
   annotations:
     helm.sh/hook: post-install, post-upgrade, post-rollback
-    helm.sh/hook-delete-policy: before-hook-creation
+    helm.sh/hook-delete-policy: before-hook-creation, post-delete
     helm.sh/hook-weight: "6"
 spec:
   template:
@@ -298,7 +298,7 @@ metadata:
     heritage: {{ .Release.Service }}
   annotations:
     helm.sh/hook: post-install, post-upgrade, post-rollback
-    helm.sh/hook-delete-policy: before-hook-creation
+    helm.sh/hook-delete-policy: before-hook-creation, post-delete
     helm.sh/hook-weight: "7"
 spec:
   template:
