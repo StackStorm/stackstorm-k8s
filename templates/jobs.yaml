@@ -35,6 +35,9 @@ spec:
     spec:
       imagePullSecrets:
       - name: {{ .Release.Name }}-st2-license
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
+      {{- end }}
       containers:
       - name: st2-apply-rbac-definitions
         image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -110,9 +113,12 @@ spec:
         checksum/urls: {{ include (print $.Template.BasePath "/configmaps_st2-urls.yaml") . | sha256sum }}
         checksum/apikeys: {{ include (print $.Template.BasePath "/secrets_st2apikeys.yaml") . | sha256sum }}
     spec:
-      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
+      {{- if .Values.enterprise.enabled }}
       - name: {{ .Release.Name }}-st2-license
+      {{- end }}
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
@@ -209,9 +215,12 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/urls: {{ include (print $.Template.BasePath "/configmaps_st2-urls.yaml") . | sha256sum }}
     spec:
-      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
+      {{- if .Values.enterprise.enabled }}
       - name: {{ .Release.Name }}-st2-license
+      {{- end }}
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
@@ -323,6 +332,9 @@ spec:
       {{- end }}
       {{- if .Values.st2.packs.image.pullSecret }}
       - name: {{ .Values.st2.packs.image.pullSecret }}
+      {{- end }}
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
       {{- end }}
       {{- if .Values.st2.packs.image.repository }}
       initContainers:
