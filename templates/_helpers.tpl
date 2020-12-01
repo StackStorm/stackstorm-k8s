@@ -50,7 +50,7 @@ Create the name of the stackstorm-ha service account to use
 # Allow calling helpers from nested sub-chart
 # https://stackoverflow.com/a/52024583/4533625
 # https://github.com/helm/helm/issues/4535#issuecomment-477778391
-# Usage: "{{ include "nested" (list . "mongodb-ha" "mongodb-replicaset.fullname") }}"
+# Usage: "{{ include "nested" (list . "mongodb" "mongodb.fullname") }}"
 {{- define "nested" }}
 {{- $dot := index . 0 }}
 {{- $subchart := index . 1 | splitList "." }}
@@ -63,11 +63,16 @@ Create the name of the stackstorm-ha service account to use
 {{- end }}
 
 # Generate comma-separated list of nodes for MongoDB-HA connection string, based on number of replicas and service name
-{{- define "mongodb-ha-nodes" -}}
-{{- $replicas := (int (index .Values "mongodb-ha" "replicas")) }}
-{{- $mongo_fullname := include "nested" (list $ "mongodb-ha" "mongodb-replicaset.fullname") }}
-  {{- range $index0 := until $replicas -}}
-    {{- $index1 := $index0 | add1 -}}
-{{ $mongo_fullname }}-{{ $index0 }}.{{ $mongo_fullname }}{{ if ne $index1 $replicas }},{{ end }}
+{{- define "mongodb-nodes" -}}
+{{- $replicas := (int (index .Values "mongodb" "replicaCount")) }}
+{{- $architecture := (index .Values "mongodb" "architecture" ) }}
+{{- $mongo_fullname := include "nested" (list $ "mongodb" "mongodb.fullname") }}
+{{- range $index0 := until $replicas -}}
+  {{- $index1 := $index0 | add1 -}}
+  {{- if eq $architecture "replicaset" }}
+    {{- $mongo_fullname }}-{{ $index0 }}.{{ $mongo_fullname }}-headless{{ if ne $index1 $replicas }},{{ end }}
+  {{- else }}
+    {{- $mongo_fullname }}-{{ $index0 }}.{{ $mongo_fullname }}{{ if ne $index1 $replicas }},{{ end }}
   {{- end -}}
+{{- end -}}
 {{- end -}}

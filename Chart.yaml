@@ -1,4 +1,4 @@
-apiVersion: v1
+apiVersion: v2
 # Update StackStorm version here to rely on other Docker images tags
 appVersion: 3.3dev
 name: stackstorm-ha
@@ -26,3 +26,20 @@ details:
   This Helm chart is a fully installable app that codifies StackStorm cluster optimized for HA and K8s environment.
   By default FOSS community version of st2 will be installed. Enterprise version can be enabled as an option.
   For configuration details check 'values.yaml'.
+dependencies:
+  - name: rabbitmq
+    version: 8.0.2
+    repository: https://charts.bitnami.com/bitnami
+    condition: rabbitmq.enabled
+  - name: mongodb
+    version: 10.0.1
+    repository: https://charts.bitnami.com/bitnami
+    condition: mongodb.enabled
+  - name: external-dns
+    version: 4.0.0
+    repository: https://charts.bitnami.com/bitnami
+    condition: external-dns.enabled
+  - name: etcd
+    version: 5.1.0
+    repository: https://charts.bitnami.com/bitnami
+    condition: etcd.enabled

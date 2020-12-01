@@ -421,82 +421,116 @@ st2chatops:
 ## MongoDB HA configuration (3rd party chart dependency)
 ##
 ## For values.yaml reference:
-## https://github.com/helm/charts/tree/master/stable/mongodb-replicaset
+## https://github.com/bitnami/charts/tree/master/bitnami/etcd
 ##
 # Specs for the MongoDB image
-mongodb-ha:
+mongodb:
   # Change to `false` to disable in-cluster mongodb deployment.
   # Specify your external [database] connection parameters under st2.config
   enabled: true
   image:
     # StackStorm currently supports maximum MongoDB v4.0
     tag: "4.0"
+  ## MongoDB architecture. Allowed values: standalone or replicaset
+  ##
+  architecture: replicaset
+  ## Name of the replica set
+  ## Ignored when mongodb.architecture=standalone
+  ##
+  replicaSetName: rs0
+  ## Number of MongoDB replicas to deploy.
+  ## Ignored when mongodb.architecture=standalone
+  ##
+  replicaCount: 2
+    
   auth:
     enabled: true
     # NB! It's highly recommended to change ALL defaults!
-    adminUser: "admin"
-    adminPassword: "XeL5Rxwj7F0Wt43tFZVTN7H8Sg5XDHmK"
+    # 
+    # Stackstorm user that services will make connections using
+    #
+    username: "st2-admin"
+    #
+    # Stackstorm user that services will make connections using
+    #
+    password: "XeL5Rxwj7F0Wt43tFZVTN7H8Sg5XDHmK"
+    #
+    # Initial database for stackstorm
+    #
+    database: "st2"
     # Minimal key length is 6 symbols
-    key: "82PItDpqroti5RngOA7UqbHH7c6bFUwy"
+    replicaSetKey: "82PItDpqroti5RngOA7UqbHH7c6bFUwy"
+    # Whether to enable the arbiter
+    arbiter:
+      enabled: false
+
   resources: {}
 
 ##
-## RabbitMQ HA configuration (3rd party chart dependency)
+## RabbitMQ configuration (3rd party chart dependency)
 ##
 ## For values.yaml reference:
-## https://github.com/helm/charts/tree/master/stable/rabbitmq-ha
+## https://github.com/bitnami/charts/tree/master/bitnami/rabbitmq
 ##
-rabbitmq-ha:
+rabbitmq:
   # Change to `false` to disable in-cluster rabbitmq deployment.
   # Specify your external [messaging] connection parameters under st2.config
   enabled: true
+  
   # On unclean cluster restarts forceBoot is required to cleanup Mnesia tables (see: https://github.com/helm/charts/issues/13485)
   # Use it only if you prefer availability over integrity.
-  forceBoot: true
-  rabbitmqUsername: admin
-  # TODO: Use default random 24 character password, but need to fetch this string for use by downstream services
-  rabbitmqPassword: 9jS+w1u07NbHtZke1m+jW4Cj
-  # RabbitMQ Memory high watermark. See: http://www.rabbitmq.com/memory.html
+  clustering.forceBoot: true
+
+  # Authentication Details
+  auth:
+    username: admin
+  # TODO: Use default random 10 character password, but need to fetch this string for use by downstream services
+    password: 9jS+w1u07NbHtZke1m+jW4Cj
+    # Up to 255 character string, should be fixed so that re-deploying the chart does not fail (see: https://github.com/helm/charts/issues/12371)
+    # NB! It's highly recommended to change the default insecure rabbitmqErlangCookie value!
+    erlangCookie: 8MrqQdCQ6AQ8U3MacSubHE5RqkSfvNaRHzvxuFcG
+
+    # RabbitMQ Memory high watermark. See: http://www.rabbitmq.com/memory.html
   # Default values might not be enough for StackStorm deployment to work properly. We recommend to adjust these settings for you needs as well as enable Pod memory limits via "resources".
   #rabbitmqMemoryHighWatermark: 512MB
   #rabbitmqMemoryHighWatermarkType: absolute
-  # Up to 255 character string, should be fixed so that re-deploying the chart does not fail (see: https://github.com/helm/charts/issues/12371)
-  # NB! It's highly recommended to change the default insecure rabbitmqErlangCookie value!
-  rabbitmqErlangCookie: 8MrqQdCQ6AQ8U3MacSubHE5RqkSfvNaRHzvxuFcG
-  persistentVolume:
+  persistence:
     enabled: true
   # RabbitMQ application vhost, should match with 'ha' Queue Mirroring definition policy
-  rabbitmqVhost: "/"
-  definitions:
-    # Enable Queue Mirroring between nodes
-    # See https://www.rabbitmq.com/ha.html
-    policies: '{"vhost":"/","name":"ha","pattern":"", "definition":{"ha-mode":"all","ha-sync-mode":"automatic","ha-sync-batch-size":10}}'
+  ingress:
+    enabled: true
+    path: "/"
+
+  # Enable Queue Mirroring between nodes
+  # See https://www.rabbitmq.com/ha.html
+  extraConfiguration: '' 
+  #  policies = ['{"vhost":"/","name":"ha","pattern":"", "definition":{"ha-mode":"all","ha-sync-mode":"automatic","ha-sync-batch-size":10}}'']
   # We recommend to set the memory limit for RabbitMQ-HA Pods in production deployments.
   # Make sure to also change the rabbitmqMemoryHighWatermark following the formula:
   # rabbitmqMemoryHighWatermark = 0.4 * resources.limits.memory
   resources: {}
+
+  # number of replicas in the rabbit cluster
+  replicaCount: 3
+
   # As RabbitMQ enabled prometheus operator monitoring by default, disable it for non-prometheus users
-  prometheus:
-    operator:
-      enabled: false
+  metrics: 
+    enabled: false
 
 ##
 ## Etcd HA configuration (3rd party chart dependency)
 ##
 ## For values.yaml reference:
-## https://github.com/helm/charts/tree/master/stable/etcd-operator
+## https://github.com/bitnami/charts/tree/master/bitnami/etcd
 ##
-etcd-operator:
+etcd:
   # we don't need backup & restore etcd for short-lived coordination operations
   # Change to `false` to disable in-cluster ectd deployment.
   # Specify your external [coordination] connection parameters under st2.config
   enabled: true
-  deployments:
-    backupOperator: false
-    restoreOperator: false
-  customResources:
-    # create default etcd cluster
-    createEtcdClusterCRD: true
+  statefulset:
+    replicaCount: 3
+  fullnameOverride: etcd
 
 ##
 ## External DNS configuration (3rd party chart dependency)
@@ -504,11 +538,12 @@ etcd-operator:
 ## Creates a deployment of external-dns within the cluster to update DNS with CNAME -> ELB
 ##
 ## For values.yaml reference:
-## https://github.com/helm/charts/tree/master/stable/external-dns
+## https://github.com/bitnami/charts/tree/master/bitnami/external-dns
 ##
 ## TODO: If eq st2web.service.type "LoadBalancer", set enabled to true. Any other cases?
 external-dns:
   enabled: false
+  provider: aws
   aws:
     zoneType: "public"
   domainFilters: []
