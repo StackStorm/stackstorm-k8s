@@ -12,6 +12,10 @@ image:
   # st2chatops and st2packs (which have their own override). This also does not impact 
   # dependencies such as mongo or redis, which have their own helm chart settings.
   repository: ""
+  # Image pull secret.
+  # May be required for public docker hub due to rate limiting or any private repository.
+  # See: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  #pullSecret: "your-pull-secret"
 
 
 ##

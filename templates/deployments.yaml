@@ -34,9 +34,12 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/auth: {{ include (print $.Template.BasePath "/secrets_st2auth.yaml") . | sha256sum }}
     spec:
-      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
+      {{- if .Values.enterprise.enabled }}
       - name: {{ .Release.Name }}-st2-license
+      {{- end }}
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
       {{- end }}
       # Sidecar container for generating .htpasswd with st2 username & password pair and sharing produced file with the main st2auth container
       initContainers:
@@ -151,6 +154,9 @@ spec:
       {{- end }}
       {{- if .Values.st2.packs.image.pullSecret }}
       - name: {{ .Values.st2.packs.image.pullSecret }}
+      {{- end }}
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
       {{- end }}
       {{- if .Values.st2.packs.image.repository }}
       initContainers:
@@ -289,9 +295,12 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
-      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
+      {{- if .Values.enterprise.enabled }}
       - name: {{ .Release.Name }}-st2-license
+      {{- end }}
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
       {{- end }}
       containers:
       - name: st2stream{{ template "enterpriseSuffix" . }}
@@ -365,9 +374,12 @@ spec:
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
     spec:
-      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
+      {{- if .Values.enterprise.enabled }}
       - name: {{ .Release.Name }}-st2-license
+      {{- end }}
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
       {{- end }}
       containers:
       - name: st2web{{ template "enterpriseSuffix" . }}
@@ -452,9 +464,12 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
-      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
+      {{- if .Values.enterprise.enabled }}
       - name: {{ .Release.Name }}-st2-license
+      {{- end }}
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
       {{- end }}
       containers:
       - name: st2rulesengine{{ template "enterpriseSuffix" . }}
@@ -539,9 +554,12 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
-      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
+      {{- if .Values.enterprise.enabled }}
       - name: {{ .Release.Name }}-st2-license
+      {{- end }}
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
       {{- end }}
       containers:
       - name: st2timersengine{{ template "enterpriseSuffix" . }}
@@ -618,9 +636,12 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
     spec:
-      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
+      {{- if .Values.enterprise.enabled }}
       - name: {{ .Release.Name }}-st2-license
+      {{- end }}
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
       {{- end }}
       containers:
       - name: st2workflowengine{{ template "enterpriseSuffix" . }}
@@ -709,9 +730,12 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
     spec:
-      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
+      {{- if .Values.enterprise.enabled }}
       - name: {{ .Release.Name }}-st2-license
+      {{- end }}
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
       {{- end }}
       containers:
       - name: st2scheduler{{ template "enterpriseSuffix" . }}
@@ -800,9 +824,12 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
-      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
+      {{- if .Values.enterprise.enabled }}
       - name: {{ .Release.Name }}-st2-license
+      {{- end }}
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
       {{- end }}
       containers:
       - name: st2notifier{{ template "enterpriseSuffix" . }}
@@ -892,6 +919,9 @@ spec:
       {{- end }}
       {{- if $.Values.st2.packs.image.pullSecret }}
       - name: {{ $.Values.st2.packs.image.pullSecret }}
+      {{- end }}
+      {{- if $.Values.image.pullSecret }}
+      - name: {{ $.Values.image.pullSecret }}
       {{- end }}
       {{- if $.Values.st2.packs.image.repository }}
       initContainers:
@@ -1059,6 +1089,9 @@ spec:
       {{- if .Values.st2.packs.image.pullSecret }}
       - name: {{ .Values.st2.packs.image.pullSecret }}
       {{- end }}
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
+      {{- end }}
       {{- if .Values.st2.packs.image.repository }}
       initContainers:
       # Merge packs and virtualenvs from st2actionrunner with those from the st2.packs image
@@ -1203,9 +1236,12 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
-      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
+      {{- if .Values.enterprise.enabled }}
       - name: {{ .Release.Name }}-st2-license
+      {{- end }}
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
       {{- end }}
       containers:
       - name: st2garbagecollector{{ template "enterpriseSuffix" . }}
@@ -1292,6 +1328,9 @@ spec:
       {{- end }}
       {{- if .Values.st2.packs.image.pullSecret }}
       - name: {{ .Values.st2.packs.image.pullSecret }}
+      {{- end }}
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
       {{- if .Values.st2.packs.image.repository }}
@@ -1488,6 +1527,10 @@ spec:
       annotations:
         checksum/chatops: {{ include (print $.Template.BasePath "/secrets_st2chatops.yaml") . | sha256sum }}
     spec:
+      {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
+      - name: {{ .Values.image.pullSecret }}
+      {{- end }}
       containers:
       - name: st2chatops{{ template "enterpriseSuffix" . }}
         image: "{{ .Values.st2chatops.image.repository | default "stackstorm" }}/{{ .Values.st2chatops.image.name | default "st2chatops" }}:{{ tpl (.Values.st2chatops.image.tag | default .Chart.AppVersion) . }}"
