@@ -425,7 +425,7 @@ st2chatops:
 ## MongoDB HA configuration (3rd party chart dependency)
 ##
 ## For values.yaml reference:
-## https://github.com/bitnami/charts/tree/master/bitnami/etcd
+## https://github.com/bitnami/charts/tree/master/bitnami/mongodb
 ##
 # Specs for the MongoDB image
 mongodb:
@@ -445,7 +445,7 @@ mongodb:
   ## Number of MongoDB replicas to deploy.
   ## Ignored when mongodb.architecture=standalone
   ##
-  replicaCount: 2
+  replicaCount: 3
     
   auth:
     enabled: true
@@ -480,10 +480,15 @@ rabbitmq:
   # Change to `false` to disable in-cluster rabbitmq deployment.
   # Specify your external [messaging] connection parameters under st2.config
   enabled: true
-  
-  # On unclean cluster restarts forceBoot is required to cleanup Mnesia tables (see: https://github.com/helm/charts/issues/13485)
-  # Use it only if you prefer availability over integrity.
-  clustering.forceBoot: true
+
+  # Send logs for container to stdout
+  image:
+    debug: true
+
+  clustering:
+    # On unclean cluster restarts forceBoot is required to cleanup Mnesia tables (see: https://github.com/helm/charts/issues/13485)
+    # Use it only if you prefer availability over integrity.
+    forceBoot: true
 
   # Authentication Details
   auth:
