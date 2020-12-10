@@ -512,8 +512,15 @@ rabbitmq:
 
   # Enable Queue Mirroring between nodes
   # See https://www.rabbitmq.com/ha.html
-  extraConfiguration: '' 
-  #  policies = ['{"vhost":"/","name":"ha","pattern":"", "definition":{"ha-mode":"all","ha-sync-mode":"automatic","ha-sync-batch-size":10}}'']
+  
+  # This code block is commented out waiting for 
+  # https://github.com/bitnami/charts/issues/4635
+  loadDefinition:
+    enabled: true
+    existingSecret: "{{ .Release.Name }}-rabbitmq-definitions"
+  extraConfiguration: |
+    load_definitions = /app/rabbitmq-definitions.json
+
   # We recommend to set the memory limit for RabbitMQ-HA Pods in production deployments.
   # Make sure to also change the rabbitmqMemoryHighWatermark following the formula:
   # rabbitmqMemoryHighWatermark = 0.4 * resources.limits.memory
