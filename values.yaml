@@ -508,6 +508,7 @@ rabbitmq:
   # RabbitMQ application vhost, should match with 'ha' Queue Mirroring definition policy
   ingress:
     enabled: true
+    # Path must start with a slash
     path: "/"
 
   # Enable Queue Mirroring between nodes
