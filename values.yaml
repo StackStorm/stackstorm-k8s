@@ -5,13 +5,17 @@
 ## Docker image settings, applied to all StackStorm pods
 ##
 image:
-  # Image pull policy. Change to "IfNotPresent" when switching to stable images
-  pullPolicy: Always
+  # Image pull policy
+  pullPolicy: IfNotPresent
   # st2 image repository. Set this to override the default ("stackstorm") or enterprise
   # docker image repository ("docker.stackstorm.com"). Applies to all st2 containers except
   # st2chatops and st2packs (which have their own override). This also does not impact 
   # dependencies such as mongo or redis, which have their own helm chart settings.
   repository: ""
+  # Image pull secret.
+  # May be required for public docker hub due to rate limiting or any private repository.
+  # See: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  #pullSecret: "your-pull-secret"
 
 
 ##
@@ -99,7 +103,7 @@ st2:
       #repository: your-remote-docker-registry.io
       name: st2packs
       tag: latest
-      pullPolicy: Always
+      pullPolicy: IfNotPresent
       # Optional name of the imagePullSecret if your custom packs image is hosted by a private Docker registry behind the auth
       #pullSecret: st2packs-auth
 
@@ -403,7 +407,7 @@ st2chatops:
     #name: st2chatops
     ## Note that Helm templating is supported in this block!
     #tag: "{{ .Chart.AppVersion }}"
-    #pullPolicy: Always
+    #pullPolicy: IfNotPresent
   # Tested requested resource consumption for st2chatops & hubot in normal mode
   # Please adjust based on your conscious choice
   resources:
@@ -450,6 +454,9 @@ rabbitmq-ha:
   # Change to `false` to disable in-cluster rabbitmq deployment.
   # Specify your external [messaging] connection parameters under st2.config
   enabled: true
+  # On unclean cluster restarts forceBoot is required to cleanup Mnesia tables (see: https://github.com/helm/charts/issues/13485)
+  # Use it only if you prefer availability over integrity.
+  forceBoot: true
   rabbitmqUsername: admin
   # TODO: Use default random 24 character password, but need to fetch this string for use by downstream services
   rabbitmqPassword: 9jS+w1u07NbHtZke1m+jW4Cj
@@ -458,7 +465,8 @@ rabbitmq-ha:
   #rabbitmqMemoryHighWatermark: 512MB
   #rabbitmqMemoryHighWatermarkType: absolute
   # Up to 255 character string, should be fixed so that re-deploying the chart does not fail (see: https://github.com/helm/charts/issues/12371)
-  #rabbitmqErlangCookie: 8MrqQdCQ6AQ8U3MacSubHE5RqkSfvNaRHzvxuFcG
+  # NB! It's highly recommended to change the default insecure rabbitmqErlangCookie value!
+  rabbitmqErlangCookie: 8MrqQdCQ6AQ8U3MacSubHE5RqkSfvNaRHzvxuFcG
   persistentVolume:
     enabled: true
   # RabbitMQ application vhost, should match with 'ha' Queue Mirroring definition policy
@@ -471,6 +479,10 @@ rabbitmq-ha:
   # Make sure to also change the rabbitmqMemoryHighWatermark following the formula:
   # rabbitmqMemoryHighWatermark = 0.4 * resources.limits.memory
   resources: {}
+  # As RabbitMQ enabled prometheus operator monitoring by default, disable it for non-prometheus users
+  prometheus:
+    operator:
+      enabled: false
 
 ##
 ## Etcd HA configuration (3rd party chart dependency)
