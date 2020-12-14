@@ -2,10 +2,10 @@ apiVersion: v1
 # Update StackStorm version here to rely on other Docker images tags
 appVersion: 3.4dev
 name: stackstorm-ha
-version: 0.32.0
+version: 0.40.0
 description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA environment.
 home: https://stackstorm.com/
-icon: https://avatars1.githubusercontent.com/u/4969009
+icon: https://landscape.cncf.io/logos/stack-storm.svg
 source:
   - https://github.com/stackstorm/stackstorm-ha
 keywords:
@@ -21,9 +21,8 @@ keywords:
   - HA
 maintainers:
   - name: Eugen Cusmaunsa
+    email: armab@stackstorm.com
     url: https://github.com/armab
-  - name: Warren Van Winckel
-    url: https://github.com/warrenvw
 details:
   This Helm chart is a fully installable app that codifies StackStorm cluster deployment optimized for HA and K8s environment.
   RabbitMQ-HA, MongoDB-HA clusters and coordination backend st2 relies on will be deployed as 3rd party chart dependencies.
