@@ -49,8 +49,6 @@ kubectl exec -it ${ST2CLIENT} --namespace {{ .Release.Namespace }} -- st2 --vers
 
 -----------------------------------------------------
 Thanks for trying StackStorm!
-{{- if .Values.enterprise.enabled }}
-Need help? Enterprise support: support@stackstorm.com
-{{- else }}
-Enterprise: https://stackstorm.com/#product
-{{- end }}
+Need help?
+* Forum: https://forum.stackstorm.com/
+* Slack: https://stackstorm.com/#community

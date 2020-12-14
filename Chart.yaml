@@ -1,31 +1,32 @@
 apiVersion: v2
 # Update StackStorm version here to rely on other Docker images tags
-appVersion: 3.3dev
+appVersion: 3.4dev
 name: stackstorm-ha
-version: 0.32.0
+version: 0.40.0
 description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA environment.
-home: https://stackstorm.com/#product
-icon: https://avatars1.githubusercontent.com/u/4969009
+home: https://stackstorm.com/
+icon: https://landscape.cncf.io/logos/stack-storm.svg
 source:
   - https://github.com/stackstorm/stackstorm-ha
 keywords:
   - st2
   - stackstorm
   - devops
+  - SRE
+  - automation
   - chatops
   - event-driven
   - auto-remediation
   - IFTTT
   - HA
 maintainers:
-  - name: Eugen C.
+  - name: Eugen Cusmaunsa
+    email: armab@stackstorm.com
     url: https://github.com/armab
-  - name: Warren Van Winckel
-    url: https://github.com/warrenvw
 details:
-  This Helm chart is a fully installable app that codifies StackStorm cluster optimized for HA and K8s environment.
-  By default FOSS community version of st2 will be installed. Enterprise version can be enabled as an option.
-  For configuration details check 'values.yaml'.
+  This Helm chart is a fully installable app that codifies StackStorm cluster deployment optimized for HA and K8s environment.
+  RabbitMQ-HA, MongoDB-HA clusters and coordination backend st2 relies on will be deployed as 3rd party chart dependencies.
+  For configuration details please check default values.yaml and README.
 dependencies:
   - name: rabbitmq
     version: 8.0.2

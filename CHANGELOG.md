@@ -1,6 +1,11 @@
 # Changelog
 
 ## In Development
+
+
+## v0.40.0
+* Switch st2 version to `v3.4dev` as a new latest development version (#157)
+* Disable Enterprise testing in CI (#157)
 * Change pullPolicy to "IfNotPresent", as Docker-Hub Ratelimits now (#159) (by @moonrail)
 * Update `rabbitmq-ha` 3rd party chart from `1.44.1` to `1.46.1` (#158) (by @moonrail)
 * Enable `rabbitmqErlangCookie` for `rabbitmq-ha` by default, to ensure cluster-redeployments do not fail (#158) (by @moonrail)
