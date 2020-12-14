@@ -27,26 +27,17 @@ jobs:
             helm init --client-only
             helm dependency update
       - run:
-          name: Helm Lint Check (Community)
+          name: Helm Lint Check
           command: helm lint
-      - run:
-          name: Helm Lint Check (Enterprise)
-          command: helm lint --set enterprise.enabled=true --set enterprise.license=123asd456fake
       - run:
           name: Helm template
           command: |
-            mkdir -p enterprise community
+            mkdir -p community
             helm template --output-dir community .
-            helm template --output-dir enterprise --set enterprise.enabled=true --set enterprise.license=123asd456fake .
       - persist_to_workspace:
           root: ~/stackstorm-ha/
           paths:
             - community
-            - enterprise
-            # TODO: Fill an issue in https://github.com/garethr/kubeval
-            # 'charts' contains 3rd party templates which doesn't validate against schema due to minor 'object != null' API validation issues
-            # See: https://circleci.com/gh/StackStorm/stackstorm-enterprise-ha/18
-            #- charts
 
   # Run Kubernetes lint checks
   k8s-lint:
@@ -56,13 +47,9 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          name: K8s Kubeval Lint Check (Community)
+          name: K8s Kubeval Lint Check
           command: kubeval $(find . -type f)
           working_directory: community/stackstorm-ha/templates/
-      - run:
-          name: K8s Kubeval Lint Check (Enterprise)
-          command: kubeval $(find . -type f)
-          working_directory: enterprise/stackstorm-ha/templates/
 
   # Spin up minikube K8s cluster and run Helm chart & e2e tests on it
   helm-e2e:
@@ -96,24 +83,14 @@ jobs:
           name: Update stackstorm-ha chart dependencies
           command: helm dependency update
       - run:
-          name: Helm install stackstorm-ha chart (Community)
+          name: Helm install stackstorm-ha chart
           command: helm install --timeout 600 --debug --wait --name stackstorm-ha .
       - run:
-          name: Helm test (Community)
+          name: Helm test
           command: helm test stackstorm-ha --parallel --cleanup
       - run:
           when: always
-          name: Show created K8s resources (Community)
-          command: kubectl get all
-      - run:
-          name: Helm upgrade stackstorm-ha (Community -> Enterprise)
-          command: helm upgrade --wait stackstorm-ha . --set enterprise.enabled=true --set enterprise.license=${EWC_LICENSE}
-      - run:
-          name: Helm test (Enterprise)
-          command: helm test stackstorm-ha --parallel
-      - run:
-          when: always
-          name: Show created K8s resources (Enterprise)
+          name: Show created K8s resources
           command: kubectl get all
 
 workflows:
