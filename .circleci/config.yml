@@ -61,7 +61,7 @@ jobs:
       - kubernetes/install
       - minikube/minikube-install:
           # https://github.com/kubernetes/minikube/releases
-          version: v1.10.1
+          version: v1.15.1
       - run:
           name: Install dependencies
           command: |
@@ -69,6 +69,7 @@ jobs:
             # K8s 1.18 requires conntrack
             # See: https://github.com/kubernetes/minikube/issues/7179
             sudo apt install -y conntrack
+            curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
       - run:
           name: Create new K8s cluster
           command: sudo -E minikube start --vm-driver=none
