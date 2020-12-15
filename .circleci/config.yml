@@ -80,10 +80,10 @@ jobs:
           command: helm dependency update
       - run:
           name: Helm install stackstorm-ha chart
-          command: helm install --timeout 5m0s --debug --wait --name-template stackstorm-ha .
+          command: helm install --timeout 10m0s --debug --wait --name-template stackstorm-ha .
       - run:
           name: Helm test
-          command: helm test stackstorm-ha --parallel --cleanup
+          command: helm test stackstorm-ha --cleanup
       - run:
           when: always
           name: Show created K8s resources
