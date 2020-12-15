@@ -82,6 +82,8 @@ jobs:
           name: Helm install stackstorm-ha chart
           command: helm install --timeout 10m0s --debug --wait --name-template stackstorm-ha .
       - run:
+          # once https://github.com/helm/community/pull/165 is merged we will need to add the parallelism flag back into the
+          # below command
           name: Helm test
           command: helm test stackstorm-ha --cleanup
       - run:
