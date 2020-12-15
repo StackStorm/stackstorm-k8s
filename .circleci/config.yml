@@ -14,7 +14,6 @@ jobs:
   helm-lint:
     working_directory: ~/stackstorm-ha
     docker:
-      # Pin Helm to v2.x, see https://github.com/StackStorm/stackstorm-ha/issues/98
       - image: lachlanevenson/k8s-helm:v3.3.4
     steps:
       - checkout
@@ -75,7 +74,6 @@ jobs:
           command: sudo -E minikube start --vm-driver=none
           environment:
             CHANGE_MINIKUBE_NONE_USER: true
-      - helm/install-helm-on-cluster
       - run:
           name: Update stackstorm-ha chart dependencies
           command: helm dependency update
