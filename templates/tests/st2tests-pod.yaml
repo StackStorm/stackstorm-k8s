@@ -12,6 +12,7 @@ metadata:
     heritage: {{ .Release.Service }}
   annotations:
     "helm.sh/hook": test-success
+    "helm.sh/hook-delete-policy": hook-succeeded
 spec:
   {{- if .Values.enterprise.enabled }}
   imagePullSecrets:
