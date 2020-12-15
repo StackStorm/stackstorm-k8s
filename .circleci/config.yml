@@ -69,7 +69,9 @@ jobs:
             # K8s 1.18 requires conntrack
             # See: https://github.com/kubernetes/minikube/issues/7179
             sudo apt install -y conntrack
-            curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+      - run:
+          name: Install Helm v3
+          command: curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
       - run:
           name: Create new K8s cluster
           command: sudo -E minikube start --vm-driver=none
