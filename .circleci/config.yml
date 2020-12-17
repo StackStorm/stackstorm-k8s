@@ -82,7 +82,7 @@ jobs:
           command: helm dependency update
       - run:
           name: Helm install stackstorm-ha chart
-          command: helm install --timeout 600 --debug --wait --name-template stackstorm-ha .
+          command: helm install --timeout 10m0s --debug --wait --name-template stackstorm-ha .
       - run:
           # once https://github.com/helm/community/pull/165 is merged we will need to add the parallelism flag back into the
           # below command
