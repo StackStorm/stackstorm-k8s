@@ -458,6 +458,11 @@ mongodb:
     # Stackstorm user that services will make connections using
     #
     password: "XeL5Rxwj7F0Wt43tFZVTN7H8Sg5XDHmK"
+
+    #
+    #
+    # Root password for the database
+    rootPassword: "8fAzdnksdzPFUWm4a68EfY7nMhBPaa"
     #
     # Initial database for stackstorm
     #
