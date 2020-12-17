@@ -10,7 +10,7 @@
 * Update `rabbitmq-ha` 3rd party chart from `1.44.1` to `1.46.1` (#158) (by @moonrail)
 * Enable `rabbitmqErlangCookie` for `rabbitmq-ha` by default, to ensure cluster-redeployments do not fail (#158) (by @moonrail)
 * Add `forceBoot` for `rabbitmq-ha` by default, to ensure cluster-redeployments do not fail due to unclean exits (#158) (by @moonrail)
-* Migration to Bitnami Subcharts and updates required to be compatible with helm v3 (#98)
+* Migration to Bitnami Subcharts and updates required to be compatible with helm v3 (#163)
 * Add option to define pull secret for st2 images (#162) (by @moonrail)
 
 ## v0.32.0
