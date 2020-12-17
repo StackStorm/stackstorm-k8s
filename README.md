@@ -160,7 +160,7 @@ This service is disabled by default. Please refer to Helm `values.yaml` about ho
 ### [MongoDB ReplicaSet](https://github.com/bitnami/charts/tree/master/bitnami/mongodb)
 StackStorm works with MongoDB as a database engine. External Helm Chart is used to configure MongoDB [ReplicaSet](https://docs.mongodb.com/manual/tutorial/deploy-replica-set/).
 By default `3` nodes (1 primary and 2 secondaries) of MongoDB are deployed via K8s StatefulSet.
-For more advanced MongoDB configuration, refer to bitnami [mongodb-replicaset](https://github.com/bitnami/charts/tree/master/bitnami/mongodb)
+For more advanced MongoDB configuration, refer to bitnami [mongodb](https://github.com/bitnami/charts/tree/master/bitnami/mongodb)
 Helm chart settings, which might be fine-tuned via `values.yaml`.
 
 The deployment of MongoDB to the k8s cluster can be disabled by setting the mongodb-ha.enabled key in values.yaml to false.  *Note: Stackstorm relies heavily on connections to a MongoDB instance.  If the in-cluster deployment of MongoDB is disabled, a connection to an external instance of MongoDB must be configured.  The st2.config key in values.yaml provides a way to configure stackstorm.  See [Configure MongoDB](https://docs.stackstorm.com/install/config/config.html#configure-mongodb) for configuration details.*
