@@ -1,7 +1,8 @@
 # Changelog
 
 ## In Development
-
+* Drop Helm `v2` support and fully migrate to Helm `v3` (#163)
+* Switch dependencies from deprecated `helm/charts` to new Bitnami Subcharts (#163)
 
 ## v0.40.0
 * Switch st2 version to `v3.4dev` as a new latest development version (#157)
@@ -10,7 +11,6 @@
 * Update `rabbitmq-ha` 3rd party chart from `1.44.1` to `1.46.1` (#158) (by @moonrail)
 * Enable `rabbitmqErlangCookie` for `rabbitmq-ha` by default, to ensure cluster-redeployments do not fail (#158) (by @moonrail)
 * Add `forceBoot` for `rabbitmq-ha` by default, to ensure cluster-redeployments do not fail due to unclean exits (#158) (by @moonrail)
-* Migration to Bitnami Subcharts and updates required to be compatible with helm v3 (#163)
 * Add option to define pull secret for st2 images (#162) (by @moonrail)
 
 ## v0.32.0
