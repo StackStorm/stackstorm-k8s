@@ -1,7 +1,7 @@
 # Changelog
 
 ## In Development
-
+* Add option for st2packs-PersistentVolumes to allow for seamless custom pack-updates without job-impact (#160) (by @moonrail)
 
 ## v0.40.0
 * Switch st2 version to `v3.4dev` as a new latest development version (#157)

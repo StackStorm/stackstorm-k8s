@@ -158,39 +158,9 @@ spec:
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
-      {{- if .Values.st2.packs.image.repository }}
+      {{- if and .Values.st2.packs.image.repository (not .Values.st2.packs.persistentVolumes) }}
       initContainers:
-      # Merge packs and virtualenvs from st2api with those from the st2.packs image
-      # Custom packs
-      - name: st2-custom-packs
-        image: "{{ .Values.st2.packs.image.repository }}/{{ .Values.st2.packs.image.name }}:{{ .Values.st2.packs.image.tag }}"
-        imagePullPolicy: {{ .Values.st2.packs.image.pullPolicy | quote }}
-        volumeMounts:
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs-shared
-        - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs-shared
-        command:
-          - 'sh'
-          - '-ec'
-          - |
-            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
-            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
-      # System packs
-      - name: st2-system-packs
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        volumeMounts:
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs-shared
-        - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs-shared
-        command:
-          - 'sh'
-          - '-ec'
-          - |
-            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
-            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
+{{- include "packs-initContainers" . | indent 6 }}
       {{- end }}
       containers:
       - name: st2api{{ template "enterpriseSuffix" . }}
@@ -242,10 +212,7 @@ spec:
           configMap:
             name: {{ .Release.Name }}-st2-config
         {{- if .Values.st2.packs.image.repository }}
-        - name: st2-packs-vol
-          emptyDir: {}
-        - name: st2-virtualenvs-vol
-          emptyDir: {}
+{{- include "packs-volumes" . | indent 8 }}
         {{- end }}
     {{- with .Values.st2api.nodeSelector }}
       nodeSelector:
@@ -923,37 +890,9 @@ spec:
       {{- if $.Values.image.pullSecret }}
       - name: {{ $.Values.image.pullSecret }}
       {{- end }}
-      {{- if $.Values.st2.packs.image.repository }}
+      {{- if and $.Values.st2.packs.image.repository (not $.Values.st2.packs.persistentVolumes) }}
       initContainers:
-      # Merge packs and virtualenvs from st2sensorcontainer with those from the st2.packs image
-      # Custom packs
-      - name: st2-custom-packs
-        image: "{{ $.Values.st2.packs.image.repository }}/{{ $.Values.st2.packs.image.name }}:{{ $.Values.st2.packs.image.tag }}"
-        imagePullPolicy: {{ $.Values.st2.packs.image.pullPolicy | quote }}
-        volumeMounts:
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs-shared
-        - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs-shared
-        command:
-          - 'sh'
-          - '-ec'
-          - |
-            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
-            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
-      # System packs
-      - name: st2-system-packs
-        image: "{{ template "imageRepository" $ }}/st2actionrunner{{ template "enterpriseSuffix" $ }}:{{ $.Chart.AppVersion }}"
-        imagePullPolicy: {{ $.Values.image.pullPolicy }}
-        volumeMounts:
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs-shared
-        command:
-          - 'sh'
-          - '-ec'
-          - |
-            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
-            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
+{{- include "packs-initContainers" $ | indent 6 }}
       {{- end }}
       containers:
       - name: st2sensorcontainer{{ template "hyphenPrefix" .name }}{{ template "enterpriseSuffix" $ }}
@@ -1018,10 +957,7 @@ spec:
           configMap:
             name: {{ $.Release.Name }}-st2-config
         {{- if $.Values.st2.packs.image.repository }}
-        - name: st2-packs-vol
-          emptyDir: {}
-        - name: st2-virtualenvs-vol
-          emptyDir: {}
+{{- include "packs-volumes" $ | indent 8 }}
         {{- end }}
     {{- with .nodeSelector }}
       nodeSelector:
@@ -1092,37 +1028,9 @@ spec:
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
-      {{- if .Values.st2.packs.image.repository }}
+      {{- if and .Values.st2.packs.image.repository (not .Values.st2.packs.persistentVolumes) }}
       initContainers:
-      # Merge packs and virtualenvs from st2actionrunner with those from the st2.packs image
-      # Custom packs
-      - name: st2-custom-packs
-        image: "{{ .Values.st2.packs.image.repository }}/{{ .Values.st2.packs.image.name }}:{{ .Values.st2.packs.image.tag }}"
-        imagePullPolicy: {{ .Values.st2.packs.image.pullPolicy | quote }}
-        volumeMounts:
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs-shared
-        - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs-shared
-        command:
-          - 'sh'
-          - '-ec'
-          - |
-            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
-            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
-      # System packs
-      - name: st2-system-packs
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        volumeMounts:
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs-shared
-        command:
-          - 'sh'
-          - '-ec'
-          - |
-            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
-            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
+{{- include "packs-initContainers" . | indent 6 }}
       {{- end }}
       containers:
       - name: st2actionrunner{{ template "enterpriseSuffix" . }}
@@ -1183,10 +1091,7 @@ spec:
               # 0400 file permission
               mode: 256
         {{- if .Values.st2.packs.image.repository }}
-        - name: st2-packs-vol
-          emptyDir: {}
-        - name: st2-virtualenvs-vol
-          emptyDir: {}
+{{- include "packs-volumes" . | indent 8 }}
         {{- end }}
     {{- with .Values.st2actionrunner.nodeSelector }}
       nodeSelector:
@@ -1333,36 +1238,8 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
-      {{- if .Values.st2.packs.image.repository }}
-      # Merge packs and virtualenvs from st2actionrunner with those from the st2.packs image
-      # Custom packs
-      - name: st2-custom-packs
-        image: "{{ .Values.st2.packs.image.repository }}/{{ .Values.st2.packs.image.name }}:{{ .Values.st2.packs.image.tag }}"
-        imagePullPolicy: {{ .Values.st2.packs.image.pullPolicy | quote }}
-        volumeMounts:
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs-shared
-        - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs-shared
-        command:
-          - 'sh'
-          - '-ec'
-          - |
-            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
-            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
-      # System packs
-      - name: st2-system-packs
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        volumeMounts:
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs-shared
-        command:
-          - 'sh'
-          - '-ec'
-          - |
-            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
-            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
+      {{- if and .Values.st2.packs.image.repository (not .Values.st2.packs.persistentVolumes) }}
+{{- include "packs-initContainers" . | indent 6 }}
       {{- end }}
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       - name: generate-st2client-config
@@ -1486,10 +1363,7 @@ spec:
               # 0400 file permission
               mode: 256
         {{- if .Values.st2.packs.image.repository }}
-        - name: st2-packs-vol
-          emptyDir: {}
-        - name: st2-virtualenvs-vol
-          emptyDir: {}
+{{- include "packs-volumes" . | indent 8 }}
         {{- end }}
 
 {{ if .Values.st2chatops.enabled -}}

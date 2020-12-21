@@ -96,13 +96,31 @@ st2:
         ---
         # example core pack config yaml
 
+    # Custom packs are shared via two persistent volumes across all containers
+    # Here you can customize these volumes, to accomodate to your specific requirements
+#    persistentVolumes:
+#      packs:
+#        resources:
+#          requests:
+        # If your packs bring a lot of files, this value may require a raise
+#            storage: 512Mi
+        # If your kubernetes cluster does not have a default storageClass set, you can provide a specific one here
+#        storageClassName: 'your_provider'
+#      venvs:
+#        resources:
+#          requests:
+        # If your packs require a lot of packages in their virtual environments, this value may require a raise
+#            storage: 1Gi
+        # If your kubernetes cluster does not have a default storageClass set, you can provide a specific one here
+#        storageClassName: 'your_provider'
+
     # Custom packs image settings. The repository, name, tag and pullPolicy for this image
     # are specified below.
     image:
       # Uncomment the following block to make the custom packs image available to the necessary pods
-      #repository: your-remote-docker-registry.io
+      # repository: index.docker.io/stackstorm
       name: st2packs
-      tag: latest
+      tag: example
       pullPolicy: IfNotPresent
       # Optional name of the imagePullSecret if your custom packs image is hosted by a private Docker registry behind the auth
       #pullSecret: st2packs-auth

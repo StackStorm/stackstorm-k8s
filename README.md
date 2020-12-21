@@ -182,7 +182,7 @@ As any other Helm dependency, it's possible to further configure it for specific
 ## Install custom st2 packs in the cluster
 In distributed environment of the Kubernetes cluster `st2 pack install` won’t work.
 Instead, you need to bake the packs into a custom docker image, push it to a private or public docker registry and reference that image in Helm values.
-Helm chart will take it from there, sharing `/opt/stackstorm/{packs,virtualenvs}` via a sidecar container in pods which require access to the packs.
+Helm chart will take it from there, sharing `/opt/stackstorm/{packs,virtualenvs}` via a sidecar container or alternatively shared PersistentVolume in pods which require access to the packs.
 
 ### Building st2packs image
 For your convenience, we created a new `st2-pack-install <pack1> <pack2> <pack3>` utility and included it in a container that will help to install custom packs during the Docker build process without relying on live DB and MQ connection.
@@ -213,6 +213,34 @@ kubectl create secret docker-registry st2packs-auth --docker-server=<your-regist
 ```
 Once secret created, reference its name in helm value: `st2.packs.image.pullSecret`.
 
+### Share custom st2packs via PersistentVolume
+By using a PersistentVolume instead of sidecar container (the default) for custom st2packs, the actionrunner, sensor & api-containers will not be restarted on redeploying st2packs oder config maps.
+
+For this you have to uncomment following section in values.yaml and provide your specific requirements:
+```yaml
+st2:
+  packs:
+    persistentVolumes:
+      packs:
+        resources:
+          requests:
+        # If your packs bring a lot of files, this value may require a raise
+            storage: 512Mi
+        # If your kubernetes cluster does not have a default storageClass set, you can provide a specific one here
+#        storageClassName: 'your_provider'
+      venvs:
+        resources:
+          requests:
+        # If your packs require a lot of packages in their virtual environments, this value may require a raise
+            storage: 1Gi
+        # If your kubernetes cluster does not have a default storageClass set, you can provide a specific one here
+#        storageClassName: 'your_provider'
+```
+Don't forget running Helm upgrade to apply new changes.
+
+The only container, that will be replaced on upgrade, is `job-st2-register-content`.
+
+This container will update Packs & VirtualEnvironments in PersistentVolumes & register them and any given pack configs in StackStorm, without any impact on running executions.
 
 ## Tips & Tricks
 Grab all logs for entire StackStorm cluster with dependent services in Helm release:

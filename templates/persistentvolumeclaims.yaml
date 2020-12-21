@@ -1,0 +1,32 @@
+# This is only used, when user wants to share packs & venvs via persistentVolumes
+{{- if and .Values.st2.packs.image.repository .Values.st2.packs.persistentVolumes }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: st2-packs-pvol
+spec:
+  accessModes:
+    - ReadWriteMany
+  volumeMode: Filesystem
+  resources:
+{{ toYaml .Values.st2.packs.persistentVolumes.packs.resources | indent 4 }}
+{{- if .Values.st2.packs.persistentVolumes.packs.storageClassName }}
+  storageClassName: "{{ .Values.st2.packs.persistentVolumes.packs.storageClassName }}"
+{{- end }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: st2-venv-pvol
+spec:
+  accessModes:
+    - ReadWriteMany
+  volumeMode: Filesystem
+  resources:
+{{ toYaml .Values.st2.packs.persistentVolumes.venvs.resources | indent 4 }}
+{{- if .Values.st2.packs.persistentVolumes.venvs.storageClassName }}
+  storageClassName: "{{ .Values.st2.packs.persistentVolumes.venvs.storageClassName }}"
+{{- end }}
+{{- end }}

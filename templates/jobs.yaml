@@ -403,10 +403,5 @@ spec:
         - name: st2-pack-configs-vol
           configMap:
             name: {{ .Release.Name }}-st2-pack-configs
-        {{- if .Values.st2.packs.image.repository }}
-        - name: st2-packs-vol
-          emptyDir: {}
-        - name: st2-virtualenvs-vol
-          emptyDir: {}
-        {{- end }}
+{{- include "packs-volumes" $ | indent 8}}
       restartPolicy: OnFailure

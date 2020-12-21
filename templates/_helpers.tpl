@@ -71,3 +71,57 @@ Create the name of the stackstorm-ha service account to use
 {{ $mongo_fullname }}-{{ $index0 }}.{{ $mongo_fullname }}{{ if ne $index1 $replicas }},{{ end }}
   {{- end -}}
 {{- end -}}
+
+# For custom st2packs-Container reduce duplicity by defining it here once
+{{- define "packs-volumes" -}}
+{{- if .Values.st2.packs.image.repository }}
+{{- if .Values.st2.packs.persistentVolumes }}
+- name: st2-packs-vol
+  persistentVolumeClaim:
+    claimName: 'st2-packs-pvol'
+- name: st2-virtualenvs-vol
+  persistentVolumeClaim:
+    claimName: 'st2-venv-pvol'
+{{- else }}
+- name: st2-packs-vol
+  emptyDir: {}
+- name: st2-virtualenvs-vol
+  emptyDir: {}
+{{- end }}
+{{- end }}
+{{- end -}}
+
+# For custom st2packs-initContainers reduce duplicity by defining them here once
+{{- define "packs-initContainers" -}}
+# Merge packs and virtualenvs from st2api with those from the st2.packs image
+# Custom packs
+- name: st2-custom-packs
+  image: "{{ .Values.st2.packs.image.repository }}/{{ .Values.st2.packs.image.name }}:{{ .Values.st2.packs.image.tag }}"
+  imagePullPolicy: {{ .Values.st2.packs.image.pullPolicy | quote }}
+  volumeMounts:
+  - name: st2-packs-vol
+    mountPath: /opt/stackstorm/packs-shared
+  - name: st2-virtualenvs-vol
+    mountPath: /opt/stackstorm/virtualenvs-shared
+  command:
+    - 'sh'
+    - '-ec'
+    - |
+      /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
+      /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
+# System packs
+- name: st2-system-packs
+  image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+  imagePullPolicy: {{ .Values.image.pullPolicy }}
+  volumeMounts:
+  - name: st2-packs-vol
+    mountPath: /opt/stackstorm/packs-shared
+  - name: st2-virtualenvs-vol
+    mountPath: /opt/stackstorm/virtualenvs-shared
+  command:
+    - 'sh'
+    - '-ec'
+    - |
+      /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
+      /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
+{{- end -}}
