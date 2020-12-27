@@ -2,6 +2,8 @@
 
 ## In Development
 
+## v0.41.0
+* Fix Helm 2 repository location to a new working URL https://charts.helm.sh/stable (#164) (by @manisha-tanwar)
 
 ## v0.50.0
 * Drop Helm `v2` support and fully migrate to Helm `v3` (#163)
