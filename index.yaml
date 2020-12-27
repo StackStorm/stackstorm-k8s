@@ -3,7 +3,7 @@ entries:
   stackstorm-enterprise-ha:
   - apiVersion: v1
     appVersion: 2.9dev
-    created: "2020-12-14T15:20:40.473819404Z"
+    created: "2020-12-27T20:05:48.346446926Z"
     description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm
       in HA environment.
     digest: 927ac131186f6a7d358f98be99df2932f5a3ecf7dc73c1670a7411c632154613
@@ -28,7 +28,7 @@ entries:
     version: 0.5.2
   - apiVersion: v1
     appVersion: 2.9dev
-    created: "2020-12-14T15:20:40.471355315Z"
+    created: "2020-12-27T20:05:48.343628657Z"
     description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm
       in HA environment.
     digest: fc30297ab3fcefd267cf2e5578cd29433d2888a507e3750190a729735c89282b
@@ -53,7 +53,7 @@ entries:
     version: 0.5.1
   - apiVersion: v1
     appVersion: 2.9dev
-    created: "2020-12-14T15:20:40.466789534Z"
+    created: "2020-12-27T20:05:48.340449156Z"
     description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm
       in HA environment.
     digest: 2db68cc6a37a7f7edab6bd509e074944388f41feb263ad49b84df92e2eeb6fdf
@@ -78,7 +78,7 @@ entries:
     version: 0.5.0
   - apiVersion: v1
     appVersion: 2.9dev
-    created: "2020-12-14T15:20:40.46421677Z"
+    created: "2020-12-27T20:05:48.33683306Z"
     description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm
       in HA environment.
     digest: 5bc94454bb1d7bb295898cd8f87f924a750ec5bf7f7e289d9fc62fd1e9bb2b38
@@ -103,7 +103,7 @@ entries:
     version: 0.4.0
   - apiVersion: v1
     appVersion: 2.9dev
-    created: "2020-12-14T15:20:40.461979679Z"
+    created: "2020-12-27T20:05:48.333648171Z"
     description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm
       in HA environment.
     digest: 35250d1c02950e42f693a575058132ae2fa5eb8bd7aa4a03cdb78f6f671cb5fc
@@ -128,7 +128,7 @@ entries:
     version: 0.3.1
   - apiVersion: v1
     appVersion: 2.9dev
-    created: "2020-12-14T15:20:40.458703765Z"
+    created: "2020-12-27T20:05:48.330072833Z"
     description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm
       in HA environment.
     digest: a7bab346c6d34f3acf17d097aca8c2458f7bc5d1ae76e365721e3254ed9623d0
@@ -153,7 +153,7 @@ entries:
     version: 0.3.0
   - apiVersion: v1
     appVersion: 2.9dev
-    created: "2020-12-14T15:20:40.456296852Z"
+    created: "2020-12-27T20:05:48.325884557Z"
     description: StackStorm Enterprise K8s Helm Chart, optimized for running StackStorm
       in HA environment.
     digest: aef78255b623932c6d5b711cd1388002a7cbbfb0c853a8b11a306468bb4ab241
@@ -179,7 +179,34 @@ entries:
   stackstorm-ha:
   - apiVersion: v1
     appVersion: 3.4dev
-    created: "2020-12-14T15:20:40.559914804Z"
+    created: "2020-12-27T20:05:48.459819241Z"
+    description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
+      environment.
+    digest: 7012f0438c6c8a9dd499ac15a878c0e4883b0edae4bb7118f17bd0fb8d971303
+    home: https://stackstorm.com/
+    icon: https://landscape.cncf.io/logos/stack-storm.svg
+    keywords:
+    - st2
+    - stackstorm
+    - devops
+    - SRE
+    - automation
+    - chatops
+    - event-driven
+    - auto-remediation
+    - IFTTT
+    - HA
+    maintainers:
+    - email: armab@stackstorm.com
+      name: Eugen Cusmaunsa
+      url: https://github.com/armab
+    name: stackstorm-ha
+    urls:
+    - stackstorm-ha-0.41.0.tgz
+    version: 0.41.0
+  - apiVersion: v1
+    appVersion: 3.4dev
+    created: "2020-12-27T20:05:48.455648156Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: cdb14380d9061705a95f1699939c4590672c69604c14bf5d91cd14c489c059ff
@@ -206,7 +233,7 @@ entries:
     version: 0.40.0
   - apiVersion: v1
     appVersion: 3.3dev
-    created: "2020-12-14T15:20:40.556379814Z"
+    created: "2020-12-27T20:05:48.451283236Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 3ebc2316cfbdc44e56c1c1c08a7cfbe9b1a407980b17c61a52df52b2847decc8
@@ -232,7 +259,7 @@ entries:
     version: 0.32.0
   - apiVersion: v1
     appVersion: 3.3dev
-    created: "2020-12-14T15:20:40.55290981Z"
+    created: "2020-12-27T20:05:48.44652952Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: a87f5a81572d603cd52f1641e73f4882fed0445362b12760322feda6b8fc6027
@@ -258,7 +285,7 @@ entries:
     version: 0.31.0
   - apiVersion: v1
     appVersion: 3.3dev
-    created: "2020-12-14T15:20:40.549181767Z"
+    created: "2020-12-27T20:05:48.442198145Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 216819e808c7f5d90cd4543b117a5ac91099f17275d9fbab70b9d94772433431
@@ -284,7 +311,7 @@ entries:
     version: 0.30.0
   - apiVersion: v1
     appVersion: 3.2dev
-    created: "2020-12-14T15:20:40.544876369Z"
+    created: "2020-12-27T20:05:48.434565534Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: bb6775ab1ac56e23084663dfc12f099f810e4f9ff91452660f2d0ebafea0e92e
@@ -310,7 +337,7 @@ entries:
     version: 0.28.0
   - apiVersion: v1
     appVersion: 3.2dev
-    created: "2020-12-14T15:20:40.541536859Z"
+    created: "2020-12-27T20:05:48.430351616Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 8a37a93005a5ed33ed8c4a54bf2872c9803c241c3bf65c09ccb455eb80346ea1
@@ -336,7 +363,7 @@ entries:
     version: 0.27.0
   - apiVersion: v1
     appVersion: 3.2dev
-    created: "2020-12-14T15:20:40.537675443Z"
+    created: "2020-12-27T20:05:48.426055155Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 5fdcd526b0824be55e53d3635c8589d3c3c9a8ad653881a406f22a0b815ecf54
@@ -362,7 +389,7 @@ entries:
     version: 0.26.0
   - apiVersion: v1
     appVersion: 3.2dev
-    created: "2020-12-14T15:20:40.534198224Z"
+    created: "2020-12-27T20:05:48.421195504Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 4841190b3ceb0c4f2039e2cec6d7456767d5fea4d19d7083890cc84bb0f16308
@@ -388,7 +415,7 @@ entries:
     version: 0.25.0
   - apiVersion: v1
     appVersion: 3.2dev
-    created: "2020-12-14T15:20:40.530881582Z"
+    created: "2020-12-27T20:05:48.416873577Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 6d4e949913795fa67749cc2a5149c979b43c65090d2bf7744f99ba28bff8a3a9
@@ -414,7 +441,7 @@ entries:
     version: 0.24.0
   - apiVersion: v1
     appVersion: 3.2dev
-    created: "2020-12-14T15:20:40.52700118Z"
+    created: "2020-12-27T20:05:48.412273523Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: cd69aa4dcac9ffbe5162d302069308e02d2f4c43142f610b2068a51a5469fdd3
@@ -440,7 +467,7 @@ entries:
     version: 0.23.0
   - apiVersion: v1
     appVersion: 3.2dev
-    created: "2020-12-14T15:20:40.523271831Z"
+    created: "2020-12-27T20:05:48.406327361Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: ac80927bd5057209cfe8a93f296c602a59ffc8719ce493b811690731a5d4ae35
@@ -466,7 +493,7 @@ entries:
     version: 0.22.0
   - apiVersion: v1
     appVersion: 3.2dev
-    created: "2020-12-14T15:20:40.519635958Z"
+    created: "2020-12-27T20:05:48.402534288Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 311393db925b22b2a54de6d0875c9f87461e20416d049eab6d7ec6ad927d89e4
@@ -492,7 +519,7 @@ entries:
     version: 0.21.0
   - apiVersion: v1
     appVersion: 3.2dev
-    created: "2020-12-14T15:20:40.515402863Z"
+    created: "2020-12-27T20:05:48.398352379Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 1c99f84ebb2212bbe7aa8aa777e2ee3dca285ceea1aed09903e443777f5c00aa
@@ -518,7 +545,7 @@ entries:
     version: 0.20.0
   - apiVersion: v1
     appVersion: 3.2dev
-    created: "2020-12-14T15:20:40.511911088Z"
+    created: "2020-12-27T20:05:48.393989946Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 0cb06b12a03bd5cd2644871a33fdbcf0507642fdbb8006d06b918248a7286035
@@ -544,7 +571,7 @@ entries:
     version: 0.19.0
   - apiVersion: v1
     appVersion: 3.2dev
-    created: "2020-12-14T15:20:40.507732072Z"
+    created: "2020-12-27T20:05:48.389997847Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: f455c889368447c6cb097dca05b59772a42e4b75ef90ed6a1d708a938235910b
@@ -570,7 +597,7 @@ entries:
     version: 0.18.0
   - apiVersion: v1
     appVersion: 3.1dev
-    created: "2020-12-14T15:20:40.504426978Z"
+    created: "2020-12-27T20:05:48.383267422Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 986b4b0f702317ff432723adb310dd6ba1ff20edac4802592d08b9b653213476
@@ -596,7 +623,7 @@ entries:
     version: 0.17.0
   - apiVersion: v1
     appVersion: 3.1dev
-    created: "2020-12-14T15:20:40.500310924Z"
+    created: "2020-12-27T20:05:48.379235699Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 5a0ee112c4f789011fa0823687b9d6ec13f6307526f532d5defc28e564bfc24b
@@ -622,7 +649,7 @@ entries:
     version: 0.16.0
   - apiVersion: v1
     appVersion: 3.1dev
-    created: "2020-12-14T15:20:40.497009954Z"
+    created: "2020-12-27T20:05:48.374452838Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 8951e4043e3c3a8501d93d330257f13f6a7417a8548ded1b842f676618afe9e1
@@ -648,7 +675,7 @@ entries:
     version: 0.15.0
   - apiVersion: v1
     appVersion: 3.1dev
-    created: "2020-12-14T15:20:40.493638856Z"
+    created: "2020-12-27T20:05:48.370188846Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: e574dd92e44e985d87c786375f307ca8770f1757c26b1bee154a2b5656bf7a23
@@ -674,7 +701,7 @@ entries:
     version: 0.14.0
   - apiVersion: v1
     appVersion: 3.0dev
-    created: "2020-12-14T15:20:40.489570444Z"
+    created: "2020-12-27T20:05:48.365867141Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: c13fa8551667846ca02cda40fb5218d9830dd18ffc7aff27e6084f478782ad5e
@@ -700,7 +727,7 @@ entries:
     version: 0.13.0
   - apiVersion: v1
     appVersion: 3.0dev
-    created: "2020-12-14T15:20:40.485206203Z"
+    created: "2020-12-27T20:05:48.360496675Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: f4cd76b74edb6b0c8e76c18b4b7c426a5eb63b8fe81bfe7eac4273abe8fb6aaf
@@ -726,7 +753,7 @@ entries:
     version: 0.12.0
   - apiVersion: v1
     appVersion: 3.0dev
-    created: "2020-12-14T15:20:40.481844033Z"
+    created: "2020-12-27T20:05:48.356356631Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 3ab99857d68907e92745db4aeb4326f8316f35d4464119884dde97e17356df4f
@@ -752,7 +779,7 @@ entries:
     version: 0.11.0
   - apiVersion: v1
     appVersion: 3.0dev
-    created: "2020-12-14T15:20:40.477759846Z"
+    created: "2020-12-27T20:05:48.350797664Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: beb0fafe7607075318ec42dc2fe0593dd5f8487262ac6fd0b7f48262f976d0e0
@@ -777,7 +804,7 @@ entries:
     version: 0.10.0
   - apiVersion: v1
     appVersion: 3.0dev
-    created: "2020-12-14T15:20:40.585891241Z"
+    created: "2020-12-27T20:05:48.494079622Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 07b7ac8ea87d1e1783ecce8e0e92c70a030748df4e7a6f3df39c4e62f6bf5a5a
@@ -802,7 +829,7 @@ entries:
     version: 0.9.0
   - apiVersion: v1
     appVersion: 3.0dev
-    created: "2020-12-14T15:20:40.582791232Z"
+    created: "2020-12-27T20:05:48.490751825Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 38ba338b752523c32286a03085db8c0f586f93d21834054a6be7f28d632a4fcc
@@ -827,7 +854,7 @@ entries:
     version: 0.8.4
   - apiVersion: v1
     appVersion: 2.10dev
-    created: "2020-12-14T15:20:40.579531628Z"
+    created: "2020-12-27T20:05:48.48742681Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: c7e40a2d4fbd53181b8044559ebf7c3d753ec1e36a13f090e64ddcef7f62c46d
@@ -852,7 +879,7 @@ entries:
     version: 0.8.3
   - apiVersion: v1
     appVersion: 3.0dev
-    created: "2020-12-14T15:20:40.576935958Z"
+    created: "2020-12-27T20:05:48.482712706Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 4cc6578518fe6ec3dd51041b6ebd79634efc02fa0058d591d73724a53260866f
@@ -877,7 +904,7 @@ entries:
     version: 0.8.2
   - apiVersion: v1
     appVersion: 3.0dev
-    created: "2020-12-14T15:20:40.574189639Z"
+    created: "2020-12-27T20:05:48.479365676Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 65d37ae6ddbcdab4a4c760cd9e260b06d812264f98c265615f2baf38db5d5908
@@ -902,7 +929,7 @@ entries:
     version: 0.8.1
   - apiVersion: v1
     appVersion: 3.0dev
-    created: "2020-12-14T15:20:40.570901294Z"
+    created: "2020-12-27T20:05:48.476095875Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 34c080387df93365a2d25acfb40e05f0d6fe7ef9e6b036721dc0b7455d21e5b1
@@ -927,7 +954,7 @@ entries:
     version: 0.8.0
   - apiVersion: v1
     appVersion: 3.0dev
-    created: "2020-12-14T15:20:40.568170601Z"
+    created: "2020-12-27T20:05:48.471427439Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 6ea909176c0c40cb95c8c066598cb9c11e60ffa681772ee9606c1bc6f3c2c086
@@ -952,7 +979,7 @@ entries:
     version: 0.7.1
   - apiVersion: v1
     appVersion: 3.0dev
-    created: "2020-12-14T15:20:40.565640445Z"
+    created: "2020-12-27T20:05:48.467007017Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 4f8c28e440a960c7dd697292fd44706dc7293b1397a5ddc06addcf4686a6c1ed
@@ -977,7 +1004,7 @@ entries:
     version: 0.7.0
   - apiVersion: v1
     appVersion: 3.0dev
-    created: "2020-12-14T15:20:40.563199052Z"
+    created: "2020-12-27T20:05:48.463639067Z"
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 296a0d0303b2f720c06e344cbb2d10c4d8953e0047fa47534320452376fb12eb
@@ -1000,4 +1027,4 @@ entries:
     urls:
     - stackstorm-ha-0.6.0.tgz
     version: 0.6.0
-generated: "2020-12-14T15:20:40.453762855Z"
+generated: "2020-12-27T20:05:48.322614439Z"
