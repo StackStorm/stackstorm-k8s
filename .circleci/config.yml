@@ -78,10 +78,11 @@ jobs:
           command: sudo -E minikube start --vm-driver=none
           environment:
             CHANGE_MINIKUBE_NONE_USER: true
-      - helm/install-helm-client
       - run:
           name: Helm Init
-          command: helm init --stable-repo-url https://charts.helm.sh/stable
+          command: |
+            curl https://raw.githubusercontent.com/helm/helm/master/scripts/get | bash
+            helm init --stable-repo-url https://charts.helm.sh/stable
       - run:
           name: Update stackstorm-ha chart dependencies
           command: helm dependency update
