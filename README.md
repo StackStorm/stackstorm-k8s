@@ -10,7 +10,7 @@ It's more than welcome to fine-tune each component settings to fit specific avai
 
 ## Requirements
 * [Kubernetes](https://kubernetes.io/docs/setup/pick-right-solution/) cluster
-* [Helm](https://docs.helm.sh/using_helm/#install-helm) and [Tiller](https://docs.helm.sh/using_helm/#initialize-helm-and-install-tiller) `v2.x`
+* [Helm](https://docs.helm.sh/using_helm/#install-helm) `v3.x`
 
 ## Usage
 1) Edit `values.yaml` with configuration for the StackStorm HA K8s cluster.
@@ -157,10 +157,10 @@ StackStorm ChatOps service, based on hubot engine, custom stackstorm integration
 Due to Hubot limitation, st2chatops doesn't provide mechanisms to guarantee high availability and so only single `1` node of st2chatops is deployed.
 This service is disabled by default. Please refer to Helm `values.yaml` about how to enable and configure st2chatops with ENV vars for your preferred chat service.
 
-### [MongoDB HA ReplicaSet](https://github.com/helm/charts/tree/master/stable/mongodb-replicaset)
-StackStorm works with MongoDB as a database engine. External Helm Chart is used to configure MongoDB HA [ReplicaSet](https://docs.mongodb.com/manual/tutorial/deploy-replica-set/).
+### [MongoDB ReplicaSet](https://github.com/bitnami/charts/tree/master/bitnami/mongodb)
+StackStorm works with MongoDB as a database engine. External Helm Chart is used to configure MongoDB [ReplicaSet](https://docs.mongodb.com/manual/tutorial/deploy-replica-set/).
 By default `3` nodes (1 primary and 2 secondaries) of MongoDB are deployed via K8s StatefulSet.
-For more advanced MongoDB configuration, refer to official [mongodb-replicaset](https://github.com/helm/charts/tree/master/stable/mongodb-replicaset)
+For more advanced MongoDB configuration, refer to bitnami [mongodb](https://github.com/bitnami/charts/tree/master/bitnami/mongodb)
 Helm chart settings, which might be fine-tuned via `values.yaml`.
 
 The deployment of MongoDB to the k8s cluster can be disabled by setting the mongodb-ha.enabled key in values.yaml to false.  *Note: Stackstorm relies heavily on connections to a MongoDB instance.  If the in-cluster deployment of MongoDB is disabled, a connection to an external instance of MongoDB must be configured.  The st2.config key in values.yaml provides a way to configure stackstorm.  See [Configure MongoDB](https://docs.stackstorm.com/install/config/config.html#configure-mongodb) for configuration details.*
@@ -169,14 +169,14 @@ The deployment of MongoDB to the k8s cluster can be disabled by setting the mong
 RabbitMQ is a message bus StackStorm relies on for inter-process communication and load distribution.
 External Helm Chart is used to deploy [RabbitMQ cluster](https://www.rabbitmq.com/clustering.html) in Highly Available mode.
 By default `3` nodes of RabbitMQ are deployed via K8s StatefulSet.
-For more advanced RabbitMQ configuration, please refer to official [rabbitmq-ha](https://github.com/helm/charts/tree/master/stable/rabbitmq-ha)
+For more advanced RabbitMQ configuration, please refer to bitnami [rabbitmq](https://github.com/bitnami/charts/tree/master/bitnami/rabbitmq)
 Helm chart repository, - all settings could be overridden via `values.yaml`.
 
 The deployment of RabbitMQ to the k8s cluster can be disabled by setting the rabbitmq-ha.enabled key in values.yaml to false.  *Note: Stackstorm relies heavily on connections to a RabbitMQ instance.  If the in-cluster deployment of RabbitMQ is disabled, a connection to an external instance of RabbitMQ must be configured.  The st2.config key in values.yaml provides a way to configure stackstorm.  See [Configure RabbitMQ](https://docs.stackstorm.com/install/config/config.html#configure-rabbitmq) for configuration details.*
 
 ### [etcd](https://docs.stackstorm.com/latest/reference/ha.html#zookeeper-redis)
 StackStorm employs etcd as a distributed coordination backend, required for st2 cluster components to work properly in HA scenario.
-`3` node Raft cluster is deployed via external official Helm chart dependency [etcd-operator](https://github.com/helm/charts/tree/master/stable/etcd-operator).
+`3` node Raft cluster is deployed via external bitnami Helm chart dependency [etcd](https://github.com/bitnami/charts/tree/master/bitnami/etcd).
 As any other Helm dependency, it's possible to further configure it for specific scaling needs via `values.yaml`.
 
 ## Install custom st2 packs in the cluster

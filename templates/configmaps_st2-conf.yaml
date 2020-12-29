@@ -20,24 +20,25 @@ data:
   st2.docker.conf: |
     [auth]
     api_url = http://{{ .Release.Name }}-st2api{{ template "enterpriseSuffix" . }}:9101/
-    {{- if index .Values "etcd-operator" "enabled" }}
+    {{- if index .Values "etcd" "enabled" }}
     [coordination]
-    url = etcd://{{ index .Values "etcd-operator" "etcdCluster" "name" }}-client:2379
+    url = etcd://{{ index .Values "etcd" "fullnameOverride" }}:2379
     {{- end }}
-    {{- if index .Values "rabbitmq-ha" "enabled" }}
+    {{- if index .Values "rabbitmq" "enabled" }}
     [messaging]
-    url = amqp://{{ required "rabbitmq-ha.rabbitmqUsername is required!" (index .Values "rabbitmq-ha" "rabbitmqUsername") }}:{{ required "rabbitmq-ha.rabbitmqPassword is required!" (index .Values "rabbitmq-ha" "rabbitmqPassword") }}@{{ .Release.Name }}-rabbitmq-ha-discovery:5672
+    url = amqp://{{ required "rabbitmq.auth.username is required!" (index .Values "rabbitmq" "auth" "username") }}:{{ required "rabbitmq.auth.password is required!" (index .Values "rabbitmq" "auth" "password") }}@{{ .Release.Name }}-rabbitmq:5672{{ required "rabbitmq.ingress.path is required!" (index .Values "rabbitmq" "ingress" "path") }}
     {{- end }}
-    {{- if index .Values "mongodb-ha" "enabled" }}
+    {{- if index .Values "mongodb" "enabled" }}
     [database]
-    {{- if index .Values "mongodb-ha" "auth" "enabled" }}
-    host = mongodb://{{ template "mongodb-ha-nodes" $ }}/?authSource=admin&replicaSet={{ index .Values "mongodb-ha" "replicaSetName" }}
-    username = {{ required "mongodb-ha.auth.adminUser is required!" (index .Values "mongodb-ha" "auth" "adminUser") }}
-    password = {{ required "mongodb-ha.auth.adminPassword is required!" (index .Values "mongodb-ha" "auth" "adminPassword") }}
+    {{- if index .Values "mongodb" "auth" "enabled" }}
+    host = mongodb://{{ template "mongodb-nodes" $ }}/{{ required "mongodb.auth.database is required!" (index .Values "mongodb" "auth" "database") }}?authSource={{ required "mongodb.auth.database is required!" (index .Values "mongodb" "auth" "database") }}&replicaSet={{ index .Values "mongodb" "replicaSetName" }}
+    username = {{ required "mongodb.auth.username is required!" (index .Values "mongodb" "auth" "username") }}
+    password = {{ required "mongodb.auth.password is required!" (index .Values "mongodb" "auth" "password") }}
+    db_name = {{ required "mongodb.auth.database is required!" (index .Values "mongodb" "auth" "database") }}
     {{- else }}
-    host = mongodb://{{ template "mongodb-ha-nodes" $ }}/?replicaSet={{ index .Values "mongodb-ha" "replicaSetName" }}
+    host = mongodb://{{ template "mongodb-nodes" $ }}/?replicaSet={{ index .Values "mongodb" "replicaSetName" }}
     {{- end }}
-    port = {{ index .Values "mongodb-ha" "port" }}
+    port = {{ index .Values "mongodb" "service" "port" }}
     {{- end }}
     {{- if .Values.secrets.st2.datastore_crypto_key }}
     [keyvalue]

@@ -2,6 +2,10 @@
 
 ## In Development
 
+## v0.50.0
+* Drop Helm `v2` support and fully migrate to Helm `v3` (#163)
+* Switch dependencies from deprecated `helm/charts` to new Bitnami Subcharts (#163)
+
 ## v0.41.0
 * Fix Helm 2 repository location to a new working URL https://charts.helm.sh/stable (#164) (by @manisha-tanwar)
 

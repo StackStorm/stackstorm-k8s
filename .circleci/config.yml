@@ -4,10 +4,8 @@ version: 2.1
 orbs:
   # https://circleci.com/orbs/registry/orb/circleci/kubernetes
   kubernetes: circleci/kubernetes@0.11.0
-  # Pins Helm to v2.x
-  # TODO: Consider upgrading Helm to v3.0 (https://github.com/StackStorm/stackstorm-ha/issues/98)
   # https://circleci.com/orbs/registry/orb/circleci/helm
-  helm: circleci/helm@0.2.3
+  helm: circleci/helm@1.1.1
   # https://circleci.com/orbs/registry/orb/ccpgames/minikube
   minikube: ccpgames/minikube@0.0.1
 
@@ -16,15 +14,13 @@ jobs:
   helm-lint:
     working_directory: ~/stackstorm-ha
     docker:
-      # Pin Helm to v2.x, see https://github.com/StackStorm/stackstorm-ha/issues/98
-      - image: lachlanevenson/k8s-helm:v2.16.9
+      - image: lachlanevenson/k8s-helm:v3.3.4
     steps:
       - checkout
       - run:
           name: Prepare Helm
           command: |
             set -x
-            helm init --stable-repo-url https://charts.helm.sh/stable --client-only
             helm dependency update
       - run:
           name: Helm Lint Check
@@ -65,7 +61,7 @@ jobs:
       - kubernetes/install
       - minikube/minikube-install:
           # https://github.com/kubernetes/minikube/releases
-          version: v1.10.1
+          version: v1.15.1
       - run:
           name: Install dependencies
           command: |
@@ -74,24 +70,24 @@ jobs:
             # See: https://github.com/kubernetes/minikube/issues/7179
             sudo apt install -y conntrack
       - run:
+          name: Install Helm v3
+          command: curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+      - run:
           name: Create new K8s cluster
           command: sudo -E minikube start --vm-driver=none
           environment:
             CHANGE_MINIKUBE_NONE_USER: true
       - run:
-          name: Helm Init
-          command: |
-            curl https://raw.githubusercontent.com/helm/helm/master/scripts/get | bash
-            helm init --stable-repo-url https://charts.helm.sh/stable
-      - run:
           name: Update stackstorm-ha chart dependencies
           command: helm dependency update
       - run:
           name: Helm install stackstorm-ha chart
-          command: helm install --timeout 600 --debug --wait --name stackstorm-ha .
+          command: helm install --timeout 10m0s --debug --wait --name-template stackstorm-ha .
       - run:
+          # once https://github.com/helm/community/pull/165 is merged we will need to add the parallelism flag back into the
+          # below command
           name: Helm test
-          command: helm test stackstorm-ha --parallel --cleanup
+          command: helm test stackstorm-ha
       - run:
           when: always
           name: Show created K8s resources
