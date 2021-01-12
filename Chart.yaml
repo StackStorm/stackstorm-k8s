@@ -44,3 +44,8 @@ dependencies:
     version: 5.1.0
     repository: https://charts.bitnami.com/bitnami
     condition: etcd.enabled
+  - name: redis
+    version: 12.3.2
+    repository: https://charts.bitnami.com/bitnami
+    condition: redis.enabled
+

@@ -24,6 +24,10 @@ data:
     [coordination]
     url = etcd://{{ index .Values "etcd" "fullnameOverride" }}:2379
     {{- end }}
+    {{- if index .Values "redis" "enabled" }}
+    [coordination]
+    url = redis://st2ha-redis-node-0.st2ha-redis-headless:26379?sentinel=mymaster&sentinel_fallback=st2ha-redis-node-1.st2ha-redis-headless:26379&sentinel_fallback=st2ha-redis-node-2.st2ha-redis-headless:26379
+    {{- end }}
     {{- if index .Values "rabbitmq" "enabled" }}
     [messaging]
     url = amqp://{{ required "rabbitmq.auth.username is required!" (index .Values "rabbitmq" "auth" "username") }}:{{ required "rabbitmq.auth.password is required!" (index .Values "rabbitmq" "auth" "password") }}@{{ .Release.Name }}-rabbitmq:5672{{ required "rabbitmq.ingress.path is required!" (index .Values "rabbitmq" "ingress" "path") }}

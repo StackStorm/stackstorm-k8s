@@ -523,6 +523,31 @@ etcd:
   fullnameOverride: etcd
 
 ##
+## Redis HA configuration (3rd party chart dependency)
+##
+## For values.yaml reference:
+## https://github.com/bitnami/charts/tree/master/bitnami/redis
+##
+redis:
+  # Change to `false` to disable in-cluster redis deployment.
+  # Specify your external [coordination] connection parameters under st2.config
+  enabled: true
+  cluster:
+    enabled: true
+    slaveCount: 3
+  # ## Sentinel settings. Sentinel is enabled for better resiliency.
+  # ## https://docs.openstack.org/tooz/latest/user/drivers.html#redis
+  # ## https://github.com/bitnami/charts/tree/master/bitnami/redis#master-slave-with-sentinel
+  sentinel:
+    enabled: true
+  networkPolicy:
+    enabled: false
+  usePassword: false
+  #password: "PLoT2g3gvD"
+  metrics:
+    enabled: false
+
+##
 ## External DNS configuration (3rd party chart dependency)
 ##
 ## Creates a deployment of external-dns within the cluster to update DNS with CNAME -> ELB
