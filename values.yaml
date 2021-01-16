@@ -517,7 +517,7 @@ rabbitmq:
 etcd:
   # Change to `false` to disable in-cluster ectd deployment.
   # Specify your external [coordination] connection parameters under st2.config
-  enabled: true
+  enabled: false
   statefulset:
     replicaCount: 3
   fullnameOverride: etcd
