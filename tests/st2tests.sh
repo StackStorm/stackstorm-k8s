@@ -57,3 +57,20 @@ load "${BATS_HELPERS_DIR}/bats-file/load.bash"
   assert_success
   assert_line --partial 'chatops.notify'
 }
+
+@test 'st2 key/value operations are functional' {
+  run st2 key set foo bar
+  assert_success
+
+  run st2 key get foo
+  assert_success
+  assert_line --partial 'bar'
+
+  run st2 key delete foo
+  assert_line --partial '"foo" has been successfully deleted'
+  assert_success
+
+  run st2 key get foo
+  assert_line --partial '"foo" is not found'
+  assert_failure
+}
