@@ -20,13 +20,9 @@ data:
   st2.docker.conf: |
     [auth]
     api_url = http://{{ .Release.Name }}-st2api{{ template "enterpriseSuffix" . }}:9101/
-    {{- if index .Values "etcd" "enabled" }}
-    [coordination]
-    url = etcd://{{ index .Values "etcd" "fullnameOverride" }}:2379
-    {{- end }}
     {{- if index .Values "redis" "enabled" }}
     [coordination]
-    url = redis://{{ .Release.Name }}-redis-node-0.{{ .Release.Name }}-redis-headless:26379?sentinel=mymaster&sentinel_fallback={{ .Release.Name }}-redis-node-1.{{ .Release.Name }}-redis-headless:26379&sentinel_fallback={{ .Release.Name }}-redis-node-2.{{ .Release.Name }}-redis-headless:26379
+    url = redis://{{ template "redis-nodes" $ }}
     {{- end }}
     {{- if index .Values "rabbitmq" "enabled" }}
     [messaging]

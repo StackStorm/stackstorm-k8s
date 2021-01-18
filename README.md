@@ -4,7 +4,7 @@
 K8s Helm Chart for running StackStorm cluster in HA mode.
 
 It will install 2 replicas for each component of StackStorm microservices for redundancy, as well as backends like
-RabbitMQ HA, MongoDB HA Replicaset and etcd cluster that st2 replies on for MQ, DB and distributed coordination respectively.
+RabbitMQ HA, MongoDB HA Replicaset and Redis cluster that st2 replies on for MQ, DB and distributed coordination respectively.
 
 It's more than welcome to fine-tune each component settings to fit specific availability/scalability demands.
 
@@ -116,7 +116,7 @@ All the workflow engine processes will share the load and pick up more work if o
 Multiple st2notifier processes can run in active-active mode, using connections to RabbitMQ and MongoDB and generating triggers based on
 action execution completion as well as doing action rescheduling.
 In an HA deployment there must be a minimum of `2` replicas of st2notifier running, requiring a coordination backend,
-which in our case is `etcd`.
+which in our case is `Redis`.
 
 ### [st2sensorcontainer](https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer)
 st2sensorcontainer manages StackStorm sensors: It starts, stops and restarts them as subprocesses.
@@ -143,7 +143,7 @@ st2:
 ### [st2actionrunner](https://docs.stackstorm.com/reference/ha.html#st2actionrunner)
 Stackstorm workers that actually execute actions.
 `5` replicas for K8s Deployment are configured by default to increase StackStorm ability to execute actions without excessive queuing.
-Relies on `etcd` for coordination. This is likely the first thing to lift if you have a lot of actions
+Relies on `redis` for coordination. This is likely the first thing to lift if you have a lot of actions
 to execute per time period in your StackStorm cluster.
 
 ### [st2garbagecollector](https://docs.stackstorm.com/reference/ha.html#st2garbagecollector)
@@ -174,9 +174,9 @@ Helm chart repository, - all settings could be overridden via `values.yaml`.
 
 The deployment of RabbitMQ to the k8s cluster can be disabled by setting the rabbitmq-ha.enabled key in values.yaml to false.  *Note: Stackstorm relies heavily on connections to a RabbitMQ instance.  If the in-cluster deployment of RabbitMQ is disabled, a connection to an external instance of RabbitMQ must be configured.  The st2.config key in values.yaml provides a way to configure stackstorm.  See [Configure RabbitMQ](https://docs.stackstorm.com/install/config/config.html#configure-rabbitmq) for configuration details.*
 
-### [etcd](https://docs.stackstorm.com/latest/reference/ha.html#zookeeper-redis)
-StackStorm employs etcd as a distributed coordination backend, required for st2 cluster components to work properly in HA scenario.
-`3` node Raft cluster is deployed via external bitnami Helm chart dependency [etcd](https://github.com/bitnami/charts/tree/master/bitnami/etcd).
+### [redis](https://docs.stackstorm.com/latest/reference/ha.html#zookeeper-redis)
+StackStorm employs redis sentinel as a distributed coordination backend, required for st2 cluster components to work properly in HA scenario.
+`3` node Redis cluster with Sentinel enabled is deployed via external bitnami Helm chart dependency [redis](https://github.com/bitnami/charts/tree/master/bitnami/redis).
 As any other Helm dependency, it's possible to further configure it for specific scaling needs via `values.yaml`.
 
 ## Install custom st2 packs in the cluster
@@ -220,7 +220,7 @@ Grab all logs for entire StackStorm cluster with dependent services in Helm rele
 kubectl logs -l release=<release-name>
 ```
 
-Grab all logs only for stackstorm backend services, excluding st2web and DB/MQ/etcd:
+Grab all logs only for stackstorm backend services, excluding st2web and DB/MQ/redis:
 ```
 kubectl logs -l release=<release-name>,tier=backend
 ```

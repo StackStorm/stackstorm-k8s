@@ -76,3 +76,19 @@ Create the name of the stackstorm-ha service account to use
   {{- end -}}
 {{- end -}}
 {{- end -}}
+
+# Generate list of nodes for Redis with Sentinel connection string, based on number of replicas and service name
+{{- define "redis-nodes" -}}
+{{- if not .Values.redis.sentinel.enabled }}
+{{- fail "value for redis.sentinel.enabled MUST be true" }}
+{{- end }}
+{{- $replicas := (int (index .Values "redis" "cluster" "slaveCount")) }}
+{{- range $index0 := until $replicas -}}
+  {{- if eq $index0 0 -}}
+    {{ $.Release.Name }}-redis-node-{{ $index0 }}.{{ $.Release.Name }}-redis-headless:26379?sentinel=mymaster
+  {{- else -}}
+    &sentinel_fallback={{ $.Release.Name }}-redis-node-{{ $index0 }}.{{ $.Release.Name }}-redis-headless:26379
+  {{- end -}}
+{{- end -}}
+{{- end -}}
+    
