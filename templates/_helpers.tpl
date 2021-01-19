@@ -83,11 +83,13 @@ Create the name of the stackstorm-ha service account to use
 {{- fail "value for redis.sentinel.enabled MUST be true" }}
 {{- end }}
 {{- $replicas := (int (index .Values "redis" "cluster" "slaveCount")) }}
+{{- $master_name := (index .Values "redis" "sentinel" "masterSet") }}
+{{- $sentinel_port := (index .Values "redis" "sentinel" "port") }}
 {{- range $index0 := until $replicas -}}
   {{- if eq $index0 0 -}}
-    {{ $.Release.Name }}-redis-node-{{ $index0 }}.{{ $.Release.Name }}-redis-headless:26379?sentinel=mymaster
+    {{ $.Release.Name }}-redis-node-{{ $index0 }}.{{ $.Release.Name }}-redis-headless:{{ $sentinel_port }}?sentinel={{ $master_name }}
   {{- else -}}
-    &sentinel_fallback={{ $.Release.Name }}-redis-node-{{ $index0 }}.{{ $.Release.Name }}-redis-headless:26379
+    &sentinel_fallback={{ $.Release.Name }}-redis-node-{{ $index0 }}.{{ $.Release.Name }}-redis-headless:{{ $sentinel_port }}
   {{- end -}}
 {{- end -}}
 {{- end -}}
