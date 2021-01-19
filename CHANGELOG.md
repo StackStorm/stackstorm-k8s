@@ -3,7 +3,7 @@
 ## In Development
 
 ## v0.51.0
-* Added Redis with Sentinel to replace Etcd as backend coordinator (#167)
+* Added Redis with Sentinel to replace etcd as a coordination backend (#169)
 
 ## v0.50.0
 * Drop Helm `v2` support and fully migrate to Helm `v3` (#163)
