@@ -20,9 +20,9 @@ data:
   st2.docker.conf: |
     [auth]
     api_url = http://{{ .Release.Name }}-st2api{{ template "enterpriseSuffix" . }}:9101/
-    {{- if index .Values "etcd" "enabled" }}
+    {{- if index .Values "redis" "enabled" }}
     [coordination]
-    url = etcd://{{ index .Values "etcd" "fullnameOverride" }}:2379
+    url = redis://{{ template "redis-nodes" $ }}
     {{- end }}
     {{- if index .Values "rabbitmq" "enabled" }}
     [messaging]

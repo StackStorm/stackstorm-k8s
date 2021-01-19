@@ -50,7 +50,7 @@ jobs:
   # Spin up minikube K8s cluster and run Helm chart & e2e tests on it
   helm-e2e:
     # 'large' 4 vCPUs & 15GB RAM CircleCI machine executor
-    # required to deploy heavy 'stackstorm-ha' Helm release with RabbitMQ, MongoDB, etcd clusters and 25+ st2 Pods.
+    # required to deploy heavy 'stackstorm-ha' Helm release with RabbitMQ, MongoDB, Redis clusters and 25+ st2 Pods.
     # https://circleci.com/docs/2.0/configuration-reference/#machine-executor-linux
     resource_class: large
     machine:
