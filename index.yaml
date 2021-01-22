@@ -193,6 +193,50 @@ entries:
       name: external-dns
       repository: https://charts.bitnami.com/bitnami
       version: 4.0.0
+    - condition: redis.enabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 12.3.2
+    description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
+      environment.
+    digest: 5f1ec9ceb8a56e63638ce7b3a560df47a0715ee91da218cf19937ba1cfc3a181
+    home: https://stackstorm.com/
+    icon: https://landscape.cncf.io/logos/stack-storm.svg
+    keywords:
+    - st2
+    - stackstorm
+    - devops
+    - SRE
+    - automation
+    - chatops
+    - event-driven
+    - auto-remediation
+    - IFTTT
+    - HA
+    maintainers:
+    - email: armab@stackstorm.com
+      name: Eugen Cusmaunsa
+      url: https://github.com/armab
+    name: stackstorm-ha
+    urls:
+    - stackstorm-ha-0.51.0.tgz
+    version: 0.51.0
+  - apiVersion: v2
+    appVersion: 3.4dev
+    created: "2021-01-22T17:51:01.700524768Z"
+    dependencies:
+    - condition: rabbitmq.enabled
+      name: rabbitmq
+      repository: https://charts.bitnami.com/bitnami
+      version: 8.0.2
+    - condition: mongodb.enabled
+      name: mongodb
+      repository: https://charts.bitnami.com/bitnami
+      version: 10.0.1
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://charts.bitnami.com/bitnami
+      version: 4.0.0
     - condition: etcd.enabled
       name: etcd
       repository: https://charts.bitnami.com/bitnami
@@ -1071,4 +1115,4 @@ entries:
     urls:
     - stackstorm-ha-0.6.0.tgz
     version: 0.6.0
-generated: "2020-12-29T19:37:23.598825897Z"
+generated: "2021-01-22T17:51:01.47967998Z"
