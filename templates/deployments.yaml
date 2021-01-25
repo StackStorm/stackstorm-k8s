@@ -373,6 +373,8 @@ spec:
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2web.yaml") . | sha256sum }}
     spec:
       imagePullSecrets:
       {{- if .Values.enterprise.enabled }}
@@ -409,13 +411,27 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
             optional: true
+    {{- if .Values.st2web.config }}
+        volumeMounts:
+          - name: st2web-config-vol
+            mountPath: /opt/stackstorm/static/webui/config.js
+            subPath: st2web.config.js
+    {{- else }}
         volumeMounts: []
+    {{- end }}
         resources:
 {{ toYaml .Values.st2web.resources | indent 10 }}
     {{- if .Values.st2web.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
+    {{- if .Values.st2web.config }}
+      volumes:
+        - name: st2web-config-vol
+          configMap:
+            name: {{ .Release.Name }}-st2web-config
+    {{- else }}
       volumes: []
+    {{- end }}
     {{- with .Values.st2web.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}

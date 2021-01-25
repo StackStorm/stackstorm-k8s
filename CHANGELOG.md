@@ -1,6 +1,7 @@
 # Changelog
 
 ## In Development
+* Add option to define config.js for st2web (#165) (by @moonrail)
 
 ## v0.51.0
 * Added Redis with Sentinel to replace etcd as a coordination backend (#169)

@@ -253,6 +253,10 @@ st2web:
   affinity: {}
   serviceAccount:
     attach: false
+  # User-defined st2web config with custom settings to replace default config.js
+  # See https://github.com/StackStorm/st2web#connecting-to-st2-server for more info
+  # config: |
+  #  // see https://github.com/StackStorm/st2web/blob/master/config.js
 # https://docs.stackstorm.com/reference/ha.html#st2auth
 # Multiple st2auth processes can be behind a load balancer in an active-active configuration.
 st2auth:
