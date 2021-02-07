@@ -121,6 +121,24 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
+      - name: wait-for-db
+        image: busybox:1.28
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ .Release.Name }}-mongodb-headless 27017 && echo mongodb ok;
+              do sleep 2;
+            done
+      - name: wait-for-api
+        image: busybox:1.28
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ .Release.Name }}-st2api 9101 && echo st2api ready;
+              do sleep 2;
+            done
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       - name: generate-st2client-config
         image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -223,6 +241,15 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
+      - name: wait-for-db
+        image: busybox:1.28
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ .Release.Name }}-mongodb-headless 27017 && echo mongodb ok;
+              do sleep 2;
+            done
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       - name: generate-st2client-config
         image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -338,6 +365,15 @@ spec:
       {{- end }}
       {{- if .Values.st2.packs.image.repository }}
       initContainers:
+      - name: wait-for-db
+        image: busybox:1.28
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ .Release.Name }}-mongodb-headless 27017 && echo mongodb ok;
+              do sleep 2;
+            done
       # Merge packs and virtualenvs from st2actionrunner with those from the st2.packs image
       # Custom packs
       - name: st2-custom-packs
