@@ -43,6 +43,24 @@ spec:
       {{- end }}
       # Sidecar container for generating .htpasswd with st2 username & password pair and sharing produced file with the main st2auth container
       initContainers:
+      - name: wait-for-db
+        image: busybox:1.28
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ .Release.Name }}-mongodb-headless 27017 && echo mongodb ok;
+              do sleep 2;
+            done
+      - name: wait-for-queue
+        image: busybox:1.28
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ .Release.Name }}-rabbitmq 5672 && echo rabbitmq ok;
+              do sleep 2;
+            done
       - name: generate-htpasswd
         image: "{{ template "imageRepository" . }}/st2auth{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -158,8 +176,26 @@ spec:
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
-      {{- if .Values.st2.packs.image.repository }}
       initContainers:
+      - name: wait-for-db
+        image: busybox:1.28
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ .Release.Name }}-mongodb-headless 27017 && echo mongodb ok;
+              do sleep 2;
+            done
+      - name: wait-for-queue
+        image: busybox:1.28
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ .Release.Name }}-rabbitmq 5672 && echo rabbitmq ok;
+              do sleep 2;
+            done
+      {{- if .Values.st2.packs.image.repository }}
       # Merge packs and virtualenvs from st2api with those from the st2.packs image
       # Custom packs
       - name: st2-custom-packs
@@ -302,6 +338,25 @@ spec:
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
+      initContainers:
+      - name: wait-for-db
+        image: busybox:1.28
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ .Release.Name }}-mongodb-headless 27017 && echo mongodb ok;
+              do sleep 2;
+            done
+      - name: wait-for-queue
+        image: busybox:1.28
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ .Release.Name }}-rabbitmq 5672 && echo rabbitmq ok;
+              do sleep 2;
+            done
       containers:
       - name: st2stream{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2stream{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -487,6 +542,25 @@ spec:
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
+      initContainers:
+      - name: wait-for-db
+        image: busybox:1.28
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ .Release.Name }}-mongodb-headless 27017 && echo mongodb ok;
+              do sleep 2;
+            done
+      - name: wait-for-queue
+        image: busybox:1.28
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ .Release.Name }}-rabbitmq 5672 && echo rabbitmq ok;
+              do sleep 2;
+            done
       containers:
       - name: st2rulesengine{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2rulesengine{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -577,6 +651,25 @@ spec:
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
+      initContainers:
+      - name: wait-for-db
+        image: busybox:1.28
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ .Release.Name }}-mongodb-headless 27017 && echo mongodb ok;
+              do sleep 2;
+            done
+      - name: wait-for-queue
+        image: busybox:1.28
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ .Release.Name }}-rabbitmq 5672 && echo rabbitmq ok;
+              do sleep 2;
+            done
       containers:
       - name: st2timersengine{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2timersengine{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -659,6 +752,25 @@ spec:
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
+      initContainers:
+      - name: wait-for-db
+        image: busybox:1.28
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ .Release.Name }}-mongodb-headless 27017 && echo mongodb ok;
+              do sleep 2;
+            done
+      - name: wait-for-queue
+        image: busybox:1.28
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ .Release.Name }}-rabbitmq 5672 && echo rabbitmq ok;
+              do sleep 2;
+            done
       containers:
       - name: st2workflowengine{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2workflowengine{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -753,6 +865,25 @@ spec:
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
+      initContainers:
+      - name: wait-for-db
+        image: busybox:1.28
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ .Release.Name }}-mongodb-headless 27017 && echo mongodb ok;
+              do sleep 2;
+            done
+      - name: wait-for-queue
+        image: busybox:1.28
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ .Release.Name }}-rabbitmq 5672 && echo rabbitmq ok;
+              do sleep 2;
+            done
       containers:
       - name: st2scheduler{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2scheduler{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -847,6 +978,25 @@ spec:
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
+      initContainers:
+      - name: wait-for-db
+        image: busybox:1.28
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ .Release.Name }}-mongodb-headless 27017 && echo mongodb ok;
+              do sleep 2;
+            done
+      - name: wait-for-queue
+        image: busybox:1.28
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ .Release.Name }}-rabbitmq 5672 && echo rabbitmq ok;
+              do sleep 2;
+            done
       containers:
       - name: st2notifier{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2notifier{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -939,8 +1089,26 @@ spec:
       {{- if $.Values.image.pullSecret }}
       - name: {{ $.Values.image.pullSecret }}
       {{- end }}
-      {{- if $.Values.st2.packs.image.repository }}
       initContainers:
+      - name: wait-for-db
+        image: busybox:1.28
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ $.Release.Name }}-mongodb-headless 27017 && echo mongodb ok;
+              do sleep 2;
+            done
+      - name: wait-for-queue
+        image: busybox:1.28
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ $.Release.Name }}-rabbitmq 5672 && echo rabbitmq ok;
+              do sleep 2;
+            done
+      {{- if $.Values.st2.packs.image.repository }}
       # Merge packs and virtualenvs from st2sensorcontainer with those from the st2.packs image
       # Custom packs
       - name: st2-custom-packs
@@ -1108,8 +1276,26 @@ spec:
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
-      {{- if .Values.st2.packs.image.repository }}
       initContainers:
+      - name: wait-for-db
+        image: busybox:1.28
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ .Release.Name }}-mongodb-headless 27017 && echo mongodb ok;
+              do sleep 2;
+            done
+      - name: wait-for-queue
+        image: busybox:1.28
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ .Release.Name }}-rabbitmq 5672 && echo rabbitmq ok;
+              do sleep 2;
+            done
+      {{- if .Values.st2.packs.image.repository }}
       # Merge packs and virtualenvs from st2actionrunner with those from the st2.packs image
       # Custom packs
       - name: st2-custom-packs
@@ -1259,6 +1445,25 @@ spec:
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
+      initContainers:
+      - name: wait-for-db
+        image: busybox:1.28
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ .Release.Name }}-mongodb-headless 27017 && echo mongodb ok;
+              do sleep 2;
+            done
+      - name: wait-for-queue
+        image: busybox:1.28
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ .Release.Name }}-rabbitmq 5672 && echo rabbitmq ok;
+              do sleep 2;
+            done
       containers:
       - name: st2garbagecollector{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2garbagecollector{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -1349,6 +1554,24 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
+      - name: wait-for-db
+        image: busybox:1.28
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ .Release.Name }}-mongodb-headless 27017 && echo mongodb ok;
+              do sleep 2;
+            done
+      - name: wait-for-queue
+        image: busybox:1.28
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ .Release.Name }}-rabbitmq 5672 && echo rabbitmq ok;
+              do sleep 2;
+            done
       {{- if .Values.st2.packs.image.repository }}
       # Merge packs and virtualenvs from st2actionrunner with those from the st2.packs image
       # Custom packs
