@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.52.0
+* Implemented initContainers to wait for DB/MQ to be available for St2 Pods (#178)
+
 ## In Development
 * Add option to define config.js for st2web (#165) (by @moonrail)
 
