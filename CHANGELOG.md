@@ -1,6 +1,7 @@
 # Changelog
 
 ## In Development
+* Added resources requests cpu/memory values for St2 Pods (#179)
 * Implemented initContainers to wait for DB/MQ to be available for St2 Pods (#178)
 * Add option to define config.js for st2web (#165) (by @moonrail)
 
