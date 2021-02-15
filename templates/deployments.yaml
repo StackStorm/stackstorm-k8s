@@ -41,8 +41,10 @@ spec:
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
-      # Sidecar container for generating .htpasswd with st2 username & password pair and sharing produced file with the main st2auth container
       initContainers:
+      {{ include "init-containers-wait-for-db" . | indent 6 }}
+      {{ include "init-containers-wait-for-mq" . | indent 6 }}
+      # Sidecar container for generating .htpasswd with st2 username & password pair and sharing produced file with the main st2auth container
       - name: generate-htpasswd
         image: "{{ template "imageRepository" . }}/st2auth{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -158,8 +160,10 @@ spec:
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
-      {{- if .Values.st2.packs.image.repository }}
       initContainers:
+      {{ include "init-containers-wait-for-db" . | indent 6 }}
+      {{ include "init-containers-wait-for-mq" . | indent 6 }}
+      {{- if .Values.st2.packs.image.repository }}
       # Merge packs and virtualenvs from st2api with those from the st2.packs image
       # Custom packs
       - name: st2-custom-packs
@@ -302,6 +306,9 @@ spec:
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
+      initContainers:
+      {{ include "init-containers-wait-for-db" . | indent 6 }}
+      {{ include "init-containers-wait-for-mq" . | indent 6 }}
       containers:
       - name: st2stream{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2stream{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -487,6 +494,9 @@ spec:
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
+      initContainers:
+      {{ include "init-containers-wait-for-db" . | indent 6 }}
+      {{ include "init-containers-wait-for-mq" . | indent 6 }}
       containers:
       - name: st2rulesengine{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2rulesengine{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -577,6 +587,9 @@ spec:
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
+      initContainers:
+      {{ include "init-containers-wait-for-db" . | indent 6 }}
+      {{ include "init-containers-wait-for-mq" . | indent 6 }}
       containers:
       - name: st2timersengine{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2timersengine{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -659,6 +672,9 @@ spec:
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
+      initContainers:
+      {{ include "init-containers-wait-for-db" . | indent 6 }}
+      {{ include "init-containers-wait-for-mq" . | indent 6 }}
       containers:
       - name: st2workflowengine{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2workflowengine{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -753,6 +769,9 @@ spec:
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
+      initContainers:
+      {{ include "init-containers-wait-for-db" . | indent 6 }}
+      {{ include "init-containers-wait-for-mq" . | indent 6 }}
       containers:
       - name: st2scheduler{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2scheduler{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -847,6 +866,9 @@ spec:
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
+      initContainers:
+      {{ include "init-containers-wait-for-db" . | indent 6 }}
+      {{ include "init-containers-wait-for-mq" . | indent 6 }}
       containers:
       - name: st2notifier{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2notifier{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -939,8 +961,10 @@ spec:
       {{- if $.Values.image.pullSecret }}
       - name: {{ $.Values.image.pullSecret }}
       {{- end }}
-      {{- if $.Values.st2.packs.image.repository }}
       initContainers:
+      {{ include "init-containers-wait-for-db" $ | indent 6 }}
+      {{ include "init-containers-wait-for-mq" $ | indent 6 }}
+      {{- if $.Values.st2.packs.image.repository }}
       # Merge packs and virtualenvs from st2sensorcontainer with those from the st2.packs image
       # Custom packs
       - name: st2-custom-packs
@@ -1108,8 +1132,10 @@ spec:
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
-      {{- if .Values.st2.packs.image.repository }}
       initContainers:
+      {{ include "init-containers-wait-for-db" . | indent 6 }}
+      {{ include "init-containers-wait-for-mq" . | indent 6 }}
+      {{- if .Values.st2.packs.image.repository }}
       # Merge packs and virtualenvs from st2actionrunner with those from the st2.packs image
       # Custom packs
       - name: st2-custom-packs
@@ -1259,6 +1285,9 @@ spec:
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
+      initContainers:
+      {{ include "init-containers-wait-for-db" . | indent 6 }}
+      {{ include "init-containers-wait-for-mq" . | indent 6 }}
       containers:
       - name: st2garbagecollector{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2garbagecollector{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"

@@ -94,3 +94,36 @@ Create the name of the stackstorm-ha service account to use
 {{- end -}}
 {{- end -}}
     
+{{- define "init-containers-wait-for-db" -}}
+{{- if index .Values "mongodb" "enabled" }}
+{{- $mongodb_port := (int (index .Values "mongodb" "service" "port")) }}
+- name: wait-for-db
+  image: busybox:1.28
+  command:
+    - 'sh'
+    - '-c'
+    - >
+      until nc -z -w 2 {{ $.Release.Name }}-mongodb-headless {{ $mongodb_port }} && echo mongodb ok;
+        do 
+          echo 'Waiting for MongoDB Connection...'
+          sleep 2;
+      done
+{{- end }}
+{{- end -}}
+
+{{- define "init-containers-wait-for-mq" -}}
+{{- if index .Values "rabbitmq" "enabled" }}
+{{- $rabbitmq_port := (int (index .Values "rabbitmq" "service" "port")) }}
+- name: wait-for-queue
+  image: busybox:1.28
+  command:
+    - 'sh'
+    - '-c'
+    - >
+      until nc -z -w 2 {{ $.Release.Name }}-rabbitmq {{ $rabbitmq_port }} && echo rabbitmq ok;
+        do
+          echo 'Waiting for RabbitMQ Connection...'
+          sleep 2;
+      done
+{{- end }}
+{{- end -}}
