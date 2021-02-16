@@ -5,8 +5,18 @@
 ## Docker image settings, applied to all StackStorm pods
 ##
 image:
-  # Image pull policy. Change to "IfNotPresent" when switching to stable images
-  pullPolicy: Always
+  # Image pull policy
+  pullPolicy: IfNotPresent
+  # st2 image repository. Set this to override the default ("stackstorm") or enterprise
+  # docker image repository ("docker.stackstorm.com"). Applies to all st2 containers except
+  # st2chatops and st2packs (which have their own override). This also does not impact 
+  # dependencies such as mongo or redis, which have their own helm chart settings.
+  repository: ""
+  # Image pull secret.
+  # May be required for public docker hub due to rate limiting or any private repository.
+  # See: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  #pullSecret: "your-pull-secret"
+
 
 
 # StackStorm Role Based Access Control settings (https://docs.stackstorm.com/rbac.html)
@@ -45,6 +55,17 @@ rbac:
     #    - "admin"
 
 ##
+## Service Account
+##
+serviceAccount:
+  # Whether the Chart should create the service account or not
+  create: true
+  # Used to define service account annotations
+  serviceAccountAnnotations: {}
+  # Used to override service account name
+  serviceAccountName:
+
+##
 ## StackStorm shared variables
 ##
 st2:
@@ -69,13 +90,13 @@ st2:
     # Custom packs image settings. The repository, name, tag and pullPolicy for this image
     # are specified below.
     image:
-      # If you wish to use a docker registry running in the k8s cluster, set docker-registry.enabled to true.
-      # Uncomment the following line to make the custom packs image available to the necessary pods.
-
-      # repository: localhost:5000
+      # Uncomment the following block to make the custom packs image available to the necessary pods
+      #repository: your-remote-docker-registry.io
       name: st2packs
       tag: latest
-      pullPolicy: Always
+      pullPolicy: IfNotPresent
+      # Optional name of the imagePullSecret if your custom packs image is hosted by a private Docker registry behind the auth
+      #pullSecret: st2packs-auth
 
     # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
     # It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance.
@@ -88,12 +109,15 @@ st2:
       - name:
         livenessProbe: {}
         readinessProbe: {}
+        annotations: {}
         # TODO: Find out recommended/default resources for this specific service (#5)
         resources: {}
         # Additional advanced settings to control pod/deployment placement
         affinity: {}
         nodeSelector: {}
         tolerations: []
+        serviceAccount:
+          attach: false
   # Import data into StackStorm's Key/Value datastore (https://docs.stackstorm.com/datastore.html)
   keyvalue:
     #- name: st2_version
@@ -101,6 +125,12 @@ st2:
     #  secret: false
     #  encrypted: false
     #  value: "2.9"
+    #- name: release_name
+    #  scope: st2kv.system
+    #  secret: false
+    #  encrypted: false
+    #  # Note that Helm templating is supported in this block!
+    #  value: "{{ .Release.Name }}"
   # Import a list of ST2 API Keys (https://docs.stackstorm.com/authentication.html#api-key-migration)
   apikeys:
     #- created_at: '2018-12-15T00:21:48.507388Z'
@@ -124,8 +154,6 @@ ingress:
   # Map hosts to paths
   hosts: []
   # - host: hostname.domain.tld
-  #   # NOTE: Both path and service details are optional. A working default will be used to
-  #   # automatically configure st2web for ingress.
   #   # Map paths to services
   #   paths:
   #     - path: /
@@ -138,7 +166,7 @@ ingress:
   #     - chart-example.test
 
 ##
-## StackStorm HA Cluster Secrets. All fields are required!
+## StackStorm HA Cluster Secrets.
 ## NB! It's highly recommended to change ALL defaults!
 ##
 # TODO: Move to `secrets.yaml` when it gets implemented in Helm (https://github.com/kubernetes/helm/issues/2196) ? (#14)
@@ -180,6 +208,10 @@ secrets:
       WE8BWLQ1vBV6c7V4Q0Wp6LuTnNnvu/lvVugJW/TbrzFw6CFe5fEISmIHAMnqVz8x
       OdOJyinSM1svoBGnYfyAqINKrqCSGSKmprlMo0Ma3erI7SuojWBS
       -----END RSA PRIVATE KEY-----
+    # ST2 crypto key for the  K/V datastore.
+    # See https://docs.stackstorm.com/datastore.html#securing-secrets-admin-only for more info.
+    # Warning! Replace with your own generated key!
+    #datastore_crypto_key: {"hmacKey": {"hmacKeyString": "", "size": 256}, "size": 256, "aesKeyString": "", "mode": "CBC"}
 
 ##
 ## StackStorm HA Cluster pod settings for each individual service/component.
@@ -210,6 +242,12 @@ st2web:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
+  # User-defined st2web config with custom settings to replace default config.js
+  # See https://github.com/StackStorm/st2web#connecting-to-st2-server for more info
+  # config: |
+  #  // see https://github.com/StackStorm/st2web/blob/master/config.js
 # https://docs.stackstorm.com/reference/ha.html#st2auth
 # Multiple st2auth processes can be behind a load balancer in an active-active configuration.
 st2auth:
@@ -220,6 +258,8 @@ st2auth:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 # https://docs.stackstorm.com/reference/ha.html#st2api
 # Multiple st2api process can be behind a load balancer in an active-active configuration.
 st2api:
@@ -230,6 +270,8 @@ st2api:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 # https://docs.stackstorm.com/reference/ha.html#st2stream
 # Multiple st2stream process can be behind a load balancer in an active-active configuration.
 st2stream:
@@ -240,6 +282,8 @@ st2stream:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 # https://docs.stackstorm.com/reference/ha.html#st2rulesengine
 # Multiple st2rulesengine processes can run in active-active with only connections to MongoDB and RabbitMQ. All these will share the TriggerInstance load and naturally pick up more work if one or more of the processes becomes unavailable.
 st2rulesengine:
@@ -250,6 +294,8 @@ st2rulesengine:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 # https://docs.stackstorm.com/reference/ha.html#st2timersengine
 # Only single replica is created via K8s Deployment as timersengine can't work in active-active mode at the moment and it relies on K8s failover/reschedule capabilities to address cases of process failure.
 st2timersengine:
@@ -259,6 +305,8 @@ st2timersengine:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 # https://docs.stackstorm.com/reference/ha.html#st2workflowengine
 # Multiple st2workflowengine processes can run in active-active mode and will share the load and pick up more work if one or more of the processes become available.
 st2workflowengine:
@@ -269,6 +317,8 @@ st2workflowengine:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 # https://docs.stackstorm.com/reference/ha.html#st2scheduler
 # TODO: Description TBD
 st2scheduler:
@@ -279,6 +329,8 @@ st2scheduler:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 # https://docs.stackstorm.com/reference/ha.html#st2notifier
 # st2notifier runs in active-active mode and requires for that coordination backend like Redis or Zookeeper
 st2notifier:
@@ -289,6 +341,8 @@ st2notifier:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 # https://docs.stackstorm.com/reference/ha.html#st2actionrunner
 # Multiple st2actionrunner processes can run in active-active with only connections to MongoDB and RabbitMQ. Work gets naturally
 # distributed across runners via RabbitMQ. Adding more st2actionrunner processes increases the ability of StackStorm to execute actions.
@@ -296,10 +350,23 @@ st2actionrunner:
   replicas: 5
   # TODO: Find out recommended/default resources for this specific service (#5)
   resources: {}
+  annotations: {}
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  # Allow the injection of hostAliases (https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/#adding-additional-entries-with-hostaliases)
+  # records in the st2actionrunner containers to handle edge case in DNS accessibility/topology
+  hostAliases: []
+  # - hostnames:
+  #     - foo
+  #   ip: 1.1.1.1
+  #  - hostnames:
+  #      - bar
+  #   ip: 8.8.8.8
+  serviceAccount:
+    attach: false
+
 # https://docs.stackstorm.com/reference/ha.html#st2garbagecollector
 # Optional service that cleans up old executions and other operations data based on setup configurations.
 # By default this process does nothing and needs to be setup in st2.conf to perform any work.
@@ -312,6 +379,8 @@ st2garbagecollector:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 
 ##
 ## StackStorm ChatOps (https://docs.stackstorm.com/chatops/index.html)
@@ -331,8 +400,9 @@ st2chatops:
   image: {}
     #repository: stackstorm
     #name: st2chatops
+    ## Note that Helm templating is supported in this block!
     #tag: "{{ .Chart.AppVersion }}"
-    #pullPolicy: Always
+    #pullPolicy: IfNotPresent
   # Tested requested resource consumption for st2chatops & hubot in normal mode
   # Please adjust based on your conscious choice
   resources:
@@ -343,77 +413,122 @@ st2chatops:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  serviceAccount:
+    attach: false
 
 ##
 ## MongoDB HA configuration (3rd party chart dependency)
 ##
 ## For values.yaml reference:
-## https://github.com/helm/charts/tree/master/stable/mongodb-replicaset
+## https://github.com/bitnami/charts/tree/master/bitnami/mongodb
 ##
-# Specs for the MongoDB image
-mongodb-ha:
+mongodb:
+  # Change to `false` to disable in-cluster mongodb deployment.
+  # Specify your external [database] connection parameters under st2.config
+  enabled: true
   image:
-    # StackStorm currently supports maximum MongoDB v3.4
-    tag: 3.4
+    # StackStorm currently supports maximum MongoDB v4.0
+    tag: "4.0"
+  # MongoDB architecture. Allowed values: standalone or replicaset
+  architecture: replicaset
+  # Name of the replica set
+  # Ignored when mongodb.architecture=standalone
+  replicaSetName: rs0
+  # Number of MongoDB replicas to deploy.
+  # Ignored when mongodb.architecture=standalone
+  replicaCount: 3
   auth:
     enabled: true
-    # NB! It's highly recommended to change ALL defaults!
-    adminUser: "admin"
-    adminPassword: "XeL5Rxwj7F0Wt43tFZVTN7H8Sg5XDHmK"
+    # NB! It's highly recommended to change ALL insecure auth defaults!
+    #
+    # Stackstorm user that services will make connections using
+    username: "st2-admin"
+    # Stackstorm user that services will make connections using
+    password: "XeL5Rxwj7F0Wt43tFZVTN7H8Sg5XDHmK"
+    # Root password for the database
+    rootPassword: "8fAzdnksdzPFUWm4a68EfY7nMhBPaa"
+    # Initial database for stackstorm
+    database: "st2"
     # Minimal key length is 6 symbols
-    key: "82PItDpqroti5RngOA7UqbHH7c6bFUwy"
-
-##
-## RabbitMQ HA configuration (3rd party chart dependency)
-##
-## For values.yaml reference:
-## https://github.com/helm/charts/tree/master/stable/rabbitmq-ha
-##
-rabbitmq-ha:
-  rabbitmqUsername: admin
-  # TODO: Use default random 24 character password, but need to fetch this string for use by downstream services
-  rabbitmqPassword: 9jS+w1u07NbHtZke1m+jW4Cj
-  persistentVolume:
-    enabled: true
-
-##
-## Etcd HA configuration (3rd party chart dependency)
-##
-## For values.yaml reference:
-## https://github.com/helm/charts/blob/master/incubator/etcd/values.yaml
-##
-etcd:
+    replicaSetKey: "82PItDpqroti5RngOA7UqbHH7c6bFUwy"
+    # Whether to enable the arbiter
+  arbiter:
+    enabled: false
   resources: {}
 
 ##
-## Docker registry configuration (3rd party chart dependency)
-##
-## The docker registry is useful if custom images need to be made available in the cluster.
+## RabbitMQ configuration (3rd party chart dependency)
 ##
 ## For values.yaml reference:
-## https://github.com/helm/charts/tree/master/stable/docker-registry
+## https://github.com/bitnami/charts/tree/master/bitnami/rabbitmq
 ##
-## If enabled is true, helm installs a docker registry into the cluster.
-## Otherwise, the docker registry is not installed.
-##
-docker-registry:
-  enabled: false
-  fullnameOverride: st2packs-docker-registry
+rabbitmq:
+  # Change to `false` to disable in-cluster rabbitmq deployment.
+  # Specify your external [messaging] connection parameters under st2.config
+  enabled: true
+  clustering:
+    # On unclean cluster restarts forceBoot is required to cleanup Mnesia tables (see: https://github.com/helm/charts/issues/13485)
+    # Use it only if you prefer availability over integrity.
+    forceBoot: true
+  # Authentication Details
+  auth:
+    username: admin
+    # TODO: Use default random 10 character password, but need to fetch this string for use by downstream services
+    password: 9jS+w1u07NbHtZke1m+jW4Cj
+    # Up to 255 character string, should be fixed so that re-deploying the chart does not fail (see: https://github.com/helm/charts/issues/12371)
+    # NB! It's highly recommended to change the default insecure rabbitmqErlangCookie value!
+    erlangCookie: 8MrqQdCQ6AQ8U3MacSubHE5RqkSfvNaRHzvxuFcG
+  # RabbitMQ Memory high watermark. See: http://www.rabbitmq.com/memory.html
+  # Default values might not be enough for StackStorm deployment to work properly. We recommend to adjust these settings for you needs as well as enable Pod memory limits via "resources".
+  #rabbitmqMemoryHighWatermark: 512MB
+  #rabbitmqMemoryHighWatermarkType: absolute
+  persistence:
+    enabled: true
+  # Enable Queue Mirroring between nodes
+  # See https://www.rabbitmq.com/ha.html
+  # This code block is commented out waiting for 
+  # https://github.com/bitnami/charts/issues/4635
+  loadDefinition:
+    enabled: true
+    existingSecret: "{{ .Release.Name }}-rabbitmq-definitions"
+  extraConfiguration: |
+    load_definitions = /app/rabbitmq-definitions.json
+  # We recommend to set the memory limit for RabbitMQ-HA Pods in production deployments.
+  # Make sure to also change the rabbitmqMemoryHighWatermark following the formula:
+  # rabbitmqMemoryHighWatermark = 0.4 * resources.limits.memory
+  resources: {}
+  # number of replicas in the rabbit cluster
+  replicaCount: 3
+  # As RabbitMQ enabled prometheus operator monitoring by default, disable it for non-prometheus users
+  metrics:
+    enabled: false
 
 ##
-## Docker registry proxy configuration (3rd party chart dependency)
-## (only installed if docker-registry is enabled)
-##
-## This is run on each k8s node, and proxies pod localhost:5000 to the docker registry
+## Redis HA configuration (3rd party chart dependency)
 ##
 ## For values.yaml reference:
-## https://github.com/helm/charts/tree/master/incubator/kube-registry-proxy
+## https://github.com/bitnami/charts/tree/master/bitnami/redis
 ##
-kube-registry-proxy:
-  registry:
-    host: st2packs-docker-registry.default.svc.cluster.local
-    port: 5000
-  hostPort: 5000
+redis:
+  # Change to `false` to disable in-cluster redis deployment.
+  # Specify your external [coordination] connection parameters under st2.config
+  enabled: true
+  # By default the cluster is enabled for the subchart.
+  # We just need replica count here to ensure it is HA
+  cluster:
+    slaveCount: 3
+  # ## Sentinel settings. Sentinel is enabled for better resiliency.
+  # ## This is highly recommended as per tooz library documentation. 
+  # ## Hence, the chart requires the setting.
+  # ## https://docs.openstack.org/tooz/latest/user/drivers.html#redis
+  # ## https://github.com/bitnami/charts/tree/master/bitnami/redis#master-slave-with-sentinel
+  sentinel:
+    enabled: true
+  networkPolicy:
+    enabled: false
+  usePassword: false
+  metrics:
+    enabled: false
 
 ##
 ## External DNS configuration (3rd party chart dependency)
@@ -421,11 +536,12 @@ kube-registry-proxy:
 ## Creates a deployment of external-dns within the cluster to update DNS with CNAME -> ELB
 ##
 ## For values.yaml reference:
-## https://github.com/helm/charts/tree/master/stable/external-dns
+## https://github.com/bitnami/charts/tree/master/bitnami/external-dns
 ##
 ## TODO: If eq st2web.service.type "LoadBalancer", set enabled to true. Any other cases?
 external-dns:
   enabled: false
+  provider: aws
   aws:
     zoneType: "public"
   domainFilters: []

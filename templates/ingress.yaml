@@ -1,9 +1,13 @@
 {{- if .Values.ingress.enabled }}
 ---
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
+<<<<<<< HEAD
   name: {{ .Release.Name }}-ingress
+=======
+  name: {{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }}-ingress
+>>>>>>> 4d9f4055b44a98583547035937b2ced5f607972b
   labels:
     app: ingress
     tier: frontend
@@ -37,7 +41,7 @@ spec:
     {{- end }}
     http:
       paths:
-        - path: "/*"
+        - path: "/"
           backend:
             serviceName: {{ .Release.Name }}-st2web
             servicePort: "80"

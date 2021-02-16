@@ -32,6 +32,9 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/rbac: {{ include (print $.Template.BasePath "/configmaps_rbac.yaml") . | sha256sum }}
     spec:
+      imagePullSecrets:
+      - name: {{ .Values.image.pullSecret }}
+      {{- end }}
       containers:
       - name: st2-apply-rbac-definitions
         image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
@@ -106,7 +109,21 @@ spec:
         checksum/urls: {{ include (print $.Template.BasePath "/configmaps_st2-urls.yaml") . | sha256sum }}
         checksum/apikeys: {{ include (print $.Template.BasePath "/secrets_st2apikeys.yaml") . | sha256sum }}
     spec:
+      imagePullSecrets:
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
+      {{- end }}
       initContainers:
+      {{ include "init-containers-wait-for-db" . | indent 6 }}
+      - name: wait-for-api
+        image: busybox:1.28
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ .Release.Name }}-st2api 9101 && echo st2api ready;
+              do sleep 2;
+            done
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       - name: generate-st2client-config
         image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
@@ -201,7 +218,12 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/urls: {{ include (print $.Template.BasePath "/configmaps_st2-urls.yaml") . | sha256sum }}
     spec:
+      imagePullSecrets:
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
+      {{- end }}
       initContainers:
+      {{ include "init-containers-wait-for-db" . | indent 6 }}
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       - name: generate-st2client-config
         image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
@@ -305,8 +327,16 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") . | sha256sum }}
     spec:
+      imagePullSecrets:
+      {{- if .Values.st2.packs.image.pullSecret }}
+      - name: {{ .Values.st2.packs.image.pullSecret }}
+      {{- end }}
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
+      {{- end }}
       {{- if .Values.st2.packs.image.repository }}
       initContainers:
+      {{ include "init-containers-wait-for-db" . | indent 6 }}
       # Merge packs and virtualenvs from st2actionrunner with those from the st2.packs image
       # Custom packs
       - name: st2-custom-packs

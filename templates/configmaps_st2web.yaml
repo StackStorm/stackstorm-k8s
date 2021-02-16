@@ -1,0 +1,22 @@
+{{- if .Values.st2web.config }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-st2web-config
+  annotations:
+    description: Custom StackStorm Web config which will override defaults
+  labels:
+    app: st2
+    tier: backend
+    vendor: stackstorm
+    support: {{ template "supportMethod" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  # User-defined st2web config with custom settings to replace default config.js
+  # See https://github.com/StackStorm/st2web#connecting-to-st2-server for more info
+  st2web.config.js: |
+{{ .Values.st2web.config | indent 4 }}
+{{- end }}

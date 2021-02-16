@@ -3,40 +3,37 @@ version: 2.1
 # Add additional CircleCI Orbs dependencies
 orbs:
   # https://circleci.com/orbs/registry/orb/circleci/kubernetes
-  kubernetes: circleci/kubernetes@0.3.0
+  kubernetes: circleci/kubernetes@0.11.0
   # https://circleci.com/orbs/registry/orb/circleci/helm
-  helm: circleci/helm@0.1.2
+  helm: circleci/helm@1.1.1
+  # https://circleci.com/orbs/registry/orb/ccpgames/minikube
+  minikube: ccpgames/minikube@0.0.1
 
 jobs:
   # Run Helm Lint checks
   helm-lint:
     working_directory: ~/stackstorm-ha
     docker:
-      - image: lachlanevenson/k8s-helm
+      - image: lachlanevenson/k8s-helm:v3.3.4
     steps:
       - checkout
       - run:
           name: Prepare Helm
           command: |
             set -x
-            helm init --client-only
-            helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
             helm dependency update
       - run:
-          name: Helm Lint Check (Community)
+          name: Helm Lint Check
           command: helm lint
       - run:
           name: Helm template
           command: |
             mkdir -p community
             helm template --output-dir community .
-
       - persist_to_workspace:
           root: ~/stackstorm-ha/
           paths:
             - community
-            # TODO: Fill an issue in https://github.com/garethr/kubeval
-            # 'charts' contains 3rd party templates which doesn't validate against schema due to minor 'object != null' API validation issues
 
   # Run Kubernetes lint checks
   k8s-lint:
@@ -46,29 +43,40 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          name: K8s Kubeval Lint Check (Community)
+          name: K8s Kubeval Lint Check
           command: kubeval $(find . -type f)
           working_directory: community/stackstorm-ha/templates/
 
   # Spin up minikube K8s cluster and run Helm chart & e2e tests on it
   helm-e2e:
+    # 'large' 4 vCPUs & 15GB RAM CircleCI machine executor
+    # required to deploy heavy 'stackstorm-ha' Helm release with RabbitMQ, MongoDB, Redis clusters and 25+ st2 Pods.
+    # https://circleci.com/docs/2.0/configuration-reference/#machine-executor-linux
+    resource_class: large
     machine:
       # Available images https://circleci.com/docs/2.0/configuration-reference/#available-machine-images
       image: ubuntu-1604:201903-01
     steps:
       - checkout
       - kubernetes/install
+      - minikube/minikube-install:
+          # https://github.com/kubernetes/minikube/releases
+          version: v1.15.1
       - run:
-          name: Install Minikube
+          name: Install dependencies
           command: |
-            sudo curl -fLo /usr/local/bin/minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && sudo chmod +x /usr/local/bin/minikube
-            minikube version
+            sudo apt update || true
+            # K8s 1.18 requires conntrack
+            # See: https://github.com/kubernetes/minikube/issues/7179
+            sudo apt install -y conntrack
+      - run:
+          name: Install Helm v3
+          command: curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
       - run:
           name: Create new K8s cluster
-          command: sudo -E minikube start --vm-driver=none --cpus $(nproc) --memory 4096
+          command: sudo -E minikube start --vm-driver=none
           environment:
             CHANGE_MINIKUBE_NONE_USER: true
-      - helm/install-helm-on-cluster
       - run:
           name: Update stackstorm-ha chart dependencies
           command: |
@@ -83,6 +91,18 @@ jobs:
       - run:
           when: always
           name: Show created K8s resources (Community)
+          command: helm dependency update
+      - run:
+          name: Helm install stackstorm-ha chart
+          command: helm install --timeout 10m0s --debug --wait --name-template stackstorm-ha .
+      - run:
+          # once https://github.com/helm/community/pull/165 is merged we will need to add the parallelism flag back into the
+          # below command
+          name: Helm test
+          command: helm test stackstorm-ha
+      - run:
+          when: always
+          name: Show created K8s resources
           command: kubectl get all
 
 workflows:
