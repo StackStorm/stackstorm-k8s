@@ -20,17 +20,29 @@ data:
   st2.docker.conf: |
     [auth]
     api_url = http://{{ .Release.Name }}-st2api{{ template "enterpriseSuffix" . }}:9101/
+    {{- if index .Values "redis" "enabled" }}
     [coordination]
-    url = etcd://{{ .Release.Name }}-etcd:2379
+    url = redis://{{ template "redis-nodes" $ }}
+    {{- end }}
+    {{- if index .Values "rabbitmq" "enabled" }}
     [messaging]
-    # TODO: RabbitMQ HQ connection string needs templating based on number of nodes
-    url = amqp://{{ required "rabbitmq-ha.rabbitmqUsername is required!" (index .Values "rabbitmq-ha" "rabbitmqUsername") }}:{{ required "rabbitmq-ha.rabbitmqPassword is required!" (index .Values "rabbitmq-ha" "rabbitmqPassword") }}@{{ .Release.Name }}-rabbitmq-ha-discovery:5672
+    url = amqp://{{ required "rabbitmq.auth.username is required!" (index .Values "rabbitmq" "auth" "username") }}:{{ required "rabbitmq.auth.password is required!" (index .Values "rabbitmq" "auth" "password") }}@{{ .Release.Name }}-rabbitmq:5672{{ required "rabbitmq.ingress.path is required!" (index .Values "rabbitmq" "ingress" "path") }}
+    {{- end }}
+    {{- if index .Values "mongodb" "enabled" }}
     [database]
-    # TODO: ReplicaSet connection string needs templating based on number of MongoDB nodes
-    {{- if index .Values "mongodb-ha" "auth" "enabled" }}
-    host = mongodb://{{ required "mongodb-ha.auth.adminUser is required!" (index .Values "mongodb-ha" "auth" "adminUser") }}:{{ required "mongodb-ha.auth.adminPassword is required!" (index .Values "mongodb-ha" "auth" "adminPassword") }}@{{ .Release.Name }}-mongodb-ha/?authSource=admin&replicaSet=rs0
-    {{ else }}
-    host = mongodb://{{ .Release.Name }}-mongodb-ha/?replicaSet=rs0
+    {{- if index .Values "mongodb" "auth" "enabled" }}
+    host = mongodb://{{ template "mongodb-nodes" $ }}/{{ required "mongodb.auth.database is required!" (index .Values "mongodb" "auth" "database") }}?authSource={{ required "mongodb.auth.database is required!" (index .Values "mongodb" "auth" "database") }}&replicaSet={{ index .Values "mongodb" "replicaSetName" }}
+    username = {{ required "mongodb.auth.username is required!" (index .Values "mongodb" "auth" "username") }}
+    password = {{ required "mongodb.auth.password is required!" (index .Values "mongodb" "auth" "password") }}
+    db_name = {{ required "mongodb.auth.database is required!" (index .Values "mongodb" "auth" "database") }}
+    {{- else }}
+    host = mongodb://{{ template "mongodb-nodes" $ }}/?replicaSet={{ index .Values "mongodb" "replicaSetName" }}
+    {{- end }}
+    port = {{ index .Values "mongodb" "service" "port" }}
+    {{- end }}
+    {{- if .Values.secrets.st2.datastore_crypto_key }}
+    [keyvalue]
+    encryption_key_path = /etc/st2/keys/datastore_key.json
     {{- end }}
 
   # User-defined st2 config with custom settings applied on top of everything else.

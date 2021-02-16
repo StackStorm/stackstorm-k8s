@@ -35,7 +35,14 @@ spec:
         checksum/auth: {{ include (print $.Template.BasePath "/secrets_st2auth.yaml") . | sha256sum }}
     spec:
       # Sidecar container for generating .htpasswd with st2 username & password pair and sharing produced file with the main st2auth container
+      imagePullSecrets:
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
+      {{- end }}
       initContainers:
+      {{ include "init-containers-wait-for-db" . | indent 6 }}
+      {{ include "init-containers-wait-for-mq" . | indent 6 }}
+      # Sidecar container for generating .htpasswd with st2 username & password pair and sharing produced file with the main st2auth container
       - name: generate-htpasswd
         image: "{{ template "imageRepository" . }}/st2auth{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -82,6 +89,9 @@ spec:
           readOnly: true
         resources:
 {{ toYaml .Values.st2auth.resources | indent 10 }}
+    {{- if .Values.st2auth.serviceAccount.attach }}
+      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
+    {{- end }}
       volumes:
         - name: st2-config-vol
           configMap:
@@ -136,9 +146,20 @@ spec:
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
     spec:
       {{- if .Values.st2.packs.image.repository }}
+      imagePullSecrets:
+      {{- if .Values.st2.packs.image.pullSecret }}
+      - name: {{ .Values.st2.packs.image.pullSecret }}
+      {{- end }}
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
+      {{- end }}
       initContainers:
+      {{ include "init-containers-wait-for-db" . | indent 6 }}
+      {{ include "init-containers-wait-for-mq" . | indent 6 }}
+      {{- if .Values.st2.packs.image.repository }}
       # Merge packs and virtualenvs from st2api with those from the st2.packs image
       # Custom packs
       - name: st2-custom-packs
@@ -190,6 +211,11 @@ spec:
         - name: st2-config-vol
           mountPath: /etc/st2/st2.user.conf
           subPath: st2.user.conf
+        {{- if .Values.secrets.st2.datastore_crypto_key }}
+        - name: st2-encryption-key-vol
+          mountPath: /etc/st2/keys
+          readOnly: true
+        {{- end }}
         {{- if .Values.st2.packs.image.repository }}
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs
@@ -200,7 +226,18 @@ spec:
         {{- end }}
         resources:
 {{ toYaml .Values.st2api.resources | indent 10 }}
+    {{- if .Values.st2api.serviceAccount.attach }}
+      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
+    {{- end }}
       volumes:
+        {{- if .Values.secrets.st2.datastore_crypto_key }}
+        - name: st2-encryption-key-vol
+          secret:
+            secretName: {{ .Release.Name }}-st2-datastore-crypto-key
+            items:
+            - key: datastore_crypto_key
+              path: datastore_key.json
+        {{- end }}
         - name: st2-config-vol
           configMap:
             name: {{ .Release.Name }}-st2-config
@@ -258,6 +295,13 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
+      imagePullSecrets:
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
+      {{- end }}
+      initContainers:
+      {{ include "init-containers-wait-for-db" . | indent 6 }}
+      {{ include "init-containers-wait-for-mq" . | indent 6 }}
       containers:
       - name: st2stream{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2stream{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -279,6 +323,9 @@ spec:
           subPath: st2.user.conf
         resources:
 {{ toYaml .Values.st2stream.resources | indent 10 }}
+    {{- if .Values.st2stream.serviceAccount.attach }}
+      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
+    {{- end }}
       volumes:
         - name: st2-config-vol
           configMap:
@@ -326,7 +373,13 @@ spec:
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2web.yaml") . | sha256sum }}
     spec:
+      imagePullSecrets:
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
+      {{- end }}
       containers:
       - name: st2web{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2web{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -355,10 +408,27 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
             optional: true
+    {{- if .Values.st2web.config }}
+        volumeMounts:
+          - name: st2web-config-vol
+            mountPath: /opt/stackstorm/static/webui/config.js
+            subPath: st2web.config.js
+    {{- else }}
         volumeMounts: []
+    {{- end }}
         resources:
 {{ toYaml .Values.st2web.resources | indent 10 }}
+    {{- if .Values.st2web.serviceAccount.attach }}
+      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
+    {{- end }}
+    {{- if .Values.st2web.config }}
+      volumes:
+        - name: st2web-config-vol
+          configMap:
+            name: {{ .Release.Name }}-st2web-config
+    {{- else }}
       volumes: []
+    {{- end }}
     {{- with .Values.st2web.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
@@ -407,6 +477,13 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
+      imagePullSecrets:
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
+      {{- end }}
+      initContainers:
+      {{ include "init-containers-wait-for-db" . | indent 6 }}
+      {{ include "init-containers-wait-for-mq" . | indent 6 }}
       containers:
       - name: st2rulesengine{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2rulesengine{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -426,10 +503,21 @@ spec:
           subPath: st2.user.conf
         resources:
 {{ toYaml .Values.st2rulesengine.resources | indent 10 }}
+    {{- if .Values.st2rulesengine.serviceAccount.attach }}
+      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
+    {{- end }}
       volumes:
         - name: st2-config-vol
           configMap:
             name: {{ .Release.Name }}-st2-config
+        {{- if .Values.secrets.st2.datastore_crypto_key }}
+        - name: st2-encryption-key-vol
+          secret:
+            secretName: datastore_crypto_key
+            items:
+            - key: datastore_crypto_key
+              path: datastore_key.json
+        {{- end }}
     {{- with .Values.st2rulesengine.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
@@ -479,6 +567,13 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
+      imagePullSecrets:
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
+      {{- end }}
+      initContainers:
+      {{ include "init-containers-wait-for-db" . | indent 6 }}
+      {{ include "init-containers-wait-for-mq" . | indent 6 }}
       containers:
       - name: st2timersengine{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2timersengine{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -498,6 +593,9 @@ spec:
           subPath: st2.user.conf
         resources:
 {{ toYaml .Values.st2timersengine.resources | indent 10 }}
+    {{- if .Values.st2timersengine.serviceAccount.attach }}
+      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
+    {{- end }}
       volumes:
         - name: st2-config-vol
           configMap:
@@ -549,7 +647,15 @@ spec:
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
     spec:
+      imagePullSecrets:
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
+      {{- end }}
+      initContainers:
+      {{ include "init-containers-wait-for-db" . | indent 6 }}
+      {{ include "init-containers-wait-for-mq" . | indent 6 }}
       containers:
       - name: st2workflowengine{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2workflowengine{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -567,12 +673,28 @@ spec:
         - name: st2-config-vol
           mountPath: /etc/st2/st2.user.conf
           subPath: st2.user.conf
+        {{- if .Values.secrets.st2.datastore_crypto_key }}
+        - name: st2-encryption-key-vol
+          mountPath: /etc/st2/keys
+          readOnly: true
+        {{- end }}
         resources:
 {{ toYaml .Values.st2workflowengine.resources | indent 10 }}
+    {{- if .Values.st2workflowengine.serviceAccount.attach }}
+      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
+    {{- end }}
       volumes:
         - name: st2-config-vol
           configMap:
             name: {{ .Release.Name }}-st2-config
+        {{- if .Values.secrets.st2.datastore_crypto_key }}
+        - name: st2-encryption-key-vol
+          secret:
+            secretName: {{ .Release.Name }}-st2-datastore-crypto-key
+            items:
+            - key: datastore_crypto_key
+              path: datastore_key.json
+        {{- end }}
     {{- with .Values.st2workflowengine.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
@@ -619,7 +741,15 @@ spec:
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
     spec:
+      imagePullSecrets:
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
+      {{- end }}
+      initContainers:
+      {{ include "init-containers-wait-for-db" . | indent 6 }}
+      {{ include "init-containers-wait-for-mq" . | indent 6 }}
       containers:
       - name: st2scheduler{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2scheduler{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -637,9 +767,25 @@ spec:
         - name: st2-config-vol
           mountPath: /etc/st2/st2.user.conf
           subPath: st2.user.conf
+        {{- if .Values.secrets.st2.datastore_crypto_key }}
+        - name: st2-encryption-key-vol
+          mountPath: /etc/st2/keys
+          readOnly: true
+        {{- end }}
         resources:
 {{ toYaml .Values.st2scheduler.resources | indent 10 }}
+    {{- if .Values.st2scheduler.serviceAccount.attach }}
+      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
+    {{- end }}
       volumes:
+        {{- if .Values.secrets.st2.datastore_crypto_key }}
+        - name: st2-encryption-key-vol
+          secret:
+            secretName: {{ .Release.Name }}-st2-datastore-crypto-key
+            items:
+            - key: datastore_crypto_key
+              path: datastore_key.json
+        {{- end }}
         - name: st2-config-vol
           configMap:
             name: {{ .Release.Name }}-st2-config
@@ -691,6 +837,13 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
+      imagePullSecrets:
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
+      {{- end }}
+      initContainers:
+      {{ include "init-containers-wait-for-db" . | indent 6 }}
+      {{ include "init-containers-wait-for-mq" . | indent 6 }}
       containers:
       - name: st2notifier{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2notifier{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -710,6 +863,9 @@ spec:
           subPath: st2.user.conf
         resources:
 {{ toYaml .Values.st2notifier.resources | indent 10 }}
+    {{- if .Values.st2notifier.serviceAccount.attach }}
+      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
+    {{- end }}
       volumes:
         - name: st2-config-vol
           configMap:
@@ -765,9 +921,22 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") $ | sha256sum }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") $ | sha256sum }}
+        checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") $ | sha256sum }}
+        {{- if .annotations }}
+{{ toYaml .annotations | indent 8 }}
+        {{- end }}
     spec:
-      {{- if $.Values.st2.packs.image.repository }}
+      imagePullSecrets:
+      {{- if $.Values.st2.packs.image.pullSecret }}
+      - name: {{ $.Values.st2.packs.image.pullSecret }}
+      {{- end }}
+      {{- if $.Values.image.pullSecret }}
+      - name: {{ $.Values.image.pullSecret }}
+      {{- end }}
       initContainers:
+      {{ include "init-containers-wait-for-db" $ | indent 6 }}
+      {{ include "init-containers-wait-for-mq" $ | indent 6 }}
+      {{- if $.Values.st2.packs.image.repository }}
       # Merge packs and virtualenvs from st2sensorcontainer with those from the st2.packs image
       # Custom packs
       - name: st2-custom-packs
@@ -838,9 +1007,25 @@ spec:
           mountPath: /opt/stackstorm/virtualenvs
           readOnly: true
         {{- end }}
+        {{- if $.Values.secrets.st2.datastore_crypto_key }}
+        - name: st2-encryption-key-vol
+          mountPath: /etc/st2/keys
+          readOnly: true
+        {{- end }}
         resources:
 {{ toYaml .resources | indent 10 }}
+    {{- if .serviceAccount.attach }}
+      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" $ }}
+    {{- end }}
       volumes:
+        {{- if $.Values.secrets.st2.datastore_crypto_key }}
+        - name: st2-encryption-key-vol
+          secret:
+            secretName: {{ $.Release.Name }}-st2-datastore-crypto-key
+            items:
+            - key: datastore_crypto_key
+              path: datastore_key.json
+        {{- end }}
         - name: st2-config-vol
           configMap:
             name: {{ $.Release.Name }}-st2-config
@@ -900,9 +1085,27 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/ssh: {{ include (print $.Template.BasePath "/secrets_ssh.yaml") . | sha256sum }}
+        checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+        {{- if .Values.st2actionrunner.annotations }}
+{{ toYaml .Values.st2actionrunner.annotations | indent 8 }}
+        {{- end }}
     spec:
       {{- if .Values.st2.packs.image.repository }}
+      {{- if .Values.st2actionrunner.hostAliases }}
+      hostAliases:
+{{ toYaml .Values.st2actionrunner.hostAliases | indent 8 }}
+      {{- end }}
+      imagePullSecrets:
+      {{- if .Values.st2.packs.image.pullSecret }}
+      - name: {{ .Values.st2.packs.image.pullSecret }}
+      {{- end }}
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
+      {{- end }}
       initContainers:
+      {{ include "init-containers-wait-for-db" . | indent 6 }}
+      {{ include "init-containers-wait-for-mq" . | indent 6 }}
+      {{- if .Values.st2.packs.image.repository }}
       # Merge packs and virtualenvs from st2actionrunner with those from the st2.packs image
       # Custom packs
       - name: st2-custom-packs
@@ -953,6 +1156,11 @@ spec:
         - name: st2-ssh-key-vol
           mountPath: /home/stanley/.ssh/
           readOnly: true
+        {{- if .Values.secrets.st2.datastore_crypto_key }}
+        - name: st2-encryption-key-vol
+          mountPath: /etc/st2/keys
+          readOnly: true
+        {{- end }}
         {{- if .Values.st2.packs.image.repository }}
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs
@@ -963,7 +1171,18 @@ spec:
         {{- end }}
         resources:
 {{ toYaml .Values.st2actionrunner.resources | indent 10 }}
+    {{- if .Values.st2actionrunner.serviceAccount.attach }}
+      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
+    {{- end }}
       volumes:
+        {{- if .Values.secrets.st2.datastore_crypto_key }}
+        - name: st2-encryption-key-vol
+          secret:
+            secretName: {{ .Release.Name }}-st2-datastore-crypto-key
+            items:
+            - key: datastore_crypto_key
+              path: datastore_key.json
+        {{- end }}
         - name: st2-config-vol
           configMap:
             name: {{ .Release.Name }}-st2-config
@@ -1029,6 +1248,13 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
+      imagePullSecrets:
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
+      {{- end }}
+      initContainers:
+      {{ include "init-containers-wait-for-db" . | indent 6 }}
+      {{ include "init-containers-wait-for-mq" . | indent 6 }}
       containers:
       - name: st2garbagecollector{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2garbagecollector{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -1048,6 +1274,9 @@ spec:
           subPath: st2.user.conf
         resources:
 {{ toYaml .Values.st2garbagecollector.resources | indent 10 }}
+    {{- if .Values.st2garbagecollector.serviceAccount.attach }}
+      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
+    {{- end }}
       volumes:
         - name: st2-config-vol
           configMap:
@@ -1101,7 +1330,15 @@ spec:
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") . | sha256sum }}
         checksum/auth: {{ include (print $.Template.BasePath "/secrets_st2auth.yaml") . | sha256sum }}
         checksum/ssh: {{ include (print $.Template.BasePath "/secrets_ssh.yaml") . | sha256sum }}
+        checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
     spec:
+      imagePullSecrets:
+      {{- if .Values.st2.packs.image.pullSecret }}
+      - name: {{ .Values.st2.packs.image.pullSecret }}
+      {{- end }}
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
+      {{- end }}
       initContainers:
       {{- if .Values.st2.packs.image.repository }}
       # Merge packs and virtualenvs from st2actionrunner with those from the st2.packs image
@@ -1195,6 +1432,11 @@ spec:
         - name: st2-ssh-key-vol
           mountPath: /home/stanley/.ssh/
           readOnly: true
+        {{- if .Values.secrets.st2.datastore_crypto_key }}
+        - name: st2-encryption-key-vol
+          mountPath: /etc/st2/keys
+          readOnly: true
+        {{- end }}
         {{- if .Values.st2.packs.image.repository }}
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs
@@ -1212,6 +1454,14 @@ spec:
             memory: "5Mi"
             cpu: "5m"
       volumes:
+        {{- if .Values.secrets.st2.datastore_crypto_key }}
+        - name: st2-encryption-key-vol
+          secret:
+            secretName: {{ .Release.Name }}-st2-datastore-crypto-key
+            items:
+            - key: datastore_crypto_key
+              path: datastore_key.json
+        {{- end }}
         - name: st2-config-vol
           configMap:
             name: {{ .Release.Name }}-st2-config
@@ -1280,6 +1530,10 @@ spec:
       annotations:
         checksum/chatops: {{ include (print $.Template.BasePath "/secrets_st2chatops.yaml") . | sha256sum }}
     spec:
+      {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
+      - name: {{ .Values.image.pullSecret }}
+      {{- end }}
       containers:
       - name: st2chatops{{ template "enterpriseSuffix" . }}
         image: "{{ .Values.st2chatops.image.repository | default "stackstorm" }}/{{ .Values.st2chatops.image.name | default "st2chatops" }}:{{ tpl (.Values.st2chatops.image.tag | default .Chart.AppVersion) . }}"
@@ -1315,6 +1569,9 @@ spec:
           periodSeconds: 30
         resources:
 {{ toYaml .Values.st2chatops.resources | indent 10 }}
+    {{- if .Values.st2chatops.serviceAccount.attach }}
+        serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
+    {{- end }}
     {{- with .Values.st2chatops.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}

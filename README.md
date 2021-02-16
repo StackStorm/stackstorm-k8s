@@ -1,16 +1,17 @@
 # `stackstorm-ha` Helm Chart
 [![Build Status](https://circleci.com/gh/StackStorm/stackstorm-ha/tree/master.svg?style=shield)](https://circleci.com/gh/StackStorm/stackstorm-ha)
+[![Artifact HUB](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/stackstorm-ha)](https://artifacthub.io/packages/helm/stackstorm/stackstorm-ha)
 
 K8s Helm Chart for running StackStorm cluster in HA mode.
 
 It will install 2 replicas for each component of StackStorm microservices for redundancy, as well as backends like
-RabbitMQ HA, MongoDB HA Replicaset and etcd cluster that st2 replies on for MQ, DB and distributed coordination respectively.
+RabbitMQ HA, MongoDB HA Replicaset and Redis cluster that st2 replies on for MQ, DB and distributed coordination respectively.
 
 It's more than welcome to fine-tune each component settings to fit specific availability/scalability demands.
 
 ## Requirements
 * [Kubernetes](https://kubernetes.io/docs/setup/pick-right-solution/) cluster
-* [Helm](https://docs.helm.sh/using_helm/#install-helm) and [Tiller](https://docs.helm.sh/using_helm/#initialize-helm-and-install-tiller)
+* [Helm](https://docs.helm.sh/using_helm/#install-helm) `v3.x`
 
 ## Usage
 1) Edit `values.yaml` with configuration for the StackStorm HA K8s cluster.
@@ -19,7 +20,6 @@ It's more than welcome to fine-tune each component settings to fit specific avai
 
 2) Pull 3rd party Helm dependencies:
 ```
-helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
 helm dependency update
 ```
 
@@ -117,7 +117,7 @@ All the workflow engine processes will share the load and pick up more work if o
 Multiple st2notifier processes can run in active-active mode, using connections to RabbitMQ and MongoDB and generating triggers based on
 action execution completion as well as doing action rescheduling.
 In an HA deployment there must be a minimum of `2` replicas of st2notifier running, requiring a coordination backend,
-which in our case is `etcd`.
+which in our case is `Redis`.
 
 ### [st2sensorcontainer](https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer)
 st2sensorcontainer manages StackStorm sensors: It starts, stops and restarts them as subprocesses.
@@ -144,7 +144,7 @@ st2:
 ### [st2actionrunner](https://docs.stackstorm.com/reference/ha.html#st2actionrunner)
 Stackstorm workers that actually execute actions.
 `5` replicas for K8s Deployment are configured by default to increase StackStorm ability to execute actions without excessive queuing.
-Relies on `etcd` for coordination. This is likely the first thing to lift if you have a lot of actions
+Relies on `redis` for coordination. This is likely the first thing to lift if you have a lot of actions
 to execute per time period in your StackStorm cluster.
 
 ### [st2garbagecollector](https://docs.stackstorm.com/reference/ha.html#st2garbagecollector)
@@ -158,70 +158,42 @@ StackStorm ChatOps service, based on hubot engine, custom stackstorm integration
 Due to Hubot limitation, st2chatops doesn't provide mechanisms to guarantee high availability and so only single `1` node of st2chatops is deployed.
 This service is disabled by default. Please refer to Helm `values.yaml` about how to enable and configure st2chatops with ENV vars for your preferred chat service.
 
-### [MongoDB HA ReplicaSet](https://github.com/helm/charts/tree/master/stable/mongodb-replicaset)
-StackStorm works with MongoDB as a database engine. External Helm Chart is used to configure MongoDB HA [ReplicaSet](https://docs.mongodb.com/manual/tutorial/deploy-replica-set/).
+### [MongoDB ReplicaSet](https://github.com/bitnami/charts/tree/master/bitnami/mongodb)
+StackStorm works with MongoDB as a database engine. External Helm Chart is used to configure MongoDB [ReplicaSet](https://docs.mongodb.com/manual/tutorial/deploy-replica-set/).
 By default `3` nodes (1 primary and 2 secondaries) of MongoDB are deployed via K8s StatefulSet.
-For more advanced MongoDB configuration, refer to official [mongodb-replicaset](https://github.com/helm/charts/tree/master/stable/mongodb-replicaset)
+For more advanced MongoDB configuration, refer to bitnami [mongodb](https://github.com/bitnami/charts/tree/master/bitnami/mongodb)
 Helm chart settings, which might be fine-tuned via `values.yaml`.
+
+The deployment of MongoDB to the k8s cluster can be disabled by setting the mongodb-ha.enabled key in values.yaml to false.  *Note: Stackstorm relies heavily on connections to a MongoDB instance.  If the in-cluster deployment of MongoDB is disabled, a connection to an external instance of MongoDB must be configured.  The st2.config key in values.yaml provides a way to configure stackstorm.  See [Configure MongoDB](https://docs.stackstorm.com/install/config/config.html#configure-mongodb) for configuration details.*
 
 ### [RabbitMQ HA Cluster](https://docs.stackstorm.com/latest/reference/ha.html#rabbitmq)
 RabbitMQ is a message bus StackStorm relies on for inter-process communication and load distribution.
 External Helm Chart is used to deploy [RabbitMQ cluster](https://www.rabbitmq.com/clustering.html) in Highly Available mode.
 By default `3` nodes of RabbitMQ are deployed via K8s StatefulSet.
-For more advanced RabbitMQ configuration, please refer to official [rabbitmq-ha](https://github.com/helm/charts/tree/master/stable/rabbitmq-ha)
+For more advanced RabbitMQ configuration, please refer to bitnami [rabbitmq](https://github.com/bitnami/charts/tree/master/bitnami/rabbitmq)
 Helm chart repository, - all settings could be overridden via `values.yaml`.
 
-### [etcd](https://docs.stackstorm.com/latest/reference/ha.html#zookeeper-redis)
-StackStorm employs etcd as a distributed coordination backend, required for st2 cluster components to work properly in HA scenario.
-`3` node Raft cluster is deployed via external official Helm chart dependency [etcd](https://github.com/helm/charts/tree/master/incubator/etcd).
+The deployment of RabbitMQ to the k8s cluster can be disabled by setting the rabbitmq-ha.enabled key in values.yaml to false.  *Note: Stackstorm relies heavily on connections to a RabbitMQ instance.  If the in-cluster deployment of RabbitMQ is disabled, a connection to an external instance of RabbitMQ must be configured.  The st2.config key in values.yaml provides a way to configure stackstorm.  See [Configure RabbitMQ](https://docs.stackstorm.com/install/config/config.html#configure-rabbitmq) for configuration details.*
+
+### [redis](https://docs.stackstorm.com/latest/reference/ha.html#zookeeper-redis)
+StackStorm employs redis sentinel as a distributed coordination backend, required for st2 cluster components to work properly in HA scenario.
+`3` node Redis cluster with Sentinel enabled is deployed via external bitnami Helm chart dependency [redis](https://github.com/bitnami/charts/tree/master/bitnami/redis).
 As any other Helm dependency, it's possible to further configure it for specific scaling needs via `values.yaml`.
 
-### Docker registry
-If you do not already have an appropriate docker registry for storing custom st2 packs images, we made it
-very easy to deploy one in your k8s cluster. You can optionally enable in-cluster Docker registry via
-`values.yaml` by setting `docker-registry.enabled: true` and additional 3rd party charts [docker-registry](https://github.com/helm/charts/tree/master/stable/docker-registry)
-and [kube-registry-proxy](https://github.com/helm/charts/tree/master/incubator/kube-registry-proxy) will be configured.
-
 ## Install custom st2 packs in the cluster
-In the kubernetes cluster, the `st2 pack install` command will not work. Instead, you need to bake the packs into a custom
-docker image, and push it to a private or public docker registry. The image will provide `/opt/stackstorm/{packs,virtualenvs}`
-via a sidecar container in pods which need access to the packs.
+In distributed environment of the Kubernetes cluster `st2 pack install` won’t work.
+Instead, you need to bake the packs into a custom docker image, push it to a private or public docker registry and reference that image in Helm values.
+Helm chart will take it from there, sharing `/opt/stackstorm/{packs,virtualenvs}` via a sidecar container in pods which require access to the packs.
 
-If you do not already have an appropriate docker registry, we made it very easy to deploy one in your k8s cluster.
-See below for details.
-
-### Build st2packs image
-To build the st2packs image which contains your required packs installed in `/opt/stackstorm/packs` and
-`/opt/stackstorm/virtualenvs`, define the `PACKS` build argument using a space separated list of pack names.
-Set DOCKER_REGISTRY to the docker registry URL. If using the private docker registry in the k8s cluster,
-set `DOCKER_REGISTRY`to `localhost:5000`.
-
-Please see https://hub.docker.com/r/stackstorm/st2packs/ for details on how to build your custom `st2packs` image.
-
-### Push st2packs image to a docker registry
-If you're pushing to a private docker registry in the k8s cluster, you will need to port forward from your local host to the registry. You can use:
-```
-kubectl port-forward $(kubectl get pod -l app=docker-registry -o jsonpath="{.items[0].metadata.name}") 5000:5000
-```
-
-NOTE: If running on MacOS, before deploying the image, open another terminal and execute:
-```
-docker run --privileged --pid=host stackstorm/socat:latest nsenter -t 1 -u -n -i socat TCP-LISTEN:5000,fork TCP:docker.for.mac.localhost:5000
-```
-
-The source for the `stackstorm/socat` image is found at https://github.com/StackStorm/docker-socat.
-
-To deploy the image to the registry, execute:
-```
-docker push ${DOCKER_REGISTRY}/st2packs:latest
-```
+### Building st2packs image
+For your convenience, we created a new `st2-pack-install <pack1> <pack2> <pack3>` utility and included it in a container that will help to install custom packs during the Docker build process without relying on live DB and MQ connection.
+Please see https://github.com/StackStorm/st2packs-dockerfiles/ for instructions on how to build your custom `st2packs` image.
 
 ### How to provide custom pack configs
-Update the `pack.configs` section of `stackstorm-ha/values.yaml`:
+Update the `st2.packs.configs` section of Helm values:
 
 For example:
 ```
-pack
   configs:
     email.yaml: |
       ---
@@ -233,6 +205,15 @@ pack
 ```
 Don't forget running Helm upgrade to apply new changes.
 
+### Pull st2packs from a private Docker registry
+If you need to pull your custom packs Docker image from a private repository, create a Kubernetes Docker registry secret and pass it to Helm values.
+See [K8s documentation](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) for more info.
+```
+# Create a Docker registry secret called 'st2packs-auth'
+kubectl create secret docker-registry st2packs-auth --docker-server=<your-registry-server> --docker-username=<your-name> --docker-password=<your-password>
+```
+Once secret created, reference its name in helm value: `st2.packs.image.pullSecret`.
+
 
 ## Tips & Tricks
 Grab all logs for entire StackStorm cluster with dependent services in Helm release:
@@ -240,7 +221,7 @@ Grab all logs for entire StackStorm cluster with dependent services in Helm rele
 kubectl logs -l release=<release-name>
 ```
 
-Grab all logs only for stackstorm backend services, excluding st2web and DB/MQ/etcd:
+Grab all logs only for stackstorm backend services, excluding st2web and DB/MQ/redis:
 ```
 kubectl logs -l release=<release-name>,tier=backend
 ```
