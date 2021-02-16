@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2auth{{ template "enterpriseSuffix" . }}
+  name: {{ .Release.Name }}-st2auth
   labels:
     app: st2auth
     tier: backend
@@ -35,9 +35,6 @@ spec:
         checksum/auth: {{ include (print $.Template.BasePath "/secrets_st2auth.yaml") . | sha256sum }}
     spec:
       imagePullSecrets:
-      {{- if .Values.enterprise.enabled }}
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
@@ -46,7 +43,7 @@ spec:
       {{ include "init-containers-wait-for-mq" . | indent 6 }}
       # Sidecar container for generating .htpasswd with st2 username & password pair and sharing produced file with the main st2auth container
       - name: generate-htpasswd
-        image: "{{ template "imageRepository" . }}/st2auth{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2auth:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         env:
         - name: ST2_AUTH_USERNAME
@@ -67,8 +64,8 @@ spec:
           - '-ec'
           - printf "${ST2_AUTH_USERNAME}:$(openssl passwd -apr1 "${ST2_AUTH_PASSWORD}")\n" > /tmp/st2/htpasswd
       containers:
-      - name: st2auth{{ template "enterpriseSuffix" . }}
-        image: "{{ template "imageRepository" . }}/st2auth{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+      - name: st2auth
+        image: "{{ template "imageRepository" . }}/st2auth:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 9100
@@ -118,7 +115,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2api{{ template "enterpriseSuffix" . }}
+  name: {{ .Release.Name }}-st2api
   labels:
     app: st2api
     tier: backend
@@ -151,9 +148,6 @@ spec:
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
     spec:
       imagePullSecrets:
-      {{- if .Values.enterprise.enabled }}
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       {{- if .Values.st2.packs.image.pullSecret }}
       - name: {{ .Values.st2.packs.image.pullSecret }}
       {{- end }}
@@ -182,7 +176,7 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         volumeMounts:
         - name: st2-packs-vol
@@ -197,8 +191,8 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       {{- end }}
       containers:
-      - name: st2api{{ template "enterpriseSuffix" . }}
-        image: "{{ template "imageRepository" . }}/st2api{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+      - name: st2api
+        image: "{{ template "imageRepository" . }}/st2api:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 9101
@@ -268,7 +262,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2stream{{ template "enterpriseSuffix" . }}
+  name: {{ .Release.Name }}-st2stream
   labels:
     app: st2stream
     tier: backend
@@ -300,9 +294,6 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
       imagePullSecrets:
-      {{- if .Values.enterprise.enabled }}
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
@@ -310,8 +301,8 @@ spec:
       {{ include "init-containers-wait-for-db" . | indent 6 }}
       {{ include "init-containers-wait-for-mq" . | indent 6 }}
       containers:
-      - name: st2stream{{ template "enterpriseSuffix" . }}
-        image: "{{ template "imageRepository" . }}/st2stream{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+      - name: st2stream
+        image: "{{ template "imageRepository" . }}/st2stream:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 9102
@@ -354,7 +345,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }}
+  name: {{ .Release.Name }}-st2web
   labels:
     app: st2web
     tier: frontend
@@ -384,15 +375,12 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2web.yaml") . | sha256sum }}
     spec:
       imagePullSecrets:
-      {{- if .Values.enterprise.enabled }}
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       containers:
-      - name: st2web{{ template "enterpriseSuffix" . }}
-        image: "{{ template "imageRepository" . }}/st2web{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+      - name: st2web
+        image: "{{ template "imageRepository" . }}/st2web:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 80
@@ -456,7 +444,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2rulesengine{{ template "enterpriseSuffix" . }}
+  name: {{ .Release.Name }}-st2rulesengine
   labels:
     app: st2rulesengine
     tier: backend
@@ -488,9 +476,6 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
       imagePullSecrets:
-      {{- if .Values.enterprise.enabled }}
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
@@ -498,8 +483,8 @@ spec:
       {{ include "init-containers-wait-for-db" . | indent 6 }}
       {{ include "init-containers-wait-for-mq" . | indent 6 }}
       containers:
-      - name: st2rulesengine{{ template "enterpriseSuffix" . }}
-        image: "{{ template "imageRepository" . }}/st2rulesengine{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+      - name: st2rulesengine
+        image: "{{ template "imageRepository" . }}/st2rulesengine:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -548,7 +533,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2timersengine{{ template "enterpriseSuffix" . }}
+  name: {{ .Release.Name }}-st2timersengine
   labels:
     app: st2timersengine
     tier: backend
@@ -581,9 +566,6 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
       imagePullSecrets:
-      {{- if .Values.enterprise.enabled }}
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
@@ -591,8 +573,8 @@ spec:
       {{ include "init-containers-wait-for-db" . | indent 6 }}
       {{ include "init-containers-wait-for-mq" . | indent 6 }}
       containers:
-      - name: st2timersengine{{ template "enterpriseSuffix" . }}
-        image: "{{ template "imageRepository" . }}/st2timersengine{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+      - name: st2timersengine
+        image: "{{ template "imageRepository" . }}/st2timersengine:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -633,7 +615,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2workflowengine{{ template "enterpriseSuffix" . }}
+  name: {{ .Release.Name }}-st2workflowengine
   labels:
     app: st2workflowengine
     tier: backend
@@ -666,9 +648,6 @@ spec:
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
     spec:
       imagePullSecrets:
-      {{- if .Values.enterprise.enabled }}
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
@@ -676,8 +655,8 @@ spec:
       {{ include "init-containers-wait-for-db" . | indent 6 }}
       {{ include "init-containers-wait-for-mq" . | indent 6 }}
       containers:
-      - name: st2workflowengine{{ template "enterpriseSuffix" . }}
-        image: "{{ template "imageRepository" . }}/st2workflowengine{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+      - name: st2workflowengine
+        image: "{{ template "imageRepository" . }}/st2workflowengine:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -731,7 +710,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2scheduler{{ template "enterpriseSuffix" . }}
+  name: {{ .Release.Name }}-st2scheduler
   labels:
     app: st2scheduler
     tier: backend
@@ -763,9 +742,6 @@ spec:
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
     spec:
       imagePullSecrets:
-      {{- if .Values.enterprise.enabled }}
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
@@ -773,8 +749,8 @@ spec:
       {{ include "init-containers-wait-for-db" . | indent 6 }}
       {{ include "init-containers-wait-for-mq" . | indent 6 }}
       containers:
-      - name: st2scheduler{{ template "enterpriseSuffix" . }}
-        image: "{{ template "imageRepository" . }}/st2scheduler{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+      - name: st2scheduler
+        image: "{{ template "imageRepository" . }}/st2scheduler:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -828,7 +804,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2notifier{{ template "enterpriseSuffix" . }}
+  name: {{ .Release.Name }}-st2notifier
   labels:
     app: st2notifier
     tier: backend
@@ -860,9 +836,6 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
       imagePullSecrets:
-      {{- if .Values.enterprise.enabled }}
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
@@ -870,8 +843,8 @@ spec:
       {{ include "init-containers-wait-for-db" . | indent 6 }}
       {{ include "init-containers-wait-for-mq" . | indent 6 }}
       containers:
-      - name: st2notifier{{ template "enterpriseSuffix" . }}
-        image: "{{ template "imageRepository" . }}/st2notifier{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+      - name: st2notifier
+        image: "{{ template "imageRepository" . }}/st2notifier:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -913,7 +886,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ $.Release.Name }}-st2sensorcontainer{{ template "hyphenPrefix" .name }}{{ template "enterpriseSuffix" $ }}
+  name: {{ $.Release.Name }}-st2sensorcontainer{{ template "hyphenPrefix" .name }}
   labels:
     app: st2sensorcontainer{{ template "hyphenPrefix" .name }}
     tier: backend
@@ -952,9 +925,6 @@ spec:
         {{- end }}
     spec:
       imagePullSecrets:
-      {{- if $.Values.enterprise.enabled }}
-      - name: {{ $.Release.Name }}-st2-license
-      {{- end }}
       {{- if $.Values.st2.packs.image.pullSecret }}
       - name: {{ $.Values.st2.packs.image.pullSecret }}
       {{- end }}
@@ -983,7 +953,7 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
-        image: "{{ template "imageRepository" $ }}/st2actionrunner{{ template "enterpriseSuffix" $ }}:{{ $.Chart.AppVersion }}"
+        image: "{{ template "imageRepository" $ }}/st2actionrunner:{{ $.Chart.AppVersion }}"
         imagePullPolicy: {{ $.Values.image.pullPolicy }}
         volumeMounts:
         - name: st2-packs-vol
@@ -996,8 +966,8 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       {{- end }}
       containers:
-      - name: st2sensorcontainer{{ template "hyphenPrefix" .name }}{{ template "enterpriseSuffix" $ }}
-        image: "{{ template "imageRepository" $ }}/st2sensorcontainer{{ template "enterpriseSuffix" $ }}:{{ $.Chart.AppVersion }}"
+      - name: st2sensorcontainer{{ template "hyphenPrefix" .name }}
+        image: "{{ template "imageRepository" $ }}/st2sensorcontainer:{{ $.Chart.AppVersion }}"
         imagePullPolicy: {{ $.Values.image.pullPolicy }}
         {{- with .readinessProbe }}
         # Probe to check if app is running. Failure will lead to a pod restart.
@@ -1081,7 +1051,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2actionrunner{{ template "enterpriseSuffix" . }}
+  name: {{ .Release.Name }}-st2actionrunner
   labels:
     app: st2actionrunner
     tier: backend
@@ -1123,9 +1093,6 @@ spec:
 {{ toYaml .Values.st2actionrunner.hostAliases | indent 8 }}
       {{- end }}
       imagePullSecrets:
-      {{- if .Values.enterprise.enabled }}
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       {{- if .Values.st2.packs.image.pullSecret }}
       - name: {{ .Values.st2.packs.image.pullSecret }}
       {{- end }}
@@ -1154,7 +1121,7 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         volumeMounts:
         - name: st2-packs-vol
@@ -1167,8 +1134,8 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       {{- end }}
       containers:
-      - name: st2actionrunner{{ template "enterpriseSuffix" . }}
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+      - name: st2actionrunner
+        image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -1247,7 +1214,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2garbagecollector{{ template "enterpriseSuffix" . }}
+  name: {{ .Release.Name }}-st2garbagecollector
   labels:
     app: st2garbagecollector
     tier: backend
@@ -1279,9 +1246,6 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
       imagePullSecrets:
-      {{- if .Values.enterprise.enabled }}
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
@@ -1289,8 +1253,8 @@ spec:
       {{ include "init-containers-wait-for-db" . | indent 6 }}
       {{ include "init-containers-wait-for-mq" . | indent 6 }}
       containers:
-      - name: st2garbagecollector{{ template "enterpriseSuffix" . }}
-        image: "{{ template "imageRepository" . }}/st2garbagecollector{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+      - name: st2garbagecollector
+        image: "{{ template "imageRepository" . }}/st2garbagecollector:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -1331,7 +1295,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2client{{ template "enterpriseSuffix" . }}
+  name: {{ .Release.Name }}-st2client
   labels:
     app: st2client
     tier: backend
@@ -1359,18 +1323,13 @@ spec:
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
-        {{- if .Values.enterprise.enabled }}
         checksum/rbac: {{ include (print $.Template.BasePath "/configmaps_rbac.yaml") . | sha256sum }}
-        {{- end }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") . | sha256sum }}
         checksum/auth: {{ include (print $.Template.BasePath "/secrets_st2auth.yaml") . | sha256sum }}
         checksum/ssh: {{ include (print $.Template.BasePath "/secrets_ssh.yaml") . | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
     spec:
       imagePullSecrets:
-      {{- if .Values.enterprise.enabled }}
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       {{- if .Values.st2.packs.image.pullSecret }}
       - name: {{ .Values.st2.packs.image.pullSecret }}
       {{- end }}
@@ -1397,7 +1356,7 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         volumeMounts:
         - name: st2-packs-vol
@@ -1411,7 +1370,7 @@ spec:
       {{- end }}
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       - name: generate-st2client-config
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         envFrom:
         - configMapRef:
@@ -1441,8 +1400,8 @@ spec:
             password = ${ST2_AUTH_PASSWORD}
             EOT
       containers:
-      - name: st2client{{ template "enterpriseSuffix" . }}
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+      - name: st2client
+        image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         env:
         - name: ST2CLIENT
@@ -1457,14 +1416,12 @@ spec:
         - name: st2-config-vol
           mountPath: /etc/st2/st2.user.conf
           subPath: st2.user.conf
-        {{- if .Values.enterprise.enabled }}
         - name: st2-rbac-roles-vol
           mountPath: /opt/stackstorm/rbac/roles/
         - name: st2-rbac-assignments-vol
           mountPath: /opt/stackstorm/rbac/assignments/
         - name: st2-rbac-mappings-vol
           mountPath: /opt/stackstorm/rbac/mappings/
-        {{- end }}
         - name: st2-pack-configs-vol
           mountPath: /opt/stackstorm/configs/
         - name: st2client-config-vol
@@ -1505,7 +1462,6 @@ spec:
         - name: st2-config-vol
           configMap:
             name: {{ .Release.Name }}-st2-config
-        {{- if .Values.enterprise.enabled }}
         - name: st2-rbac-roles-vol
           configMap:
             name: {{ .Release.Name }}-st2-rbac-roles
@@ -1515,7 +1471,6 @@ spec:
         - name: st2-rbac-mappings-vol
           configMap:
             name: {{ .Release.Name }}-st2-rbac-mappings
-        {{- end }}
         - name: st2-pack-configs-vol
           configMap:
             name: {{ .Release.Name }}-st2-pack-configs
@@ -1542,7 +1497,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2chatops{{ template "enterpriseSuffix" . }}
+  name: {{ .Release.Name }}-st2chatops
   labels:
     app: st2chatops
     tier: backend
@@ -1577,7 +1532,7 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       containers:
-      - name: st2chatops{{ template "enterpriseSuffix" . }}
+      - name: st2chatops
         image: "{{ .Values.st2chatops.image.repository | default "stackstorm" }}/{{ .Values.st2chatops.image.name | default "st2chatops" }}:{{ tpl (.Values.st2chatops.image.tag | default .Chart.AppVersion) . }}"
         imagePullPolicy: {{ .Values.st2chatops.image.pullPolicy | default .Values.image.pullPolicy }}
         env:

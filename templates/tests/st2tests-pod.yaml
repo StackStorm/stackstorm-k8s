@@ -14,10 +14,6 @@ metadata:
     "helm.sh/hook": test-success
     "helm.sh/hook-delete-policy": hook-succeeded
 spec:
-  {{- if .Values.enterprise.enabled }}
-  imagePullSecrets:
-  - name: {{ .Release.Name }}-st2-license
-  {{- end }}
   initContainers:
   # Sidecar container to copy BATS framework to the main container
   - name: test-framework
@@ -33,7 +29,7 @@ spec:
   # Run the actual BATS tests
   containers:
   - name: st2tests
-    image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+    image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
     imagePullPolicy: {{ .Values.image.pullPolicy }}
     envFrom:
     - configMapRef:
