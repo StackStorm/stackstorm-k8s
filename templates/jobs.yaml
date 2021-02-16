@@ -71,7 +71,6 @@ spec:
           configMap:
             name: {{ .Release.Name }}-st2-rbac-mappings
       restartPolicy: OnFailure
-{{ end }}
 
 ---
 apiVersion: batch/v1
@@ -141,7 +140,7 @@ spec:
             EOT
       containers:
       - name: st2-apikey-load
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         command:
           - st2
@@ -205,7 +204,7 @@ spec:
       initContainers:
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       - name: generate-st2client-config
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         envFrom:
         - configMapRef:
@@ -236,7 +235,7 @@ spec:
             EOT
       containers:
       - name: st2-key-load
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         command:
           - st2
@@ -326,7 +325,7 @@ spec:
             /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       # System packs
       - name: st2-system-packs
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         volumeMounts:
         - name: st2-packs-vol
@@ -340,7 +339,7 @@ spec:
       {{ end }}
       containers:
       - name: st2-register-content
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         command:
           - st2-register-content

@@ -3,7 +3,7 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: {{ .Release.Name }}-ingress{{ template "enterpriseSuffix" . }}
+  name: {{ .Release.Name }}-ingress
   labels:
     app: ingress
     tier: frontend
@@ -39,7 +39,7 @@ spec:
       paths:
         - path: "/*"
           backend:
-            serviceName: {{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }}
+            serviceName: {{ .Release.Name }}-st2web
             servicePort: "80"
   {{- end }}
   {{- if .Values.ingress.tls }}

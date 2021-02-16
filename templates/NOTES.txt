@@ -24,7 +24,7 @@ kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ .Release.Name }
 {{- else if contains "NodePort" .Values.st2web.service.type }}
 
 export ST2WEB_IP=$(minikube ip 2>/dev/null || kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
-export ST2WEB_PORT="$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }})"
+export ST2WEB_PORT="$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ .Release.Name }}-st2web)"
 echo http://${ST2WEB_IP}:${ST2WEB_PORT}/
 
 {{- end }}
