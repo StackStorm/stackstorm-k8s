@@ -7,7 +7,7 @@
 image:
   # Image pull policy
   pullPolicy: IfNotPresent
-  # st2 image repository. Set this to override the default ("stackstorm") or enterprise
+  # st2 image repository. Set this to override the default ("stackstorm") 
   # docker image repository ("docker.stackstorm.com"). Applies to all st2 containers except
   # st2chatops and st2packs (which have their own override). This also does not impact 
   # dependencies such as mongo or redis, which have their own helm chart settings.
@@ -16,17 +16,6 @@ image:
   # May be required for public docker hub due to rate limiting or any private repository.
   # See: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
   #pullSecret: "your-pull-secret"
-
-
-##
-## StackStorm Enterprise settings (Optional)
-##
-enterprise:
-  # Enable/Disable StackStorm Enterprise. Enabling will download StackStorm Enterprise Docker images.
-  enabled: false
-  # Required StackStorm Enterprise license key.
-  # Don't have one? Obtain 90-day free trial at https://stackstorm.com/#product
-  license: ""
 
 # StackStorm Role Based Access Control settings (https://docs.stackstorm.com/rbac.html)
 rbac:
