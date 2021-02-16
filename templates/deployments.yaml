@@ -34,10 +34,6 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/auth: {{ include (print $.Template.BasePath "/secrets_st2auth.yaml") . | sha256sum }}
     spec:
-      {{- if .Values.enterprise.enabled }}
-      imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       # Sidecar container for generating .htpasswd with st2 username & password pair and sharing produced file with the main st2auth container
       initContainers:
       - name: generate-htpasswd
@@ -141,10 +137,6 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
-      {{- if .Values.enterprise.enabled }}
-      imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       {{- if .Values.st2.packs.image.repository }}
       initContainers:
       # Merge packs and virtualenvs from st2api with those from the st2.packs image
@@ -266,10 +258,6 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
-      {{- if .Values.enterprise.enabled }}
-      imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       containers:
       - name: st2stream{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2stream{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -339,10 +327,6 @@ spec:
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
     spec:
-      {{- if .Values.enterprise.enabled }}
-      imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       containers:
       - name: st2web{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2web{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -423,10 +407,6 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
-      {{- if .Values.enterprise.enabled }}
-      imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       containers:
       - name: st2rulesengine{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2rulesengine{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -499,10 +479,6 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
-      {{- if .Values.enterprise.enabled }}
-      imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       containers:
       - name: st2timersengine{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2timersengine{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -574,10 +550,6 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
-      {{- if .Values.enterprise.enabled }}
-      imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       containers:
       - name: st2workflowengine{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2workflowengine{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -648,10 +620,6 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
-      {{- if .Values.enterprise.enabled }}
-      imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       containers:
       - name: st2scheduler{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2scheduler{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -723,10 +691,6 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
-      {{- if .Values.enterprise.enabled }}
-      imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       containers:
       - name: st2notifier{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2notifier{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -802,10 +766,6 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") $ | sha256sum }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") $ | sha256sum }}
     spec:
-      {{- if $.Values.enterprise.enabled }}
-      imagePullSecrets:
-      - name: {{ $.Release.Name }}-st2-license
-      {{- end }}
       {{- if $.Values.st2.packs.image.repository }}
       initContainers:
       # Merge packs and virtualenvs from st2sensorcontainer with those from the st2.packs image
@@ -941,10 +901,6 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/ssh: {{ include (print $.Template.BasePath "/secrets_ssh.yaml") . | sha256sum }}
     spec:
-      {{- if .Values.enterprise.enabled }}
-      imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       {{- if .Values.st2.packs.image.repository }}
       initContainers:
       # Merge packs and virtualenvs from st2actionrunner with those from the st2.packs image
@@ -1073,10 +1029,6 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
     spec:
-      {{- if .Values.enterprise.enabled }}
-      imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       containers:
       - name: st2garbagecollector{{ template "enterpriseSuffix" . }}
         image: "{{ template "imageRepository" . }}/st2garbagecollector{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
@@ -1145,17 +1097,11 @@ spec:
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
-        {{- if .Values.enterprise.enabled }}
         checksum/rbac: {{ include (print $.Template.BasePath "/configmaps_rbac.yaml") . | sha256sum }}
-        {{- end }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") . | sha256sum }}
         checksum/auth: {{ include (print $.Template.BasePath "/secrets_st2auth.yaml") . | sha256sum }}
         checksum/ssh: {{ include (print $.Template.BasePath "/secrets_ssh.yaml") . | sha256sum }}
     spec:
-      {{- if .Values.enterprise.enabled }}
-      imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       initContainers:
       {{- if .Values.st2.packs.image.repository }}
       # Merge packs and virtualenvs from st2actionrunner with those from the st2.packs image
@@ -1236,14 +1182,12 @@ spec:
         - name: st2-config-vol
           mountPath: /etc/st2/st2.user.conf
           subPath: st2.user.conf
-        {{- if .Values.enterprise.enabled }}
         - name: st2-rbac-roles-vol
           mountPath: /opt/stackstorm/rbac/roles/
         - name: st2-rbac-assignments-vol
           mountPath: /opt/stackstorm/rbac/assignments/
         - name: st2-rbac-mappings-vol
           mountPath: /opt/stackstorm/rbac/mappings/
-        {{- end }}
         - name: st2-pack-configs-vol
           mountPath: /opt/stackstorm/configs/
         - name: st2client-config-vol
@@ -1271,7 +1215,6 @@ spec:
         - name: st2-config-vol
           configMap:
             name: {{ .Release.Name }}-st2-config
-        {{- if .Values.enterprise.enabled }}
         - name: st2-rbac-roles-vol
           configMap:
             name: {{ .Release.Name }}-st2-rbac-roles
@@ -1281,7 +1224,6 @@ spec:
         - name: st2-rbac-mappings-vol
           configMap:
             name: {{ .Release.Name }}-st2-rbac-mappings
-        {{- end }}
         - name: st2-pack-configs-vol
           configMap:
             name: {{ .Release.Name }}-st2-pack-configs

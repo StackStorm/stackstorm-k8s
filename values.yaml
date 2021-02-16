@@ -8,50 +8,41 @@ image:
   # Image pull policy. Change to "IfNotPresent" when switching to stable images
   pullPolicy: Always
 
-##
-## StackStorm Enterprise settings (Optional)
-##
-enterprise:
-  # Enable/Disable StackStorm Enterprise. Enabling will download StackStorm Enterprise Docker images.
-  enabled: false
-  # Required StackStorm Enterprise license key.
-  # Don't have one? Obtain 90-day free trial at https://stackstorm.com/#product
-  license: ""
 
-  # StackStorm Role Based Access Control settings (https://docs.stackstorm.com/rbac.html)
-  rbac:
-    # Custom StackStorm RBAC roles, shipped in '/opt/stackstorm/rbac/roles/'
-    # See https://docs.stackstorm.com/rbac.html#defining-roles-and-permission-grants
-    roles:
-      sample.yaml: |
-        # sample RBAC role file, see https://docs.stackstorm.com/rbac.html#defining-roles-and-permission-grants
-        ---
-        name: "sample"
-        description: "Example Role which contains no permission grants and serves for demonstration purposes"
+# StackStorm Role Based Access Control settings (https://docs.stackstorm.com/rbac.html)
+rbac:
+  # Custom StackStorm RBAC roles, shipped in '/opt/stackstorm/rbac/roles/'
+  # See https://docs.stackstorm.com/rbac.html#defining-roles-and-permission-grants
+  roles:
+    sample.yaml: |
+      # sample RBAC role file, see https://docs.stackstorm.com/rbac.html#defining-roles-and-permission-grants
+      ---
+      name: "sample"
+      description: "Example Role which contains no permission grants and serves for demonstration purposes"
 
-    # Custom StackStorm RBAC role assignments, shipped in '/opt/stackstorm/rbac/assignments/'
-    # See: https://docs.stackstorm.com/rbac.html#defining-user-role-assignments
-    assignments:
-      st2admin.yaml: |
-        ---
-        username: st2admin
-        roles:
-          - system_admin
-      stanley.yaml: |
-        ---
-        username: stanley
-        roles:
-          - admin
+  # Custom StackStorm RBAC role assignments, shipped in '/opt/stackstorm/rbac/assignments/'
+  # See: https://docs.stackstorm.com/rbac.html#defining-user-role-assignments
+  assignments:
+    st2admin.yaml: |
+      ---
+      username: st2admin
+      roles:
+        - system_admin
+    stanley.yaml: |
+      ---
+      username: stanley
+      roles:
+        - admin
 
-    # StackStorm RBAC LDAP groups-to-roles mapping rules, shipped in '/opt/stackstorm/rbac/mappings/'
-    # See RBAC Roles Based on LDAP Groups: https://docs.stackstorm.com/rbac.html#automatically-granting-roles-based-on-ldap-group-membership
-    mappings:
-      #stormers.yaml: |
-      #  ---
-      #  group: "CN=stormers,OU=groups,DC=stackstorm,DC=net"
-      #  description: "Automatically grant admin role to all stormers group members."
-      #  roles:
-      #    - "admin"
+  # StackStorm RBAC LDAP groups-to-roles mapping rules, shipped in '/opt/stackstorm/rbac/mappings/'
+  # See RBAC Roles Based on LDAP Groups: https://docs.stackstorm.com/rbac.html#automatically-granting-roles-based-on-ldap-group-membership
+  mappings:
+    #stormers.yaml: |
+    #  ---
+    #  group: "CN=stormers,OU=groups,DC=stackstorm,DC=net"
+    #  description: "Automatically grant admin role to all stormers group members."
+    #  roles:
+    #    - "admin"
 
 ##
 ## StackStorm shared variables

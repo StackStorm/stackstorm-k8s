@@ -13,10 +13,6 @@ metadata:
   annotations:
     "helm.sh/hook": test-success
 spec:
-  {{- if .Values.enterprise.enabled }}
-  imagePullSecrets:
-  - name: {{ .Release.Name }}-st2-license
-  {{- end }}
   initContainers:
   # Sidecar container to copy BATS framework to the main container
   - name: test-framework

@@ -1,4 +1,4 @@
-Congratulations! You have just deployed StackStorm {{ if .Values.enterprise.enabled }}Enterprise {{ end }}HA!
+Congratulations! You have just deployed StackStorm HA!
 
   ███████╗████████╗██████╗     ██╗  ██╗ █████╗      ██████╗ ██╗  ██╗
   ██╔════╝╚══██╔══╝╚════██╗    ██║  ██║██╔══██╗    ██╔═══██╗██║ ██╔╝
@@ -11,15 +11,15 @@ Congratulations! You have just deployed StackStorm {{ if .Values.enterprise.enab
 {{- if contains "LoadBalancer" .Values.st2web.service.type }}
 
 NOTE: It may take a few minutes for the LoadBalancer IP to be available.
-      Watch the status with "kubectl get service {{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }} -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'"
+      Watch the status with "kubectl get service {{ .Release.Name }}-st2web -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'"
 
-export ST2WEB_IP=$(kubectl get service {{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }} -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+export ST2WEB_IP=$(kubectl get service {{ .Release.Name }}-st2web -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
 echo https://${ST2WEB_IP}/
 
 {{- else if contains "ClusterIP" .Values.st2web.service.type }}
 
 echo http://127.0.0.1:8080
-kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }} 8080:80
+kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ .Release.Name }}-st2web 8080:80
 
 {{- else if contains "NodePort" .Values.st2web.service.type }}
 
@@ -49,8 +49,5 @@ kubectl exec -it ${ST2CLIENT} -- st2 --version
 
 -----------------------------------------------------
 Thanks for trying StackStorm!
-{{- if .Values.enterprise.enabled }}
-Need help? Enterprise support: support@stackstorm.com
-{{- else }}
-Enterprise: https://stackstorm.com/#product
-{{- end }}
+https://stackstorm.com/#product
+

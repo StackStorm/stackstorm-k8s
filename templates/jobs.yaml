@@ -1,4 +1,3 @@
-{{ if .Values.enterprise.enabled }}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -8,7 +7,7 @@ metadata:
     app: st2-apply-rbac-definitions
     tier: backend
     vendor: stackstorm
-    support: enterprise
+    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -24,7 +23,7 @@ spec:
         app: st2-apply-rbac-definitions
         tier: backend
         vendor: stackstorm
-        support: enterprise
+        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -33,11 +32,9 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/rbac: {{ include (print $.Template.BasePath "/configmaps_rbac.yaml") . | sha256sum }}
     spec:
-      imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
       containers:
       - name: st2-apply-rbac-definitions
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         command:
           - st2-apply-rbac-definitions
@@ -110,14 +107,10 @@ spec:
         checksum/urls: {{ include (print $.Template.BasePath "/configmaps_st2-urls.yaml") . | sha256sum }}
         checksum/apikeys: {{ include (print $.Template.BasePath "/secrets_st2apikeys.yaml") . | sha256sum }}
     spec:
-      {{- if .Values.enterprise.enabled }}
-      imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       initContainers:
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       - name: generate-st2client-config
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         envFrom:
         - configMapRef:
@@ -209,10 +202,6 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/urls: {{ include (print $.Template.BasePath "/configmaps_st2-urls.yaml") . | sha256sum }}
     spec:
-      {{- if .Values.enterprise.enabled }}
-      imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       initContainers:
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       - name: generate-st2client-config
@@ -317,10 +306,6 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") . | sha256sum }}
     spec:
-      {{- if .Values.enterprise.enabled }}
-      imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       {{- if .Values.st2.packs.image.repository }}
       initContainers:
       # Merge packs and virtualenvs from st2actionrunner with those from the st2.packs image
