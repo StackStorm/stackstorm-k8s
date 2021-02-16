@@ -15,6 +15,7 @@ community
 {{- else -}}
 stackstorm
 {{- end -}}
+{{- end -}}
 
 {{/*
 Create the name of the stackstorm-ha service account to use
