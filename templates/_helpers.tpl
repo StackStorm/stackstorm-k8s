@@ -3,7 +3,7 @@
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-# Generate support method used in labels. This is based on community/enterprise
+# Generate support method used in labels. This is based on community
 {{- define "supportMethod" -}}
 community
 {{- end }}

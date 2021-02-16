@@ -3,6 +3,7 @@
 ## In Development
 * Implemented initContainers to wait for DB/MQ to be available for St2 Pods (#178)
 * Add option to define config.js for st2web (#165) (by @moonrail)
+* Removed enterprise flags to enable rbac (#182 by @hnanchahal)
 
 ## v0.51.0
 * Added Redis with Sentinel to replace etcd as a coordination backend (#169)
