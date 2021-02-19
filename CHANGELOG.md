@@ -1,7 +1,11 @@
 # Changelog
 
 ## In Development
-* Implemented initContainers to wait for DB/MQ to be available for St2 Pods (#178)
+
+
+## v0.52.0
+* Improve resource allocation and scheduling by adding resources requests cpu/memory values for st2 Pods (#179)
+* Avoid cluster restart loop situations by making st2 Pod initContainers to wait for DB/MQ connection (#178)
 * Add option to define config.js for st2web (#165) (by @moonrail)
 * Removed enterprise flags to enable rbac (#182 by @hnanchahal)
 

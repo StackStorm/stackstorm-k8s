@@ -108,8 +108,10 @@ st2:
         livenessProbe: {}
         readinessProbe: {}
         annotations: {}
-        # TODO: Find out recommended/default resources for this specific service (#5)
-        resources: {}
+        resources:
+          requests:
+            memory: "100Mi"
+            cpu: "50m"
         # Additional advanced settings to control pod/deployment placement
         affinity: {}
         nodeSelector: {}
@@ -250,8 +252,10 @@ st2web:
 # Multiple st2auth processes can be behind a load balancer in an active-active configuration.
 st2auth:
   replicas: 2
-  # TODO: Find out recommended/default resources for this specific service (#5)
-  resources: {}
+  resources:
+    requests:
+      memory: "85Mi"
+      cpu: "50m"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
@@ -262,8 +266,10 @@ st2auth:
 # Multiple st2api process can be behind a load balancer in an active-active configuration.
 st2api:
   replicas: 2
-  # TODO: Find out recommended/default resources for this specific service (#5)
-  resources: {}
+  resources:
+    requests:
+      memory: "150Mi"
+      cpu: "25m"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
@@ -274,8 +280,10 @@ st2api:
 # Multiple st2stream process can be behind a load balancer in an active-active configuration.
 st2stream:
   replicas: 2
-  # TODO: Find out recommended/default resources for this specific service (#5)
-  resources: {}
+  resources:
+    requests:
+      memory: "100Mi"
+      cpu: "50m"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
@@ -286,8 +294,10 @@ st2stream:
 # Multiple st2rulesengine processes can run in active-active with only connections to MongoDB and RabbitMQ. All these will share the TriggerInstance load and naturally pick up more work if one or more of the processes becomes unavailable.
 st2rulesengine:
   replicas: 2
-  # TODO: Find out recommended/default resources for this specific service (#5)
-  resources: {}
+  resources:
+    requests:
+      memory: "75Mi"
+      cpu: "25m"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
@@ -297,8 +307,10 @@ st2rulesengine:
 # https://docs.stackstorm.com/reference/ha.html#st2timersengine
 # Only single replica is created via K8s Deployment as timersengine can't work in active-active mode at the moment and it relies on K8s failover/reschedule capabilities to address cases of process failure.
 st2timersengine:
-  # TODO: Find out recommended/default resources for this specific service (#5)
-  resources: {}
+  resources:
+    requests:
+      memory: "75Mi"
+      cpu: "10m"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
@@ -309,8 +321,10 @@ st2timersengine:
 # Multiple st2workflowengine processes can run in active-active mode and will share the load and pick up more work if one or more of the processes become available.
 st2workflowengine:
   replicas: 2
-  # TODO: Find out recommended/default resources for this specific service (#5)
-  resources: {}
+  resources:
+    requests:
+      memory: "200Mi"
+      cpu: "100m"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
@@ -321,8 +335,10 @@ st2workflowengine:
 # TODO: Description TBD
 st2scheduler:
   replicas: 2
-  # TODO: Find out recommended/default resources for this specific service (#5)
-  resources: {}
+  resources:
+    requests:
+      memory: "75Mi"
+      cpu: "50m"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
@@ -333,8 +349,10 @@ st2scheduler:
 # st2notifier runs in active-active mode and requires for that coordination backend like Redis or Zookeeper
 st2notifier:
   replicas: 2
-  # TODO: Find out recommended/default resources for this specific service (#5)
-  resources: {}
+  resources:
+    requests:
+      memory: "75Mi"
+      cpu: "50m"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
@@ -346,8 +364,10 @@ st2notifier:
 # distributed across runners via RabbitMQ. Adding more st2actionrunner processes increases the ability of StackStorm to execute actions.
 st2actionrunner:
   replicas: 5
-  # TODO: Find out recommended/default resources for this specific service (#5)
-  resources: {}
+  resources:
+    requests:
+      memory: "200Mi"
+      cpu: "75m"
   annotations: {}
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
@@ -371,8 +391,10 @@ st2actionrunner:
 st2garbagecollector:
   # Having 1 st2garbagecollector unique replica is enough for periodic task like st2 history garbage collection
   replicas: 1
-  # TODO: Find out recommended/default resources for this specific service (#5)
-  resources: {}
+  resources:
+    requests:
+      memory: "80Mi"
+      cpu: "10m"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
