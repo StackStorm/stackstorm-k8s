@@ -47,8 +47,10 @@ data:
   # User-defined st2 config with custom settings applied on top of everything else.
   # The order of merging: st2.conf < st2.docker.conf < st2.user.conf
   st2.user.conf: |
-  {{ .Values.st2.config | indent 4 }}
-    {{- if .Values.st2.rbac.enabled }}
+  {{- if .Values.st2.rbac.enabled }}
     [rbac]
     sync_remote_groups = True
-    {{- end }}
+  {{- end }}
+
+{{ .Values.st2.config | indent 4 }}
+    
