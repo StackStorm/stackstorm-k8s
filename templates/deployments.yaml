@@ -7,7 +7,6 @@ metadata:
     app: st2auth
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -15,7 +14,6 @@ spec:
   selector:
     matchLabels:
       app: st2auth
-      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2auth
   # Multiple st2auth processes can be behind a load balancer in an active-active configuration.
@@ -26,7 +24,6 @@ spec:
         app: st2auth
         tier: backend
         vendor: stackstorm
-        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -120,7 +117,6 @@ metadata:
     app: st2api
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -128,7 +124,6 @@ spec:
   selector:
     matchLabels:
       app: st2api
-      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2api
   # Multiple st2api process can be behind a load balancer in an active-active configuration.
@@ -139,7 +134,6 @@ spec:
         app: st2api
         tier: backend
         vendor: stackstorm
-        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -267,7 +261,6 @@ metadata:
     app: st2stream
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -275,7 +268,6 @@ spec:
   selector:
     matchLabels:
       app: st2stream
-      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2stream
   # Multiple st2stream process can be behind a load balancer in an active-active configuration.
@@ -286,7 +278,6 @@ spec:
         app: st2stream
         tier: backend
         vendor: stackstorm
-        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -350,7 +341,6 @@ metadata:
     app: st2web
     tier: frontend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -358,7 +348,6 @@ spec:
   selector:
     matchLabels:
       app: st2web
-      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   replicas: {{ default 2 .Values.st2web.replicas }}
   template:
@@ -367,7 +356,6 @@ spec:
         app: st2web
         tier: frontend
         vendor: stackstorm
-        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -449,7 +437,6 @@ metadata:
     app: st2rulesengine
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -457,7 +444,6 @@ spec:
   selector:
     matchLabels:
       app: st2rulesengine
-      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2rulesengine
   # Multiple st2rulesengine processes can run in active-active with only connections to MongoDB and RabbitMQ. All these will share the TriggerInstance load and naturally pick up more work if one or more of the processes becomes unavailable.
@@ -468,7 +454,6 @@ spec:
         app: st2rulesengine
         tier: backend
         vendor: stackstorm
-        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -538,7 +523,6 @@ metadata:
     app: st2timersengine
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -546,7 +530,6 @@ spec:
   selector:
     matchLabels:
       app: st2timersengine
-      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2timersengine
   # Only single replica is created as timersengine can't work in active-active mode at the moment and it relies on
@@ -558,7 +541,6 @@ spec:
         app: st2timersengine
         tier: backend
         vendor: stackstorm
-        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -620,7 +602,6 @@ metadata:
     app: st2workflowengine
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -628,7 +609,6 @@ spec:
   selector:
     matchLabels:
       app: st2workflowengine
-      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2workflowengine
   # Multiple st2workflowengine processes can run in active-active mode and will share the load and pick up more work if one or more of the processes become available.
@@ -639,7 +619,6 @@ spec:
         app: st2workflowengine
         tier: backend
         vendor: stackstorm
-        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -715,7 +694,6 @@ metadata:
     app: st2scheduler
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -723,7 +701,6 @@ spec:
   selector:
     matchLabels:
       app: st2scheduler
-      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2scheduler
   replicas: {{ default 2 .Values.st2scheduler.replicas }}
@@ -733,7 +710,6 @@ spec:
         app: st2scheduler
         tier: backend
         vendor: stackstorm
-        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -809,7 +785,6 @@ metadata:
     app: st2notifier
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -817,7 +792,6 @@ spec:
   selector:
     matchLabels:
       app: st2notifier
-      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2notifier
   # st2notifier runs in active-active mode and requires for that coordination backend like Redis or Zookeeper
@@ -828,7 +802,6 @@ spec:
         app: st2notifier
         tier: backend
         vendor: stackstorm
-        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -891,7 +864,6 @@ metadata:
     app: st2sensorcontainer{{ template "hyphenPrefix" .name }}
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" $ }}
     chart: {{ $.Chart.Name }}-{{ $.Chart.Version }}
     release: {{ $.Release.Name }}
     heritage: {{ $.Release.Service }}
@@ -899,7 +871,6 @@ spec:
   selector:
     matchLabels:
       app: st2sensorcontainer{{ template "hyphenPrefix" .name }}
-      support: {{ template "supportMethod" $ }}
       release: {{ $.Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
   # It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance. Each sensor node needs to be
@@ -912,7 +883,6 @@ spec:
         app: st2sensorcontainer{{ template "hyphenPrefix" .name }}
         tier: backend
         vendor: stackstorm
-        support: {{ template "supportMethod" $ }}
         chart: {{ $.Chart.Name }}-{{ $.Chart.Version }}
         release: {{ $.Release.Name }}
         heritage: {{ $.Release.Service }}
@@ -1056,7 +1026,6 @@ metadata:
     app: st2actionrunner
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -1064,7 +1033,6 @@ spec:
   selector:
     matchLabels:
       app: st2actionrunner
-      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2actionrunner
   # Multiple st2actionrunner processes can run in active-active with only connections to MongoDB and RabbitMQ. Work gets naturally
@@ -1076,7 +1044,6 @@ spec:
         app: st2actionrunner
         tier: backend
         vendor: stackstorm
-        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -1219,7 +1186,6 @@ metadata:
     app: st2garbagecollector
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -1227,7 +1193,6 @@ spec:
   selector:
     matchLabels:
       app: st2garbagecollector
-      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2garbagecollector
   # Having 1 st2garbagecollector unique replica is enough for periodic task like st2 history garbage collection
@@ -1238,7 +1203,6 @@ spec:
         app: st2garbagecollector
         tier: backend
         vendor: stackstorm
-        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -1300,7 +1264,6 @@ metadata:
     app: st2client
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -1308,7 +1271,6 @@ spec:
   selector:
     matchLabels:
       app: st2client
-      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   replicas: 1
   template:
@@ -1317,7 +1279,6 @@ spec:
         app: st2client
         tier: backend
         vendor: stackstorm
-        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -1416,12 +1377,14 @@ spec:
         - name: st2-config-vol
           mountPath: /etc/st2/st2.user.conf
           subPath: st2.user.conf
+        {{- if .Values.st2.rbac.enabled -}}
         - name: st2-rbac-roles-vol
           mountPath: /opt/stackstorm/rbac/roles/
         - name: st2-rbac-assignments-vol
           mountPath: /opt/stackstorm/rbac/assignments/
         - name: st2-rbac-mappings-vol
           mountPath: /opt/stackstorm/rbac/mappings/
+        {{- end }} 
         - name: st2-pack-configs-vol
           mountPath: /opt/stackstorm/configs/
         - name: st2client-config-vol
@@ -1462,6 +1425,7 @@ spec:
         - name: st2-config-vol
           configMap:
             name: {{ .Release.Name }}-st2-config
+        {{- if .Values.st2.rbac.enabled -}}
         - name: st2-rbac-roles-vol
           configMap:
             name: {{ .Release.Name }}-st2-rbac-roles
@@ -1471,6 +1435,7 @@ spec:
         - name: st2-rbac-mappings-vol
           configMap:
             name: {{ .Release.Name }}-st2-rbac-mappings
+        {{- end }}
         - name: st2-pack-configs-vol
           configMap:
             name: {{ .Release.Name }}-st2-pack-configs
@@ -1502,7 +1467,6 @@ metadata:
     app: st2chatops
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -1510,7 +1474,6 @@ spec:
   selector:
     matchLabels:
       app: st2chatops
-      support: {{ template "supportMethod" . }}
       release: {{ .Release.Name }}
   # As hubot can't be HA scaled properly, we deploy only single replica of st2chatops
   replicas: 1
@@ -1520,7 +1483,6 @@ spec:
         app: st2chatops
         tier: backend
         vendor: stackstorm
-        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}

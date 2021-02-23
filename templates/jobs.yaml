@@ -1,3 +1,4 @@
+{{- if .Values.st2.rbac.enabled -}}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -7,7 +8,6 @@ metadata:
     app: st2-apply-rbac-definitions
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -23,7 +23,6 @@ spec:
         app: st2-apply-rbac-definitions
         tier: backend
         vendor: stackstorm
-        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -77,6 +76,7 @@ spec:
             name: {{ .Release.Name }}-st2-rbac-mappings
       restartPolicy: OnFailure
 
+{{- end }}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -86,7 +86,6 @@ metadata:
     app: st2
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -102,7 +101,6 @@ spec:
         app: st2
         tier: backend
         vendor: stackstorm
-        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -195,7 +193,6 @@ metadata:
     app: st2
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -211,7 +208,6 @@ spec:
         app: st2
         tier: backend
         vendor: stackstorm
-        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -304,7 +300,6 @@ metadata:
     app: st2-register-content
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -320,7 +315,6 @@ spec:
         app: st2-register-content
         tier: backend
         vendor: stackstorm
-        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}

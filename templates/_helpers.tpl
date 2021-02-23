@@ -3,12 +3,7 @@
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-# Generate support method used in labels. This is based on community
-{{- define "supportMethod" -}}
-community
-{{- end }}
-
-# Generate Docker image repository: Private 'docker.stackstorm.com' for Enterprise vs Public Docker Hub 'stackstorm' for FOSS version
+# Generate Docker image repository: Public Docker Hub 'stackstorm' for FOSS version
 {{- define "imageRepository" -}}
 {{- if .Values.image.repository -}}
 {{ .Values.image.repository }}

@@ -6,7 +6,6 @@ metadata:
     app: st2tests
     tier: tests
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}

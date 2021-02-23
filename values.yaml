@@ -17,40 +17,7 @@ image:
   # See: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
   #pullSecret: "your-pull-secret"
 
-# StackStorm Role Based Access Control settings (https://docs.stackstorm.com/rbac.html)
-rbac:
-  # Custom StackStorm RBAC roles, shipped in '/opt/stackstorm/rbac/roles/'
-  # See https://docs.stackstorm.com/rbac.html#defining-roles-and-permission-grants
-  roles:
-    sample.yaml: |
-      # sample RBAC role file, see https://docs.stackstorm.com/rbac.html#defining-roles-and-permission-grants
-      ---
-      name: "sample"
-      description: "Example Role which contains no permission grants and serves for demonstration purposes"
 
-  # Custom StackStorm RBAC role assignments, shipped in '/opt/stackstorm/rbac/assignments/'
-  # See: https://docs.stackstorm.com/rbac.html#defining-user-role-assignments
-  assignments:
-    st2admin.yaml: |
-      ---
-      username: st2admin
-      roles:
-        - system_admin
-    stanley.yaml: |
-      ---
-      username: stanley
-      roles:
-        - admin
-
-  # StackStorm RBAC LDAP groups-to-roles mapping rules, shipped in '/opt/stackstorm/rbac/mappings/'
-  # See RBAC Roles Based on LDAP Groups: https://docs.stackstorm.com/rbac.html#automatically-granting-roles-based-on-ldap-group-membership
-  mappings:
-    #stormers.yaml: |
-    #  ---
-    #  group: "CN=stormers,OU=groups,DC=stackstorm,DC=net"
-    #  description: "Automatically grant admin role to all stormers group members."
-    #  roles:
-    #    - "admin"
 
 ##
 ## Service Account
@@ -71,6 +38,10 @@ st2:
   config: |
     [api]
     allow_origin = '*'
+    {{- if .Values.st2.rbac.enabled -}}
+    [rbac]
+    sync_remote_groups = True
+    {{- end}}
 
   # Custom pack configs and image settings.
   #
@@ -138,6 +109,41 @@ st2:
     #  metadata: {"comment": "Example unsecure ST2 API key from K8s HA Helm values.yaml"}
     #  uid: api_key:56928c2d9637ce44338e9564d4b939df8b258410db23b5a80f8ad69d58e648b574f35f9293c3a76bde263738be9aa8379a81553cd55513ad672540b7b0ec0cac
     #  user: st2admin
+  # StackStorm Role Based Access Control settings (https://docs.stackstorm.com/rbac.html)
+  rbac:
+    enabled: false
+    # Custom StackStorm RBAC roles, shipped in '/opt/stackstorm/rbac/roles/'
+    # See https://docs.stackstorm.com/rbac.html#defining-roles-and-permission-grants
+    roles:
+      sample.yaml: |
+        # sample RBAC role file, see https://docs.stackstorm.com/rbac.html#defining-roles-and-permission-grants
+        ---
+        name: "sample"
+        description: "Example Role which contains no permission grants and serves for demonstration purposes"
+
+    # Custom StackStorm RBAC role assignments, shipped in '/opt/stackstorm/rbac/assignments/'
+    # See: https://docs.stackstorm.com/rbac.html#defining-user-role-assignments
+    assignments:
+      st2admin.yaml: |
+        ---
+        username: st2admin
+        roles:
+          - system_admin
+      stanley.yaml: |
+        ---
+        username: stanley
+        roles:
+          - admin
+
+    # StackStorm RBAC LDAP groups-to-roles mapping rules, shipped in '/opt/stackstorm/rbac/mappings/'
+    # See RBAC Roles Based on LDAP Groups: https://docs.stackstorm.com/rbac.html#automatically-granting-roles-based-on-ldap-group-membership
+    mappings:
+      #stormers.yaml: |
+      #  ---
+      #  group: "CN=stormers,OU=groups,DC=stackstorm,DC=net"
+      #  description: "Automatically grant admin role to all stormers group members."
+      #  roles:
+      #    - "admin"
 
 ##
 ## StackStorm HA Ingress
