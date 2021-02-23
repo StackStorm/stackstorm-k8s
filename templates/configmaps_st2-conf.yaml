@@ -48,3 +48,8 @@ data:
   # The order of merging: st2.conf < st2.docker.conf < st2.user.conf
   st2.user.conf: |
 {{ .Values.st2.config | indent 4 }}
+
+    {{- if .Values.st2.rbac.enabled - }}
+    [rbac]
+    sync_remote_groups = True
+    {{- end}}

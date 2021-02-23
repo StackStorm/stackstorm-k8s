@@ -38,10 +38,6 @@ st2:
   config: |
     [api]
     allow_origin = '*'
-    {{- if .Values.st2.rbac.enabled -}}
-    [rbac]
-    sync_remote_groups = True
-    {{- end}}
 
   # Custom pack configs and image settings.
   #
