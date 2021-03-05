@@ -49,6 +49,8 @@ data:
   st2.user.conf: |
   {{- if .Values.st2.rbac.enabled }}
     [rbac]
+    enable = True
+    backend = default 
     sync_remote_groups = True
   {{- end }}
 
