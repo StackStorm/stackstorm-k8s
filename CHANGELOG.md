@@ -1,7 +1,7 @@
 # Changelog
 
 ## In Development
-
+* Change st2packs definition to a list, to support multiple st2packs containers (#166) (by @moonrail)
 
 ## v0.52.0
 * Improve resource allocation and scheduling by adding resources requests cpu/memory values for st2 Pods (#179)
