@@ -324,9 +324,6 @@ spec:
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") . | sha256sum }}
     spec:
       imagePullSecrets:
-      {{- if .Values.enterprise.enabled }}
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
