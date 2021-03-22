@@ -52,16 +52,17 @@ st2:
         ---
         # example core pack config yaml
 
-    # Custom packs image settings. The repository, name, tag and pullPolicy for this image
-    # are specified below.
-    image:
-      # Uncomment the following block to make the custom packs image available to the necessary pods
-      #repository: your-remote-docker-registry.io
-      name: st2packs
-      tag: latest
-      pullPolicy: IfNotPresent
-      # Optional name of the imagePullSecret if your custom packs image is hosted by a private Docker registry behind the auth
-      #pullSecret: st2packs-auth
+    # Custom packs images settings.
+    # For each given st2packs container you can define repository, name, tag and pullPolicy for this image below.
+    # Multiple pack images can help when dealing with frequent updates by only rebuilding smaller images for desired packs
+    # E.g. having all desired StackStorm-Exchange packs in one image and several custom packs in additional images
+    images:
+      #- repository: index.docker.io/stackstorm
+      #  name: st2packs
+      #  tag: example
+      #  pullPolicy: IfNotPresent
+      # Optional name of the imagePullSecret if your custom packs image is hosted by a private Docker registry
+      #  pullSecret: st2packs-auth
 
     # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
     # It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance.

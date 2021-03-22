@@ -212,7 +212,7 @@ See [K8s documentation](https://kubernetes.io/docs/tasks/configure-pod-container
 # Create a Docker registry secret called 'st2packs-auth'
 kubectl create secret docker-registry st2packs-auth --docker-server=<your-registry-server> --docker-username=<your-name> --docker-password=<your-password>
 ```
-Once secret created, reference its name in helm value: `st2.packs.image.pullSecret`.
+Once secret created, reference its name in helm value: `st2.packs.images[].pullSecret`.
 
 
 ## Tips & Tricks
