@@ -870,9 +870,6 @@ spec:
         {{- end }}
     spec:
       imagePullSecrets:
-      {{- if $.Values.enterprise.enabled }}
-      - name: {{ $.Release.Name }}-st2-license
-      {{- end }}
       {{- if $.Values.image.pullSecret }}
       - name: {{ $.Values.image.pullSecret }}
       {{- end }}
