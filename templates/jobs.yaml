@@ -324,44 +324,16 @@ spec:
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") . | sha256sum }}
     spec:
       imagePullSecrets:
-      {{- if .Values.st2.packs.image.pullSecret }}
-      - name: {{ .Values.st2.packs.image.pullSecret }}
-      {{- end }}
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
-      {{- if .Values.st2.packs.image.repository }}
+      {{- if $.Values.st2.packs.images -}}
+{{- include "packs-pullSecrets" . | indent 6 }}
+      {{- end }}
       initContainers:
       {{ include "init-containers-wait-for-db" . | indent 6 }}
-      # Merge packs and virtualenvs from st2actionrunner with those from the st2.packs image
-      # Custom packs
-      - name: st2-custom-packs
-        image: "{{ .Values.st2.packs.image.repository }}/{{ .Values.st2.packs.image.name }}:{{ .Values.st2.packs.image.tag }}"
-        imagePullPolicy: {{ .Values.st2.packs.image.pullPolicy | quote }}
-        volumeMounts:
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs-shared
-        - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs-shared
-        command:
-          - 'sh'
-          - '-ec'
-          - |
-            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
-            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
-      # System packs
-      - name: st2-system-packs
-        image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        volumeMounts:
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs-shared
-        command:
-          - 'sh'
-          - '-ec'
-          - |
-            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
-            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
+      {{- if $.Values.st2.packs.images -}}
+ {{- include "packs-initContainers" . | indent 6 }}
       {{ end }}
       containers:
       - name: st2-register-content
@@ -383,7 +355,7 @@ spec:
           subPath: st2.user.conf
         - name: st2-pack-configs-vol
           mountPath: /opt/stackstorm/configs/
-        {{- if .Values.st2.packs.image.repository }}
+        {{- if .Values.st2.packs.images }}
         - name: st2-packs-vol
           mountPath: /opt/stackstorm/packs/
         - name: st2-virtualenvs-vol
@@ -398,10 +370,5 @@ spec:
         - name: st2-pack-configs-vol
           configMap:
             name: {{ .Release.Name }}-st2-pack-configs
-        {{- if .Values.st2.packs.image.repository }}
-        - name: st2-packs-vol
-          emptyDir: {}
-        - name: st2-virtualenvs-vol
-          emptyDir: {}
-        {{- end }}
+ {{- include "packs-volumes" $ | indent 8}}
       restartPolicy: OnFailure
