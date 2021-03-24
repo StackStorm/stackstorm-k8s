@@ -88,7 +88,7 @@ jobs:
           command: helm test stackstorm-ha
       - run:
           name: Helm upgrade with RBAC enabled
-          command: helm upgrade --set st2.rbac.enabled=true --wait stackstorm-ha .
+          command: helm upgrade --set st2.rbac.enabled=true --timeout 5m0s --debug --wait stackstorm-ha .
       - run:
           name: Helm test with RBAC enabled
           command: helm test stackstorm-ha
