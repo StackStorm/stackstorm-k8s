@@ -48,6 +48,8 @@ spec:
           key: password
     - name: ST2_VERSION
       value: "{{ .Chart.AppVersion }}"
+    - name: ST2_RBAC_ENABLED
+      value: "{{ .Values.st2.rbac.enabled }}"
     volumeMounts:
     - name: tools
       mountPath: /tools
