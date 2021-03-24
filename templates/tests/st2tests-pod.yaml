@@ -6,7 +6,6 @@ metadata:
     app: st2tests
     tier: tests
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -14,10 +13,6 @@ metadata:
     "helm.sh/hook": test-success
     "helm.sh/hook-delete-policy": hook-succeeded
 spec:
-  {{- if .Values.enterprise.enabled }}
-  imagePullSecrets:
-  - name: {{ .Release.Name }}-st2-license
-  {{- end }}
   initContainers:
   # Sidecar container to copy BATS framework to the main container
   - name: test-framework
@@ -33,7 +28,7 @@ spec:
   # Run the actual BATS tests
   containers:
   - name: st2tests
-    image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+    image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
     imagePullPolicy: {{ .Values.image.pullPolicy }}
     envFrom:
     - configMapRef:
@@ -53,6 +48,8 @@ spec:
           key: password
     - name: ST2_VERSION
       value: "{{ .Chart.AppVersion }}"
+    - name: ST2_RBAC_ENABLED
+      value: "{{ .Values.st2.rbac.enabled }}"
     volumeMounts:
     - name: tools
       mountPath: /tools

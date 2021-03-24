@@ -74,3 +74,14 @@ load "${BATS_HELPERS_DIR}/bats-file/load.bash"
   assert_line --partial '"foo" is not found'
   assert_failure
 }
+
+@test 'RBAC is loaded and enabled' {
+  if [ $ST2_RBAC_ENABLED != "true" ]; then
+    skip "disabled in Helm values"
+  fi
+
+  run st2 whoami
+  assert_success
+  assert_output --regexp 'RBAC:\s+ - Enabled: True'
+  assert_line --partial 'Roles: system_admin'
+}

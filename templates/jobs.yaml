@@ -1,4 +1,4 @@
-{{ if .Values.enterprise.enabled }}
+{{- if .Values.st2.rbac.enabled -}}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -8,7 +8,6 @@ metadata:
     app: st2-apply-rbac-definitions
     tier: backend
     vendor: stackstorm
-    support: enterprise
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -24,7 +23,6 @@ spec:
         app: st2-apply-rbac-definitions
         tier: backend
         vendor: stackstorm
-        support: enterprise
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -40,7 +38,7 @@ spec:
       {{- end }}
       containers:
       - name: st2-apply-rbac-definitions
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         command:
           - st2-apply-rbac-definitions
@@ -77,8 +75,8 @@ spec:
           configMap:
             name: {{ .Release.Name }}-st2-rbac-mappings
       restartPolicy: OnFailure
-{{ end }}
 
+{{- end }}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -88,7 +86,6 @@ metadata:
     app: st2
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -104,7 +101,6 @@ spec:
         app: st2
         tier: backend
         vendor: stackstorm
-        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -114,9 +110,6 @@ spec:
         checksum/apikeys: {{ include (print $.Template.BasePath "/secrets_st2apikeys.yaml") . | sha256sum }}
     spec:
       imagePullSecrets:
-      {{- if .Values.enterprise.enabled }}
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
@@ -133,7 +126,7 @@ spec:
             done
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       - name: generate-st2client-config
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         envFrom:
         - configMapRef:
@@ -164,7 +157,7 @@ spec:
             EOT
       containers:
       - name: st2-apikey-load
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         command:
           - st2
@@ -200,7 +193,6 @@ metadata:
     app: st2
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -216,7 +208,6 @@ spec:
         app: st2
         tier: backend
         vendor: stackstorm
-        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -226,9 +217,6 @@ spec:
         checksum/urls: {{ include (print $.Template.BasePath "/configmaps_st2-urls.yaml") . | sha256sum }}
     spec:
       imagePullSecrets:
-      {{- if .Values.enterprise.enabled }}
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
@@ -236,7 +224,7 @@ spec:
       {{ include "init-containers-wait-for-db" . | indent 6 }}
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       - name: generate-st2client-config
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         envFrom:
         - configMapRef:
@@ -267,7 +255,7 @@ spec:
             EOT
       containers:
       - name: st2-key-load
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         command:
           - st2
@@ -312,7 +300,6 @@ metadata:
     app: st2-register-content
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -328,7 +315,6 @@ spec:
         app: st2-register-content
         tier: backend
         vendor: stackstorm
-        support: {{ template "supportMethod" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -338,9 +324,6 @@ spec:
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") . | sha256sum }}
     spec:
       imagePullSecrets:
-      {{- if .Values.enterprise.enabled }}
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
@@ -354,7 +337,7 @@ spec:
       {{ end }}
       containers:
       - name: st2-register-content
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         command:
           - st2-register-content

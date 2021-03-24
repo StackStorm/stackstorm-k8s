@@ -2,21 +2,19 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: {{ .Release.Name }}-st2auth{{ template "enterpriseSuffix" . }}
+  name: {{ .Release.Name }}-st2auth
   annotations:
     description: StackStorm st2auth - all authentication is managed by this service.
   labels:
     app: st2auth
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
   selector:
     app: st2auth
-    support: {{ template "supportMethod" . }}
     release: {{ .Release.Name }}
   type: ClusterIP
   ports:
@@ -27,21 +25,19 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: {{ .Release.Name }}-st2api{{ template "enterpriseSuffix" . }}
+  name: {{ .Release.Name }}-st2api
   annotations:
     description: StackStorm st2api - service hosts the REST API endpoints that serve requests from WebUI, CLI, ChatOps and other st2 services.
   labels:
     app: st2api
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
   selector:
     app: st2api
-    support: {{ template "supportMethod" . }}
     release: {{ .Release.Name }}
   type: ClusterIP
   ports:
@@ -52,21 +48,19 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: {{ .Release.Name }}-st2stream{{ template "enterpriseSuffix" . }}
+  name: {{ .Release.Name }}-st2stream
   annotations:
     description: StackStorm st2stream - exposes a server-sent event stream, used by the clients like WebUI and ChatOps to receive update from the st2stream server.
   labels:
     app: st2stream
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
   selector:
     app: st2stream
-    support: {{ template "supportMethod" . }}
     release: {{ .Release.Name }}
   type: ClusterIP
   ports:
@@ -77,7 +71,7 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: {{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }}
+  name: {{ .Release.Name }}-st2web
   annotations:
     description: StackStorm st2web, - an admin Web UI and main entry point for external API requests
     {{- if .Values.st2web.service.hostname }}
@@ -90,14 +84,12 @@ metadata:
     app: st2web
     tier: frontend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
   selector:
     app: st2web
-    support: {{ template "supportMethod" . }}
     release: {{ .Release.Name }}
   type: {{ .Values.st2web.service.type }}
   {{- if contains "ExternalName" .Values.st2web.service.type }}
@@ -114,21 +106,19 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: {{ .Release.Name }}-st2chatops{{ template "enterpriseSuffix" . }}
+  name: {{ .Release.Name }}-st2chatops
   annotations:
     description: StackStorm st2chatops, - conversation-driven automation service exposed as hubot instance with predefined list of chat adapters
   labels:
     app: st2chatops
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
   selector:
     app: st2chatops
-    support: {{ template "supportMethod" . }}
     release: {{ .Release.Name }}
   type: ClusterIP
   ports:

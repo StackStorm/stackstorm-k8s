@@ -9,7 +9,6 @@ metadata:
     app: st2
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -19,7 +18,7 @@ data:
   # The order of merging: st2.conf < st2.docker.conf < st2.user.conf
   st2.docker.conf: |
     [auth]
-    api_url = http://{{ .Release.Name }}-st2api{{ template "enterpriseSuffix" . }}:9101/
+    api_url = http://{{ .Release.Name }}-st2api:9101/
     {{- if index .Values "redis" "enabled" }}
     [coordination]
     url = redis://{{ template "redis-nodes" $ }}
@@ -44,8 +43,14 @@ data:
     [keyvalue]
     encryption_key_path = /etc/st2/keys/datastore_key.json
     {{- end }}
+    {{- if .Values.st2.rbac.enabled }}
+    [rbac]
+    enable = True
+    backend = default 
+    {{- end }}
 
   # User-defined st2 config with custom settings applied on top of everything else.
   # The order of merging: st2.conf < st2.docker.conf < st2.user.conf
   st2.user.conf: |
 {{ .Values.st2.config | indent 4 }}
+    
