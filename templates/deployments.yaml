@@ -468,7 +468,7 @@ spec:
         {{- if .Values.secrets.st2.datastore_crypto_key }}
         - name: st2-encryption-key-vol
           secret:
-            secretName: datastore_crypto_key
+            secretName: {{ .Release.Name }}-st2-datastore-crypto-key
             items:
             - key: datastore_crypto_key
               path: datastore_key.json
