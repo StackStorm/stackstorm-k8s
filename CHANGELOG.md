@@ -1,14 +1,13 @@
 # Changelog
 
 ## In Development
-
+* Updated redis constant sentinel ID which will allow other sentinel peers to update to the new given IP in case of pod failure or worker node reboots. (#191) (by @manisha-tanwar)
 
 ## v0.60.0
 * Switch st2 version to `v3.5dev` as a new latest development version (#187)
 * Change st2packs definition to a list, to support multiple st2packs containers (#166) (by @moonrail)
 * Enabled RBAC/LDAP configuration for OSS version, removed enterprise flags (#182) (by @hnanchahal)
 * Fixed datastore_crypto_key secret name for rules engine (#188) (by @lordpengwin)
-* Updated redis constant sentinel ID which will allow other sentinel peers to update to the new given IP in case of pod failure or worker node reboots. (#191) (by @manisha-tanwar)
 
 ## v0.52.0
 * Improve resource allocation and scheduling by adding resources requests cpu/memory values for st2 Pods (#179)
