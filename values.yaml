@@ -547,6 +547,10 @@ redis:
   # ## https://github.com/bitnami/charts/tree/master/bitnami/redis#master-slave-with-sentinel
   sentinel:
     enabled: true
+    ## Enable or disable static sentinel IDs for each replicas
+    ## If disabled each sentinel will generate a random id at startup
+    ## If enabled, each replicas will have a constant ID on each start-up
+    ##
     staticID: true
   networkPolicy:
     enabled: false
