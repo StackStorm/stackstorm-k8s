@@ -540,13 +540,17 @@ redis:
   # We just need replica count here to ensure it is HA
   cluster:
     slaveCount: 3
-  # ## Sentinel settings. Sentinel is enabled for better resiliency.
-  # ## This is highly recommended as per tooz library documentation. 
-  # ## Hence, the chart requires the setting.
-  # ## https://docs.openstack.org/tooz/latest/user/drivers.html#redis
-  # ## https://github.com/bitnami/charts/tree/master/bitnami/redis#master-slave-with-sentinel
+  # Sentinel settings. Sentinel is enabled for better resiliency.
+  # This is highly recommended as per tooz library documentation. 
+  # Hence, the chart requires the setting.
+  # https://docs.openstack.org/tooz/latest/user/drivers.html#redis
+  # https://github.com/bitnami/charts/tree/master/bitnami/redis#master-slave-with-sentinel
   sentinel:
     enabled: true
+    # Enable or disable static sentinel IDs for each replicas
+    # If disabled each sentinel will generate a random id at startup
+    # If enabled, each replicas will have a constant ID on each start-up
+    staticID: true
   networkPolicy:
     enabled: false
   usePassword: false
