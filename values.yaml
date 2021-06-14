@@ -29,6 +29,10 @@ serviceAccount:
   serviceAccountAnnotations: {}
   # Used to override service account name
   serviceAccountName:
+  # Fallback image pull secret.
+  # If a pod does not have pull secrets, k8s will use the service account's pull secrets.
+  # See: https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/#serviceaccount-admission-controller
+  #pullSecret: "your-pull-secret"
 
 ##
 ## StackStorm shared variables
