@@ -58,6 +58,7 @@ spec:
           mountPath: /opt/stackstorm/rbac/assignments/
         - name: st2-rbac-mappings-vol
           mountPath: /opt/stackstorm/rbac/mappings/
+{{ include "custom-annotations" .Values.jobs | indent 8 }}
         # TODO: Find out default resource limits for this specific service (#5)
         #resources:
       volumes:
@@ -172,6 +173,7 @@ spec:
         - name: st2-apikeys-vol
           mountPath: /etc/st2/apikeys.yaml
           subPath: apikeys.yaml
+{{ include "custom-annotations" .Values.jobs | indent 8 }}
         # TODO: Find out default resource limits for this specific service (#5)
         #resources:
       volumes:
@@ -276,6 +278,7 @@ spec:
         - name: st2-kv-vol
           mountPath: /etc/st2/st2kv.yaml
           subPath: st2kv.yaml
+{{ include "custom-annotations" .Values.jobs | indent 8 }}
         # TODO: Find out default resource limits for this specific service (#5)
         #resources:
       volumes:
@@ -360,6 +363,7 @@ spec:
         - name: st2-virtualenvs-vol
           mountPath: /opt/stackstorm/virtualenvs/
         {{- end }}
+{{ include "custom-annotations" .Values.jobs | indent 8 }}
         # TODO: Find out default resource limits for this specific service (#5)
         #resources:
       volumes:

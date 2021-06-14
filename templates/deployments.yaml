@@ -35,6 +35,7 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/auth: {{ include (print $.Template.BasePath "/secrets_st2auth.yaml") . | sha256sum }}
+{{ include "custom-annotations" .Values.st2auth | indent 8 }}
     spec:
       imagePullSecrets:
       {{- if .Values.image.pullSecret }}
@@ -145,6 +146,7 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+{{ include "custom-annotations" .Values.st2api | indent 8 }}
     spec:
       imagePullSecrets:
       {{- if .Values.image.pullSecret }}
@@ -255,6 +257,7 @@ spec:
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+{{ include "custom-annotations" .Values.st2stream | indent 8 }}
     spec:
       imagePullSecrets:
       {{- if .Values.image.pullSecret }}
@@ -333,6 +336,7 @@ spec:
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2web.yaml") . | sha256sum }}
+{{ include "custom-annotations" .Values.st2web | indent 8 }}
     spec:
       imagePullSecrets:
       {{- if .Values.image.pullSecret }}
@@ -431,6 +435,7 @@ spec:
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+{{ include "custom-annotations" .Values.st2rulesengine | indent 8 }}
     spec:
       imagePullSecrets:
       {{- if .Values.image.pullSecret }}
@@ -518,6 +523,7 @@ spec:
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+{{ include "custom-annotations" .Values.st2timersengine | indent 8 }}
     spec:
       imagePullSecrets:
       {{- if .Values.image.pullSecret }}
@@ -597,6 +603,7 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+{{ include "custom-annotations" .Values.st2workflowengine | indent 8 }}
     spec:
       imagePullSecrets:
       {{- if .Values.image.pullSecret }}
@@ -688,6 +695,7 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+{{ include "custom-annotations" .Values.st2scheduler | indent 8 }}
     spec:
       imagePullSecrets:
       {{- if .Values.image.pullSecret }}
@@ -779,6 +787,7 @@ spec:
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+{{ include "custom-annotations" .Values.st2notifier | indent 8 }}
     spec:
       imagePullSecrets:
       {{- if .Values.image.pullSecret }}
@@ -862,9 +871,7 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") $ | sha256sum }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") $ | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") $ | sha256sum }}
-        {{- if .annotations }}
-{{ toYaml .annotations | indent 8 }}
-        {{- end }}
+{{ include "custom-annotations" . | indent 8 }}
     spec:
       imagePullSecrets:
       {{- if $.Values.image.pullSecret }}
@@ -992,9 +999,7 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/ssh: {{ include (print $.Template.BasePath "/secrets_ssh.yaml") . | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
-        {{- if .Values.st2actionrunner.annotations }}
-{{ toYaml .Values.st2actionrunner.annotations | indent 8 }}
-        {{- end }}
+{{ include "custom-annotations" .Values.st2actionrunner | indent 8 }}
     spec:
       {{- if .Values.st2actionrunner.hostAliases }}
       hostAliases:
@@ -1118,6 +1123,7 @@ spec:
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+{{ include "custom-annotations" .Values.st2garbagecollector | indent 8 }}
     spec:
       imagePullSecrets:
       {{- if .Values.image.pullSecret }}
@@ -1199,6 +1205,7 @@ spec:
         checksum/auth: {{ include (print $.Template.BasePath "/secrets_st2auth.yaml") . | sha256sum }}
         checksum/ssh: {{ include (print $.Template.BasePath "/secrets_ssh.yaml") . | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+{{ include "custom-annotations" .Values.st2client | indent 8 }}
     spec:
       imagePullSecrets:
       {{- if .Values.st2.packs.images }}
@@ -1367,6 +1374,7 @@ spec:
         heritage: {{ .Release.Service }}
       annotations:
         checksum/chatops: {{ include (print $.Template.BasePath "/secrets_st2chatops.yaml") . | sha256sum }}
+{{ include "custom-annotations" .Values.st2chatops | indent 8 }}
     spec:
       {{- if .Values.image.pullSecret }}
       imagePullSecrets:

@@ -105,6 +105,13 @@ Create the name of the stackstorm-ha service account to use
   {{- end }}
 {{- end -}}
 
+# Reusable annotations list
+{{- define "custom-annotations" -}}
+  {{- if .annotations }}
+{{ toYaml .annotations }}
+  {{- end }}
+{{- end -}}
+
 # For custom st2packs-Container reduce duplicity by defining it here once
 {{- define "packs-volumes" -}}
   {{- if .Values.st2.packs.images }}
