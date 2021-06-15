@@ -2,6 +2,7 @@
 
 ## In Development
 * Updated redis constant sentinel ID which will allow other sentinel peers to update to the new given IP in case of pod failure or worker node reboots. (#191) (by @manisha-tanwar)
+* Reformat some yaml strings so that single quotes wrap strings that include double quotes (#194) (by @cognifloyd)
 
 ## v0.60.0
 * Switch st2 version to `v3.5dev` as a new latest development version (#187)
