@@ -45,7 +45,7 @@ spec:
       {{ include "init-containers-wait-for-mq" . | indent 6 }}
       # Sidecar container for generating .htpasswd with st2 username & password pair and sharing produced file with the main st2auth container
       - name: generate-htpasswd
-        image: "{{ template "imageRepository" . }}/st2auth:{{ .Chart.AppVersion }}"
+        image: '{{ template "imageRepository" . }}/st2auth:{{ .Chart.AppVersion }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         env:
         - name: ST2_AUTH_USERNAME
@@ -67,7 +67,7 @@ spec:
           - printf "${ST2_AUTH_USERNAME}:$(openssl passwd -apr1 "${ST2_AUTH_PASSWORD}")\n" > /tmp/st2/htpasswd
       containers:
       - name: st2auth
-        image: "{{ template "imageRepository" . }}/st2auth:{{ .Chart.AppVersion }}"
+        image: '{{ template "imageRepository" . }}/st2auth:{{ .Chart.AppVersion }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 9100
@@ -161,7 +161,7 @@ spec:
       {{- end }}
       containers:
       - name: st2api
-        image: "{{ template "imageRepository" . }}/st2api:{{ .Chart.AppVersion }}"
+        image: '{{ template "imageRepository" . }}/st2api:{{ .Chart.AppVersion }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 9101
@@ -265,7 +265,7 @@ spec:
       {{ include "init-containers-wait-for-mq" . | indent 6 }}
       containers:
       - name: st2stream
-        image: "{{ template "imageRepository" . }}/st2stream:{{ .Chart.AppVersion }}"
+        image: '{{ template "imageRepository" . }}/st2stream:{{ .Chart.AppVersion }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 9102
@@ -340,7 +340,7 @@ spec:
       {{- end }}
       containers:
       - name: st2web
-        image: "{{ template "imageRepository" . }}/st2web:{{ .Chart.AppVersion }}"
+        image: '{{ template "imageRepository" . }}/st2web:{{ .Chart.AppVersion }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 80
@@ -441,7 +441,7 @@ spec:
       {{ include "init-containers-wait-for-mq" . | indent 6 }}
       containers:
       - name: st2rulesengine
-        image: "{{ template "imageRepository" . }}/st2rulesengine:{{ .Chart.AppVersion }}"
+        image: '{{ template "imageRepository" . }}/st2rulesengine:{{ .Chart.AppVersion }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -528,7 +528,7 @@ spec:
       {{ include "init-containers-wait-for-mq" . | indent 6 }}
       containers:
       - name: st2timersengine
-        image: "{{ template "imageRepository" . }}/st2timersengine:{{ .Chart.AppVersion }}"
+        image: '{{ template "imageRepository" . }}/st2timersengine:{{ .Chart.AppVersion }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -607,7 +607,7 @@ spec:
       {{ include "init-containers-wait-for-mq" . | indent 6 }}
       containers:
       - name: st2workflowengine
-        image: "{{ template "imageRepository" . }}/st2workflowengine:{{ .Chart.AppVersion }}"
+        image: '{{ template "imageRepository" . }}/st2workflowengine:{{ .Chart.AppVersion }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -698,7 +698,7 @@ spec:
       {{ include "init-containers-wait-for-mq" . | indent 6 }}
       containers:
       - name: st2scheduler
-        image: "{{ template "imageRepository" . }}/st2scheduler:{{ .Chart.AppVersion }}"
+        image: '{{ template "imageRepository" . }}/st2scheduler:{{ .Chart.AppVersion }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -789,7 +789,7 @@ spec:
       {{ include "init-containers-wait-for-mq" . | indent 6 }}
       containers:
       - name: st2notifier
-        image: "{{ template "imageRepository" . }}/st2notifier:{{ .Chart.AppVersion }}"
+        image: '{{ template "imageRepository" . }}/st2notifier:{{ .Chart.AppVersion }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -881,7 +881,7 @@ spec:
       {{- end }}
       containers:
       - name: st2sensorcontainer{{ template "hyphenPrefix" .name }}
-        image: "{{ template "imageRepository" $ }}/st2sensorcontainer:{{ $.Chart.AppVersion }}"
+        image: '{{ template "imageRepository" $ }}/st2sensorcontainer:{{ $.Chart.AppVersion }}'
         imagePullPolicy: {{ $.Values.image.pullPolicy }}
         {{- with .readinessProbe }}
         # Probe to check if app is running. Failure will lead to a pod restart.
@@ -1015,7 +1015,7 @@ spec:
       {{- end }}
       containers:
       - name: st2actionrunner
-        image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
+        image: '{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -1128,7 +1128,7 @@ spec:
       {{ include "init-containers-wait-for-mq" . | indent 6 }}
       containers:
       - name: st2garbagecollector
-        image: "{{ template "imageRepository" . }}/st2garbagecollector:{{ .Chart.AppVersion }}"
+        image: '{{ template "imageRepository" . }}/st2garbagecollector:{{ .Chart.AppVersion }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
@@ -1213,7 +1213,7 @@ spec:
       {{- end }}
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       - name: generate-st2client-config
-        image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
+        image: '{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         envFrom:
         - configMapRef:
@@ -1244,7 +1244,7 @@ spec:
             EOT
       containers:
       - name: st2client
-        image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
+        image: '{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         env:
         - name: ST2CLIENT
@@ -1374,7 +1374,7 @@ spec:
       {{- end }}
       containers:
       - name: st2chatops
-        image: "{{ .Values.st2chatops.image.repository | default "stackstorm" }}/{{ .Values.st2chatops.image.name | default "st2chatops" }}:{{ tpl (.Values.st2chatops.image.tag | default .Chart.AppVersion) . }}"
+        image: '{{ .Values.st2chatops.image.repository | default "stackstorm" }}/{{ .Values.st2chatops.image.name | default "st2chatops" }}:{{ tpl (.Values.st2chatops.image.tag | default .Chart.AppVersion) . }}'
         imagePullPolicy: {{ .Values.st2chatops.image.pullPolicy | default .Values.image.pullPolicy }}
         env:
         - name: ST2_AUTH_USERNAME
