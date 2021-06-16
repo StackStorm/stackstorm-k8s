@@ -137,7 +137,7 @@ Create the name of the stackstorm-ha service account to use
     {{- end }}
 # System packs
 - name: st2-system-packs
-  image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
+  image: '{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}'
   imagePullPolicy: {{ .Values.image.pullPolicy }}
   volumeMounts:
   - name: st2-packs-vol
