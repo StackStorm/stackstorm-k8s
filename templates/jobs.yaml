@@ -32,7 +32,6 @@ spec:
         checksum/rbac: {{ include (print $.Template.BasePath "/configmaps_rbac.yaml") . | sha256sum }}
     spec:
       imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
