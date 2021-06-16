@@ -28,7 +28,7 @@ spec:
   # Run the actual BATS tests
   containers:
   - name: st2tests
-    image: "{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}"
+    image: '{{ template "imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}'
     imagePullPolicy: {{ .Values.image.pullPolicy }}
     envFrom:
     - configMapRef:
