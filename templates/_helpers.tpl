@@ -195,6 +195,8 @@ Create the name of the stackstorm-ha service account to use
       /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
       /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
     {{- end }}
+  {{- end }}
+  {{- if or $.Values.st2.packs.images $.Values.st2.packs.volumes.enabled }}
 # System packs
 - name: st2-system-packs
   image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2actionrunner.image.tag | default .Values.image.tag) . }}'

@@ -374,9 +374,7 @@ spec:
       {{- end }}
       initContainers:
       {{- include "init-containers-wait-for-db" . | nindent 6 }}
-      {{- if $.Values.st2.packs.images -}}
-        {{- include "packs-initContainers" . | nindent 6 }}
-      {{ end }}
+      {{- include "packs-initContainers" . | nindent 6 }}
       {{- if $.Values.jobs.preRegisterContentCommand }}
       - name: st2-register-content-custom-init
         image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
