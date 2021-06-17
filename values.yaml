@@ -81,6 +81,7 @@ st2:
   packs:
     # Custom StackStorm pack configs. Each record creates a file in '/opt/stackstorm/configs/'
     # https://docs.stackstorm.com/reference/pack_configs.html#configuration-file
+    # NOTE: This is ignored if st2.packs.volumes.configs is defined and st2.packs.volumes is enabled
     configs:
       core.yaml: |
         ---

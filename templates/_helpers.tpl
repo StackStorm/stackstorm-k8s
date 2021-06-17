@@ -122,9 +122,14 @@ Create the name of the stackstorm-ha service account to use
 
 # consolidate pack-configs-volumes definitions
 {{- define "pack-configs-volume" -}}
+  {{- if and .Values.st2.packs.volumes.enabled .Values.st2.packs.volumes.configs }}
+- name: st2-pack-configs-vol
+{{ toYaml .Values.st2.packs.volumes.configs | indent 2 }}
+  {{- else }}
 - name: st2-pack-configs-vol
   configMap:
     name: {{ .Release.Name }}-st2-pack-configs
+  {{- end }}
 {{- end -}}
 {{- define "pack-configs-volume-mount" -}}
 - name: st2-pack-configs-vol

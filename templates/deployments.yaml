@@ -201,6 +201,9 @@ spec:
           readOnly: true
         {{- end }}
         {{- include "packs-volume-mounts" . | nindent 8 }}
+        {{- if .Values.st2.packs.volumes.enabled }}
+          {{- include "pack-configs-volume-mount" . | nindent 8 }}
+        {{- end }}
         {{- if .Values.st2api.postStartScript }}
         - name: st2-post-start-script-vol
           mountPath: /post-start.sh
@@ -226,6 +229,9 @@ spec:
         {{- end }}
         {{- include "st2-config-volume" . | nindent 8 }}
         {{- include "packs-volumes" . | nindent 8 }}
+        {{- if .Values.st2.packs.volumes.enabled }}
+          {{- include "pack-configs-volume" . | nindent 8 }}
+        {{- end }}
         {{- if .Values.st2api.postStartScript }}
         - name: st2-post-start-script-vol
           configMap:
@@ -1186,6 +1192,9 @@ spec:
           readOnly: true
         {{- end }}
         {{- include "packs-volume-mounts" . | nindent 8 }}
+        {{- if .Values.st2.packs.volumes.enabled }}
+          {{- include "pack-configs-volume-mount" . | nindent 8 }}
+        {{- end }}
         - name: st2-post-start-script-vol
           mountPath: /post-start.sh
           subPath: post-start.sh
@@ -1217,6 +1226,9 @@ spec:
               # 0400 file permission
               mode: 256
         {{- include "packs-volumes" . | nindent 8 }}
+        {{- if .Values.st2.packs.volumes.enabled }}
+          {{- include "pack-configs-volume" . | nindent 8 }}
+        {{- end }}
         - name: st2-post-start-script-vol
           configMap:
             name: {{ .Release.Name }}-st2actionrunner-post-start-script
