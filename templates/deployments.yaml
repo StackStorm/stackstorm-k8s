@@ -200,14 +200,7 @@ spec:
           mountPath: /etc/st2/keys
           readOnly: true
         {{- end }}
-        {{- if .Values.st2.packs.images }}
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs
-          readOnly: true
-        - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs
-          readOnly: true
-        {{- end }}
+        {{- include "packs-volume-mounts" . | nindent 8 }}
         {{- if .Values.st2api.postStartScript }}
         - name: st2-post-start-script-vol
           mountPath: /post-start.sh
@@ -232,9 +225,7 @@ spec:
               path: datastore_key.json
         {{- end }}
         {{- include "st2-config-volume" . | nindent 8 }}
-        {{- if .Values.st2.packs.images }}
-{{- include "packs-volumes" . | indent 8 }}
-        {{- end }}
+        {{- include "packs-volumes" . | nindent 8 }}
         {{- if .Values.st2api.postStartScript }}
         - name: st2-post-start-script-vol
           configMap:
@@ -1064,14 +1055,7 @@ spec:
             name: {{ $.Release.Name }}-st2-urls
         volumeMounts:
         {{- include "st2-config-volume-mounts" $ | nindent 8 }}
-        {{- if $.Values.st2.packs.images }}
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs
-          readOnly: true
-        - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs
-          readOnly: true
-        {{- end }}
+        {{- include "packs-volume-mounts" $ | nindent 8 }}
         {{- if $.Values.st2.datastore_crypto_key }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
@@ -1101,9 +1085,7 @@ spec:
               path: datastore_key.json
         {{- end }}
         {{- include "st2-config-volume" $ | nindent 8 }}
-        {{- if $.Values.st2.packs.images }}
-{{- include "packs-volumes" $ | indent 8 }}
-        {{- end }}
+        {{- include "packs-volumes" $ | nindent 8 }}
         {{- if $.Values.st2sensorcontainer.postStartScript }}
         - name: st2-post-start-script-vol
           configMap:
@@ -1203,14 +1185,7 @@ spec:
           mountPath: /etc/st2/keys
           readOnly: true
         {{- end }}
-        {{- if .Values.st2.packs.images }}
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs
-          readOnly: true
-        - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs
-          readOnly: true
-        {{- end }}
+        {{- include "packs-volume-mounts" . | nindent 8 }}
         - name: st2-post-start-script-vol
           mountPath: /post-start.sh
           subPath: post-start.sh
@@ -1241,9 +1216,7 @@ spec:
               path: {{ tpl .Values.st2.system_user.ssh_key_file . | base }}
               # 0400 file permission
               mode: 256
-        {{- if .Values.st2.packs.images }}
-{{- include "packs-volumes" . | indent 8 }}
-        {{- end }}
+        {{- include "packs-volumes" . | nindent 8 }}
         - name: st2-post-start-script-vol
           configMap:
             name: {{ .Release.Name }}-st2actionrunner-post-start-script
@@ -1471,14 +1444,7 @@ spec:
           mountPath: /etc/st2/keys
           readOnly: true
         {{- end }}
-        {{- if .Values.st2.packs.images }}
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs
-          readOnly: true
-        - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs
-          readOnly: true
-        {{- end }}
+        {{- include "packs-volume-mounts" . | nindent 8 }}
         - name: st2-post-start-script-vol
           mountPath: /post-start.sh
           subPath: post-start.sh
@@ -1529,9 +1495,7 @@ spec:
               path: {{ tpl .Values.st2.system_user.ssh_key_file . | base }}
               # 0400 file permission
               mode: 256
-        {{- if .Values.st2.packs.images }}
-{{- include "packs-volumes" . | indent 8 }}
-        {{- end }}
+        {{- include "packs-volumes" . | nindent 8 }}
         - name: st2-post-start-script-vol
           configMap:
             name: {{ .Release.Name }}-st2client-post-start-script

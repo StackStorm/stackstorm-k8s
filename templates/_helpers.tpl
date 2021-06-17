@@ -129,6 +129,25 @@ Create the name of the stackstorm-ha service account to use
   emptyDir: {}
   {{- end }}
 {{- end -}}
+{{- define "packs-volume-mounts" -}}
+  {{- if .Values.st2.packs.images }}
+- name: st2-packs-vol
+  mountPath: /opt/stackstorm/packs
+  readOnly: true
+- name: st2-virtualenvs-vol
+  mountPath: /opt/stackstorm/virtualenvs
+  readOnly: true
+  {{- end }}
+{{- end -}}
+# define this here as well to simplify comparison with packs-volume-mounts
+{{- define "packs-volume-mounts-for-register-job" -}}
+  {{- if .Values.st2.packs.images }}
+- name: st2-packs-vol
+  mountPath: /opt/stackstorm/packs
+- name: st2-virtualenvs-vol
+  mountPath: /opt/stackstorm/virtualenvs
+  {{- end }}
+{{- end -}}
 
 # For custom st2packs-initContainers reduce duplicity by defining them here once
 # Merge packs and virtualenvs from st2 with those from st2packs images

@@ -408,12 +408,7 @@ spec:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
         - name: st2-pack-configs-vol
           mountPath: /opt/stackstorm/configs/
-        {{- if .Values.st2.packs.images }}
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs/
-        - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs/
-        {{- end }}
+        {{- include "packs-volume-mounts-for-register-job" . | nindent 8 }}
         # TODO: Find out default resource limits for this specific service (#5)
         #resources:
       volumes:
