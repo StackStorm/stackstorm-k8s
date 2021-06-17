@@ -127,6 +127,11 @@ Create the name of the stackstorm-ha service account to use
   emptyDir: {}
 - name: st2-virtualenvs-vol
   emptyDir: {}
+  {{- else if .Values.st2.packs.volumes.enabled }}
+- name: st2-packs-vol
+{{ toYaml .Values.st2.packs.volumes.packs | indent 2 }}
+- name: st2-virtualenvs-vol
+{{ toYaml .Values.st2.packs.volumes.virtualenvs | indent 2 }}
   {{- end }}
 {{- end -}}
 {{- define "packs-volume-mounts" -}}
@@ -137,11 +142,16 @@ Create the name of the stackstorm-ha service account to use
 - name: st2-virtualenvs-vol
   mountPath: /opt/stackstorm/virtualenvs
   readOnly: true
+  {{- else if .Values.st2.packs.volumes.enabled }}
+- name: st2-packs-vol
+  mountPath: /opt/stackstorm/packs
+- name: st2-virtualenvs-vol
+  mountPath: /opt/stackstorm/virtualenvs
   {{- end }}
 {{- end -}}
 # define this here as well to simplify comparison with packs-volume-mounts
 {{- define "packs-volume-mounts-for-register-job" -}}
-  {{- if .Values.st2.packs.images }}
+  {{- if or .Values.st2.packs.images .Values.st2.packs.volumes.enabled }}
 - name: st2-packs-vol
   mountPath: /opt/stackstorm/packs
 - name: st2-virtualenvs-vol
