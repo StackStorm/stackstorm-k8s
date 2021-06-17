@@ -120,6 +120,17 @@ Create the name of the stackstorm-ha service account to use
   {{- end }}
 {{- end -}}
 
+# consolidate pack-configs-volumes definitions
+{{- define "pack-configs-volume" -}}
+- name: st2-pack-configs-vol
+  configMap:
+    name: {{ .Release.Name }}-st2-pack-configs
+{{- end -}}
+{{- define "pack-configs-volume-mount" -}}
+- name: st2-pack-configs-vol
+  mountPath: /opt/stackstorm/configs/
+{{- end -}}
+
 # For custom st2packs-Container reduce duplicity by defining it here once
 {{- define "packs-volumes" -}}
   {{- if .Values.st2.packs.images }}
