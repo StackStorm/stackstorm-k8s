@@ -286,6 +286,23 @@ Or, for example, to use NFS:
         path: /var/nfsshare/configs
 ```
 
+#### Caveat: Mounting and copying packs
+If you use something like NFS where you can mount the shares outside of the StackStorm pods, there are a couple of things to keep in mind.
+
+Though you could manually copy packs into the `packs` shared volume, be aware that StackStorm does not automatically register any changed content.
+So, if you manually copy a pack into the `packs` shared volume, then you also need to trigger updating the virtualenv and registering the content,
+possibly using APIs like:
+[packs/install](https://api.stackstorm.com/api/v1/packs/#/packs_controller.install.post), and
+[packs/register](https://api.stackstorm.com/api/v1/packs/#/packs_controller.register.post)
+You will have to repeat the process each time the packs code is modified.
+
+#### Caveat: System packs
+After Helm installs, upgrades, or rolls back a StackStorm install, it runs an `st2-register-content` batch job.
+This job will copy and register system packs. If you have made any changes (like disabling default aliases), those changes will be overwritten.
+
+NOTE: Upgrades will not remove files (such as a renamed or removed action) if they were removed in newer StackStorm versions.
+This mirrors the how pack registration works. Make sure to review any upgrade notes and manually handle any removals.
+
 ## Tips & Tricks
 Grab all logs for entire StackStorm cluster with dependent services in Helm release:
 ```
