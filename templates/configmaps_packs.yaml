@@ -1,3 +1,4 @@
+{{- if not (and .Values.st2.packs.volumes.enabled .Values.st2.packs.volumes.configs) -}}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -14,3 +15,4 @@ metadata:
     heritage: {{ .Release.Service }}
 data:
 {{ toYaml .Values.st2.packs.configs | indent 2 }}
+{{- end -}}
