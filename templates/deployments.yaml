@@ -2,6 +2,14 @@
 {{- if and .Values.st2.packs.image }}
 {{- fail "Value st2.packs.image was renamed to st2.packs.images and is now a list of images" }}
 {{- end }}
+{{- if .Values.st2.packs.volumes.enabled }}
+  {{- if .Values.st2.packs.images }}
+{{- fail "st2.packs.images is not compatible with st2.packs.volumes.enabled. Please use only one method for setting up packs directories." }}
+  {{- end }}
+  {{- if not (and .Values.st2.packs.volumes.packs .Values.st2.packs.volumes.virtualenvs) }}
+{{- fail "Volume definition(s) missing! When st2.packs.volumes.enabled, you must define volumes for both packs and virtualenvs." }}
+  {{- end }}
+{{- end }}
 
 ---
 apiVersion: apps/v1
