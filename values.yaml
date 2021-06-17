@@ -73,9 +73,11 @@ st2:
 
   # Custom pack configs and image settings.
   #
-  # By default, system packs are available. However, since 'st2 pack install' cannot be run in the k8s cluster,
-  # you will need to bake additional packs into an 'st2packs' image. Please see github.com/stackstorm/stackstorm-ha/README.md
+  # By default, system packs are available. By default, however, `st2 pack install` cannot be run in the k8s cluster,
+  # so you will need to bake additional packs into an 'st2packs' image. Please see github.com/stackstorm/stackstorm-ha/README.md
   # for details on how to build this image.
+  # To change this default, and use persistent/shared/writable storage that is available in your cluster, you need to
+  # enable st2.packs.volumes below, adding volume definitions customized for use your cluster's storage provider.
   packs:
     # Custom StackStorm pack configs. Each record creates a file in '/opt/stackstorm/configs/'
     # https://docs.stackstorm.com/reference/pack_configs.html#configuration-file
@@ -85,9 +87,12 @@ st2:
         # example core pack config yaml
 
     # Custom packs images settings.
+    #
     # For each given st2packs container you can define repository, name, tag and pullPolicy for this image below.
     # Multiple pack images can help when dealing with frequent updates by only rebuilding smaller images for desired packs
     # E.g. having all desired StackStorm-Exchange packs in one image and several custom packs in additional images
+    #
+    # This must be empty if st2.packs.volumes is enabled.
     images:
       #- repository: index.docker.io/stackstorm
       #  name: st2packs
@@ -95,6 +100,47 @@ st2:
       #  pullPolicy: IfNotPresent
       # Optional name of the imagePullSecret if your custom packs image is hosted by a private Docker registry
       #  pullSecret: st2packs-auth
+
+    # Custom packs volumes definitions.
+    #
+    # Use this instead of st2.packs.images to have StackStorm use persistent/shared/writable storage configured
+    # previously in your cluster. The choice of storage solution is cluster-dependent (it changes besed on where the
+    # cluster is hosted and which storage solutions are available in your cluster).
+    #
+    # To use this, set enabled to true, and add cluster-specific volume definitions for at least packs and virtualenvs below.
+    # Please consult the documentation for your cluster's storage solution.
+    # Some generic examples are listed under st2.packs.volumes.packs below.
+    volumes:
+      # to enable st2.packs.volumes, st2.packs.images must not be empty
+      enabled: false
+
+      packs: # mounted to /opt/stackstorm/packs
+        # packs volume definition is required if st2.packs.volumes is enabled
+
+        # example using persistentVolumeClaim:
+        #persistentVolumeClaim:
+        #  claim-name: pvc-st2-packs
+
+        # example using NFS:
+        #nfs:
+        #  server: "10.12.34.56"
+        #  path: /var/nfsshare/packs
+
+        # example using a flexVolume + rook-ceph
+        #flexVolume:
+        #  driver: ceph.rook.io/rook
+        #  options:
+        #    fsName: fs1
+        #    clusterNamespace: rook-ceph
+        #    path: /st2/packs
+
+      virtualenvs: # mounted to /opt/stackstorm/virtualenvs
+        # virtualenvs volume definition is required if st2.packs.volumes is enabled
+        # see the examples under st2.packs.volumes.packs
+
+      configs: # mounted to /opt/stackstorm/configs
+        # configs volume definition is optional, but only used if st2.packs.volumes is enabled
+        # see the examples under st2.packs.volumes.packs
 
     # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
     # It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance.
