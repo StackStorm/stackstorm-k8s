@@ -30,6 +30,9 @@ spec:
         # TODO: Investigate/propose running Helm hook only on condition when ConfigMap or Secret has changed
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/rbac: {{ include (print $.Template.BasePath "/configmaps_rbac.yaml") . | sha256sum }}
+        {{- if .Values.jobs.annotations }}
+{{ toYaml .Values.jobs.annotations | indent 8 }}
+        {{- end }}
     spec:
       imagePullSecrets:
       {{- if .Values.image.pullSecret }}
@@ -58,7 +61,6 @@ spec:
           mountPath: /opt/stackstorm/rbac/assignments/
         - name: st2-rbac-mappings-vol
           mountPath: /opt/stackstorm/rbac/mappings/
-{{ include "custom-annotations" .Values.jobs | indent 8 }}
         # TODO: Find out default resource limits for this specific service (#5)
         #resources:
       volumes:
@@ -108,6 +110,9 @@ spec:
         # TODO: Investigate/propose running Helm hook only on condition when ConfigMap or Secret has changed
         checksum/urls: {{ include (print $.Template.BasePath "/configmaps_st2-urls.yaml") . | sha256sum }}
         checksum/apikeys: {{ include (print $.Template.BasePath "/secrets_st2apikeys.yaml") . | sha256sum }}
+        {{- if .Values.jobs.annotations }}
+{{ toYaml .Values.jobs.annotations | indent 8 }}
+        {{- end }}
     spec:
       imagePullSecrets:
       {{- if .Values.image.pullSecret }}
@@ -173,7 +178,6 @@ spec:
         - name: st2-apikeys-vol
           mountPath: /etc/st2/apikeys.yaml
           subPath: apikeys.yaml
-{{ include "custom-annotations" .Values.jobs | indent 8 }}
         # TODO: Find out default resource limits for this specific service (#5)
         #resources:
       volumes:
@@ -216,6 +220,9 @@ spec:
         # TODO: Investigate/propose running Helm hook only on condition when ConfigMap or Secret has changed
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/urls: {{ include (print $.Template.BasePath "/configmaps_st2-urls.yaml") . | sha256sum }}
+        {{- if .Values.jobs.annotations }}
+{{ toYaml .Values.jobs.annotations | indent 8 }}
+        {{- end }}
     spec:
       imagePullSecrets:
       {{- if .Values.image.pullSecret }}
@@ -278,7 +285,6 @@ spec:
         - name: st2-kv-vol
           mountPath: /etc/st2/st2kv.yaml
           subPath: st2kv.yaml
-{{ include "custom-annotations" .Values.jobs | indent 8 }}
         # TODO: Find out default resource limits for this specific service (#5)
         #resources:
       volumes:
@@ -324,6 +330,9 @@ spec:
         # TODO: Investigate/propose running Helm hook only on condition when ConfigMap or Secret has changed
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") . | sha256sum }}
+        {{- if .Values.jobs.annotations }}
+{{ toYaml .Values.jobs.annotations | indent 8 }}
+        {{- end }}
     spec:
       imagePullSecrets:
       {{- if .Values.image.pullSecret }}
@@ -363,7 +372,6 @@ spec:
         - name: st2-virtualenvs-vol
           mountPath: /opt/stackstorm/virtualenvs/
         {{- end }}
-{{ include "custom-annotations" .Values.jobs | indent 8 }}
         # TODO: Find out default resource limits for this specific service (#5)
         #resources:
       volumes:
