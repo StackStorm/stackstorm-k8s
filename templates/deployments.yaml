@@ -1213,7 +1213,7 @@ spec:
       {{- end }}
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       - name: generate-st2client-config
-        image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2client.image.tag | default .Values.image.tag) . }}'
+        image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2client.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         envFrom:
         - configMapRef:

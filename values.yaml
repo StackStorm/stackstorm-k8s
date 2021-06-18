@@ -506,6 +506,15 @@ st2chatops:
     attach: false
 
 ##
+## Various batch jobs (apply-rbac-definitions, apikey-load, key-load, register-content)
+##
+jobs:
+  # Override default image settings (for now, only tag can be overridden)
+  image: {}
+    ## Note that Helm templating is supported in this block!
+    #tag: "{{ .Values.image.tag }}"
+
+##
 ## MongoDB HA configuration (3rd party chart dependency)
 ##
 ## For values.yaml reference:
