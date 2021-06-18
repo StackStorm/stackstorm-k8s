@@ -5,7 +5,7 @@
 * Removed reference to st2-license pullSecrets, which was missed when removing enterprise flags (#192) (by @cognifloyd)
 * Add optional imagePullSecrets to ServiceAccount using `serviceAccount.pullSecret` from values.yaml. If pods do not have imagePullSecrets (eg without `image.pullSecret` in values.yaml), k8s populates them from the ServiceAccount. (#196) (by @cognifloyd)
 * Reformat some yaml strings so that single quotes wrap strings that include double quotes (#194) (by @cognifloyd)
-* Add `st2chatops.api_key` value so that the st2chatops deployment can get the ST2_API_KEY env var instead of ST2_AUTH_USERNAME/PASSWORD. (#197) (by @cognifloyd)
+* st2chatops change: If `st2chatops.env.ST2_API_KEY` is defined, do not set `ST2_AUTH_USERNAME` or `ST2_AUTH_PASSWORD` env vars any more. (#197) (by @cognifloyd)
 
 
 ## v0.60.0

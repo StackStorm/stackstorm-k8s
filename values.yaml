@@ -422,9 +422,9 @@ st2chatops:
   env:
     HUBOT_ADAPTER: slack
     HUBOT_SLACK_TOKEN: xoxb-CHANGE-ME-PLEASE
-  # If api_key is defined, then use this key instead of username/password for chatops to authenticate with StackStorm.
-  # Please make sure that this key gets added to st2.apikeys above so that chatops can use this key.
-  #api_key:
+    # If ST2_API_KEY is defined, then ST2_AUTH_USERNAME/PASSWORD will not be exposed to st2chatops.
+    # Please make sure that the key in ST2_API_KEY gets added to st2.apikeys above so that chatops can use this key.
+    #ST2_API_KEY: 12345
   # Set custom generated st2chatops Docker image source
   # Otherwise default https://hub.docker.com/r/stackstorm/st2chatops is used
   image: {}

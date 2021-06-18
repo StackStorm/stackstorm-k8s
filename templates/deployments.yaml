@@ -1376,14 +1376,8 @@ spec:
       - name: st2chatops
         image: '{{ .Values.st2chatops.image.repository | default "stackstorm" }}/{{ .Values.st2chatops.image.name | default "st2chatops" }}:{{ tpl (.Values.st2chatops.image.tag | default .Chart.AppVersion) . }}'
         imagePullPolicy: {{ .Values.st2chatops.image.pullPolicy | default .Values.image.pullPolicy }}
+        {{- if not (hasKey .Values.st2chatops.env "ST2_API_KEY") }}
         env:
-        {{- if index .Values.st2chatops "api_key" }}
-        - name: ST2_API_KEY
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: chatops_api_key
-        {{- else }}
         - name: ST2_AUTH_USERNAME
           valueFrom:
             secretKeyRef:
