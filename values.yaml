@@ -655,6 +655,25 @@ redis:
     enabled: false
 
 ##
+## Settings to be applied to all stackstorm-ha pods
+##
+# https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-policy
+# "ClusterFirst" is the default. Other options: "Default", "ClusterFirstWithHostNet", "None"
+#dnsPolicy: "ClusterFirst"
+# https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
+dnsConfig: {}
+  # example copied from the docs
+  #nameservers:
+  #- 1.2.3.4
+  #searches:
+  #- ns1.svc.cluster-domain.example
+  #- my.dns.search.suffix
+  #options:
+  #- name: ndots
+  #  value: "2"
+  #- name: edns0
+
+##
 ## External DNS configuration (3rd party chart dependency)
 ##
 ## Creates a deployment of external-dns within the cluster to update DNS with CNAME -> ELB
