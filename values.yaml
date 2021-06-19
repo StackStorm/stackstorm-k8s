@@ -42,7 +42,7 @@ serviceAccount:
 ##
 st2:
   # NB! It's highly recommended to change ALL default secrets:
-  #     username, password, ssh_key, datastore_crypto_key
+  #     username, password, datastore_crypto_key, ssh_key
   # Username, used to login to StackStorm system
   username: st2admin
   # Password, used to login to StackStorm system
@@ -51,6 +51,37 @@ st2:
   # See https://docs.stackstorm.com/datastore.html#securing-secrets-admin-only for more info.
   # Warning! Replace with your own generated key!
   #datastore_crypto_key: {"hmacKey": {"hmacKeyString": "", "size": 256}, "size": 256, "aesKeyString": "", "mode": "CBC"}
+  # SSH private key for the 'stanley' system user ('system_user.ssh_key_file' in st2.conf)
+  # Warning! Replace with your own SSH key!
+  # TODO: For prod/stable consider auto-generating if no key provided (#15)
+  ssh_key: |-
+    -----BEGIN RSA PRIVATE KEY-----
+    MIIEowIBAAKCAQEAs73kblN3XfLR6tYsHRHyX/aQKx4amcNjT+E+2ufwqkiINDyA
+    CGim0Z4WFOEO6UtZApeOlUehp2MEFGFpl2u8vUC1b7AsWaImB4ywMIPOFblqaEag
+    DskrFp7FOggqZFWX7NwVZpm/KkvCw/fCehnxuv+za+hUtg4Qiv86qXShrlsn98B7
+    64Aq27oxkvhRU2OkDUP/wPNQnXzIZxfFYSvS7rGzKrswdZfWysscIUor4a+7GahM
+    yq8PGD6qp2wkiL7wFarZerS2Sq3M06Y89yzppCoPYI6kaEPuqrjSYZvh38CAVbGG
+    SgPv3CFgR1N3BsBEAx7OF+40R58C+3ldH8e1tQIDAQABAoIBAQCN7137YR3Zqm3p
+    q8aaDhn/fYzK/7KxyYEbCxu/cXiyfyRPW5cfDMTuso9tXWuQ/lcDnPqTF0WoEKCg
+    F2xyjjk0mWytDcl33nt5areXF/4dWZWVUnACPQkxi57i/J+9K3oVKJYdtzsmAz2B
+    0pxYHzSsHk9o3sZGHUUi/fks51TlgPNgOP8hf7/K9w9+FSE26geqjddqWwQbbStI
+    rDc3ZPMcGI4E5DuGmnrxWf4omUqScTB+bvUgN+WC02v1Bj4HaAX7PlLCUZMuTk3S
+    BcG4v7qiglxVYdBjtHNwtg1YAoVYh6sXckxqi1XudhoRXGlgYtyrcW0mWnnB4hIQ
+    vy7//uABAoGBANw8H1h93U1HNsqfIa1Ys3u6qZdHByHvA8e7Jk6GEFUEOAQSyxZ+
+    0RbFWC4knuQL+YklqeDNCXekwVEvVenf2lhZ4rHNbmv/9pWhq7sQcDOQPi5nVxJl
+    bkQoQkeNGeH8KPF1E2RsfJ8uU3NfD00yMFrNaeBUIlY44ABMOQSJREq1AoGBANDu
+    V0IV1BahqEW5mmnTdHLG6+tiSQdutrQv4hxBL59PhwyeMvpzFgwkNmymAZMLl40D
+    Y/0wg2lVr7Fb+peCrLpiNMEPWv/a38IEVTDm7YcsHZayEsc1vdjdMoZ8k5VNi25F
+    +lvQ/CxDNqJGTNEBBYmb5QHopBh8YowwIrT0yZ8BAoGAFYtAGbz+SA/+WSXl+noh
+    3Kmu62CEXxptiT1Siv3sXRSzkhpwiXvQYmTdsm3cqTxOpc7sZlRIZ87TJmj2A5Hl
+    Xx0z4ubQtXntmkedcAg0oaarnoh3aRJJDhvOGAfCj2vGaZBlXD6MllnGyhNzgL63
+    IjrT76DrVvnrV7wdG8d9yb0CgYAuQFT4wDRPPkIuDURtoO3qarbXSM654nx3rxHz
+    B0svjT9sP6kxYEDFN08FBkra7noCMXn1FsRAkUNvk9kJqVfresoK4wdWFHHsVWE2
+    jiiO/+kc7xbRGsiINY91ziYtqxjutHcT1FO+yLJTghSHQB6ls+kiXwnUkdSPDCji
+    vj3UAQKBgE19oSdfKbpKTyHu5rs+lN/KictDuMrqAriWODCygZ1/X1J1zpqvpUbt
+    WE8BWLQ1vBV6c7V4Q0Wp6LuTnNnvu/lvVugJW/TbrzFw6CFe5fEISmIHAMnqVz8x
+    OdOJyinSM1svoBGnYfyAqINKrqCSGSKmprlMo0Ma3erI7SuojWBS
+      -----END RSA PRIVATE KEY-----
 
   # Custom StackStorm config (st2.user.conf) which will apply settings on top of default st2.conf
   config: |
@@ -191,44 +222,8 @@ ingress:
   #     - chart-example.test
 
 ##
-## StackStorm HA Cluster Secrets.
-## NB! It's highly recommended to change ALL defaults!
+## NOTE: there used to be a secrets.st2 section here. These values have moved into st2.* above. Please update your values.
 ##
-# TODO: Move to `secrets.yaml` when it gets implemented in Helm (https://github.com/kubernetes/helm/issues/2196) ? (#14)
-# TODO: Alternatively as part of reorganizing Helm values, consider moving values to existing `st2` and `st2web` sections ? (#14)
-secrets:
-  st2:
-    # SSH private key for the 'stanley' system user ('system_user.ssh_key_file' in st2.conf)
-    # Warning! Replace with your own SSH key!
-    # TODO: For prod/stable consider auto-generating if no key provided (#15)
-    ssh_key: |-
-      -----BEGIN RSA PRIVATE KEY-----
-      MIIEowIBAAKCAQEAs73kblN3XfLR6tYsHRHyX/aQKx4amcNjT+E+2ufwqkiINDyA
-      CGim0Z4WFOEO6UtZApeOlUehp2MEFGFpl2u8vUC1b7AsWaImB4ywMIPOFblqaEag
-      DskrFp7FOggqZFWX7NwVZpm/KkvCw/fCehnxuv+za+hUtg4Qiv86qXShrlsn98B7
-      64Aq27oxkvhRU2OkDUP/wPNQnXzIZxfFYSvS7rGzKrswdZfWysscIUor4a+7GahM
-      yq8PGD6qp2wkiL7wFarZerS2Sq3M06Y89yzppCoPYI6kaEPuqrjSYZvh38CAVbGG
-      SgPv3CFgR1N3BsBEAx7OF+40R58C+3ldH8e1tQIDAQABAoIBAQCN7137YR3Zqm3p
-      q8aaDhn/fYzK/7KxyYEbCxu/cXiyfyRPW5cfDMTuso9tXWuQ/lcDnPqTF0WoEKCg
-      F2xyjjk0mWytDcl33nt5areXF/4dWZWVUnACPQkxi57i/J+9K3oVKJYdtzsmAz2B
-      0pxYHzSsHk9o3sZGHUUi/fks51TlgPNgOP8hf7/K9w9+FSE26geqjddqWwQbbStI
-      rDc3ZPMcGI4E5DuGmnrxWf4omUqScTB+bvUgN+WC02v1Bj4HaAX7PlLCUZMuTk3S
-      BcG4v7qiglxVYdBjtHNwtg1YAoVYh6sXckxqi1XudhoRXGlgYtyrcW0mWnnB4hIQ
-      vy7//uABAoGBANw8H1h93U1HNsqfIa1Ys3u6qZdHByHvA8e7Jk6GEFUEOAQSyxZ+
-      0RbFWC4knuQL+YklqeDNCXekwVEvVenf2lhZ4rHNbmv/9pWhq7sQcDOQPi5nVxJl
-      bkQoQkeNGeH8KPF1E2RsfJ8uU3NfD00yMFrNaeBUIlY44ABMOQSJREq1AoGBANDu
-      V0IV1BahqEW5mmnTdHLG6+tiSQdutrQv4hxBL59PhwyeMvpzFgwkNmymAZMLl40D
-      Y/0wg2lVr7Fb+peCrLpiNMEPWv/a38IEVTDm7YcsHZayEsc1vdjdMoZ8k5VNi25F
-      +lvQ/CxDNqJGTNEBBYmb5QHopBh8YowwIrT0yZ8BAoGAFYtAGbz+SA/+WSXl+noh
-      3Kmu62CEXxptiT1Siv3sXRSzkhpwiXvQYmTdsm3cqTxOpc7sZlRIZ87TJmj2A5Hl
-      Xx0z4ubQtXntmkedcAg0oaarnoh3aRJJDhvOGAfCj2vGaZBlXD6MllnGyhNzgL63
-      IjrT76DrVvnrV7wdG8d9yb0CgYAuQFT4wDRPPkIuDURtoO3qarbXSM654nx3rxHz
-      B0svjT9sP6kxYEDFN08FBkra7noCMXn1FsRAkUNvk9kJqVfresoK4wdWFHHsVWE2
-      jiiO/+kc7xbRGsiINY91ziYtqxjutHcT1FO+yLJTghSHQB6ls+kiXwnUkdSPDCji
-      vj3UAQKBgE19oSdfKbpKTyHu5rs+lN/KictDuMrqAriWODCygZ1/X1J1zpqvpUbt
-      WE8BWLQ1vBV6c7V4Q0Wp6LuTnNnvu/lvVugJW/TbrzFw6CFe5fEISmIHAMnqVz8x
-      OdOJyinSM1svoBGnYfyAqINKrqCSGSKmprlMo0Ma3erI7SuojWBS
-      -----END RSA PRIVATE KEY-----
 
 ##
 ## StackStorm HA Cluster pod settings for each individual service/component.
