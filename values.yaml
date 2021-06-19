@@ -41,6 +41,13 @@ serviceAccount:
 ## StackStorm shared variables
 ##
 st2:
+  # NB! It's highly recommended to change ALL default secrets:
+  #     username, password, ssh_key, datastore_crypto_key
+  # Username, used to login to StackStorm system
+  username: st2admin
+  # Password, used to login to StackStorm system
+  password: Ch@ngeMe
+
   # Custom StackStorm config (st2.user.conf) which will apply settings on top of default st2.conf
   config: |
     [api]
@@ -187,10 +194,6 @@ ingress:
 # TODO: Alternatively as part of reorganizing Helm values, consider moving values to existing `st2` and `st2web` sections ? (#14)
 secrets:
   st2:
-    # Username, used to login to StackStorm system
-    username: st2admin
-    # Password, used to login to StackStorm system
-    password: Ch@ngeMe
     # SSH private key for the 'stanley' system user ('system_user.ssh_key_file' in st2.conf)
     # Warning! Replace with your own SSH key!
     # TODO: For prod/stable consider auto-generating if no key provided (#15)

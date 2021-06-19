@@ -40,8 +40,8 @@ Ingress is enabled. You may access following endpoints:
 {{- end }}
 
 2. Login with the following credentials:
-username: {{ .Values.secrets.st2.username }}
-password: {{ .Values.secrets.st2.password }}
+username: {{ .Values.st2.username }}
+password: {{ .Values.st2.password }}
 
 3. Use st2 CLI:
 export ST2CLIENT=$(kubectl get --namespace {{ .Release.Namespace }} pod -l app=st2client,release={{ .Release.Name }} -o jsonpath="{.items[0].metadata.name}")
