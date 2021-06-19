@@ -41,8 +41,6 @@ serviceAccount:
 ## StackStorm shared variables
 ##
 st2:
-  # NB! It's highly recommended to change ALL default secrets:
-  #     username, password, datastore_crypto_key, ssh_key
   # Username, used to login to StackStorm system
   username: st2admin
   # Password, used to login to StackStorm system
