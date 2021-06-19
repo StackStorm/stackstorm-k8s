@@ -47,6 +47,10 @@ st2:
   username: st2admin
   # Password, used to login to StackStorm system
   password: Ch@ngeMe
+  # ST2 crypto key for the  K/V datastore.
+  # See https://docs.stackstorm.com/datastore.html#securing-secrets-admin-only for more info.
+  # Warning! Replace with your own generated key!
+  #datastore_crypto_key: {"hmacKey": {"hmacKeyString": "", "size": 256}, "size": 256, "aesKeyString": "", "mode": "CBC"}
 
   # Custom StackStorm config (st2.user.conf) which will apply settings on top of default st2.conf
   config: |
@@ -225,10 +229,6 @@ secrets:
       WE8BWLQ1vBV6c7V4Q0Wp6LuTnNnvu/lvVugJW/TbrzFw6CFe5fEISmIHAMnqVz8x
       OdOJyinSM1svoBGnYfyAqINKrqCSGSKmprlMo0Ma3erI7SuojWBS
       -----END RSA PRIVATE KEY-----
-    # ST2 crypto key for the  K/V datastore.
-    # See https://docs.stackstorm.com/datastore.html#securing-secrets-admin-only for more info.
-    # Warning! Replace with your own generated key!
-    #datastore_crypto_key: {"hmacKey": {"hmacKeyString": "", "size": 256}, "size": 256, "aesKeyString": "", "mode": "CBC"}
 
 ##
 ## StackStorm HA Cluster pod settings for each individual service/component.
