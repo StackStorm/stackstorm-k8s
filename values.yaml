@@ -94,7 +94,7 @@ st2:
     # E.g. having all desired StackStorm-Exchange packs in one image and several custom packs in additional images
     #
     # This must be empty if st2.packs.volumes is enabled.
-    images:
+    images: {}
       #- repository: index.docker.io/stackstorm
       #  name: st2packs
       #  tag: example
@@ -115,7 +115,8 @@ st2:
       # to enable st2.packs.volumes, st2.packs.images must not be empty
       enabled: false
 
-      packs: # mounted to /opt/stackstorm/packs
+      packs: {}
+        # mounted to /opt/stackstorm/packs
         # packs volume definition is required if st2.packs.volumes is enabled
 
         # example using persistentVolumeClaim:
@@ -135,11 +136,13 @@ st2:
         #    clusterNamespace: rook-ceph
         #    path: /st2/packs
 
-      virtualenvs: # mounted to /opt/stackstorm/virtualenvs
+      virtualenvs: {}
+        # mounted to /opt/stackstorm/virtualenvs
         # virtualenvs volume definition is required if st2.packs.volumes is enabled
         # see the examples under st2.packs.volumes.packs
 
-      configs: # mounted to /opt/stackstorm/configs
+      configs: {}
+        # mounted to /opt/stackstorm/configs
         # configs volume definition is optional, but only used if st2.packs.volumes is enabled
         # see the examples under st2.packs.volumes.packs
 
