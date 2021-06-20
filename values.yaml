@@ -94,7 +94,7 @@ st2:
     # E.g. having all desired StackStorm-Exchange packs in one image and several custom packs in additional images
     #
     # This must be empty if st2.packs.volumes is enabled.
-    images: {}
+    images: []
       #- repository: index.docker.io/stackstorm
       #  name: st2packs
       #  tag: example
