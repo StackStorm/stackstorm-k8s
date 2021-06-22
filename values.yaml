@@ -587,6 +587,10 @@ st2actionrunner:
 # To use the default mode (all sensors in one pod), st2.packs.sensors must be empty.
 # For one-sensor-per-pod, define defaults here and add config for each sensor to st2.packs.sensors (above).
 st2sensorcontainer:
+  # replicas is only used if st2.packs.sensors is empty
+  replicas: 1
+
+  # values below this point are also used as defaults in st2.packs.sensors
   resources:
     requests:
       memory: "100Mi"

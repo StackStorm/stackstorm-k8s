@@ -1025,14 +1025,22 @@ spec:
     {{- end }}
 
 {{- $one_sensor_per_pod := not ($.Values.st2.packs.sensors | empty) }}
-{{- range ($one_sensor_per_pod | ternary ($.Values.st2.packs.sensors) (until 1)) }}
-  {{- $sensor := omit $.Values.st2sensorcontainer "name" "ref" "postStartScript" }}
+{{- range ($one_sensor_per_pod | ternary ($.Values.st2.packs.sensors) (until ($.Values.st2sensorcontainer.replicas|int))) }}
+  {{- $sensor := omit $.Values.st2sensorcontainer "name" "ref" "replicas" "postStartScript" }}
   {{- if $one_sensor_per_pod }}
     {{- range $key, $val := . }}
       {{- $_ := set $sensor $key $val }}
     {{- end }}
   {{- end }}
-  {{- $name := print "st2sensorcontainer" (include "hyphenPrefix" $sensor.name) }}
+  {{- $name := print "st2sensorcontainer" (include "hyphenPrefix" ($one_sensor_per_pod | ternary ($sensor.name) (.))) }}
+  {{/* define vars only needed if $.Values.st2sensorcontainer.replicas */}}
+  {{- $max_hash := 4294967296 }}
+  {{- $sensor_range_size := div (add1 $max_hash) $.Values.st2sensorcontainer.replicas }}
+  {{- $sensor_range_start := mul . $sensor_range_size }}
+  {{- $sensor_range_end := add $sensor_range_start $sensor_range_size -1 }}
+  {{/* deal with integer math rounding errors */}}
+  {{- $sensor_range_end := gt (add 10 $sensor_range_end) $max_hash | ternary $max_hash $sensor_range_end }}
+  {{- $sensor_hash_ranges := $one_sensor_per_pod | ternary ("") (print $sensor_range_start ".." $sensor_range_end) }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -1051,6 +1059,7 @@ spec:
       app: {{ $name }}
       release: {{ $.Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
+  # TODO: adjust this docstring
   # It is possible to run st2sensorcontainer(s) in one of these modes:
   #   (1) run all sensors in one pod (1 deployment with 1 pod, the default); or
   #   (2) run one sensor per pod using st2.packs.sensors.
@@ -1079,6 +1088,9 @@ spec:
         {{- else }}
         stackstorm/sensor-mode: all-sensors-in-one-pod
         {{- end }}
+        {{- if $sensor_hash_ranges }}
+        stackstorm/sensor-hash_ranges: {{ $sensor_hash_ranges | quote }}
+        {{- end }}
         {{- if $sensor.annotations }}
           {{- toYaml $sensor.annotations | nindent 8 }}
         {{- end }}
@@ -1091,6 +1103,21 @@ spec:
         {{- include "packs-pullSecrets" $ | nindent 6 }}
       {{- end }}
       initContainers:
+      {{- if $sensor_hash_ranges }}
+      - name: {{ $name }}-init-config
+        image: busybox:1.28
+        volumeMounts:
+        - name: st2-sensor-config-vol
+          mountPath: /tmp/st2
+        command:
+          - 'sh'
+          - '-ec'
+          - |
+              echo    '[sensorcontainer]' > /tmp/st2/st2.sensorcontainer.conf
+              && echo 'sensor_node_name={{ $name }}' > /tmp/st2/st2.sensorcontainer.conf
+              && echo 'partition_provider={"name":"hash","hash_ranges:{{ $sensor_hash_ranges }}"}' > /tmp/st2/st2.sensorcontainer.conf
+              && echo 'single_sensor_mode=False' > /tmp/st2/st2.sensorcontainer.conf
+      {{- end }}
       {{- include "init-containers-wait-for-db" $ | nindent 6 }}
       {{- include "init-containers-wait-for-mq" $ | nindent 6 }}
       {{- if and $.Values.st2.packs.images (not $.Values.st2.packs.volumes.enabled) }}
@@ -1109,14 +1136,19 @@ spec:
         livenessProbe:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- if $one_sensor_per_pod }}
+        {{- if or $one_sensor_per_pod $sensor_hash_ranges }}
         command:
           - /opt/stackstorm/st2/bin/st2sensorcontainer
           - --config-file=/etc/st2/st2.conf
           - --config-file=/etc/st2/st2.docker.conf
           - --config-file=/etc/st2/st2.user.conf
+          {{- if $one_sensor_per_pod }}{{/* only in st2.packs.sensors[] */}}
           - --single-sensor-mode
           - --sensor-ref={{ required "You must define `ref` for everything in st2.packs.sensors. This assigns each sensor to a pod." $sensor.ref }}
+          {{- else if $sensor_hash_ranges }}{{/* only for st2sensorcontainer.replicas */}}
+          # injected by {{ $name }}-init-config
+          - --config-file=/etc/st2/st2.sensorcontainer.conf
+          {{- end }}
         {{- end }}
         {{- if $sensor.env }}
         env: {{- include "stackstorm-ha.customEnv" . | nindent 8 }}
@@ -1127,6 +1159,12 @@ spec:
         volumeMounts:
         {{- include "st2-config-volume-mounts" $ | nindent 8 }}
         {{- include "packs-volume-mounts" $ | nindent 8 }}
+        {{- if $sensor_hash_ranges }}
+        - name: st2-sensor-config-vol
+          mountPath: /etc/st2/st2.sensorcontainer.conf
+          subPath: st2.sensorcontainer.conf
+          readOnly: true
+        {{- end }}
         {{- if $.Values.st2.datastore_crypto_key }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
@@ -1161,6 +1199,11 @@ spec:
         {{- end }}
         {{- include "st2-config-volume" $ | nindent 8 }}
         {{- include "packs-volumes" $ | nindent 8 }}
+        {{- if $sensor_hash_ranges }}
+        - name: st2-sensor-config-vol
+          emptyDir: # This is for a tiny file
+            medium: Memory
+        {{- end }}
         {{- range $sensor.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in $sensor.extra_volumes" .name }}
           {{- tpl (required "Each volume must have a 'volume' definition in $sensor.extra_volumes" .volume | toYaml) $ | nindent 10 }}
