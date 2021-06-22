@@ -86,6 +86,15 @@ spec:
           mountPath: /etc/st2/htpasswd
           subPath: htpasswd
           readOnly: true
+        {{- if .Values.st2auth.postStartScript }}
+        - name: st2-post-start-script-vol
+          mountPath: /post-start.sh
+          subPath: post-start.sh
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "/post-start.sh"]
+        {{- end }}
         resources:
           {{- toYaml .Values.st2auth.resources | nindent 10 }}
     {{- if .Values.st2auth.serviceAccount.attach }}
@@ -96,6 +105,11 @@ spec:
         - name: htpasswd-vol
           emptyDir:
             medium: Memory
+        {{- if .Values.st2auth.postStartScript }}
+        - name: st2-post-start-script-vol
+          configMap:
+            name: {{ .Release.Name }}-st2auth-post-start-script
+        {{- end }}
     {{- if .Values.dnsPolicy }}
       dnsPolicy: {{ .Values.dnsPolicy }}
     {{- end }}
@@ -188,6 +202,15 @@ spec:
           mountPath: /opt/stackstorm/virtualenvs
           readOnly: true
         {{- end }}
+        {{- if .Values.st2api.postStartScript }}
+        - name: st2-post-start-script-vol
+          mountPath: /post-start.sh
+          subPath: post-start.sh
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "/post-start.sh"]
+        {{- end }}
         resources:
           {{- toYaml .Values.st2api.resources | nindent 10 }}
     {{- if .Values.st2api.serviceAccount.attach }}
@@ -205,6 +228,11 @@ spec:
         {{- include "st2-config-volume" . | nindent 8 }}
         {{- if .Values.st2.packs.images }}
 {{- include "packs-volumes" . | indent 8 }}
+        {{- end }}
+        {{- if .Values.st2api.postStartScript }}
+        - name: st2-post-start-script-vol
+          configMap:
+            name: {{ .Release.Name }}-st2api-post-start-script
         {{- end }}
     {{- if .Values.dnsPolicy }}
       dnsPolicy: {{ .Values.dnsPolicy }}
@@ -278,6 +306,15 @@ spec:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- if .Values.st2stream.postStartScript }}
+        - name: st2-post-start-script-vol
+          mountPath: /post-start.sh
+          subPath: post-start.sh
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "/post-start.sh"]
+        {{- end }}
         resources:
           {{- toYaml .Values.st2stream.resources | nindent 10 }}
     {{- if .Values.st2stream.serviceAccount.attach }}
@@ -285,6 +322,11 @@ spec:
     {{- end }}
       volumes:
         {{- include "st2-config-volume" . | nindent 8 }}
+        {{- if .Values.st2stream.postStartScript }}
+        - name: st2-post-start-script-vol
+          configMap:
+            name: {{ .Release.Name }}-st2stream-post-start-script
+        {{- end }}
     {{- if .Values.dnsPolicy }}
       dnsPolicy: {{ .Values.dnsPolicy }}
     {{- end }}
@@ -366,27 +408,45 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
             optional: true
-    {{- if .Values.st2web.config }}
+    {{- if or .Values.st2web.config .Values.st2web.postStartScript }}
         volumeMounts:
-          - name: st2web-config-vol
-            mountPath: /opt/stackstorm/static/webui/config.js
-            subPath: st2web.config.js
     {{- else }}
         volumeMounts: []
     {{- end }}
+        {{- if .Values.st2web.config }}
+          - name: st2web-config-vol
+            mountPath: /opt/stackstorm/static/webui/config.js
+            subPath: st2web.config.js
+        {{- end }}
+        {{- if .Values.st2web.postStartScript }}
+        - name: st2-post-start-script-vol
+          mountPath: /post-start.sh
+          subPath: post-start.sh
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "/post-start.sh"]
+        {{- end }}
         resources:
           {{- toYaml .Values.st2web.resources | nindent 10 }}
     {{- if .Values.st2web.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
-    {{- if .Values.st2web.config }}
+    {{- if or .Values.st2web.config .Values.st2web.postStartScript }}
       volumes:
-        - name: st2web-config-vol
-          configMap:
-            name: {{ .Release.Name }}-st2web-config
     {{- else }}
       volumes: []
     {{- end }}
+        {{- if .Values.st2web.config }}
+        - name: st2web-config-vol
+          configMap:
+            name: {{ .Release.Name }}-st2web-config
+        {{- end }}
+        {{- if .Values.st2web.postStartScript }}
+        - name: st2-post-start-script-vol
+          configMap:
+            name: {{ .Release.Name }}-st2web-post-start-script
+        {{- end }}
     {{- if .Values.dnsPolicy }}
       dnsPolicy: {{ .Values.dnsPolicy }}
     {{- end }}
@@ -457,6 +517,15 @@ spec:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- if .Values.st2rulesengine.postStartScript }}
+        - name: st2-post-start-script-vol
+          mountPath: /post-start.sh
+          subPath: post-start.sh
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "/post-start.sh"]
+        {{- end }}
         resources:
           {{- toYaml .Values.st2rulesengine.resources | nindent 10 }}
     {{- if .Values.st2rulesengine.serviceAccount.attach }}
@@ -471,6 +540,11 @@ spec:
             items:
             - key: datastore_crypto_key
               path: datastore_key.json
+        {{- end }}
+        {{- if .Values.st2rulesengine.postStartScript }}
+        - name: st2-post-start-script-vol
+          configMap:
+            name: {{ .Release.Name }}-st2rulesengine-post-start-script
         {{- end }}
     {{- if .Values.dnsPolicy }}
       dnsPolicy: {{ .Values.dnsPolicy }}
@@ -543,6 +617,15 @@ spec:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- if .Values.st2timersengine.postStartScript }}
+        - name: st2-post-start-script-vol
+          mountPath: /post-start.sh
+          subPath: post-start.sh
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "/post-start.sh"]
+        {{- end }}
         resources:
           {{- toYaml .Values.st2timersengine.resources | nindent 10 }}
     {{- if .Values.st2timersengine.serviceAccount.attach }}
@@ -550,6 +633,11 @@ spec:
     {{- end }}
       volumes:
         {{- include "st2-config-volume" . | nindent 8 }}
+        {{- if .Values.st2timersengine.postStartScript }}
+        - name: st2-post-start-script-vol
+          configMap:
+            name: {{ .Release.Name }}-st2timersengine-post-start-script
+        {{- end }}
     {{- if .Values.dnsPolicy }}
       dnsPolicy: {{ .Values.dnsPolicy }}
     {{- end }}
@@ -626,6 +714,15 @@ spec:
           mountPath: /etc/st2/keys
           readOnly: true
         {{- end }}
+        {{- if .Values.st2workflowengine.postStartScript }}
+        - name: st2-post-start-script-vol
+          mountPath: /post-start.sh
+          subPath: post-start.sh
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "/post-start.sh"]
+        {{- end }}
         resources:
           {{- toYaml .Values.st2workflowengine.resources | nindent 10 }}
     {{- if .Values.st2workflowengine.serviceAccount.attach }}
@@ -640,6 +737,11 @@ spec:
             items:
             - key: datastore_crypto_key
               path: datastore_key.json
+        {{- end }}
+        {{- if .Values.st2workflowengine.postStartScript }}
+        - name: st2-post-start-script-vol
+          configMap:
+            name: {{ .Release.Name }}-st2workflowengine-post-start-script
         {{- end }}
     {{- if .Values.dnsPolicy }}
       dnsPolicy: {{ .Values.dnsPolicy }}
@@ -716,6 +818,15 @@ spec:
           mountPath: /etc/st2/keys
           readOnly: true
         {{- end }}
+        {{- if .Values.st2scheduler.postStartScript }}
+        - name: st2-post-start-script-vol
+          mountPath: /post-start.sh
+          subPath: post-start.sh
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "/post-start.sh"]
+        {{- end }}
         resources:
           {{- toYaml .Values.st2scheduler.resources | nindent 10 }}
     {{- if .Values.st2scheduler.serviceAccount.attach }}
@@ -731,6 +842,11 @@ spec:
               path: datastore_key.json
         {{- end }}
         {{- include "st2-config-volume" . | nindent 8 }}
+        {{- if .Values.st2scheduler.postStartScript }}
+        - name: st2-post-start-script-vol
+          configMap:
+            name: {{ .Release.Name }}-st2scheduler-post-start-script
+        {{- end }}
     {{- if .Values.dnsPolicy }}
       dnsPolicy: {{ .Values.dnsPolicy }}
     {{- end }}
@@ -801,6 +917,15 @@ spec:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- if .Values.st2notifier.postStartScript }}
+        - name: st2-post-start-script-vol
+          mountPath: /post-start.sh
+          subPath: post-start.sh
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "/post-start.sh"]
+        {{- end }}
         resources:
           {{- toYaml .Values.st2notifier.resources | nindent 10 }}
     {{- if .Values.st2notifier.serviceAccount.attach }}
@@ -808,6 +933,11 @@ spec:
     {{- end }}
       volumes:
         {{- include "st2-config-volume" . | nindent 8 }}
+        {{- if .Values.st2notifier.postStartScript }}
+        - name: st2-post-start-script-vol
+          configMap:
+            name: {{ .Release.Name }}-st2notifier-post-start-script
+        {{- end }}
     {{- if .Values.dnsPolicy }}
       dnsPolicy: {{ .Values.dnsPolicy }}
     {{- end }}
@@ -917,6 +1047,15 @@ spec:
           mountPath: /etc/st2/keys
           readOnly: true
         {{- end }}
+        {{- if $.Values.st2sensorcontainer.postStartScript }}
+        - name: st2-post-start-script-vol
+          mountPath: /post-start.sh
+          subPath: post-start.sh
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "/post-start.sh"]
+        {{- end }}
         resources:
           {{- toYaml .resources | nindent 10 }}
     {{- if .serviceAccount.attach }}
@@ -934,6 +1073,11 @@ spec:
         {{- include "st2-config-volume" $ | nindent 8 }}
         {{- if $.Values.st2.packs.images }}
 {{- include "packs-volumes" $ | indent 8 }}
+        {{- end }}
+        {{- if $.Values.st2sensorcontainer.postStartScript }}
+        - name: st2-post-start-script-vol
+          configMap:
+            name: {{ $.Release.Name }}-st2sensorcontainer-post-start-script
         {{- end }}
     {{- if $.Values.dnsPolicy }}
       dnsPolicy: {{ $.Values.dnsPolicy }}
@@ -1140,6 +1284,15 @@ spec:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- if .Values.st2garbagecollector.postStartScript }}
+        - name: st2-post-start-script-vol
+          mountPath: /post-start.sh
+          subPath: post-start.sh
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "/post-start.sh"]
+        {{- end }}
         resources:
           {{- toYaml .Values.st2garbagecollector.resources | nindent 10 }}
     {{- if .Values.st2garbagecollector.serviceAccount.attach }}
@@ -1147,6 +1300,11 @@ spec:
     {{- end }}
       volumes:
         {{- include "st2-config-volume" . | nindent 8 }}
+        {{- if .Values.st2garbagecollector.postStartScript }}
+        - name: st2-post-start-script-vol
+          configMap:
+            name: {{ .Release.Name }}-st2garbagecollector-post-start-script
+        {{- end }}
     {{- if .Values.dnsPolicy }}
       dnsPolicy: {{ .Values.dnsPolicy }}
     {{- end }}
@@ -1337,7 +1495,7 @@ spec:
         {{- end }}
         - name: st2-post-start-script-vol
           configMap:
-            name: {{ .Release.Name }}-st2actionrunner-post-start-script
+            name: {{ .Release.Name }}-st2client-post-start-script
 
 {{ if .Values.st2chatops.enabled -}}
 ---
@@ -1413,6 +1571,20 @@ spec:
             port: 8081
           initialDelaySeconds: 10
           periodSeconds: 30
+        {{- if .Values.st2chatops.postStartScript }}
+        volumeMounts:
+        - name: st2-post-start-script-vol
+          mountPath: /post-start.sh
+          subPath: post-start.sh
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "/post-start.sh"]
+        volumes:
+        - name: st2-post-start-script-vol
+          configMap:
+            name: {{ .Release.Name }}-st2chatops-post-start-script
+        {{- end }}
         resources:
           {{- toYaml .Values.st2chatops.resources | nindent 10 }}
     {{- if .Values.st2chatops.serviceAccount.attach }}

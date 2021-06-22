@@ -122,6 +122,7 @@ st2:
         tolerations: []
         serviceAccount:
           attach: false
+        # note: postStartScript is not valid here. Use st2sensorcontainer.postStartScript instead.
   # Import data into StackStorm's Key/Value datastore (https://docs.stackstorm.com/datastore.html)
   keyvalue:
     #- name: st2_version
@@ -248,6 +249,11 @@ st2web:
   # See https://github.com/StackStorm/st2web#connecting-to-st2-server for more info
   # config: |
   #  // see https://github.com/StackStorm/st2web/blob/master/config.js
+  # postStartScript is optional. It has the contents of a bash script.
+  # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
+  # The pod will not be marked as "running" until this script completes successfully.
+  # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  postStartScript: ""
 # https://docs.stackstorm.com/reference/ha.html#st2auth
 # Multiple st2auth processes can be behind a load balancer in an active-active configuration.
 st2auth:
@@ -267,6 +273,11 @@ st2auth:
   affinity: {}
   serviceAccount:
     attach: false
+  # postStartScript is optional. It has the contents of a bash script.
+  # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
+  # The pod will not be marked as "running" until this script completes successfully.
+  # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  postStartScript: ""
 # https://docs.stackstorm.com/reference/ha.html#st2api
 # Multiple st2api process can be behind a load balancer in an active-active configuration.
 st2api:
@@ -286,6 +297,11 @@ st2api:
   affinity: {}
   serviceAccount:
     attach: false
+  # postStartScript is optional. It has the contents of a bash script.
+  # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
+  # The pod will not be marked as "running" until this script completes successfully.
+  # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  postStartScript: ""
 # https://docs.stackstorm.com/reference/ha.html#st2stream
 # Multiple st2stream process can be behind a load balancer in an active-active configuration.
 st2stream:
@@ -305,6 +321,11 @@ st2stream:
   affinity: {}
   serviceAccount:
     attach: false
+  # postStartScript is optional. It has the contents of a bash script.
+  # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
+  # The pod will not be marked as "running" until this script completes successfully.
+  # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  postStartScript: ""
 # https://docs.stackstorm.com/reference/ha.html#st2rulesengine
 # Multiple st2rulesengine processes can run in active-active with only connections to MongoDB and RabbitMQ. All these will share the TriggerInstance load and naturally pick up more work if one or more of the processes becomes unavailable.
 st2rulesengine:
@@ -324,6 +345,11 @@ st2rulesengine:
   affinity: {}
   serviceAccount:
     attach: false
+  # postStartScript is optional. It has the contents of a bash script.
+  # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
+  # The pod will not be marked as "running" until this script completes successfully.
+  # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  postStartScript: ""
 # https://docs.stackstorm.com/reference/ha.html#st2timersengine
 # Only single replica is created via K8s Deployment as timersengine can't work in active-active mode at the moment and it relies on K8s failover/reschedule capabilities to address cases of process failure.
 st2timersengine:
@@ -342,6 +368,11 @@ st2timersengine:
   affinity: {}
   serviceAccount:
     attach: false
+  # postStartScript is optional. It has the contents of a bash script.
+  # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
+  # The pod will not be marked as "running" until this script completes successfully.
+  # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  postStartScript: ""
 # https://docs.stackstorm.com/reference/ha.html#st2workflowengine
 # Multiple st2workflowengine processes can run in active-active mode and will share the load and pick up more work if one or more of the processes become available.
 st2workflowengine:
@@ -361,6 +392,11 @@ st2workflowengine:
   affinity: {}
   serviceAccount:
     attach: false
+  # postStartScript is optional. It has the contents of a bash script.
+  # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
+  # The pod will not be marked as "running" until this script completes successfully.
+  # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  postStartScript: ""
 # https://docs.stackstorm.com/reference/ha.html#st2scheduler
 # TODO: Description TBD
 st2scheduler:
@@ -380,6 +416,11 @@ st2scheduler:
   affinity: {}
   serviceAccount:
     attach: false
+  # postStartScript is optional. It has the contents of a bash script.
+  # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
+  # The pod will not be marked as "running" until this script completes successfully.
+  # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  postStartScript: ""
 # https://docs.stackstorm.com/reference/ha.html#st2notifier
 # st2notifier runs in active-active mode and requires for that coordination backend like Redis or Zookeeper
 st2notifier:
@@ -399,6 +440,11 @@ st2notifier:
   affinity: {}
   serviceAccount:
     attach: false
+  # postStartScript is optional. It has the contents of a bash script.
+  # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
+  # The pod will not be marked as "running" until this script completes successfully.
+  # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  postStartScript: ""
 # https://docs.stackstorm.com/reference/ha.html#st2actionrunner
 # Multiple st2actionrunner processes can run in active-active with only connections to MongoDB and RabbitMQ. Work gets naturally
 # distributed across runners via RabbitMQ. Adding more st2actionrunner processes increases the ability of StackStorm to execute actions.
@@ -428,6 +474,21 @@ st2actionrunner:
   #   ip: 8.8.8.8
   serviceAccount:
     attach: false
+  # postStartScript is optional. It has the contents of a bash script.
+  # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
+  # The pod will not be marked as "running" until this script completes successfully.
+  # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  postStartScript: ""
+
+# https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
+# Please see st2.packs.sensors for each sensor instance's config.
+# This contains settings that are common to all sensor pods.
+st2sensorcontainer:
+  # postStartScript is optional. It has the contents of a bash script.
+  # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
+  # The pod will not be marked as "running" until this script completes successfully.
+  # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  postStartScript: ""
 
 # The st2client deployment/pod simplifies ad-hoc administration.
 # st2client is a special purpose actionrunner pod, but you can customize it separately
@@ -437,6 +498,11 @@ st2client:
   image: {}
     ## Note that Helm templating is supported in this block!
     #tag: "{{ .Values.image.tag }}"
+  # postStartScript is optional. It has the contents of a bash script.
+  # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
+  # The pod will not be marked as "running" until this script completes successfully.
+  # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  postStartScript: ""
 
 # https://docs.stackstorm.com/reference/ha.html#st2garbagecollector
 # Optional service that cleans up old executions and other operations data based on setup configurations.
@@ -459,6 +525,11 @@ st2garbagecollector:
   affinity: {}
   serviceAccount:
     attach: false
+  # postStartScript is optional. It has the contents of a bash script.
+  # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
+  # The pod will not be marked as "running" until this script completes successfully.
+  # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  postStartScript: ""
 
 ##
 ## StackStorm ChatOps (https://docs.stackstorm.com/chatops/index.html)
@@ -502,6 +573,11 @@ st2chatops:
   affinity: {}
   serviceAccount:
     attach: false
+  # postStartScript is optional. It has the contents of a bash script.
+  # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
+  # The pod will not be marked as "running" until this script completes successfully.
+  # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  postStartScript: ""
 
 ##
 ## Various batch jobs (apply-rbac-definitions, apikey-load, key-load, register-content)
