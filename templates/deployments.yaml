@@ -1035,6 +1035,13 @@ spec:
           mountPath: /opt/stackstorm/virtualenvs
           readOnly: true
         {{- end }}
+        - name: st2-post-start-script-vol
+          mountPath: /post-start.sh
+          subPath: post-start.sh
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "-c", "/post-start.sh"]
         resources:
           {{- toYaml .Values.st2actionrunner.resources | nindent 10 }}
     {{- if .Values.st2actionrunner.serviceAccount.attach }}
@@ -1061,6 +1068,9 @@ spec:
         {{- if .Values.st2.packs.images }}
 {{- include "packs-volumes" . | indent 8 }}
         {{- end }}
+        - name: st2-post-start-script-vol
+          configMap:
+            name: {{ .Release.Name }}-st2actionrunner-post-start-script
     {{- if .Values.dnsPolicy }}
       dnsPolicy: {{ .Values.dnsPolicy }}
     {{- end }}
@@ -1274,10 +1284,17 @@ spec:
           mountPath: /opt/stackstorm/virtualenvs
           readOnly: true
         {{- end }}
+        - name: st2-post-start-script-vol
+          mountPath: /post-start.sh
+          subPath: post-start.sh
         command:
           - 'bash'
           - '-ec'
           - 'while true; do sleep 999; done'
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "-c", "/post-start.sh"]
         resources:
           requests:
             memory: "5Mi"
@@ -1320,6 +1337,9 @@ spec:
         {{- if .Values.st2.packs.images }}
 {{- include "packs-volumes" . | indent 8 }}
         {{- end }}
+        - name: st2-post-start-script-vol
+          configMap:
+            name: {{ .Release.Name }}-st2actionrunner-post-start-script
 
 {{ if .Values.st2chatops.enabled -}}
 ---
