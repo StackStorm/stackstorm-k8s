@@ -1041,7 +1041,7 @@ spec:
         lifecycle:
           postStart:
             exec:
-              command: ["/bin/bash", "-c", "/post-start.sh"]
+              command: ["/bin/bash", "/post-start.sh"]
         resources:
           {{- toYaml .Values.st2actionrunner.resources | nindent 10 }}
     {{- if .Values.st2actionrunner.serviceAccount.attach }}
@@ -1294,7 +1294,7 @@ spec:
         lifecycle:
           postStart:
             exec:
-              command: ["/bin/bash", "-c", "/post-start.sh"]
+              command: ["/bin/bash", "/post-start.sh"]
         resources:
           requests:
             memory: "5Mi"
