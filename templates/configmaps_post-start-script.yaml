@@ -18,4 +18,8 @@ data:
   # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   post-start.sh: |
     #!/bin/bash
+    mkdir -p /home/stanley/.ssh
+    cp -L /home/stanley/.ssh{-key-vol,}/stanley_rsa
     chown -R stanley:stanley /home/stanley/.ssh/
+    chmod 400 /home/stanley/.ssh/stanley_rsa
+    chmod 500 /home/stanley/.ssh
