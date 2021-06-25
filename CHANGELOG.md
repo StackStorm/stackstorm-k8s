@@ -8,6 +8,7 @@
 * st2chatops change: If `st2chatops.env.ST2_API_KEY` is defined, do not set `ST2_AUTH_USERNAME` or `ST2_AUTH_PASSWORD` env vars any more. (#197) (by @cognifloyd)
 * Add image.tag overrides for all deployments. (#200) (by @cognifloyd)
 * If your k8s cluster admin requires custom annotations (eg: to indicate mongo or rabbitmq usage), you can now add those to each set of pods. (#195) (by @cognifloyd)
+* Add optional hubot-scripts volume to st2chatops pod. To add this, define `st2chatops.hubotScriptsVolume`. (#207) (by @cognifloyd)
 
 ## v0.60.0
 * Switch st2 version to `v3.5dev` as a new latest development version (#187)
