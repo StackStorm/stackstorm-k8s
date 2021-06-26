@@ -30,6 +30,15 @@ load "${BATS_HELPERS_DIR}/bats-file/load.bash"
   assert_line --partial 'St2-Api-Key'
 }
 
+@test 'stanley_rsa file has correct permissions and ownership' {
+  local private_key="/home/stanley/.ssh/stanley_rsa"
+  assert_file_exist "${private_key}"
+  assert_file_not_empty "${private_key}"
+  assert_file_permission "500" "${private_key}"
+  assert_file_permission "400" "${private_key}"
+  assert_file_owner "stanley" "${private_key}"
+}
+
 @test 'st2 user can log in with auth credentials' {
   run st2 login ${ST2_AUTH_USERNAME} --password ${ST2_AUTH_PASSWORD} -w
   assert_success
