@@ -513,7 +513,7 @@ st2chatops:
   # Advanced use-cases only. If defined, this hubot-scripts volume gets mounted to: /opt/stackstorm/chatops/scripts
   # This volume (using any k8s storage solution, including configmap) allows for hubot customization.
   # Most installations should not use this.
-  # Please refer to the hubot documentaiton for details on writing .js or .coffeescript hubot extensions.
+  # For details on writing .js or .coffeescript hubot extensions, see: https://hubot.github.com/docs/scripting/
   hubotScriptsVolume: {}
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
