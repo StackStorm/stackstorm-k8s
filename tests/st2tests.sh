@@ -30,15 +30,6 @@ load "${BATS_HELPERS_DIR}/bats-file/load.bash"
   assert_line --partial 'St2-Api-Key'
 }
 
-@test 'stanley_rsa file has correct permissions and ownership' {
-  local private_key="/home/stanley/.ssh/stanley_rsa"
-  assert_file_exist "${private_key}"
-  assert_file_not_empty "${private_key}"
-  assert_file_permission "500" "${private_key}"
-  assert_file_permission "400" "${private_key}"
-  assert_file_owner "stanley" "${private_key}"
-}
-
 @test 'st2 user can log in with auth credentials' {
   run st2 login ${ST2_AUTH_USERNAME} --password ${ST2_AUTH_PASSWORD} -w
   assert_success
@@ -58,6 +49,18 @@ load "${BATS_HELPERS_DIR}/bats-file/load.bash"
   assert_line --partial 'return_code: 0'
   assert_line --partial "stderr: ''"
   assert_line --partial 'stdout: uid=1000(stanley) gid=1000(stanley) groups=1000(stanley)'
+  assert_line --partial 'succeeded: true'
+}
+
+@test 'stanley_rsa file has correct permissions and ownership' {
+  local ssh_dir="/home/stanley/.ssh"
+  local private_key="${ssh_dir}/stanley_rsa"
+  run st2 run core.local cmd="find ${ssh_dir} -printf '%p: %u %g %m\n'"
+  assert_success
+  assert_line --partial 'return_code: 0'
+  assert_line --partial "stderr: ''"
+  assert_line --partial "${ssh_dir}: stanley stanley 500"
+  assert_line --partial "${private_key}: stanley stanley 400"
   assert_line --partial 'succeeded: true'
 }
 
