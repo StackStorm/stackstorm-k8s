@@ -242,6 +242,7 @@ st2web:
       cpu: "50m"
     limits:
       memory: "100Mi"
+  annotations: {}
   # Override default image settings (for now, only tag can be overridden)
   image: {}
     ## Note that Helm templating is supported in this block!
@@ -274,6 +275,7 @@ st2auth:
     requests:
       memory: "85Mi"
       cpu: "50m"
+  annotations: {}
   # Override default image settings (for now, only tag can be overridden)
   image: {}
     ## Note that Helm templating is supported in this block!
@@ -292,6 +294,7 @@ st2api:
     requests:
       memory: "150Mi"
       cpu: "25m"
+  annotations: {}
   # Override default image settings (for now, only tag can be overridden)
   image: {}
     ## Note that Helm templating is supported in this block!
@@ -310,6 +313,7 @@ st2stream:
     requests:
       memory: "100Mi"
       cpu: "50m"
+  annotations: {}
   # Override default image settings (for now, only tag can be overridden)
   image: {}
     ## Note that Helm templating is supported in this block!
@@ -328,6 +332,7 @@ st2rulesengine:
     requests:
       memory: "75Mi"
       cpu: "25m"
+  annotations: {}
   # Override default image settings (for now, only tag can be overridden)
   image: {}
     ## Note that Helm templating is supported in this block!
@@ -345,6 +350,7 @@ st2timersengine:
     requests:
       memory: "75Mi"
       cpu: "10m"
+  annotations: {}
   # Override default image settings (for now, only tag can be overridden)
   image: {}
     ## Note that Helm templating is supported in this block!
@@ -363,6 +369,7 @@ st2workflowengine:
     requests:
       memory: "200Mi"
       cpu: "100m"
+  annotations: {}
   # Override default image settings (for now, only tag can be overridden)
   image: {}
     ## Note that Helm templating is supported in this block!
@@ -381,6 +388,7 @@ st2scheduler:
     requests:
       memory: "75Mi"
       cpu: "50m"
+  annotations: {}
   # Override default image settings (for now, only tag can be overridden)
   image: {}
     ## Note that Helm templating is supported in this block!
@@ -399,6 +407,7 @@ st2notifier:
     requests:
       memory: "75Mi"
       cpu: "50m"
+  annotations: {}
   # Override default image settings (for now, only tag can be overridden)
   image: {}
     ## Note that Helm templating is supported in this block!
@@ -442,6 +451,7 @@ st2actionrunner:
 # The st2client deployment/pod simplifies ad-hoc administration.
 # st2client is a special purpose actionrunner pod, but you can customize it separately
 st2client:
+  annotations: {}
   # Override default image settings (for now, only tag can be overridden)
   image: {}
     ## Note that Helm templating is supported in this block!
@@ -457,6 +467,7 @@ st2garbagecollector:
     requests:
       memory: "80Mi"
       cpu: "10m"
+  annotations: {}
   # Override default image settings (for now, only tag can be overridden)
   image: {}
     ## Note that Helm templating is supported in this block!
@@ -498,6 +509,7 @@ st2chatops:
     requests:
       memory: "50Mi"
       cpu: "5m"
+  annotations: {}
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
@@ -509,6 +521,7 @@ st2chatops:
 ## Various batch jobs (apply-rbac-definitions, apikey-load, key-load, register-content)
 ##
 jobs:
+  annotations: {}
   # Override default image settings (for now, only tag can be overridden)
   image: {}
     ## Note that Helm templating is supported in this block!

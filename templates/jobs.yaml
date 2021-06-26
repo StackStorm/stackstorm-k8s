@@ -30,6 +30,9 @@ spec:
         # TODO: Investigate/propose running Helm hook only on condition when ConfigMap or Secret has changed
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/rbac: {{ include (print $.Template.BasePath "/configmaps_rbac.yaml") . | sha256sum }}
+        {{- if .Values.jobs.annotations }}
+{{ toYaml .Values.jobs.annotations | indent 8 }}
+        {{- end }}
     spec:
       imagePullSecrets:
       {{- if .Values.image.pullSecret }}
@@ -107,6 +110,9 @@ spec:
         # TODO: Investigate/propose running Helm hook only on condition when ConfigMap or Secret has changed
         checksum/urls: {{ include (print $.Template.BasePath "/configmaps_st2-urls.yaml") . | sha256sum }}
         checksum/apikeys: {{ include (print $.Template.BasePath "/secrets_st2apikeys.yaml") . | sha256sum }}
+        {{- if .Values.jobs.annotations }}
+{{ toYaml .Values.jobs.annotations | indent 8 }}
+        {{- end }}
     spec:
       imagePullSecrets:
       {{- if .Values.image.pullSecret }}
@@ -214,6 +220,9 @@ spec:
         # TODO: Investigate/propose running Helm hook only on condition when ConfigMap or Secret has changed
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/urls: {{ include (print $.Template.BasePath "/configmaps_st2-urls.yaml") . | sha256sum }}
+        {{- if .Values.jobs.annotations }}
+{{ toYaml .Values.jobs.annotations | indent 8 }}
+        {{- end }}
     spec:
       imagePullSecrets:
       {{- if .Values.image.pullSecret }}
@@ -321,6 +330,9 @@ spec:
         # TODO: Investigate/propose running Helm hook only on condition when ConfigMap or Secret has changed
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") . | sha256sum }}
+        {{- if .Values.jobs.annotations }}
+{{ toYaml .Values.jobs.annotations | indent 8 }}
+        {{- end }}
     spec:
       imagePullSecrets:
       {{- if .Values.image.pullSecret }}
