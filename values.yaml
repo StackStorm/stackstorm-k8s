@@ -585,9 +585,21 @@ st2chatops:
 jobs:
   annotations: {}
   # Override default image settings (for now, only tag can be overridden)
+  # The Jobs use the st2actionrunner image
   image: {}
     ## Note that Helm templating is supported in this block!
     #tag: "{{ .Values.image.tag }}"
+  # If defined, this preRegisterContentCommand runs in an initContainer on the st2-register-content Job.
+  # The initContainer also uses the st2actionrunner image but runs this command instead of its entrypoint.
+  preRegisterContentCommand: []
+    # For example, to disable aliases in the "packs" system pack before content is registered:
+    # - "/bin/bash"
+    # - "-c"
+    # - |
+    #   sed -i -e 's/^\(\s*\)enabled: true/\1enabled: false/' /opt/stackstorm/packs/packs/aliases/*.yaml
+    #   for alias in /opt/stackstorm/packs/packs/aliases/*.yaml; do
+    #     grep -q 'enabled:' ${alias} || sed -i -e 's/^\(\s*\)name:\(.*\)$/\1name: \2\n\1enabled: false/m' ${alias}
+    #   done
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
