@@ -19,6 +19,9 @@ data:
   st2.docker.conf: |
     [auth]
     api_url = http://{{ .Release.Name }}-st2api:9101/
+    [system_user]
+    user = {{ .Values.st2.system_user.user }}
+    ssh_key_file = {{ tpl .Values.st2.system_user.ssh_key_file . }}
     {{- if index .Values "redis" "enabled" }}
     [coordination]
     url = redis://{{ template "redis-nodes" $ }}
