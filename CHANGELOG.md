@@ -10,6 +10,7 @@
 * If your k8s cluster admin requires custom annotations (eg: to indicate mongo or rabbitmq usage), you can now add those to each set of pods. (#195) (by @cognifloyd)
 * BREAKING CHANGE: Move secrets.st2.* values into st2.* (#203) (by @cognifloyd)
 * Auto-generate password and ssh_key secrets. (#203) (by @cognifloyd)
+* Add optional hubot-scripts volume to st2chatops pod. To add this, define `st2chatops.hubotScriptsVolume`. (#207) (by @cognifloyd)
 
 ## v0.60.0
 * Switch st2 version to `v3.5dev` as a new latest development version (#187)

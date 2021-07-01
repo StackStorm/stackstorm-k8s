@@ -1448,6 +1448,14 @@ spec:
     {{- if .Values.st2chatops.serviceAccount.attach }}
         serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
+    {{- if .Values.st2chatops.hubotScriptsVolume }}
+        volumeMounts:
+        - name: st2-chatops-hubot-scripts-vol
+          mountPath: /opt/stackstorm/chatops/scripts
+      volumes:
+        - name: st2-chatops-hubot-scripts-vol
+          {{- toYaml .Values.st2chatops.hubotScriptsVolume | nindent 10 }}
+    {{- end }}
     {{- with .Values.st2chatops.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
