@@ -16,7 +16,7 @@ metadata:
     ingress.kubernetes.io/secure-backends: "true"
     {{- end }}
     {{- if .Values.ingress.annotations }}
-{{ toYaml .Values.ingress.annotations | indent 4 }}
+      {{- toYaml .Values.ingress.annotations | nindent 4 }}
     {{- end }}
 spec:
   rules:
@@ -43,6 +43,6 @@ spec:
   {{- end }}
   {{- if .Values.ingress.tls }}
   tls:
-{{ toYaml .Values.ingress.tls | indent 4 }}
+    {{- toYaml .Values.ingress.tls | nindent 4 }}
   {{- end -}}
 {{- end }}
