@@ -31,7 +31,7 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/rbac: {{ include (print $.Template.BasePath "/configmaps_rbac.yaml") . | sha256sum }}
         {{- if .Values.jobs.annotations }}
-{{ toYaml .Values.jobs.annotations | indent 8 }}
+          {{- toYaml .Values.jobs.annotations | nindent 8 }}
         {{- end }}
     spec:
       imagePullSecrets:
@@ -111,7 +111,7 @@ spec:
         checksum/urls: {{ include (print $.Template.BasePath "/configmaps_st2-urls.yaml") . | sha256sum }}
         checksum/apikeys: {{ include (print $.Template.BasePath "/secrets_st2apikeys.yaml") . | sha256sum }}
         {{- if .Values.jobs.annotations }}
-{{ toYaml .Values.jobs.annotations | indent 8 }}
+          {{- toYaml .Values.jobs.annotations | nindent 8 }}
         {{- end }}
     spec:
       imagePullSecrets:
@@ -119,7 +119,7 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
-      {{ include "init-containers-wait-for-db" . | indent 6 }}
+      {{- include "init-containers-wait-for-db" . | nindent 6 }}
       - name: wait-for-api
         image: busybox:1.28
         command:
@@ -221,7 +221,7 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/urls: {{ include (print $.Template.BasePath "/configmaps_st2-urls.yaml") . | sha256sum }}
         {{- if .Values.jobs.annotations }}
-{{ toYaml .Values.jobs.annotations | indent 8 }}
+          {{- toYaml .Values.jobs.annotations | nindent 8 }}
         {{- end }}
     spec:
       imagePullSecrets:
@@ -229,7 +229,7 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
-      {{ include "init-containers-wait-for-db" . | indent 6 }}
+      {{- include "init-containers-wait-for-db" . | nindent 6 }}
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       - name: generate-st2client-config
         image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
@@ -331,7 +331,7 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") . | sha256sum }}
         {{- if .Values.jobs.annotations }}
-{{ toYaml .Values.jobs.annotations | indent 8 }}
+          {{- toYaml .Values.jobs.annotations | nindent 8 }}
         {{- end }}
     spec:
       imagePullSecrets:
@@ -339,12 +339,12 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       {{- if $.Values.st2.packs.images -}}
-{{- include "packs-pullSecrets" . | indent 6 }}
+        {{- include "packs-pullSecrets" . | nindent 6 }}
       {{- end }}
       initContainers:
-      {{ include "init-containers-wait-for-db" . | indent 6 }}
+      {{- include "init-containers-wait-for-db" . | nindent 6 }}
       {{- if $.Values.st2.packs.images -}}
- {{- include "packs-initContainers" . | indent 6 }}
+        {{- include "packs-initContainers" . | nindent 6 }}
       {{ end }}
       containers:
       - name: st2-register-content
@@ -381,5 +381,5 @@ spec:
         - name: st2-pack-configs-vol
           configMap:
             name: {{ .Release.Name }}-st2-pack-configs
- {{- include "packs-volumes" $ | indent 8}}
+        {{- include "packs-volumes" $ | nindent 8 }}
       restartPolicy: OnFailure
