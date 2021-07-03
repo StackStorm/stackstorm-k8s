@@ -36,7 +36,7 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/auth: {{ include (print $.Template.BasePath "/secrets_st2auth.yaml") . | sha256sum }}
         {{- if .Values.st2auth.annotations }}
-{{ toYaml .Values.st2auth.annotations | indent 8 }}
+          {{- toYaml .Values.st2auth.annotations | nindent 8 }}
         {{- end }}
     spec:
       imagePullSecrets:
@@ -44,8 +44,8 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
-      {{ include "init-containers-wait-for-db" . | indent 6 }}
-      {{ include "init-containers-wait-for-mq" . | indent 6 }}
+      {{- include "init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "init-containers-wait-for-mq" . | nindent 6 }}
       # Sidecar container for generating .htpasswd with st2 username & password pair and sharing produced file with the main st2auth container
       - name: generate-htpasswd
         image: '{{ template "imageRepository" . }}/st2auth:{{ tpl (.Values.st2auth.image.tag | default .Values.image.tag) . }}'
@@ -92,7 +92,7 @@ spec:
           subPath: htpasswd
           readOnly: true
         resources:
-{{ toYaml .Values.st2auth.resources | indent 10 }}
+          {{- toYaml .Values.st2auth.resources | nindent 10 }}
     {{- if .Values.st2auth.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
@@ -149,7 +149,7 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
         {{- if .Values.st2api.annotations }}
-{{ toYaml .Values.st2api.annotations | indent 8 }}
+          {{- toYaml .Values.st2api.annotations | nindent 8 }}
         {{- end }}
     spec:
       imagePullSecrets:
@@ -157,13 +157,13 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       {{- if .Values.st2.packs.images }}
-{{- include "packs-pullSecrets" . | indent 6 }}
+        {{- include "packs-pullSecrets" . | nindent 6 }}
       {{- end }}
       initContainers:
-      {{ include "init-containers-wait-for-db" . | indent 6 }}
-      {{ include "init-containers-wait-for-mq" . | indent 6 }}
+      {{- include "init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "init-containers-wait-for-mq" . | nindent 6 }}
       {{- if .Values.st2.packs.images }}
-{{- include "packs-initContainers" . | indent 6 }}
+        {{- include "packs-initContainers" . | nindent 6 }}
       {{- end }}
       containers:
       - name: st2api
@@ -198,7 +198,7 @@ spec:
           readOnly: true
         {{- end }}
         resources:
-{{ toYaml .Values.st2api.resources | indent 10 }}
+          {{- toYaml .Values.st2api.resources | nindent 10 }}
     {{- if .Values.st2api.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
@@ -262,7 +262,7 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         {{- if .Values.st2stream.annotations }}
-{{ toYaml .Values.st2stream.annotations | indent 8 }}
+          {{- toYaml .Values.st2stream.annotations | nindent 8 }}
         {{- end }}
     spec:
       imagePullSecrets:
@@ -270,8 +270,8 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
-      {{ include "init-containers-wait-for-db" . | indent 6 }}
-      {{ include "init-containers-wait-for-mq" . | indent 6 }}
+      {{- include "init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "init-containers-wait-for-mq" . | nindent 6 }}
       containers:
       - name: st2stream
         image: '{{ template "imageRepository" . }}/st2stream:{{ tpl (.Values.st2stream.image.tag | default .Values.image.tag) . }}'
@@ -292,7 +292,7 @@ spec:
           mountPath: /etc/st2/st2.user.conf
           subPath: st2.user.conf
         resources:
-{{ toYaml .Values.st2stream.resources | indent 10 }}
+          {{- toYaml .Values.st2stream.resources | nindent 10 }}
     {{- if .Values.st2stream.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
@@ -343,7 +343,7 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2web.yaml") . | sha256sum }}
         {{- if .Values.st2web.annotations }}
-{{ toYaml .Values.st2web.annotations | indent 8 }}
+          {{- toYaml .Values.st2web.annotations | nindent 8 }}
         {{- end }}
     spec:
       imagePullSecrets:
@@ -387,7 +387,7 @@ spec:
         volumeMounts: []
     {{- end }}
         resources:
-{{ toYaml .Values.st2web.resources | indent 10 }}
+          {{- toYaml .Values.st2web.resources | nindent 10 }}
     {{- if .Values.st2web.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
@@ -444,7 +444,7 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         {{- if .Values.st2rulesengine.annotations }}
-{{ toYaml .Values.st2rulesengine.annotations | indent 8 }}
+          {{- toYaml .Values.st2rulesengine.annotations | nindent 8 }}
         {{- end }}
     spec:
       imagePullSecrets:
@@ -452,8 +452,8 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
-      {{ include "init-containers-wait-for-db" . | indent 6 }}
-      {{ include "init-containers-wait-for-mq" . | indent 6 }}
+      {{- include "init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "init-containers-wait-for-mq" . | nindent 6 }}
       containers:
       - name: st2rulesengine
         image: '{{ template "imageRepository" . }}/st2rulesengine:{{ tpl (.Values.st2rulesengine.image.tag | default .Values.image.tag) . }}'
@@ -472,7 +472,7 @@ spec:
           mountPath: /etc/st2/st2.user.conf
           subPath: st2.user.conf
         resources:
-{{ toYaml .Values.st2rulesengine.resources | indent 10 }}
+          {{- toYaml .Values.st2rulesengine.resources | nindent 10 }}
     {{- if .Values.st2rulesengine.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
@@ -534,7 +534,7 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         {{- if .Values.st2timersengine.annotations }}
-{{ toYaml .Values.st2timersengine.annotations | indent 8 }}
+          {{- toYaml .Values.st2timersengine.annotations | nindent 8 }}
         {{- end }}
     spec:
       imagePullSecrets:
@@ -542,8 +542,8 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
-      {{ include "init-containers-wait-for-db" . | indent 6 }}
-      {{ include "init-containers-wait-for-mq" . | indent 6 }}
+      {{- include "init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "init-containers-wait-for-mq" . | nindent 6 }}
       containers:
       - name: st2timersengine
         image: '{{ template "imageRepository" . }}/st2timersengine:{{ tpl (.Values.st2timersengine.image.tag | default .Values.image.tag) . }}'
@@ -562,7 +562,7 @@ spec:
           mountPath: /etc/st2/st2.user.conf
           subPath: st2.user.conf
         resources:
-{{ toYaml .Values.st2timersengine.resources | indent 10 }}
+          {{- toYaml .Values.st2timersengine.resources | nindent 10 }}
     {{- if .Values.st2timersengine.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
@@ -616,7 +616,7 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
         {{- if .Values.st2workflowengine.annotations }}
-{{ toYaml .Values.st2workflowengine.annotations | indent 8 }}
+          {{- toYaml .Values.st2workflowengine.annotations | nindent 8 }}
         {{- end }}
     spec:
       imagePullSecrets:
@@ -624,8 +624,8 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
-      {{ include "init-containers-wait-for-db" . | indent 6 }}
-      {{ include "init-containers-wait-for-mq" . | indent 6 }}
+      {{- include "init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "init-containers-wait-for-mq" . | nindent 6 }}
       containers:
       - name: st2workflowengine
         image: '{{ template "imageRepository" . }}/st2workflowengine:{{ tpl (.Values.st2workflowengine.image.tag | default .Values.image.tag) . }}'
@@ -649,7 +649,7 @@ spec:
           readOnly: true
         {{- end }}
         resources:
-{{ toYaml .Values.st2workflowengine.resources | indent 10 }}
+          {{- toYaml .Values.st2workflowengine.resources | nindent 10 }}
     {{- if .Values.st2workflowengine.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
@@ -710,7 +710,7 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
         {{- if .Values.st2scheduler.annotations }}
-{{ toYaml .Values.st2scheduler.annotations | indent 8 }}
+          {{- toYaml .Values.st2scheduler.annotations | nindent 8 }}
         {{- end }}
     spec:
       imagePullSecrets:
@@ -718,8 +718,8 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
-      {{ include "init-containers-wait-for-db" . | indent 6 }}
-      {{ include "init-containers-wait-for-mq" . | indent 6 }}
+      {{- include "init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "init-containers-wait-for-mq" . | nindent 6 }}
       containers:
       - name: st2scheduler
         image: '{{ template "imageRepository" . }}/st2scheduler:{{ tpl (.Values.st2scheduler.image.tag | default .Values.image.tag) . }}'
@@ -743,7 +743,7 @@ spec:
           readOnly: true
         {{- end }}
         resources:
-{{ toYaml .Values.st2scheduler.resources | indent 10 }}
+          {{- toYaml .Values.st2scheduler.resources | nindent 10 }}
     {{- if .Values.st2scheduler.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
@@ -804,7 +804,7 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         {{- if .Values.st2notifier.annotations }}
-{{ toYaml .Values.st2notifier.annotations | indent 8 }}
+          {{- toYaml .Values.st2notifier.annotations | nindent 8 }}
         {{- end }}
     spec:
       imagePullSecrets:
@@ -812,8 +812,8 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
-      {{ include "init-containers-wait-for-db" . | indent 6 }}
-      {{ include "init-containers-wait-for-mq" . | indent 6 }}
+      {{- include "init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "init-containers-wait-for-mq" . | nindent 6 }}
       containers:
       - name: st2notifier
         image: '{{ template "imageRepository" . }}/st2notifier:{{ tpl (.Values.st2notifier.image.tag | default .Values.image.tag) . }}'
@@ -832,7 +832,7 @@ spec:
           mountPath: /etc/st2/st2.user.conf
           subPath: st2.user.conf
         resources:
-{{ toYaml .Values.st2notifier.resources | indent 10 }}
+          {{- toYaml .Values.st2notifier.resources | nindent 10 }}
     {{- if .Values.st2notifier.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
@@ -890,7 +890,7 @@ spec:
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") $ | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") $ | sha256sum }}
         {{- if .annotations }}
-{{ toYaml .annotations | indent 8 }}
+          {{- toYaml .annotations | nindent 8 }}
         {{- end }}
     spec:
       imagePullSecrets:
@@ -898,13 +898,13 @@ spec:
       - name: {{ $.Values.image.pullSecret }}
       {{- end }}
       {{- if $.Values.st2.packs.images }}
-{{- include "packs-pullSecrets" $ | indent 6 }}
+        {{- include "packs-pullSecrets" $ | nindent 6 }}
       {{- end }}
       initContainers:
-      {{ include "init-containers-wait-for-db" $ | indent 6 }}
-      {{ include "init-containers-wait-for-mq" $ | indent 6 }}
+      {{- include "init-containers-wait-for-db" $ | nindent 6 }}
+      {{- include "init-containers-wait-for-mq" $ | nindent 6 }}
       {{- if $.Values.st2.packs.images }}
-{{- include "packs-initContainers" $ | indent 6 }}
+        {{- include "packs-initContainers" $ | nindent 6 }}
       {{- end }}
       containers:
       - name: st2sensorcontainer{{ template "hyphenPrefix" .name }}
@@ -913,11 +913,11 @@ spec:
         {{- with .readinessProbe }}
         # Probe to check if app is running. Failure will lead to a pod restart.
         readinessProbe:
-{{ toYaml . | indent 10 }}
+          {{- toYaml . | nindent 10 }}
         {{- end }}
         {{- with .livenessProbe }}
         livenessProbe:
-{{ toYaml . | indent 10 }}
+          {{- toYaml . | nindent 10 }}
         {{- end }}
         {{- if .ref }}
         command:
@@ -952,7 +952,7 @@ spec:
           readOnly: true
         {{- end }}
         resources:
-{{ toYaml .resources | indent 10 }}
+          {{- toYaml .resources | nindent 10 }}
     {{- if .serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" $ }}
     {{- end }}
@@ -1020,25 +1020,25 @@ spec:
         checksum/ssh: {{ include (print $.Template.BasePath "/secrets_ssh.yaml") . | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
         {{- if .Values.st2actionrunner.annotations }}
-{{ toYaml .Values.st2actionrunner.annotations | indent 8 }}
+          {{- toYaml .Values.st2actionrunner.annotations | nindent 8 }}
         {{- end }}
     spec:
       {{- if .Values.st2actionrunner.hostAliases }}
       hostAliases:
-{{ toYaml .Values.st2actionrunner.hostAliases | indent 8 }}
+        {{- toYaml .Values.st2actionrunner.hostAliases | nindent 8 }}
       {{- end }}
       imagePullSecrets:
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       {{- if .Values.st2.packs.images }}
-{{- include "packs-pullSecrets" . | indent 6 }}
+        {{- include "packs-pullSecrets" . | nindent 6 }}
       {{- end }}
       initContainers:
-      {{ include "init-containers-wait-for-db" . | indent 6 }}
-      {{ include "init-containers-wait-for-mq" . | indent 6 }}
+      {{- include "init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "init-containers-wait-for-mq" . | nindent 6 }}
       {{- if .Values.st2.packs.images }}
-{{- include "packs-initContainers" . | indent 6 }}
+        {{- include "packs-initContainers" . | nindent 6 }}
       {{- end }}
       containers:
       - name: st2actionrunner
@@ -1074,7 +1074,7 @@ spec:
           readOnly: true
         {{- end }}
         resources:
-{{ toYaml .Values.st2actionrunner.resources | indent 10 }}
+          {{- toYaml .Values.st2actionrunner.resources | nindent 10 }}
     {{- if .Values.st2actionrunner.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
@@ -1146,7 +1146,7 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         {{- if .Values.st2garbagecollector.annotations }}
-{{ toYaml .Values.st2garbagecollector.annotations | indent 8 }}
+          {{- toYaml .Values.st2garbagecollector.annotations | nindent 8 }}
         {{- end }}
     spec:
       imagePullSecrets:
@@ -1154,8 +1154,8 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
-      {{ include "init-containers-wait-for-db" . | indent 6 }}
-      {{ include "init-containers-wait-for-mq" . | indent 6 }}
+      {{- include "init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "init-containers-wait-for-mq" . | nindent 6 }}
       containers:
       - name: st2garbagecollector
         image: '{{ template "imageRepository" . }}/st2garbagecollector:{{ tpl (.Values.st2garbagecollector.image.tag | default .Values.image.tag) . }}'
@@ -1174,7 +1174,7 @@ spec:
           mountPath: /etc/st2/st2.user.conf
           subPath: st2.user.conf
         resources:
-{{ toYaml .Values.st2garbagecollector.resources | indent 10 }}
+          {{- toYaml .Values.st2garbagecollector.resources | nindent 10 }}
     {{- if .Values.st2garbagecollector.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
@@ -1230,19 +1230,19 @@ spec:
         checksum/ssh: {{ include (print $.Template.BasePath "/secrets_ssh.yaml") . | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
         {{- if .Values.st2client.annotations }}
-{{ toYaml .Values.st2client.annotations | indent 8 }}
+          {{- toYaml .Values.st2client.annotations | nindent 8 }}
         {{- end }}
     spec:
       imagePullSecrets:
       {{- if .Values.st2.packs.images }}
-{{- include "packs-pullSecrets" . | indent 6 }}
+        {{- include "packs-pullSecrets" . | nindent 6 }}
       {{- end }}
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
       {{- if .Values.st2.packs.images }}
-{{- include "packs-initContainers" . | indent 6 }}
+        {{- include "packs-initContainers" . | nindent 6 }}
       {{- end }}
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       - name: generate-st2client-config
@@ -1401,7 +1401,7 @@ spec:
       annotations:
         checksum/chatops: {{ include (print $.Template.BasePath "/secrets_st2chatops.yaml") . | sha256sum }}
         {{- if .Values.st2chatops.annotations }}
-{{ toYaml .Values.st2chatops.annotations | indent 8 }}
+          {{- toYaml .Values.st2chatops.annotations | nindent 8 }}
         {{- end }}
     spec:
       {{- if .Values.image.pullSecret }}
@@ -1444,7 +1444,7 @@ spec:
           initialDelaySeconds: 10
           periodSeconds: 30
         resources:
-{{ toYaml .Values.st2chatops.resources | indent 10 }}
+          {{- toYaml .Values.st2chatops.resources | nindent 10 }}
     {{- if .Values.st2chatops.serviceAccount.attach }}
         serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}

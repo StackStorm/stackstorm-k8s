@@ -77,9 +77,9 @@ metadata:
     {{- if .Values.st2web.service.hostname }}
     external-dns.alpha.kubernetes.io/hostname: {{ .Values.st2web.service.hostname | quote }}
     {{- end }}
-{{- if .Values.st2web.service.annotations }}
-{{ toYaml .Values.st2web.service.annotations | indent 4 }}
-{{- end }}
+    {{- if .Values.st2web.service.annotations }}
+      {{- toYaml .Values.st2web.service.annotations | nindent 4 }}
+    {{- end }}
   labels:
     app: st2web
     tier: frontend
