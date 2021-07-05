@@ -531,6 +531,10 @@ jobs:
   image: {}
     ## Note that Helm templating is supported in this block!
     #tag: "{{ .Values.image.tag }}"
+  # Additional advanced settings to control pod/deployment placement
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
 
 ##
 ## MongoDB HA configuration (3rd party chart dependency)
