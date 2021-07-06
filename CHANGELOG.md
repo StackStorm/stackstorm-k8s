@@ -8,6 +8,8 @@
 * st2chatops change: If `st2chatops.env.ST2_API_KEY` is defined, do not set `ST2_AUTH_USERNAME` or `ST2_AUTH_PASSWORD` env vars any more. (#197) (by @cognifloyd)
 * Add image.tag overrides for all deployments. (#200) (by @cognifloyd)
 * If your k8s cluster admin requires custom annotations (eg: to indicate mongo or rabbitmq usage), you can now add those to each set of pods. (#195) (by @cognifloyd)
+* BREAKING CHANGE: Move secrets.st2.* values into st2.* (#203) (by @cognifloyd)
+* Auto-generate password and ssh_key secrets. (#203) (by @cognifloyd)
 * Add optional hubot-scripts volume to st2chatops pod. To add this, define `st2chatops.hubotScriptsVolume`. (#207) (by @cognifloyd)
 * Add advanced pod placment (nodeSelector, affinity, tolerations) to specs for batch Jobs pods. (#193) (by @cognifloyd)
 * Allow adding dnsPolicy and/or dnsConfig to all pods. (#201) (by @cognifloyd)
