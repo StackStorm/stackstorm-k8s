@@ -35,6 +35,9 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/auth: {{ include (print $.Template.BasePath "/secrets_st2auth.yaml") . | sha256sum }}
+        {{- if .Values.st2auth.postStartScript }}
+        checksum/post-start-script: {{ .Values.st2auth.postStartScript | sha256sum }}
+        {{- end }}
         {{- if .Values.st2auth.annotations }}
           {{- toYaml .Values.st2auth.annotations | nindent 8 }}
         {{- end }}
@@ -158,6 +161,9 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+        {{- if .Values.st2api.postStartScript }}
+        checksum/post-start-script: {{ .Values.st2api.postStartScript | sha256sum }}
+        {{- end }}
         {{- if .Values.st2api.annotations }}
           {{- toYaml .Values.st2api.annotations | nindent 8 }}
         {{- end }}
@@ -281,6 +287,9 @@ spec:
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        {{- if .Values.st2stream.postStartScript }}
+        checksum/post-start-script: {{ .Values.st2stream.postStartScript | sha256sum }}
+        {{- end }}
         {{- if .Values.st2stream.annotations }}
           {{- toYaml .Values.st2stream.annotations | nindent 8 }}
         {{- end }}
@@ -372,6 +381,9 @@ spec:
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2web.yaml") . | sha256sum }}
+        {{- if .Values.st2web.postStartScript }}
+        checksum/post-start-script: {{ .Values.st2web.postStartScript | sha256sum }}
+        {{- end }}
         {{- if .Values.st2web.annotations }}
           {{- toYaml .Values.st2web.annotations | nindent 8 }}
         {{- end }}
@@ -494,6 +506,9 @@ spec:
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        {{- if .Values.st2rulesengine.postStartScript }}
+        checksum/post-start-script: {{ .Values.st2rulesengine.postStartScript | sha256sum }}
+        {{- end }}
         {{- if .Values.st2rulesengine.annotations }}
           {{- toYaml .Values.st2rulesengine.annotations | nindent 8 }}
         {{- end }}
@@ -594,6 +609,9 @@ spec:
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        {{- if .Values.st2timersengine.postStartScript }}
+        checksum/post-start-script: {{ .Values.st2timersengine.postStartScript | sha256sum }}
+        {{- end }}
         {{- if .Values.st2timersengine.annotations }}
           {{- toYaml .Values.st2timersengine.annotations | nindent 8 }}
         {{- end }}
@@ -686,6 +704,9 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+        {{- if .Values.st2workflowengine.postStartScript }}
+        checksum/post-start-script: {{ .Values.st2workflowengine.postStartScript | sha256sum }}
+        {{- end }}
         {{- if .Values.st2workflowengine.annotations }}
           {{- toYaml .Values.st2workflowengine.annotations | nindent 8 }}
         {{- end }}
@@ -790,6 +811,9 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+        {{- if .Values.st2scheduler.postStartScript }}
+        checksum/post-start-script: {{ .Values.st2scheduler.postStartScript | sha256sum }}
+        {{- end }}
         {{- if .Values.st2scheduler.annotations }}
           {{- toYaml .Values.st2scheduler.annotations | nindent 8 }}
         {{- end }}
@@ -894,6 +918,9 @@ spec:
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        {{- if .Values.st2notifier.postStartScript }}
+        checksum/post-start-script: {{ .Values.st2notifier.postStartScript | sha256sum }}
+        {{- end }}
         {{- if .Values.st2notifier.annotations }}
           {{- toYaml .Values.st2notifier.annotations | nindent 8 }}
         {{- end }}
@@ -990,6 +1017,9 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") $ | sha256sum }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") $ | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") $ | sha256sum }}
+        {{- if $.Values.st2sensorcontainer.postStartScript }}
+        checksum/post-start-script: {{ $.Values.st2sensorcontainer.postStartScript | sha256sum }}
+        {{- end }}
         {{- if .annotations }}
           {{- toYaml .annotations | nindent 8 }}
         {{- end }}
@@ -1130,6 +1160,9 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/ssh: {{ include (print $.Template.BasePath "/secrets_ssh.yaml") . | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+        {{- if .Values.st2actionrunner.postStartScript }}
+        checksum/post-start-script: {{ .Values.st2actionrunner.postStartScript | sha256sum }}
+        {{- end }}
         {{- if .Values.st2actionrunner.annotations }}
           {{- toYaml .Values.st2actionrunner.annotations | nindent 8 }}
         {{- end }}
@@ -1261,6 +1294,9 @@ spec:
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        {{- if .Values.st2garbagecollector.postStartScript }}
+        checksum/post-start-script: {{ .Values.st2garbagecollector.postStartScript | sha256sum }}
+        {{- end }}
         {{- if .Values.st2garbagecollector.annotations }}
           {{- toYaml .Values.st2garbagecollector.annotations | nindent 8 }}
         {{- end }}
@@ -1355,6 +1391,9 @@ spec:
         checksum/auth: {{ include (print $.Template.BasePath "/secrets_st2auth.yaml") . | sha256sum }}
         checksum/ssh: {{ include (print $.Template.BasePath "/secrets_ssh.yaml") . | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+        {{- if .Values.st2client.postStartScript }}
+        checksum/post-start-script: {{ .Values.st2client.postStartScript | sha256sum }}
+        {{- end }}
         {{- if .Values.st2client.annotations }}
           {{- toYaml .Values.st2client.annotations | nindent 8 }}
         {{- end }}
@@ -1528,6 +1567,9 @@ spec:
         heritage: {{ .Release.Service }}
       annotations:
         checksum/chatops: {{ include (print $.Template.BasePath "/secrets_st2chatops.yaml") . | sha256sum }}
+        {{- if .Values.st2chatops.postStartScript }}
+        checksum/post-start-script: {{ .Values.st2chatops.postStartScript | sha256sum }}
+        {{- end }}
         {{- if .Values.st2chatops.annotations }}
           {{- toYaml .Values.st2chatops.annotations | nindent 8 }}
         {{- end }}
