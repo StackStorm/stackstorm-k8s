@@ -71,6 +71,21 @@ Create the name of the stackstorm-ha service account to use
 {{- end -}}
 {{- end -}}
     
+# Reduce duplication of the st2.*.conf volume details
+{{- define "st2-config-volume-mounts" -}}
+- name: st2-config-vol
+  mountPath: /etc/st2/st2.docker.conf
+  subPath: st2.docker.conf
+- name: st2-config-vol
+  mountPath: /etc/st2/st2.user.conf
+  subPath: st2.user.conf
+{{- end -}}
+{{- define "st2-config-volume" -}}
+- name: st2-config-vol
+  configMap:
+    name: {{ $.Release.Name }}-st2-config
+{{- end -}}
+
 {{- define "init-containers-wait-for-db" -}}
 {{- if index .Values "mongodb" "enabled" }}
 {{- $mongodb_port := (int (index .Values "mongodb" "service" "port")) }}

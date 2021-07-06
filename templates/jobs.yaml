@@ -49,12 +49,7 @@ spec:
           - --config-file=/etc/st2/st2.docker.conf
           - --config-file=/etc/st2/st2.user.conf
         volumeMounts:
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.docker.conf
-          subPath: st2.docker.conf
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.user.conf
-          subPath: st2.user.conf
+        {{- include "st2-config-volume-mounts" . | nindent 8 }}
         - name: st2-rbac-roles-vol
           mountPath: /opt/stackstorm/rbac/roles/
         - name: st2-rbac-assignments-vol
@@ -64,9 +59,7 @@ spec:
         # TODO: Find out default resource limits for this specific service (#5)
         #resources:
       volumes:
-        - name: st2-config-vol
-          configMap:
-            name: {{ .Release.Name }}-st2-config
+        {{- include "st2-config-volume" . | nindent 8 }}
         - name: st2-rbac-roles-vol
           configMap:
             name: {{ .Release.Name }}-st2-rbac-roles
@@ -304,12 +297,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.docker.conf
-          subPath: st2.docker.conf
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.user.conf
-          subPath: st2.user.conf
+        {{- include "st2-config-volume-mounts" . | nindent 8 }}
         - name: st2client-config-vol
           mountPath: /root/.st2/
         - name: st2-kv-vol
@@ -318,9 +306,7 @@ spec:
         # TODO: Find out default resource limits for this specific service (#5)
         #resources:
       volumes:
-        - name: st2-config-vol
-          configMap:
-            name: {{ .Release.Name }}-st2-config
+        {{- include "st2-config-volume" . | nindent 8 }}
         - name: st2client-config-vol
           emptyDir:
             medium: Memory
@@ -403,12 +389,7 @@ spec:
           - --register-all
           - --register-fail-on-failure
         volumeMounts:
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.docker.conf
-          subPath: st2.docker.conf
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.user.conf
-          subPath: st2.user.conf
+        {{- include "st2-config-volume-mounts" . | nindent 8 }}
         - name: st2-pack-configs-vol
           mountPath: /opt/stackstorm/configs/
         {{- if .Values.st2.packs.images }}
@@ -420,9 +401,7 @@ spec:
         # TODO: Find out default resource limits for this specific service (#5)
         #resources:
       volumes:
-        - name: st2-config-vol
-          configMap:
-            name: {{ .Release.Name }}-st2-config
+        {{- include "st2-config-volume" . | nindent 8 }}
         - name: st2-pack-configs-vol
           configMap:
             name: {{ .Release.Name }}-st2-pack-configs
