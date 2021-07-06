@@ -11,6 +11,8 @@
 * BREAKING CHANGE: Move secrets.st2.* values into st2.* (#203) (by @cognifloyd)
 * Auto-generate password and ssh_key secrets. (#203) (by @cognifloyd)
 * Add optional hubot-scripts volume to st2chatops pod. To add this, define `st2chatops.hubotScriptsVolume`. (#207) (by @cognifloyd)
+* Add advanced pod placment (nodeSelector, affinity, tolerations) to specs for batch Jobs pods. (#193) (by @cognifloyd)
+* Allow adding dnsPolicy and/or dnsConfig to all pods. (#201) (by @cognifloyd)
 
 ## v0.60.0
 * Switch st2 version to `v3.5dev` as a new latest development version (#187)

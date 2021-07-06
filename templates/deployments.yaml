@@ -103,17 +103,20 @@ spec:
         - name: htpasswd-vol
           emptyDir:
             medium: Memory
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
     {{- with .Values.st2auth.nodeSelector }}
-      nodeSelector:
-{{ toYaml . | indent 8 }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2auth.affinity }}
-      affinity:
-{{ toYaml . | indent 8 }}
+      affinity: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2auth.tolerations }}
-      tolerations:
-{{ toYaml . | indent 8 }}
+      tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 
 ---
@@ -217,17 +220,20 @@ spec:
         {{- if .Values.st2.packs.images }}
 {{- include "packs-volumes" . | indent 8 }}
         {{- end }}
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
     {{- with .Values.st2api.nodeSelector }}
-      nodeSelector:
-{{ toYaml . | indent 8 }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2api.affinity }}
-      affinity:
-{{ toYaml . | indent 8 }}
+      affinity: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2api.tolerations }}
-      tolerations:
-{{ toYaml . | indent 8 }}
+      tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 
 ---
@@ -300,17 +306,20 @@ spec:
         - name: st2-config-vol
           configMap:
             name: {{ .Release.Name }}-st2-config
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
     {{- with .Values.st2stream.nodeSelector }}
-      nodeSelector:
-{{ toYaml . | indent 8 }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2stream.affinity }}
-      affinity:
-{{ toYaml . | indent 8 }}
+      affinity: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2stream.tolerations }}
-      tolerations:
-{{ toYaml . | indent 8 }}
+      tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 
 ---
@@ -399,17 +408,20 @@ spec:
     {{- else }}
       volumes: []
     {{- end }}
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
     {{- with .Values.st2web.nodeSelector }}
-      nodeSelector:
-{{ toYaml . | indent 8 }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2web.affinity }}
-      affinity:
-{{ toYaml . | indent 8 }}
+      affinity: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2web.tolerations }}
-      tolerations:
-{{ toYaml . | indent 8 }}
+      tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 
 ---
@@ -488,17 +500,20 @@ spec:
             - key: datastore_crypto_key
               path: datastore_key.json
         {{- end }}
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
     {{- with .Values.st2rulesengine.nodeSelector }}
-      nodeSelector:
-{{ toYaml . | indent 8 }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2rulesengine.affinity }}
-      affinity:
-{{ toYaml . | indent 8 }}
+      affinity: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2rulesengine.tolerations }}
-      tolerations:
-{{ toYaml . | indent 8 }}
+      tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 
 ---
@@ -570,17 +585,20 @@ spec:
         - name: st2-config-vol
           configMap:
             name: {{ .Release.Name }}-st2-config
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
     {{- with .Values.st2timersengine.nodeSelector }}
-      nodeSelector:
-{{ toYaml . | indent 8 }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2timersengine.affinity }}
-      affinity:
-{{ toYaml . | indent 8 }}
+      affinity: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2timersengine.tolerations }}
-      tolerations:
-{{ toYaml . | indent 8 }}
+      tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 
 ---
@@ -665,17 +683,20 @@ spec:
             - key: datastore_crypto_key
               path: datastore_key.json
         {{- end }}
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
     {{- with .Values.st2workflowengine.nodeSelector }}
-      nodeSelector:
-{{ toYaml . | indent 8 }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2workflowengine.affinity }}
-      affinity:
-{{ toYaml . | indent 8 }}
+      affinity: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2workflowengine.tolerations }}
-      tolerations:
-{{ toYaml . | indent 8 }}
+      tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 
 ---
@@ -759,17 +780,20 @@ spec:
         - name: st2-config-vol
           configMap:
             name: {{ .Release.Name }}-st2-config
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
     {{- with .Values.st2scheduler.nodeSelector }}
-      nodeSelector:
-{{ toYaml . | indent 8 }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2scheduler.affinity }}
-      affinity:
-{{ toYaml . | indent 8 }}
+      affinity: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2scheduler.tolerations }}
-      tolerations:
-{{ toYaml . | indent 8 }}
+      tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 
 ---
@@ -840,17 +864,20 @@ spec:
         - name: st2-config-vol
           configMap:
             name: {{ .Release.Name }}-st2-config
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
     {{- with .Values.st2notifier.nodeSelector }}
-      nodeSelector:
-{{ toYaml . | indent 8 }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2notifier.affinity }}
-      affinity:
-{{ toYaml . | indent 8 }}
+      affinity: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2notifier.tolerations }}
-      tolerations:
-{{ toYaml . | indent 8 }}
+      tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 
 {{- range .Values.st2.packs.sensors }}
@@ -971,17 +998,20 @@ spec:
         {{- if $.Values.st2.packs.images }}
 {{- include "packs-volumes" $ | indent 8 }}
         {{- end }}
+    {{- if $.Values.dnsPolicy }}
+      dnsPolicy: {{ $.Values.dnsPolicy }}
+    {{- end }}
+    {{- with $.Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
     {{- with .nodeSelector }}
-      nodeSelector:
-{{ toYaml . | indent 8 }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .affinity }}
-      affinity:
-{{ toYaml . | indent 8 }}
+      affinity: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .tolerations }}
-      tolerations:
-{{ toYaml . | indent 8 }}
+      tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 {{- end }}
 
@@ -1101,17 +1131,20 @@ spec:
         {{- if .Values.st2.packs.images }}
 {{- include "packs-volumes" . | indent 8 }}
         {{- end }}
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
     {{- with .Values.st2actionrunner.nodeSelector }}
-      nodeSelector:
-{{ toYaml . | indent 8 }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2actionrunner.affinity }}
-      affinity:
-{{ toYaml . | indent 8 }}
+      affinity: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2actionrunner.tolerations }}
-      tolerations:
-{{ toYaml . | indent 8 }}
+      tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 
 ---
@@ -1182,17 +1215,20 @@ spec:
         - name: st2-config-vol
           configMap:
             name: {{ .Release.Name }}-st2-config
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
     {{- with .Values.st2garbagecollector.nodeSelector }}
-      nodeSelector:
-{{ toYaml . | indent 8 }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2garbagecollector.affinity }}
-      affinity:
-{{ toYaml . | indent 8 }}
+      affinity: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2garbagecollector.tolerations }}
-      tolerations:
-{{ toYaml . | indent 8 }}
+      tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 
 ---
@@ -1456,16 +1492,19 @@ spec:
         - name: st2-chatops-hubot-scripts-vol
           {{- toYaml .Values.st2chatops.hubotScriptsVolume | nindent 10 }}
     {{- end }}
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
     {{- with .Values.st2chatops.nodeSelector }}
-      nodeSelector:
-{{ toYaml . | indent 8 }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2chatops.affinity }}
-      affinity:
-{{ toYaml . | indent 8 }}
+      affinity: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2chatops.tolerations }}
-      tolerations:
-{{ toYaml . | indent 8 }}
+      tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 {{- end }}

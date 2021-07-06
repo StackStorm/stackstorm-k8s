@@ -77,6 +77,21 @@ spec:
           configMap:
             name: {{ .Release.Name }}-st2-rbac-mappings
       restartPolicy: OnFailure
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.jobs.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.jobs.affinity }}
+      affinity: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.jobs.tolerations }}
+      tolerations: {{- toYaml . | nindent 8 }}
+    {{- end }}
 
 {{- end }}
 ---
@@ -188,6 +203,21 @@ spec:
           secret:
             secretName: {{ .Release.Name }}-st2-apikeys
       restartPolicy: OnFailure
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.jobs.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.jobs.affinity }}
+      affinity: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.jobs.tolerations }}
+      tolerations: {{- toYaml . | nindent 8 }}
+    {{- end }}
 
 ---
 apiVersion: batch/v1
@@ -298,6 +328,21 @@ spec:
           secret:
             secretName: {{ .Release.Name }}-st2-kv
       restartPolicy: OnFailure
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.jobs.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.jobs.affinity }}
+      affinity: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.jobs.tolerations }}
+      tolerations: {{- toYaml . | nindent 8 }}
+    {{- end }}
 
 ---
 apiVersion: batch/v1
@@ -383,3 +428,18 @@ spec:
             name: {{ .Release.Name }}-st2-pack-configs
         {{- include "packs-volumes" $ | nindent 8 }}
       restartPolicy: OnFailure
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.jobs.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.jobs.affinity }}
+      affinity: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.jobs.tolerations }}
+      tolerations: {{- toYaml . | nindent 8 }}
+    {{- end }}
