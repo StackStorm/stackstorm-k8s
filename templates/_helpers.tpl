@@ -70,7 +70,7 @@ Create the name of the stackstorm-ha service account to use
   {{- end -}}
 {{- end -}}
 {{- end -}}
-    
+
 # Reduce duplication of the st2.*.conf volume details
 {{- define "st2-config-volume-mounts" -}}
 - name: st2-config-vol
@@ -96,7 +96,7 @@ Create the name of the stackstorm-ha service account to use
     - '-c'
     - >
       until nc -z -w 2 {{ $.Release.Name }}-mongodb-headless {{ $mongodb_port }} && echo mongodb ok;
-        do 
+        do
           echo 'Waiting for MongoDB Connection...'
           sleep 2;
       done

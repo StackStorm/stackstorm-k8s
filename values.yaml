@@ -7,9 +7,9 @@
 image:
   # Image pull policy
   pullPolicy: IfNotPresent
-  # st2 image repository. Set this to override the default ("stackstorm") 
+  # st2 image repository. Set this to override the default ("stackstorm")
   # docker image repository ("docker.stackstorm.com"). Applies to all st2 containers except
-  # st2chatops and st2packs (which have their own override). This also does not impact 
+  # st2chatops and st2packs (which have their own override). This also does not impact
   # dependencies such as mongo or redis, which have their own helm chart settings.
   repository: ""
   # st2 image tag - defaults to AppVersion.
@@ -580,7 +580,7 @@ rabbitmq:
     enabled: true
   # Enable Queue Mirroring between nodes
   # See https://www.rabbitmq.com/ha.html
-  # This code block is commented out waiting for 
+  # This code block is commented out waiting for
   # https://github.com/bitnami/charts/issues/4635
   loadDefinition:
     enabled: true
@@ -612,7 +612,7 @@ redis:
   cluster:
     slaveCount: 3
   # Sentinel settings. Sentinel is enabled for better resiliency.
-  # This is highly recommended as per tooz library documentation. 
+  # This is highly recommended as per tooz library documentation.
   # Hence, the chart requires the setting.
   # https://docs.openstack.org/tooz/latest/user/drivers.html#redis
   # https://github.com/bitnami/charts/tree/master/bitnami/redis#master-slave-with-sentinel

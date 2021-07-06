@@ -229,7 +229,7 @@ kubectl logs -l release=<release-name>,tier=backend
 ## Extending this chart
 If you have any suggestions or ideas about how to extend this chart functionality,
 we welcome you to collaborate in [Issues](https://github.com/stackstorm/stackstorm-ha/issues)
-and contribute via [Pull Requests](https://github.com/stackstorm/stackstorm-ha/pulls).  
+and contribute via [Pull Requests](https://github.com/stackstorm/stackstorm-ha/pulls).
 However if you need something very custom and specific to your infra that doesn't fit official chart plans,
 we strongly recommend you to create a parent Helm chart with custom K8s objects and referencing `stackstorm-ha` chart
 as a child dependency.
