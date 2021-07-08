@@ -1025,17 +1025,17 @@ spec:
     {{- end }}
 
 {{- $one_sensor_per_pod := not ($.Values.st2.packs.sensors | empty) }}
-{{- range ($one_sensor_per_pod | ternary ($.Values.st2.packs.sensors) (until ($.Values.st2sensorcontainer.replicas|int))) }}
-  {{- $sensor := omit $.Values.st2sensorcontainer "name" "ref" "replicas" "postStartScript" }}
+{{- range ($one_sensor_per_pod | ternary ($.Values.st2.packs.sensors) (until ($.Values.st2sensorcontainer.deployments|int))) }}
+  {{- $sensor := omit $.Values.st2sensorcontainer "name" "ref" "deployments" "postStartScript" }}
   {{- if $one_sensor_per_pod }}
     {{- range $key, $val := . }}
       {{- $_ := set $sensor $key $val }}
     {{- end }}
   {{- end }}
   {{- $name := print "st2sensorcontainer" (include "hyphenPrefix" ($one_sensor_per_pod | ternary ($sensor.name) (.))) }}
-  {{/* define vars only needed if $.Values.st2sensorcontainer.replicas */}}
+  {{/* define vars only needed if $.Values.st2sensorcontainer.deployments */}}
   {{- $max_hash := 4294967296 }}
-  {{- $sensor_range_size := div (add1 $max_hash) $.Values.st2sensorcontainer.replicas }}
+  {{- $sensor_range_size := div (add1 $max_hash) $.Values.st2sensorcontainer.deployments }}
   {{- $sensor_range_start := mul . $sensor_range_size }}
   {{- $sensor_range_end := add $sensor_range_start $sensor_range_size -1 }}
   {{/* deal with integer math rounding errors */}}
@@ -1061,7 +1061,7 @@ spec:
   # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
   # It is possible to run st2sensorcontainer(s) in one of these modes:
   #   (1) run all sensors in one pod (1 deployment with 1 pod, the default); or
-  #   (2) by setting the number of st2sensorcontainer replicas.
+  #   (2) by setting the number of st2sensorcontainer deployments.
   #   (3) run one sensor per pod using st2.packs.sensors.
   # It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance.
   # Each sensor node needs to be provided with proper partition information to share work with other sensor nodes
@@ -1145,7 +1145,7 @@ spec:
           {{- if $one_sensor_per_pod }}{{/* only in st2.packs.sensors[] */}}
           - --single-sensor-mode
           - --sensor-ref={{ required "You must define `ref` for everything in st2.packs.sensors. This assigns each sensor to a pod." $sensor.ref }}
-          {{- else if $sensor_hash_ranges }}{{/* only for st2sensorcontainer.replicas */}}
+          {{- else if $sensor_hash_ranges }}{{/* only for st2sensorcontainer.deployments */}}
           # injected by {{ $name }}-init-config
           - --config-file=/etc/st2/st2.sensorcontainer.conf
           {{- end }}
