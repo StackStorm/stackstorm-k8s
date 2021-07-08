@@ -1059,10 +1059,10 @@ spec:
       app: {{ $name }}
       release: {{ $.Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
-  # TODO: adjust this docstring
   # It is possible to run st2sensorcontainer(s) in one of these modes:
   #   (1) run all sensors in one pod (1 deployment with 1 pod, the default); or
-  #   (2) run one sensor per pod using st2.packs.sensors.
+  #   (2) by setting the number of st2sensorcontainer replicas.
+  #   (3) run one sensor per pod using st2.packs.sensors.
   # It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance.
   # Each sensor node needs to be provided with proper partition information to share work with other sensor nodes
   # so that the same sensor does not run on different nodes. See: https://docs.stackstorm.com/reference/sensor_partitioning.html
