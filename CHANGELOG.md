@@ -15,6 +15,7 @@
 * Allow adding dnsPolicy and/or dnsConfig to all pods. (#201) (by @cognifloyd)
 * Move st2-config-vol volume definition and list of st2-config-vol volumeMounts to helpers to reduce duplication (#198) (by @cognifloyd)
 * Fix permissions for /home/stanley/.ssh/stanley_rsa using the postStart lifecycle hook (#219) (by @cognifloyd)
+* Make system_user configurable when using custom st2actionrunner images that do not provide stanley (#220) (by @cognifloyd)
 
 ## v0.60.0
 * Switch st2 version to `v3.5dev` as a new latest development version (#187)
