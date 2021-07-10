@@ -125,6 +125,11 @@ Create the name of the stackstorm-ha service account to use
   {{- if and .Values.st2.packs.volumes.enabled .Values.st2.packs.volumes.configs }}
 - name: st2-pack-configs-vol
 {{ toYaml .Values.st2.packs.volumes.configs | indent 2 }}
+    {{- if .Values.st2.packs.configs }}
+- name: st2-pack-configs-from-helm-vol
+  configMap:
+    name: {{ .Release.Name }}-st2-pack-configs
+    {{- end }}
   {{- else }}
 - name: st2-pack-configs-vol
   configMap:
@@ -134,6 +139,10 @@ Create the name of the stackstorm-ha service account to use
 {{- define "pack-configs-volume-mount" -}}
 - name: st2-pack-configs-vol
   mountPath: /opt/stackstorm/configs/
+  {{- if and .Values.st2.packs.volumes.enabled .Values.st2.packs.volumes.configs .Values.st2.packs.configs }}
+- name: st2-pack-configs-from-helm-vol
+  mountPath: /opt/stackstorm/configs-helm/
+  {{- end }}
 {{- end -}}
 
 # For custom st2packs-Container reduce duplicity by defining it here once
@@ -212,6 +221,22 @@ Create the name of the stackstorm-ha service account to use
     - |
       /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
       /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
+  {{- end }}
+  {{- if and $.Values.st2.packs.configs $.Values.st2.packs.volumes.enabled }}
+# Pack configs defined in helm values
+- name: st2-pack-configs-from-helm
+  image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2actionrunner.image.tag | default .Values.image.tag) . }}'
+  imagePullPolicy: {{ .Values.image.pullPolicy }}
+  volumeMounts:
+  - name: st2-pack-configs-vol
+    mountPath: /opt/stackstorm/configs-shared
+  - name: st2-pack-configs-from-helm-vol
+    mountPath: /opt/stackstorm/configs
+  command:
+    - 'sh'
+    - '-ec'
+    - |
+      /bin/cp -aR /opt/stackstorm/configs/. /opt/stackstorm/configs-shared &&
   {{- end }}
 {{- end -}}
 

@@ -215,7 +215,7 @@ For example:
 ```
 Don't forget running Helm upgrade to apply new changes.
 
-NOTE: `st2.packs.configs` will be ignored if you use `st2packs` images with `volumes.configs` (optional part of Method 2, described below).
+NOTE: On `helm upgrade` any configs in `st2.packs.configs` will overwrite the contents of `st2.packs.volumes.configs` (optional part of Method 2, described below).
 
 #### Pull st2packs from a private Docker registry
 If you need to pull your custom packs Docker image from a private repository, create a Kubernetes Docker registry secret and pass it to Helm values.
@@ -227,7 +227,7 @@ kubectl create secret docker-registry st2packs-auth --docker-server=<your-regist
 Once secret created, reference its name in helm value: `st2.packs.images[].pullSecret`.
 
 ### Method 2: Shared Volumes
-This method requires cluster-specific storage setup and configuration. As the storage volumes are both writable and shared, `st2 pack install` should work like it does for standalone StackStorm installations. The volumes get mounted at `/opt/stackstorm/{packs,virtualenvs}` in the containers that need read or write access to those directories. With this method, `/opt/stackstorm/configs` can also be mounted as a writable volume instead of using `st2.packs.configs`.
+This method requires cluster-specific storage setup and configuration. As the storage volumes are both writable and shared, `st2 pack install` should work like it does for standalone StackStorm installations. The volumes get mounted at `/opt/stackstorm/{packs,virtualenvs}` in the containers that need read or write access to those directories. With this method, `/opt/stackstorm/configs` can also be mounted as a writable volume (in which case the contents of `st2.packs.configs` takes precedence on `helm upgrade`).
 
 NOTE: With care, `st2packs` images can be used with `volumes`. Just make sure to keep the `st2packs` images up-to-date with any changes made via `st2 pack install`.
 If a pack is installed via an `st2packs` image and then it gets updated with `st2 pack install`, a subsequent `helm upgrade` will revert back to the version in the `st2packs` image.
@@ -269,7 +269,7 @@ You may either use the `st2.packs.configs` section of Helm values (like Method 1
 or add another shared writable volume similar to `packs` and `virtualenvs`. This volume gets mounted
 to `/opt/stackstorm/configs` instead of the `st2.packs.config` values.
 
-NOTE: If you define a configs volume, anything in `st2.packs.configs` will NOT be visible to StackStorm.
+NOTE: If you define a configs volume and specify `st2.packs.configs`, anything in `st2.packs.configs` takes precdence during `helm upgrade`, overwriting config files already in the volume.
 
 For example, to use persistentVolumeClaims:
 ```

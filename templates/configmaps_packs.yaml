@@ -1,11 +1,10 @@
-{{- if not (and .Values.st2.packs.volumes.enabled .Values.st2.packs.volumes.configs) -}}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-st2-pack-configs
   annotations:
-    description: Custom StackStorm pack configs, shipped in '/opt/stackstorm/configs/'
+    description: StackStorm pack configs defined in helm values, shipped in (or copied to) '/opt/stackstorm/configs/'
   labels:
     app: st2
     tier: backend
@@ -15,4 +14,3 @@ metadata:
     heritage: {{ .Release.Service }}
 data:
 {{ toYaml .Values.st2.packs.configs | indent 2 }}
-{{- end -}}
