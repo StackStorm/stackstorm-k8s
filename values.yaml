@@ -64,6 +64,13 @@ st2:
     [api]
     allow_origin = '*'
 
+  # This mirrors the [system_user] section of st2.conf, but makes the values available for helm templating.
+  # If you change the user, you must provide a customized st2actionrunner image that includes your user.
+  system_user:
+    user: stanley
+    # templating is allowed for this key
+    ssh_key_file: "/home/{{ .Values.st2.system_user.user }}/.ssh/stanley_rsa"
+
   # Custom pack configs and image settings.
   #
   # By default, system packs are available. However, since 'st2 pack install' cannot be run in the k8s cluster,
