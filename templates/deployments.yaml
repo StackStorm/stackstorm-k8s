@@ -1262,7 +1262,7 @@ spec:
           mountPath: /opt/stackstorm/rbac/assignments/
         - name: st2-rbac-mappings-vol
           mountPath: /opt/stackstorm/rbac/mappings/
-        {{- end }} 
+        {{- end }}
         - name: st2-pack-configs-vol
           mountPath: /opt/stackstorm/configs/
         - name: st2client-config-vol

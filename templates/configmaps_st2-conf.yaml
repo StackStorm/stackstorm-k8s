@@ -46,11 +46,10 @@ data:
     {{- if .Values.st2.rbac.enabled }}
     [rbac]
     enable = True
-    backend = default 
+    backend = default
     {{- end }}
 
   # User-defined st2 config with custom settings applied on top of everything else.
   # The order of merging: st2.conf < st2.docker.conf < st2.user.conf
   st2.user.conf: |
 {{ .Values.st2.config | indent 4 }}
-    
