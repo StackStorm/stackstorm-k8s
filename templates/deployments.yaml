@@ -3,9 +3,6 @@
 {{- fail "Value st2.packs.image was renamed to st2.packs.images and is now a list of images" }}
 {{- end }}
 {{- if .Values.st2.packs.volumes.enabled }}
-  {{- if .Values.st2.packs.images }}
-{{- fail "st2.packs.images is not compatible with st2.packs.volumes.enabled. Please use only one method for setting up packs directories." }}
-  {{- end }}
   {{- if not (and .Values.st2.packs.volumes.packs .Values.st2.packs.volumes.virtualenvs) }}
 {{- fail "Volume definition(s) missing! When st2.packs.volumes.enabled, you must define volumes for both packs and virtualenvs." }}
   {{- end }}
@@ -186,7 +183,7 @@ spec:
       initContainers:
       {{- include "init-containers-wait-for-db" . | nindent 6 }}
       {{- include "init-containers-wait-for-mq" . | nindent 6 }}
-      {{- if .Values.st2.packs.images }}
+      {{- if and .Values.st2.packs.images (not .Values.st2.packs.volumes.enabled) }}
         {{- include "packs-initContainers" . | nindent 6 }}
       {{- end }}
       containers:
@@ -1039,7 +1036,7 @@ spec:
       initContainers:
       {{- include "init-containers-wait-for-db" $ | nindent 6 }}
       {{- include "init-containers-wait-for-mq" $ | nindent 6 }}
-      {{- if $.Values.st2.packs.images }}
+      {{- if and $.Values.st2.packs.images (not $.Values.st2.packs.volumes.enabled) }}
         {{- include "packs-initContainers" $ | nindent 6 }}
       {{- end }}
       containers:
@@ -1177,7 +1174,7 @@ spec:
       initContainers:
       {{- include "init-containers-wait-for-db" . | nindent 6 }}
       {{- include "init-containers-wait-for-mq" . | nindent 6 }}
-      {{- if .Values.st2.packs.images }}
+      {{- if and .Values.st2.packs.images (not .Values.st2.packs.volumes.enabled) }}
         {{- include "packs-initContainers" . | nindent 6 }}
       {{- end }}
       containers:
@@ -1399,7 +1396,7 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
-      {{- if .Values.st2.packs.images }}
+      {{- if and .Values.st2.packs.images (not .Values.st2.packs.volumes.enabled) }}
         {{- include "packs-initContainers" . | nindent 6 }}
       {{- end }}
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container

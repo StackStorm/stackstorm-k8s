@@ -92,8 +92,6 @@ st2:
     # For each given st2packs container you can define repository, name, tag and pullPolicy for this image below.
     # Multiple pack images can help when dealing with frequent updates by only rebuilding smaller images for desired packs
     # E.g. having all desired StackStorm-Exchange packs in one image and several custom packs in additional images
-    #
-    # This must be empty if st2.packs.volumes is enabled.
     images: []
       #- repository: index.docker.io/stackstorm
       #  name: st2packs
@@ -104,15 +102,14 @@ st2:
 
     # Custom packs volumes definitions.
     #
-    # Use this instead of st2.packs.images to have StackStorm use persistent/shared/writable storage configured
-    # previously in your cluster. The choice of storage solution is cluster-dependent (it changes besed on where the
-    # cluster is hosted and which storage solutions are available in your cluster).
+    # Use this to have StackStorm use persistent/shared/writable storage configured previously in your cluster.
+    # The choice of storage solution is cluster-dependent (it changes besed on where the cluster is hosted
+    # and which storage solutions are available in your cluster).
     #
     # To use this, set enabled to true, and add cluster-specific volume definitions for at least packs and virtualenvs below.
     # Please consult the documentation for your cluster's storage solution.
     # Some generic examples are listed under st2.packs.volumes.packs below.
     volumes:
-      # to enable st2.packs.volumes, st2.packs.images must not be empty
       enabled: false
 
       packs: {}
