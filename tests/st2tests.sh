@@ -52,6 +52,18 @@ load "${BATS_HELPERS_DIR}/bats-file/load.bash"
   assert_line --partial 'succeeded: true'
 }
 
+@test 'stanley_rsa file has correct permissions and ownership' {
+  local ssh_dir="/home/stanley/.ssh"
+  local private_key="${ssh_dir}/stanley_rsa"
+  run st2 run core.local cmd="find ${ssh_dir} -printf '%p: %u %g %m\n'"
+  assert_success
+  assert_line --partial 'return_code: 0'
+  assert_line --partial "stderr: ''"
+  assert_line --partial "${ssh_dir}: stanley stanley 500"
+  assert_line --partial "${private_key}: stanley stanley 400"
+  assert_line --partial 'succeeded: true'
+}
+
 @test 'st2 chatops core rule is loaded' {
   run st2 rule list
   assert_success

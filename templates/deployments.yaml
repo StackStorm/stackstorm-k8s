@@ -1020,8 +1020,7 @@ spec:
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
         - name: st2-ssh-key-vol
-          mountPath: /home/stanley/.ssh/
-          readOnly: true
+          mountPath: /home/stanley/.ssh-key-vol/
         {{- if .Values.st2.datastore_crypto_key }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
@@ -1035,6 +1034,13 @@ spec:
           mountPath: /opt/stackstorm/virtualenvs
           readOnly: true
         {{- end }}
+        - name: st2-post-start-script-vol
+          mountPath: /post-start.sh
+          subPath: post-start.sh
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "/post-start.sh"]
         resources:
           {{- toYaml .Values.st2actionrunner.resources | nindent 10 }}
     {{- if .Values.st2actionrunner.serviceAccount.attach }}
@@ -1061,6 +1067,9 @@ spec:
         {{- if .Values.st2.packs.images }}
 {{- include "packs-volumes" . | indent 8 }}
         {{- end }}
+        - name: st2-post-start-script-vol
+          configMap:
+            name: {{ .Release.Name }}-st2actionrunner-post-start-script
     {{- if .Values.dnsPolicy }}
       dnsPolicy: {{ .Values.dnsPolicy }}
     {{- end }}
@@ -1259,8 +1268,7 @@ spec:
         - name: st2client-config-vol
           mountPath: /root/.st2/
         - name: st2-ssh-key-vol
-          mountPath: /home/stanley/.ssh/
-          readOnly: true
+          mountPath: /home/stanley/.ssh-key-vol/
         {{- if .Values.st2.datastore_crypto_key }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
@@ -1274,10 +1282,17 @@ spec:
           mountPath: /opt/stackstorm/virtualenvs
           readOnly: true
         {{- end }}
+        - name: st2-post-start-script-vol
+          mountPath: /post-start.sh
+          subPath: post-start.sh
         command:
           - 'bash'
           - '-ec'
           - 'while true; do sleep 999; done'
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "/post-start.sh"]
         resources:
           requests:
             memory: "5Mi"
@@ -1320,6 +1335,9 @@ spec:
         {{- if .Values.st2.packs.images }}
 {{- include "packs-volumes" . | indent 8 }}
         {{- end }}
+        - name: st2-post-start-script-vol
+          configMap:
+            name: {{ .Release.Name }}-st2actionrunner-post-start-script
 
 {{ if .Values.st2chatops.enabled -}}
 ---
