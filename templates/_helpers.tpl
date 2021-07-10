@@ -124,12 +124,12 @@ Create the name of the stackstorm-ha service account to use
 {{- define "pack-configs-volume" -}}
   {{- if and .Values.st2.packs.volumes.enabled .Values.st2.packs.volumes.configs }}
 - name: st2-pack-configs-vol
-{{ toYaml .Values.st2.packs.volumes.configs | indent 2 }}
-    {{- if .Values.st2.packs.configs }}
+  {{- toYaml .Values.st2.packs.volumes.configs | nindent 2 }}
+  {{-   if .Values.st2.packs.configs }}
 - name: st2-pack-configs-from-helm-vol
   configMap:
     name: {{ .Release.Name }}-st2-pack-configs
-    {{- end }}
+  {{-   end }}
   {{- else }}
 - name: st2-pack-configs-vol
   configMap:
@@ -149,9 +149,9 @@ Create the name of the stackstorm-ha service account to use
 {{- define "packs-volumes" -}}
   {{- if .Values.st2.packs.volumes.enabled }}
 - name: st2-packs-vol
-{{ toYaml .Values.st2.packs.volumes.packs | indent 2 }}
+  {{- toYaml .Values.st2.packs.volumes.packs | nindent 2 }}
 - name: st2-virtualenvs-vol
-{{ toYaml .Values.st2.packs.volumes.virtualenvs | indent 2 }}
+  {{- toYaml .Values.st2.packs.volumes.virtualenvs | nindent 2 }}
   {{- else if .Values.st2.packs.images }}
 - name: st2-packs-vol
   emptyDir: {}
