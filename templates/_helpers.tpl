@@ -138,31 +138,31 @@ Create the name of the stackstorm-ha service account to use
 
 # For custom st2packs-Container reduce duplicity by defining it here once
 {{- define "packs-volumes" -}}
-  {{- if .Values.st2.packs.images }}
-- name: st2-packs-vol
-  emptyDir: {}
-- name: st2-virtualenvs-vol
-  emptyDir: {}
-  {{- else if .Values.st2.packs.volumes.enabled }}
+  {{- if .Values.st2.packs.volumes.enabled }}
 - name: st2-packs-vol
 {{ toYaml .Values.st2.packs.volumes.packs | indent 2 }}
 - name: st2-virtualenvs-vol
 {{ toYaml .Values.st2.packs.volumes.virtualenvs | indent 2 }}
+  {{- else if .Values.st2.packs.images }}
+- name: st2-packs-vol
+  emptyDir: {}
+- name: st2-virtualenvs-vol
+  emptyDir: {}
   {{- end }}
 {{- end -}}
 {{- define "packs-volume-mounts" -}}
-  {{- if .Values.st2.packs.images }}
+  {{- if .Values.st2.packs.volumes.enabled }}
+- name: st2-packs-vol
+  mountPath: /opt/stackstorm/packs
+- name: st2-virtualenvs-vol
+  mountPath: /opt/stackstorm/virtualenvs
+  {{- else if .Values.st2.packs.images }}
 - name: st2-packs-vol
   mountPath: /opt/stackstorm/packs
   readOnly: true
 - name: st2-virtualenvs-vol
   mountPath: /opt/stackstorm/virtualenvs
   readOnly: true
-  {{- else if .Values.st2.packs.volumes.enabled }}
-- name: st2-packs-vol
-  mountPath: /opt/stackstorm/packs
-- name: st2-virtualenvs-vol
-  mountPath: /opt/stackstorm/virtualenvs
   {{- end }}
 {{- end -}}
 # define this here as well to simplify comparison with packs-volume-mounts
