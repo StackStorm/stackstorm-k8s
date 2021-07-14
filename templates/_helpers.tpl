@@ -236,7 +236,7 @@ Create the name of the stackstorm-ha service account to use
     - 'sh'
     - '-ec'
     - |
-      /bin/cp -aR /opt/stackstorm/configs/. /opt/stackstorm/configs-shared &&
+      /bin/cp -aR /opt/stackstorm/configs/. /opt/stackstorm/configs-shared
   {{- end }}
 {{- end -}}
 
