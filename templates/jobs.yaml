@@ -377,6 +377,22 @@ spec:
       {{- if $.Values.st2.packs.images -}}
         {{- include "packs-initContainers" . | nindent 6 }}
       {{ end }}
+      {{- if $.Values.jobs.preRegisterContentCommand }}
+      - name: st2-register-content-custom-init
+        image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command: {{- toYaml $.Values.jobs.preRegisterContentCommand | nindent 8 }}
+        volumeMounts:
+        {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        - name: st2-pack-configs-vol
+          mountPath: /opt/stackstorm/configs/
+        {{- if .Values.st2.packs.images }}
+        - name: st2-packs-vol
+          mountPath: /opt/stackstorm/packs/
+        - name: st2-virtualenvs-vol
+          mountPath: /opt/stackstorm/virtualenvs/
+        {{- end }}
+      {{ end }}
       containers:
       - name: st2-register-content
         image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
