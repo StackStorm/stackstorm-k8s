@@ -1032,8 +1032,10 @@ spec:
     {{- range $key, $val := . }}
       {{- $_ := set $sensor $key $val }}
     {{- end }}
+  {{- else if $some_sensors_per_pod }}
+    {{- $_ := set $sensor "name" . }}
   {{- end }}
-  {{- $name := print "st2sensorcontainer" (include "hyphenPrefix" ($one_sensor_per_pod | ternary ($sensor.name) (.))) }}
+  {{- $name := print "st2sensorcontainer" (include "hyphenPrefix" $sensor.name) }}
   {{/* define vars only needed if $.Values.st2sensorcontainer.deployments */}}
   {{- $max_hash := 4294967296 }}
   {{- $sensor_range_size := $some_sensors_per_pod | ternary (div (add1 $max_hash) $.Values.st2sensorcontainer.deployments) $max_hash }}
