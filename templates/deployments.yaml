@@ -1038,8 +1038,8 @@ spec:
     {{- $sensor_range_size := div (add1 $max_hash) $sensor_deployments_count }}
     {{- $sensor_range_start := mul . $sensor_range_size }}
     {{- $sensor_range_end := add $sensor_range_start $sensor_range_size -1 }}
-    {{/* deal with integer math rounding errors */}}
-    {{- $sensor_range_end := gt (add 10 $sensor_range_end) $max_hash | ternary $max_hash $sensor_range_end }}
+    {{/* deal with integer math rounding errors by moving the last range_end to the max_hash */}}
+    {{- $sensor_range_end := eq (add1 .) $sensor_deployments_count | ternary $max_hash $sensor_range_end }}
     {{- $_ := set $sensor "hash_ranges" (print $sensor_range_start ".." $sensor_range_end) }}
     {{- $_ := set $sensor "name" (. | toString) }}{{/* . is the deployment number (starting from 0) */}}
   {{- end }}
