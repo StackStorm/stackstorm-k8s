@@ -982,7 +982,10 @@ spec:
     {{- end }}
 
 {{- range .Values.st2.packs.sensors }}
-  {{- $sensor := deepCopy $.Values.st2sensorcontainer | mustMergeOverwrite . }}
+  {{- $sensor := omit $.Values.st2sensorcontainer "name" "ref" "postStartScript" }}
+  {{- range $key, $val := . }}
+    {{- $_ := set $sensor $key $val }}
+  {{- end }}
   {{- $name := print "st2sensorcontainer" (include "hyphenPrefix" $sensor.name) }}
 ---
 apiVersion: apps/v1
