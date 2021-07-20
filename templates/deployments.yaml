@@ -989,10 +989,13 @@ spec:
       tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 
-{{- range .Values.st2.packs.sensors }}
+{{- $use_packs_sensors := not ($.Values.st2.packs.sensors | empty) }}
+{{- range ($use_packs_sensors | ternary ($.Values.st2.packs.sensors) (until 1)) }}
   {{- $sensor := omit $.Values.st2sensorcontainer "name" "ref" "postStartScript" }}
-  {{- range $key, $val := . }}
-    {{- $_ := set $sensor $key $val }}
+  {{- if $use_packs_sensors }}
+    {{- range $key, $val := . }}
+      {{- $_ := set $sensor $key $val }}
+    {{- end }}
   {{- end }}
   {{- $name := print "st2sensorcontainer" (include "hyphenPrefix" $sensor.name) }}
 ---
@@ -1013,9 +1016,12 @@ spec:
       app: {{ $name }}
       release: {{ $.Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
-  # It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance. Each sensor node needs to be
-  # provided with proper partition information to share work with other sensor nodes so that the same sensor does not run on different nodes.
-  # See Partitioning Sensors for information on how to partition sensors.
+  # It is possible to run st2sensorcontainer(s) in one of these modes:
+  #   (1) run all sensors in one pod (1 deployment with 1 pod, the default); or
+  #   (2) run one sensor per pod using st2.packs.sensors.
+  # It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance.
+  # Each sensor node needs to be provided with proper partition information to share work with other sensor nodes
+  # so that the same sensor does not run on different nodes. See: https://docs.stackstorm.com/reference/sensor_partitioning.html
   replicas: 1
   template:
     metadata:
@@ -1032,6 +1038,11 @@ spec:
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") $ | sha256sum }}
         {{- if $.Values.st2sensorcontainer.postStartScript }}
         checksum/post-start-script: {{ $.Values.st2sensorcontainer.postStartScript | sha256sum }}
+        {{- end }}
+        {{- if $use_packs_sensors }}
+        st2sensor/mode: one-sensor-per-pod
+        {{- else }}
+        st2sensor/mode: all-sensors-in-one-pod
         {{- end }}
         {{- if $sensor.annotations }}
           {{- toYaml $sensor.annotations | nindent 8 }}
@@ -1063,14 +1074,14 @@ spec:
         livenessProbe:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- if $sensor.ref }}
+        {{- if $use_packs_sensors }}
         command:
           - /opt/stackstorm/st2/bin/st2sensorcontainer
           - --config-file=/etc/st2/st2.conf
           - --config-file=/etc/st2/st2.docker.conf
           - --config-file=/etc/st2/st2.user.conf
           - --single-sensor-mode
-          - --sensor-ref={{ $sensor.ref }}
+          - --sensor-ref={{ required "You must define `ref` for everything in st2.packs.sensors. This assigns each sensor to a pod." $sensor.ref }}
         {{- end }}
         envFrom:
         - configMapRef:

@@ -1,6 +1,7 @@
 # Changelog
 
 ## In Development
+* Make the distinction between sensor modes: all-sensors-in-one-pod and one-sensor-per-pod (#222) (by @cognifloyd)
 
 ## v0.70.0
 * New feature: Shared packs volumes `st2.packs.volumes`. Allow using cluster-specific persistent volumes to store packs, virtualenvs, and (optionally) configs. This enables using `st2 pack install`. It even works with `st2packs` images in `st2.packs.images`. (#199) (by @cognifloyd)
