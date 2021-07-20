@@ -2,6 +2,7 @@
 
 ## In Development
 * Explicitly differentiate sensor modes: `all-sensors-in-one-pod` vs `one-sensor-per-pod`. Exposes the mode in new `stackstorm/sensor-mode` annotation. (#222) (by @cognifloyd)
+* Make configuring `stackstorm/sensor-mode=all-sensors-in-one-pod` more obvious by using `st2.packs.sensors` only for `one-sensor-per-pod`. `all-sensors-in-one-pod` mode now only uses values from `st2sensorcontainer`. (#246) (by @cognifloyd)
 
 ## v0.70.0
 * New feature: Shared packs volumes `st2.packs.volumes`. Allow using cluster-specific persistent volumes to store packs, virtualenvs, and (optionally) configs. This enables using `st2 pack install`. It even works with `st2packs` images in `st2.packs.images`. (#199) (by @cognifloyd)
