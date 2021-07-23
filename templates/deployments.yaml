@@ -1087,11 +1087,6 @@ spec:
         {{- end }}
         {{- if $one_sensor_per_pod }}
         stackstorm/sensor-mode: one-sensor-per-pod
-        {{- else }}
-        stackstorm/sensor-mode: all-sensors-in-one-pod
-        {{- end }}
-        {{- if $one_sensor_per_pod }}
-        stackstorm/sensor-mode: one-sensor-per-pod
         {{- else if $some_sensors_per_pod }}
         stackstorm/sensor-mode: multiple-sensors-per-pod
         stackstorm/sensor-hash-ranges: {{ $sensor.hash_ranges | quote }}
