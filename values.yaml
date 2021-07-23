@@ -128,6 +128,7 @@ st2:
         # example using a flexVolume + rook-ceph
         #flexVolume:
         #  driver: ceph.rook.io/rook
+        #  fsType: ceph
         #  options:
         #    fsName: fs1
         #    clusterNamespace: rook-ceph
