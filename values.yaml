@@ -902,6 +902,7 @@ jobs:
   # See available hooks list: https://helm.sh/docs/topics/charts_hooks/#the-available-hooks
   extra_hooks: []
     # Each item in extra_hooks must define a 'name' and the "helm.sh/hook" value in 'hook'.
+    # Note that Helm templating is supported in the 'command' block!
     #
     # - name: init-workflow  # required name
     #   hook: post-install   # required "helm.sh/hook"

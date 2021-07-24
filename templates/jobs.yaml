@@ -595,7 +595,10 @@ spec:
         - secretRef:
             name: {{ . }}
         {{- end }}
-        command: {{- required "Each entry in jobs.extra_hooks must include the 'command' to run." .command | toYaml | nindent 10 }}
+        command:
+        {{- range (required "Each entry in jobs.extra_hooks must include the 'command' to run." .command) }}
+          {{- tpl . $ | list | toYaml | nindent 10 }}
+        {{- end }}
         volumeMounts:
         - name: st2client-config-vol
           mountPath: /root/.st2/
