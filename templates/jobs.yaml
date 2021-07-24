@@ -591,6 +591,8 @@ spec:
         env: {{- include "stackstorm-ha.customEnv" $.Values.jobs | nindent 8 }}
         {{- end }}
         envFrom:
+        - configMapRef:
+            name: {{ $.Release.Name }}-st2-urls
         {{- range $.Values.jobs.envFromSecrets }}
         - secretRef:
             name: {{ . }}
