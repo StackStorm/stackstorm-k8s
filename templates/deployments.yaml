@@ -1118,7 +1118,7 @@ spec:
               cat <<EOT > /tmp/st2/st2.sensorcontainer.conf
               [sensorcontainer]
               sensor_node_name = {{ $name }}
-              partition_provider = {"name": "hash", "hash_ranges": "{{ $sensor.hash_ranges }}"}
+              partition_provider = name:hash, hash_ranges:{{ $sensor.hash_ranges }}
               single_sensor_mode = False
               EOT
       {{- end }}
