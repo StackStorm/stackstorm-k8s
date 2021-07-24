@@ -895,7 +895,32 @@ jobs:
   # For example, if an upgrade only touches RBAC config, use this to disable other jobs:
   #   helm upgrade ... --set 'jobs.skip={apikey_load,key_load,register_content}'
   skip: []
-
+  #
+  # Advanced: Add extra Helm hook Jobs
+  # These hook jobs will use the same settings (eg image, annotations, pod placement) as the other jobs.
+  # They will have st2 cli configured, st2.conf files, and packs volumes mounted.
+  # See available hooks list: https://helm.sh/docs/topics/charts_hooks/#the-available-hooks
+  extra_hooks: []
+    # Each item in extra_hooks must define a 'name' and the "helm.sh/hook" value in 'hook'.
+    #
+    # - name: init-workflow  # required name
+    #   hook: post-install   # required "helm.sh/hook"
+    #   hook_weight: 10      # optional hook_weight (defaults to 10)
+    #   resources: {}        # optional definition of resources to request
+    #   command:             # required command to run
+    #     - st2
+    #     - run
+    #     - --tail
+    #     - custom_pack.init_stackstorm
+    #
+    # - name: upgrade-warning
+    #   hook: pre-upgrade, pre-rollback
+    #   hook_weight: -5
+    #   command:
+    #     - st2
+    #     - run
+    #     - --tail
+    #     - custom_pack.warn_about_upgrade
 ##
 ## MongoDB HA configuration (3rd party chart dependency)
 ##
