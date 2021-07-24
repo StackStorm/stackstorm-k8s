@@ -149,6 +149,13 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         env:
+        {{- if .Values.jobs.api_key }}
+        - name: ST2_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-st2-auth
+              key: jobs_api_key
+        {{- else }}
         - name: ST2_AUTH_USERNAME
           valueFrom:
             secretKeyRef:
@@ -159,6 +166,7 @@ spec:
             secretKeyRef:
               name: {{ .Release.Name }}-st2-auth
               key: password
+        {{- end }}
         volumeMounts:
         - name: st2client-config-vol
           mountPath: /root/.st2/
@@ -169,8 +177,12 @@ spec:
           - |
             cat <<EOT > /root/.st2/config
             [credentials]
+            {{- if .Values.jobs.api_key }}
+            api_key = ${ST2_API_KEY}
+            {{- else }}
             username = ${ST2_AUTH_USERNAME}
             password = ${ST2_AUTH_PASSWORD}
+            {{- end }}
             EOT
       containers:
       - name: st2-apikey-load
@@ -270,6 +282,13 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         env:
+        {{- if .Values.jobs.api_key }}
+        - name: ST2_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-st2-auth
+              key: jobs_api_key
+        {{- else }}
         - name: ST2_AUTH_USERNAME
           valueFrom:
             secretKeyRef:
@@ -280,6 +299,7 @@ spec:
             secretKeyRef:
               name: {{ .Release.Name }}-st2-auth
               key: password
+        {{- end }}
         volumeMounts:
         - name: st2client-config-vol
           mountPath: /root/.st2/
@@ -290,8 +310,12 @@ spec:
           - |
             cat <<EOT > /root/.st2/config
             [credentials]
+            {{- if .Values.jobs.api_key }}
+            api_key = ${ST2_API_KEY}
+            {{- else }}
             username = ${ST2_AUTH_USERNAME}
             password = ${ST2_AUTH_PASSWORD}
+            {{- end }}
             EOT
       containers:
       - name: st2-key-load

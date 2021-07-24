@@ -718,6 +718,11 @@ st2chatops:
 ## Various batch jobs (apply-rbac-definitions, apikey-load, key-load, register-content)
 ##
 jobs:
+  # For jobs that need to use the ST2 APIs, if you set jobs.api_key
+  # then the jobs will use jobs.api_key instead of st2.username/st2.password
+  # This is only useful when running `helm upgrade` as the api_key must be present
+  # before the apikey-load job runs (it will use this api_key if defined).
+  api_key:
   annotations: {}
   # Override default image settings (for now, only tag can be overridden)
   # The Jobs use the st2actionrunner image
