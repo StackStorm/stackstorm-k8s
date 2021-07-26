@@ -99,7 +99,7 @@ spec:
   {{- end }}
   ports:
   - protocol: TCP
-    port: 80
+    port: {{ .Values.st2web.use_https | ternary 443 80 }}
 
 {{ if .Values.st2chatops.enabled -}}
 ---

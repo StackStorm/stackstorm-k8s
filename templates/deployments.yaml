@@ -400,13 +400,13 @@ spec:
         image: '{{ template "imageRepository" . }}/st2web:{{ tpl (.Values.st2web.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
-        - containerPort: 80
+        - containerPort: {{ .Values.st2web.use_https | ternary 443 80 }}
         # Probe to check if app is running. Failure will lead to a pod restart.
         livenessProbe:
           httpGet:
-            scheme: HTTP
+            scheme: {{ .Values.st2web.use_https | ternary "HTTPS" "HTTP" }}
             path: /
-            port: 80
+            port: {{ .Values.st2web.use_https | ternary 443 80 }}
           initialDelaySeconds: 1
         # Probe to check if app is ready to serve traffic. Failure will lead to temp stop serving traffic.
         # TODO: Failing to add readinessProbe, since st2 requires authorization (401) and we don't have `/healthz` endpoints yet (https://github.com/StackStorm/st2/issues/4020)
@@ -419,18 +419,29 @@ spec:
 #            path: /api/
 #            port: 443
 #          initialDelaySeconds: 3
-        {{- if .Values.st2web.env }}
-        env: {{- include "stackstorm-ha.customEnv" .Values.st2web | nindent 8 }}
+        {{- if or .Values.st2web.env .Values.st2web.use_https }}
+        env:
+          {{- if .Values.st2web.env }}
+            {{- include "stackstorm-ha.customEnv" .Values.st2web | nindent 10 }}
+          {{- end }}
+          {{- if .Values.st2web.use_https }}
+          - name: ST2WEB_HTTPS
+            value: "1"
+          {{- end }}
         {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
             optional: true
-    {{- if or .Values.st2web.config .Values.st2web.postStartScript }}
+    {{- if or .Values.st2web.use_https .Values.st2web.config .Values.st2web.postStartScript }}
         volumeMounts:
     {{- else }}
         volumeMounts: []
     {{- end }}
+        {{- if .Values.st2web.use_https }}
+          - name: st2web-ssl-certs-vol
+            mountPath: /etc/ssl/st2
+        {{- end }}
         {{- if .Values.st2web.config }}
           - name: st2web-config-vol
             mountPath: /opt/stackstorm/static/webui/config.js
@@ -450,11 +461,21 @@ spec:
     {{- if .Values.st2web.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
-    {{- if or .Values.st2web.config .Values.st2web.postStartScript }}
+    {{- if or .Values.st2web.use_https .Values.st2web.config .Values.st2web.postStartScript }}
       volumes:
     {{- else }}
       volumes: []
     {{- end }}
+        {{- if .Values.st2web.use_https }}
+        - name: st2web-ssl-certs-vol
+          secret:
+            secretName: {{ .Release.Name }}-st2web-ssl-certs
+            items:
+              - key: ssl_certificate
+                path: st2.crt
+              - key: ssl_certificate_key
+                path: st2.key
+        {{- end }}
         {{- if .Values.st2web.config }}
         - name: st2web-config-vol
           configMap:
