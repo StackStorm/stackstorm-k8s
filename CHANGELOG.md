@@ -18,6 +18,7 @@
 * Make system_user configurable when using custom st2actionrunner images that do not provide stanley (#220) (by @cognifloyd)
 * Allow providing scripts in values for use in lifecycle postStart hooks of all deployments. (#206) (by @cognifloyd)
 * Add preRegisterContentCommand in an initContainer for register-content job to run last-minute content customizations (#213) (by @cognifloyd)
+* Fix a bug when datastore cryto keys are not able to read by the rules engine. ``datastore_crypto_key`` volume is now mounted on the ``st2rulesengine`` pods (#223) (by @moti1992)
 * Minimize required sensor config by using default values from st2sensorcontainer for each sensor in st2.packs.sensors (#221) (by @cognifloyd)
 
 ## v0.60.0
