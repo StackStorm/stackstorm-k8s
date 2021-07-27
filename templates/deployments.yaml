@@ -508,6 +508,7 @@ spec:
         heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
         {{- if .Values.st2rulesengine.postStartScript }}
         checksum/post-start-script: {{ .Values.st2rulesengine.postStartScript | sha256sum }}
         {{- end }}
@@ -534,6 +535,11 @@ spec:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- if .Values.st2.datastore_crypto_key }}
+        - name: st2-encryption-key-vol
+          mountPath: /etc/st2/keys
+          readOnly: true
+        {{- end }}
         {{- if .Values.st2rulesengine.postStartScript }}
         - name: st2-post-start-script-vol
           mountPath: /post-start.sh
