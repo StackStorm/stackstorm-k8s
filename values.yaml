@@ -461,6 +461,10 @@ st2workflowengine:
   # The pod will not be marked as "running" until this script completes successfully.
   # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   postStartScript: ""
+  # mount extra volumes on the st2workflowengine pod(s) (primarily useful for k8s-provisioned secrets)
+  ## Note that Helm templating is supported in 'mount' and 'volume'
+  extra_volumes: []
+    # see examples under st2workflowengine.extra_volumes
 # https://docs.stackstorm.com/reference/ha.html#st2scheduler
 # TODO: Description TBD
 st2scheduler:
