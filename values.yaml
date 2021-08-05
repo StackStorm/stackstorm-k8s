@@ -741,6 +741,16 @@ jobs:
   affinity: {}
   env: {}
   # HTTP_PROXY: http://proxy:1234
+  #
+  # Advanced controls for the default hook jobs. If false, the jobs will not be created.
+  # Generally, leave these set to true.
+  # Example use case: Do not run register_content when an upgrade only touches rbac_definitions.
+  #   helm upgrade ... --set jobs.default_hooks.register_content=false ...
+  default_hooks:
+    apply_rbac_definitions: true
+    apikey_load: true
+    key_load: true
+    register_content: true
 
 ##
 ## MongoDB HA configuration (3rd party chart dependency)

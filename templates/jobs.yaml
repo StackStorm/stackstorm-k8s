@@ -1,4 +1,4 @@
-{{- if .Values.st2.rbac.enabled -}}
+{{- if and .Values.st2.rbac.enabled .Values.jobs.default_hooks.apply_rbac_definitions -}}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -90,6 +90,7 @@ spec:
     {{- end }}
 
 {{- end }}
+{{- if .Values.jobs.default_hooks.apikey_load }}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -218,6 +219,8 @@ spec:
       tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 
+{{- end }}
+{{- if .Values.jobs.default_hooks.key_load }}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -340,6 +343,8 @@ spec:
       tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 
+{{- end }}
+{{- if .Values.jobs.default_hooks.register_content }}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -441,3 +446,5 @@ spec:
     {{- with .Values.jobs.tolerations }}
       tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
+
+{{- end }}
