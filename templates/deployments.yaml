@@ -989,13 +989,11 @@ spec:
       tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 
-{{- $one_sensor_per_pod := not ($.Values.st2.packs.sensors | empty) }}
-{{- range ($one_sensor_per_pod | ternary ($.Values.st2.packs.sensors) (until 1)) }}
+{{- $one_sensor_per_pod := or (gt (len $.Values.st2.packs.sensors) 1) (index $.Values.st2.packs.sensors 0 "ref") }}
+{{- range .Values.st2.packs.sensors }}
   {{- $sensor := omit $.Values.st2sensorcontainer "name" "ref" "postStartScript" }}
-  {{- if $one_sensor_per_pod }}
-    {{- range $key, $val := . }}
-      {{- $_ := set $sensor $key $val }}
-    {{- end }}
+  {{- range $key, $val := . }}
+    {{- $_ := set $sensor $key $val }}
   {{- end }}
   {{- $name := print "st2sensorcontainer" (include "hyphenPrefix" $sensor.name) }}
 ---
@@ -1081,7 +1079,7 @@ spec:
           - --config-file=/etc/st2/st2.docker.conf
           - --config-file=/etc/st2/st2.user.conf
           - --single-sensor-mode
-          - --sensor-ref={{ required "You must define `ref` for everything in st2.packs.sensors. This assigns each sensor to a pod." $sensor.ref }}
+          - --sensor-ref={{ $sensor.ref }}
         {{- end }}
         envFrom:
         - configMapRef:
