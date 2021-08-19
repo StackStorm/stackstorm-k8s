@@ -374,9 +374,7 @@ spec:
       {{- end }}
       initContainers:
       {{- include "init-containers-wait-for-db" . | nindent 6 }}
-      {{- if $.Values.st2.packs.images -}}
-        {{- include "packs-initContainers" . | nindent 6 }}
-      {{ end }}
+      {{- include "packs-initContainers" . | nindent 6 }}
       {{- if $.Values.jobs.preRegisterContentCommand }}
       - name: st2-register-content-custom-init
         image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
@@ -406,22 +404,14 @@ spec:
           - --register-fail-on-failure
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
-        - name: st2-pack-configs-vol
-          mountPath: /opt/stackstorm/configs/
-        {{- if .Values.st2.packs.images }}
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs/
-        - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs/
-        {{- end }}
+        {{- include "packs-volume-mounts-for-register-job" . | nindent 8 }}
+        {{- include "pack-configs-volume-mount" . | nindent 8 }}
         # TODO: Find out default resource limits for this specific service (#5)
         #resources:
       volumes:
         {{- include "st2-config-volume" . | nindent 8 }}
-        - name: st2-pack-configs-vol
-          configMap:
-            name: {{ .Release.Name }}-st2-pack-configs
-        {{- include "packs-volumes" $ | nindent 8 }}
+        {{- include "packs-volumes" . | nindent 8 }}
+        {{- include "pack-configs-volume" . | nindent 8 }}
       restartPolicy: OnFailure
     {{- if .Values.dnsPolicy }}
       dnsPolicy: {{ .Values.dnsPolicy }}

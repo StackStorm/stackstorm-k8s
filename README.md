@@ -140,7 +140,7 @@ st2:
       - name: circleci
         ref: circle_ci.CircleCIWebhookSensor
 ```
-	
+
 ### [st2actionrunner](https://docs.stackstorm.com/reference/ha.html#st2actionrunner)
 Stackstorm workers that actually execute actions.
 `5` replicas for K8s Deployment are configured by default to increase StackStorm ability to execute actions without excessive queuing.
@@ -181,15 +181,25 @@ StackStorm employs redis sentinel as a distributed coordination backend, require
 As any other Helm dependency, it's possible to further configure it for specific scaling needs via `values.yaml`.
 
 ## Install custom st2 packs in the cluster
-In distributed environment of the Kubernetes cluster `st2 pack install` won’t work.
-Instead, you need to bake the packs into a custom docker image, push it to a private or public docker registry and reference that image in Helm values.
-Helm chart will take it from there, sharing `/opt/stackstorm/{packs,virtualenvs}` via a sidecar container in pods which require access to the packs.
+There are two ways to install st2 packs in the k8s cluster.
 
-### Building st2packs image
+1. The `st2packs` method is the default. This method will work for practically all clusters, but `st2 pack install` does not work. The packs are injected via `st2packs` images instead.
+
+2. The other method defines shared/writable `volumes`. This method allows `st2 pack install` to work, but requires a persistent storage backend to be available in the cluster. This chart will not configure a storage backend for you.
+
+NOTE: In general, we recommend using only one of these methods. See the NOTE under Method 2 below about how both methods can be used together with care.
+
+### Method 1: st2packs images (the default)
+The `st2packs` method is the default. `st2 pack install` does not work because this chart (by default) uses read-only `emptyDir` volumes for `/opt/stackstorm/{packs,virtualenvs}`.
+Instead, you need to bake the packs into a custom docker image, push it to a private or public docker registry and reference that image in Helm values.
+Helm chart will take it from there, sharing `/opt/stackstorm/{packs,virtualenvs}` via a sidecar container in pods which require access to the packs
+(the sidecar is the only place where the volumes are writable).
+
+#### Building st2packs image
 For your convenience, we created a new `st2-pack-install <pack1> <pack2> <pack3>` utility and included it in a container that will help to install custom packs during the Docker build process without relying on live DB and MQ connection.
 Please see https://github.com/StackStorm/st2packs-dockerfiles/ for instructions on how to build your custom `st2packs` image.
 
-### How to provide custom pack configs
+#### How to provide custom pack configs
 Update the `st2.packs.configs` section of Helm values:
 
 For example:
@@ -205,7 +215,9 @@ For example:
 ```
 Don't forget running Helm upgrade to apply new changes.
 
-### Pull st2packs from a private Docker registry
+NOTE: On `helm upgrade` any configs in `st2.packs.configs` will overwrite the contents of `st2.packs.volumes.configs` (optional part of Method 2, described below).
+
+#### Pull st2packs from a private Docker registry
 If you need to pull your custom packs Docker image from a private repository, create a Kubernetes Docker registry secret and pass it to Helm values.
 See [K8s documentation](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) for more info.
 ```
@@ -214,6 +226,88 @@ kubectl create secret docker-registry st2packs-auth --docker-server=<your-regist
 ```
 Once secret created, reference its name in helm value: `st2.packs.images[].pullSecret`.
 
+### Method 2: Shared Volumes
+This method requires cluster-specific storage setup and configuration. As the storage volumes are both writable and shared, `st2 pack install` should work like it does for standalone StackStorm installations. The volumes get mounted at `/opt/stackstorm/{packs,virtualenvs}` in the containers that need read or write access to those directories. With this method, `/opt/stackstorm/configs` can also be mounted as a writable volume (in which case the contents of `st2.packs.configs` takes precedence on `helm upgrade`).
+
+NOTE: With care, `st2packs` images can be used with `volumes`. Just make sure to keep the `st2packs` images up-to-date with any changes made via `st2 pack install`.
+If a pack is installed via an `st2packs` image and then it gets updated with `st2 pack install`, a subsequent `helm upgrade` will revert back to the version in the `st2packs` image.
+
+#### Configure the storage volumes
+Enable the `st2.packs.voluems` section of Helm values and add volume definitions for both `packs` and `virtualenvs`.
+Each of the volume definitions should be customized for your cluster and storage solution.
+
+For example, to use persistentVolumeClaims:
+```
+  volumes:
+    enabled: true
+    packs:
+      persistentVolumeClaim:
+        claim-name: pvc-st2-packs
+    virtualenvs:
+      persistentVolumeClaim:
+        claim-name: pvc-st2-virtualenvs
+```
+
+Or, for example, to use NFS:
+```
+  volumes:
+    enabled: true
+    packs:
+      nfs:
+        server: nfs.example.com
+        path: /var/nfsshare/packs
+    virtualenvs:
+      nfs:
+        server: nfs.example.com
+        path: /var/nfsshare/virtualenvs
+```
+
+Please consult the documentation for your cluster's storage solution to see how to add the storage backend to your cluster and how to define volumes that use your storage backend.
+
+#### How to provide custom pack configs
+You may either use the `st2.packs.configs` section of Helm values (like Method 1, see above),
+or add another shared writable volume similar to `packs` and `virtualenvs`. This volume gets mounted
+to `/opt/stackstorm/configs` instead of the `st2.packs.config` values.
+
+NOTE: If you define a configs volume and specify `st2.packs.configs`, anything in `st2.packs.configs` takes precdence during `helm upgrade`, overwriting config files already in the volume.
+
+For example, to use persistentVolumeClaims:
+```
+  volumes:
+    enabled: true
+    ... # define packs and virtualenvs volumes as shown above
+    configs:
+      persistentVolumeClaim:
+        claim-name: pvc-st2-pack-configs
+```
+
+Or, for example, to use NFS:
+```
+  volumes:
+    enabled: true
+    ... # define packs and virtualenvs volumes as shown above
+    configs:
+      nfs:
+        server: nfs.example.com
+        path: /var/nfsshare/configs
+```
+
+#### Caveat: Mounting and copying packs
+If you use something like NFS where you can mount the shares outside of the StackStorm pods, there are a couple of things to keep in mind.
+
+Though you could manually copy packs into the `packs` shared volume, be aware that StackStorm does not automatically register any changed content.
+So, if you manually copy a pack into the `packs` shared volume, then you also need to trigger updating the virtualenv and registering the content,
+possibly using APIs like:
+[packs/install](https://api.stackstorm.com/api/v1/packs/#/packs_controller.install.post), and
+[packs/register](https://api.stackstorm.com/api/v1/packs/#/packs_controller.register.post)
+You will have to repeat the process each time the packs code is modified.
+
+#### Caveat: System packs
+After Helm installs, upgrades, or rolls back a StackStorm install, it runs an `st2-register-content` batch job.
+This job will copy and register system packs. If you have made any changes (like disabling default aliases), those changes will be overwritten.
+
+NOTE: Upgrades will not remove files (such as a renamed or removed action) if they were removed in newer StackStorm versions.
+This mirrors the how pack registration works. Make sure to review any upgrade notes and manually handle any removals.
 
 ## Tips & Tricks
 Grab all logs for entire StackStorm cluster with dependent services in Helm release:
