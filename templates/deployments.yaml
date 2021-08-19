@@ -990,13 +990,18 @@ spec:
     {{- end }}
 
 {{- range .Values.st2.packs.sensors }}
+  {{- $sensor := omit $.Values.st2sensorcontainer "name" "ref" "postStartScript" }}
+  {{- range $key, $val := . }}
+    {{- $_ := set $sensor $key $val }}
+  {{- end }}
+  {{- $name := print "st2sensorcontainer" (include "hyphenPrefix" $sensor.name) }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ $.Release.Name }}-st2sensorcontainer{{ template "hyphenPrefix" .name }}
+  name: {{ $.Release.Name }}-{{ $name }}
   labels:
-    app: st2sensorcontainer{{ template "hyphenPrefix" .name }}
+    app: {{ $name }}
     tier: backend
     vendor: stackstorm
     chart: {{ $.Chart.Name }}-{{ $.Chart.Version }}
@@ -1005,7 +1010,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: st2sensorcontainer{{ template "hyphenPrefix" .name }}
+      app: {{ $name }}
       release: {{ $.Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
   # It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance. Each sensor node needs to be
@@ -1015,7 +1020,7 @@ spec:
   template:
     metadata:
       labels:
-        app: st2sensorcontainer{{ template "hyphenPrefix" .name }}
+        app: {{ $name }}
         tier: backend
         vendor: stackstorm
         chart: {{ $.Chart.Name }}-{{ $.Chart.Version }}
@@ -1028,8 +1033,8 @@ spec:
         {{- if $.Values.st2sensorcontainer.postStartScript }}
         checksum/post-start-script: {{ $.Values.st2sensorcontainer.postStartScript | sha256sum }}
         {{- end }}
-        {{- if .annotations }}
-          {{- toYaml .annotations | nindent 8 }}
+        {{- if $sensor.annotations }}
+          {{- toYaml $sensor.annotations | nindent 8 }}
         {{- end }}
     spec:
       imagePullSecrets:
@@ -1046,26 +1051,26 @@ spec:
         {{- include "packs-initContainers" $ | nindent 6 }}
       {{- end }}
       containers:
-      - name: st2sensorcontainer{{ template "hyphenPrefix" .name }}
-        image: '{{ template "imageRepository" $ }}/st2sensorcontainer:{{ tpl (.image.tag | default $.Values.image.tag) $ }}'
+      - name: {{ $name }}
+        image: '{{ template "imageRepository" $ }}/st2sensorcontainer:{{ tpl ($sensor.image.tag | default $.Values.image.tag) $ }}'
         imagePullPolicy: {{ $.Values.image.pullPolicy }}
-        {{- with .readinessProbe }}
+        {{- with $sensor.readinessProbe }}
         # Probe to check if app is running. Failure will lead to a pod restart.
         readinessProbe:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- with .livenessProbe }}
+        {{- with $sensor.livenessProbe }}
         livenessProbe:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- if .ref }}
+        {{- if $sensor.ref }}
         command:
           - /opt/stackstorm/st2/bin/st2sensorcontainer
           - --config-file=/etc/st2/st2.conf
           - --config-file=/etc/st2/st2.docker.conf
           - --config-file=/etc/st2/st2.user.conf
           - --single-sensor-mode
-          - --sensor-ref={{ .ref }}
+          - --sensor-ref={{ $sensor.ref }}
         {{- end }}
         envFrom:
         - configMapRef:
@@ -1088,8 +1093,8 @@ spec:
               command: ["/bin/bash", "/post-start.sh"]
         {{- end }}
         resources:
-          {{- toYaml .resources | nindent 10 }}
-    {{- if .serviceAccount.attach }}
+          {{- toYaml $sensor.resources | nindent 10 }}
+    {{- if $sensor.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" $ }}
     {{- end }}
       volumes:
@@ -1114,13 +1119,13 @@ spec:
     {{- with $.Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with .nodeSelector }}
+    {{- with $sensor.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with .affinity }}
+    {{- with $sensor.affinity }}
       affinity: {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with .tolerations }}
+    {{- with $sensor.tolerations }}
       tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 {{- end }}

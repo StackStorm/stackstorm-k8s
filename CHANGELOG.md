@@ -1,6 +1,7 @@
 # Changelog
 
 ## In Development
+* New feature: Shared packs volumes `st2.packs.volumes`. Allow using cluster-specific persistent volumes to store packs, virtualenvs, and (optionally) configs. This enables using `st2 pack install`. It even works with `st2packs` images in `st2.packs.images`. (#199) (by @cognifloyd)
 * Updated redis constant sentinel ID which will allow other sentinel peers to update to the new given IP in case of pod failure or worker node reboots. (#191) (by @manisha-tanwar)
 * Removed reference to st2-license pullSecrets, which was missed when removing enterprise flags (#192) (by @cognifloyd)
 * Add optional imagePullSecrets to ServiceAccount using `serviceAccount.pullSecret` from values.yaml. If pods do not have imagePullSecrets (eg without `image.pullSecret` in values.yaml), k8s populates them from the ServiceAccount. (#196) (by @cognifloyd)
@@ -19,7 +20,7 @@
 * Allow providing scripts in values for use in lifecycle postStart hooks of all deployments. (#206) (by @cognifloyd)
 * Add preRegisterContentCommand in an initContainer for register-content job to run last-minute content customizations (#213) (by @cognifloyd)
 * Fix a bug when datastore cryto keys are not able to read by the rules engine. ``datastore_crypto_key`` volume is now mounted on the ``st2rulesengine`` pods (#223) (by @moti1992)
-* New feature: Shared packs volumes `st2.packs.volumes`. Allow using cluster-specific persistent volumes to store packs, virtualenvs, and (optionally) configs. This enables using `st2 pack install`. It even works with `st2packs` images in `st2.packs.images`. (#199) (by @cognifloyd)
+* Minimize required sensor config by using default values from st2sensorcontainer for each sensor in st2.packs.sensors (#221) (by @cognifloyd)
 
 ## v0.60.0
 * Switch st2 version to `v3.5dev` as a new latest development version (#187)
