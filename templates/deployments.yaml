@@ -1602,8 +1602,14 @@ spec:
             port: 8081
           initialDelaySeconds: 10
           periodSeconds: 30
-        {{- if .Values.st2chatops.postStartScript }}
+        resources: {{- toYaml .Values.st2chatops.resources | nindent 10 }}
+    {{- if or .Values.st2chatops.hubotScriptsVolume .Values.st2chatops.postStartScript }}
         volumeMounts:
+        {{- if .Values.st2chatops.hubotScriptsVolume }}
+        - name: st2-chatops-hubot-scripts-vol
+          mountPath: /opt/stackstorm/chatops/scripts
+        {{- end }}
+        {{- if .Values.st2chatops.postStartScript }}
         - name: st2-post-start-script-vol
           mountPath: /post-start.sh
           subPath: post-start.sh
@@ -1611,23 +1617,20 @@ spec:
           postStart:
             exec:
               command: ["/bin/bash", "/post-start.sh"]
-        volumes:
+        {{- end }}
+      volumes:
+      {{- if .Values.st2chatops.hubotScriptsVolume }}
+        - name: st2-chatops-hubot-scripts-vol
+          {{- toYaml .Values.st2chatops.hubotScriptsVolume | nindent 10 }}
+      {{- end }}
+      {{- if .Values.st2chatops.postStartScript }}
         - name: st2-post-start-script-vol
           configMap:
             name: {{ .Release.Name }}-st2chatops-post-start-script
-        {{- end }}
-        resources:
-          {{- toYaml .Values.st2chatops.resources | nindent 10 }}
-    {{- if .Values.st2chatops.serviceAccount.attach }}
-        serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
+      {{- end }}
     {{- end }}
-    {{- if .Values.st2chatops.hubotScriptsVolume }}
-        volumeMounts:
-        - name: st2-chatops-hubot-scripts-vol
-          mountPath: /opt/stackstorm/chatops/scripts
-      volumes:
-        - name: st2-chatops-hubot-scripts-vol
-          {{- toYaml .Values.st2chatops.hubotScriptsVolume | nindent 10 }}
+    {{- if .Values.st2chatops.serviceAccount.attach }}
+      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
     {{- if .Values.dnsPolicy }}
       dnsPolicy: {{ .Values.dnsPolicy }}
