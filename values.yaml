@@ -50,7 +50,8 @@ st2:
   # ST2 crypto key for the  K/V datastore.
   # See https://docs.stackstorm.com/datastore.html#securing-secrets-admin-only for more info.
   # Warning! Replace with your own generated key!
-  #datastore_crypto_key: {"hmacKey": {"hmacKeyString": "", "size": 256}, "size": 256, "aesKeyString": "", "mode": "CBC"}
+  #datastore_crypto_key: >-
+  #  {"hmacKey": {"hmacKeyString": "", "size": 256}, "size": 256, "aesKeyString": "", "mode": "CBC"}
   # SSH private key for the 'stanley' system user ('system_user.ssh_key_file' in st2.conf)
   # If set, st2.ssh_key always overrides any existing ssh_key.
   # If not set, the ssh_key is auto-generated on install and preserved across upgrades.

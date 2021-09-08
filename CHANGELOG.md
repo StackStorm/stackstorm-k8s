@@ -22,6 +22,7 @@
 * Fix a bug when datastore cryto keys are not able to read by the rules engine. ``datastore_crypto_key`` volume is now mounted on the ``st2rulesengine`` pods (#223) (by @moti1992)
 * Minimize required sensor config by using default values from st2sensorcontainer for each sensor in st2.packs.sensors (#221) (by @cognifloyd)
 * Do not template rabbitmq secrets file unless rabbitmq subchart is enabled. (#242) (by @cognifloyd)
+* Automatically st2chatop.env values if needed. (#241) (by @cognifloyd)
 
 ## v0.60.0
 * Switch st2 version to `v3.5dev` as a new latest development version (#187)
