@@ -86,11 +86,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         {{- if .Values.st2auth.env }}
-        env:
-        {{- range $env, $value := .Values.st2auth.env }}
-        - name: {{ $env | quote }}
-          value: {{ $value | quote }}
-        {{- end }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2auth | nindent 8 }}
         {{- end }}
         envFrom:
         - configMapRef:
@@ -203,11 +199,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         {{- if .Values.st2api.env }}
-        env:
-        {{- range $env, $value := .Values.st2api.env }}
-        - name: {{ $env | quote }}
-          value: {{ $value | quote }}
-        {{- end }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2api | nindent 8 }}
         {{- end }}
         envFrom:
         - configMapRef:
@@ -327,11 +319,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         {{- if .Values.st2stream.env }}
-        env:
-        {{- range $env, $value := .Values.st2stream.env }}
-        - name: {{ $env | quote }}
-          value: {{ $value | quote }}
-        {{- end }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2stream | nindent 8 }}
         {{- end }}
         envFrom:
         - configMapRef:
@@ -440,11 +428,7 @@ spec:
 #            port: 443
 #          initialDelaySeconds: 3
         {{- if .Values.st2web.env }}
-        env:
-        {{- range $env, $value := .Values.st2web.env }}
-        - name: {{ $env | quote }}
-          value: {{ $value | quote }}
-        {{- end }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2web | nindent 8 }}
         {{- end }}
         envFrom:
         - configMapRef:
@@ -559,11 +543,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         {{- if .Values.st2rulesengine.env }}
-        env:
-        {{- range $env, $value := .Values.st2rulesengine.env }}
-        - name: {{ $env | quote }}
-          value: {{ $value | quote }}
-        {{- end }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2rulesengine | nindent 8 }}
         {{- end }}
         envFrom:
         - configMapRef:
@@ -674,11 +654,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         {{- if .Values.st2timersengine.env }}
-        env:
-        {{- range $env, $value := .Values.st2timersengine.env }}
-        - name: {{ $env | quote }}
-          value: {{ $value | quote }}
-        {{- end }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2timersengine | nindent 8 }}
         {{- end }}
         envFrom:
         - configMapRef:
@@ -776,11 +752,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         {{- if .Values.st2workflowengine.env }}
-        env:
-        {{- range $env, $value := .Values.st2workflowengine.env }}
-        - name: {{ $env | quote }}
-          value: {{ $value | quote }}
-        {{- end }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2workflowengine | nindent 8 }}
         {{- end }}
         envFrom:
         - configMapRef:
@@ -890,11 +862,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         {{- if .Values.st2scheduler.env }}
-        env:
-        {{- range $env, $value := .Values.st2scheduler.env }}
-        - name: {{ $env | quote }}
-          value: {{ $value | quote }}
-        {{- end }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2scheduler | nindent 8 }}
         {{- end }}
         envFrom:
         - configMapRef:
@@ -1004,11 +972,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         {{- if .Values.st2notifier.env }}
-        env:
-        {{- range $env, $value := .Values.st2notifier.env }}
-        - name: {{ $env | quote }}
-          value: {{ $value | quote }}
-        {{- end }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2notifier | nindent 8 }}
         {{- end }}
         envFrom:
         - configMapRef:
@@ -1136,11 +1100,7 @@ spec:
           - --sensor-ref={{ $sensor.ref }}
         {{- end }}
         {{- if .env }}
-        env:
-        {{- range $env, $value := .env }}
-        - name: {{ $env | quote }}
-          value: {{ $value | quote }}
-        {{- end }}
+        env: {{- include "stackstorm-ha.customEnv" . | nindent 8 }}
         {{- end }}
         envFrom:
         - configMapRef:
@@ -1266,11 +1226,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         {{- if .Values.st2actionrunner.env }}
-        env:
-        {{- range $env, $value := .Values.st2actionrunner.env }}
-        - name: {{ $env | quote }}
-          value: {{ $value | quote }}
-        {{- end }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2actionrunner | nindent 8 }}
         {{- end }}
         envFrom:
         - configMapRef:
@@ -1394,11 +1350,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         {{- if .Values.st2garbagecollector.env }}
-        env:
-        {{- range $env, $value := .Values.st2garbagecollector.env }}
-        - name: {{ $env | quote }}
-          value: {{ $value | quote }}
-        {{- end }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2garbagecollector | nindent 8 }}
         {{- end }}
         envFrom:
         - configMapRef:
@@ -1532,10 +1484,7 @@ spec:
         env:
         - name: ST2CLIENT
           value: "1"
-{{- range $env, $value := .Values.st2client.env }}
-        - name: {{ $env | quote }}
-          value: {{ $value | quote }}
-{{- end }}
+        {{- include "stackstorm-ha.customEnv" .Values.st2client | nindent 8 }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
