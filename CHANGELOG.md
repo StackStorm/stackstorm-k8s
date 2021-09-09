@@ -1,9 +1,92 @@
 # Changelog
 
 ## In Development
-* Change ingress name from `<release name>-ingress` to <release name>-st2web-ingress, useful when using `stackstorm-ha` as a requirement for another chart. (#112) (by @erenatas)
+* New feature: Shared packs volumes `st2.packs.volumes`. Allow using cluster-specific persistent volumes to store packs, virtualenvs, and (optionally) configs. This enables using `st2 pack install`. It even works with `st2packs` images in `st2.packs.images`. (#199) (by @cognifloyd)
+* Updated redis constant sentinel ID which will allow other sentinel peers to update to the new given IP in case of pod failure or worker node reboots. (#191) (by @manisha-tanwar)
+* Removed reference to st2-license pullSecrets, which was missed when removing enterprise flags (#192) (by @cognifloyd)
+* Add optional imagePullSecrets to ServiceAccount using `serviceAccount.pullSecret` from values.yaml. If pods do not have imagePullSecrets (eg without `image.pullSecret` in values.yaml), k8s populates them from the ServiceAccount. (#196 & #239) (by @cognifloyd)
+* Reformat some yaml strings so that single quotes wrap strings that include double quotes (#194) (by @cognifloyd)
+* st2chatops change: If `st2chatops.env.ST2_API_KEY` is defined, do not set `ST2_AUTH_USERNAME` or `ST2_AUTH_PASSWORD` env vars any more. (#197) (by @cognifloyd)
+* Add image.tag overrides for all deployments. (#200) (by @cognifloyd)
+* If your k8s cluster admin requires custom annotations (eg: to indicate mongo or rabbitmq usage), you can now add those to each set of pods. (#195) (by @cognifloyd)
+* BREAKING CHANGE: Move secrets.st2.* values into st2.* (#203) (by @cognifloyd)
+* Auto-generate password and ssh_key secrets. (#203) (by @cognifloyd)
+* Add optional hubot-scripts volume to st2chatops pod. To add this, define `st2chatops.hubotScriptsVolume`. (#207) (by @cognifloyd)
+* Add advanced pod placment (nodeSelector, affinity, tolerations) to specs for batch Jobs pods. (#193) (by @cognifloyd)
+* Allow adding dnsPolicy and/or dnsConfig to all pods. (#201) (by @cognifloyd)
+* Move st2-config-vol volume definition and list of st2-config-vol volumeMounts to helpers to reduce duplication (#198) (by @cognifloyd)
+* Fix permissions for /home/stanley/.ssh/stanley_rsa using the postStart lifecycle hook (#219) (by @cognifloyd)
+* Make system_user configurable when using custom st2actionrunner images that do not provide stanley (#220) (by @cognifloyd)
+* Allow providing scripts in values for use in lifecycle postStart hooks of all deployments. (#206) (by @cognifloyd)
+* Add preRegisterContentCommand in an initContainer for register-content job to run last-minute content customizations (#213) (by @cognifloyd)
+* Fix a bug when datastore cryto keys are not able to read by the rules engine. ``datastore_crypto_key`` volume is now mounted on the ``st2rulesengine`` pods (#223) (by @moti1992)
+* Minimize required sensor config by using default values from st2sensorcontainer for each sensor in st2.packs.sensors (#221) (by @cognifloyd)
+* Do not template rabbitmq secrets file unless rabbitmq subchart is enabled. (#242) (by @cognifloyd)
+* Automatically st2chatop.env values if needed. (#241) (by @cognifloyd)
+
+## v0.60.0
+* Switch st2 version to `v3.5dev` as a new latest development version (#187)
+* Change st2packs definition to a list, to support multiple st2packs containers (#166) (by @moonrail)
+* Enabled RBAC/LDAP configuration for OSS version, removed enterprise flags (#182) (by @hnanchahal)
+* Fixed datastore_crypto_key secret name for rules engine (#188) (by @lordpengwin)
+
+## v0.52.0
+* Improve resource allocation and scheduling by adding resources requests cpu/memory values for st2 Pods (#179)
+* Avoid cluster restart loop situations by making st2 Pod initContainers to wait for DB/MQ connection (#178)
+* Add option to define config.js for st2web (#165) (by @moonrail)
+
+## v0.51.0
+* Added Redis with Sentinel to replace etcd as a coordination backend (#169)
+
+## v0.50.0
+* Drop Helm `v2` support and fully migrate to Helm `v3` (#163)
+* Switch dependencies from deprecated `helm/charts` to new Bitnami Subcharts (#163)
+
+## v0.41.0
+* Fix Helm 2 repository location to a new working URL https://charts.helm.sh/stable (#164) (by @manisha-tanwar)
+
+## v0.40.0
+* Switch st2 version to `v3.4dev` as a new latest development version (#157)
+* Disable Enterprise testing in CI (#157)
+* Change pullPolicy to "IfNotPresent", as Docker-Hub Ratelimits now (#159) (by @moonrail)
+* Update `rabbitmq-ha` 3rd party chart from `1.44.1` to `1.46.1` (#158) (by @moonrail)
+* Enable `rabbitmqErlangCookie` for `rabbitmq-ha` by default, to ensure cluster-redeployments do not fail (#158) (by @moonrail)
+* Add `forceBoot` for `rabbitmq-ha` by default, to ensure cluster-redeployments do not fail due to unclean exits (#158) (by @moonrail)
+* Add option to define pull secret for st2 images (#162) (by @moonrail)
+
+## v0.32.0
+* Fix a bug when datastore encrypted keys didn't work in scheduled rules. datastore_crypto_key is now shared with the ``st2scheduler`` pods (#148) (by @rahulshinde26)
+* Change NOTES.txt template for using ST2 CLI to include namespace argument in 'kubectl exec' command (#150) (by @rahulshinde26)
+* Move the apiVersion `extensions/v1beta1` to `networking.k8s.io/v1beta1` for ingress (#149) (by @jb-abbadie)
+
+## v0.31.0
+* Fix chart compatibility with Helm versions >= `2.16.8` by downgrading `mongodb-replicaset` from `3.14.0` to `3.12.0` (#137) (by @AbhyudayaSharma)
+* Allow injection of datastore key in cluster (#115) (by @AngryDeveloper)
+
+## v0.30.0
+* Pin st2 version to `v3.3dev` as a new latest development version (#129)
+* Migrate from `py2` `Ubuntu Xenial` to `py3` `Ubuntu Bionic` as a base StackStorm OS (StackStorm/st2-dockerfiles#16, #129)
+* Switch from MongoDB `3.4` to `4.0` for the mongodb-ha Helm chart (#129)
+* Update `etcd-operator` 3rd party chart from `0.10.0` to latest `0.10.3` (#129)
+* Update `rabbitmq-ha` 3rd party chart from `1.36.4` to `1.44.1` (#129)
+* Update `mongodb-replicaset` 3rd party chart from `3.9.6` to `3.14.0` (#129)
+* Update CI infrastructure env, run tests on updated Helm `v2.16.7`, latest minikube `v1.10.1` and K8s `1.18` (#129)
+
+## v0.28.0
+* Added support for custom image repository (#131) (by @ytjohn)
+
+## v0.27.0
+* Added support to toggle etcd-operator as a coordination backend (#127) (by @rrahman-nv)
+
+## v0.26.0
+* Added custom annotations to sensorcontainer and actionrunner Pods (#123) (by @stefangusa)
+* Improve Helm values recommendations to configure 3rd party chart dependencies `rabbitmq-ha` and `mongodb-ha` in prod (#125) (by @stefangusa)
+
+## v0.25.0
+* Change ingress name from `<release name>-ingress` to `<release name>-st2web-ingress`, useful when using `stackstorm-ha` as a requirement for another chart. (#112) (by @erenatas)
 * Fix st2web ingress which should have been defined as an Integer instead of a String (#111) (by @erenatas)
 * Add an option to inject hostAliases in the st2actionrunner containers (#114)
+* Add support for Service Accounts (#117) (by @Vince-Chenal)
 
 ## v0.24.0
 * Fix st2web ingress to use `/` path by default instead of `/*`, useful for nginx ingress controller (#103) (by @erenatas)

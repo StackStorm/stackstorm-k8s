@@ -5,21 +5,202 @@
 ## Docker image settings, applied to all StackStorm pods
 ##
 image:
-  # Image pull policy. Change to "IfNotPresent" when switching to stable images
-  pullPolicy: Always
+  # Image pull policy
+  pullPolicy: IfNotPresent
+  # st2 image repository. Set this to override the default ("stackstorm")
+  # docker image repository ("docker.stackstorm.com"). Applies to all st2 containers except
+  # st2chatops and st2packs (which have their own override). This also does not impact
+  # dependencies such as mongo or redis, which have their own helm chart settings.
+  repository: ""
+  # st2 image tag - defaults to AppVersion.
+  # Note that Helm templating is supported in this block!
+  tag: "{{ .Chart.AppVersion }}"
+  # Image pull secret.
+  # May be required for public docker hub due to rate limiting or any private repository.
+  # See: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  #pullSecret: "your-pull-secret"
+
+
 
 ##
-## StackStorm Enterprise settings (Optional)
+## Service Account
 ##
-enterprise:
-  # Enable/Disable StackStorm Enterprise. Enabling will download StackStorm Enterprise Docker images.
-  enabled: false
-  # Required StackStorm Enterprise license key.
-  # Don't have one? Obtain 90-day free trial at https://stackstorm.com/#product
-  license: ""
+serviceAccount:
+  # Whether the Chart should create the service account or not
+  create: true
+  # Used to define service account annotations
+  serviceAccountAnnotations: {}
+  # Used to override service account name
+  serviceAccountName:
+  # Fallback image pull secret.
+  # If a pod does not have pull secrets, k8s will use the service account's pull secrets.
+  # See: https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/#serviceaccount-admission-controller
+  #pullSecret: "your-pull-secret"
 
+##
+## StackStorm shared variables
+##
+st2:
+  # Username, used to login to StackStorm system
+  username: st2admin
+  # Password, used to login to StackStorm system
+  # If set, st2.password always overrides any existing password.
+  # If not set, the password is auto-generated on install and preserved across upgrades.
+  #password: Ch@ngeMe
+  # ST2 crypto key for the  K/V datastore.
+  # See https://docs.stackstorm.com/datastore.html#securing-secrets-admin-only for more info.
+  # Warning! Replace with your own generated key!
+  #datastore_crypto_key: >-
+  #  {"hmacKey": {"hmacKeyString": "", "size": 256}, "size": 256, "aesKeyString": "", "mode": "CBC"}
+  # SSH private key for the 'stanley' system user ('system_user.ssh_key_file' in st2.conf)
+  # If set, st2.ssh_key always overrides any existing ssh_key.
+  # If not set, the ssh_key is auto-generated on install and preserved across upgrades.
+  #ssh_key: |-
+  #  -----BEGIN RSA PRIVATE KEY-----
+  #  ...
+  #  -----END RSA PRIVATE KEY-----
+
+  # Custom StackStorm config (st2.user.conf) which will apply settings on top of default st2.conf
+  config: |
+    [api]
+    allow_origin = '*'
+
+  # This mirrors the [system_user] section of st2.conf, but makes the values available for helm templating.
+  # If you change the user, you must provide a customized st2actionrunner image that includes your user.
+  system_user:
+    user: stanley
+    # templating is allowed for this key
+    ssh_key_file: "/home/{{ .Values.st2.system_user.user }}/.ssh/stanley_rsa"
+
+  # Custom pack configs and image settings.
+  #
+  # By default, system packs are available. By default, however, `st2 pack install` cannot be run in the k8s cluster,
+  # so you will need to bake additional packs into an 'st2packs' image. Please see github.com/stackstorm/stackstorm-ha/README.md
+  # for details on how to build this image.
+  # To change this default, and use persistent/shared/writable storage that is available in your cluster, you need to
+  # enable st2.packs.volumes below, adding volume definitions customized for use your cluster's storage provider.
+  packs:
+    # Custom StackStorm pack configs. Each record creates a file in '/opt/stackstorm/configs/'
+    # https://docs.stackstorm.com/reference/pack_configs.html#configuration-file
+    # NOTE: This takes precedence over the contents of st2.packs.volumes.configs (if defined) on helm upgrade.
+    configs:
+      core.yaml: |
+        ---
+        # example core pack config yaml
+
+    # Custom packs images settings.
+    #
+    # For each given st2packs container you can define repository, name, tag and pullPolicy for this image below.
+    # Multiple pack images can help when dealing with frequent updates by only rebuilding smaller images for desired packs
+    # E.g. having all desired StackStorm-Exchange packs in one image and several custom packs in additional images
+    images: []
+      #- repository: index.docker.io/stackstorm
+      #  name: st2packs
+      #  tag: example
+      #  pullPolicy: IfNotPresent
+      # Optional name of the imagePullSecret if your custom packs image is hosted by a private Docker registry
+      #  pullSecret: st2packs-auth
+
+    # Custom packs volumes definitions.
+    #
+    # Use this to have StackStorm use persistent/shared/writable storage configured previously in your cluster.
+    # The choice of storage solution is cluster-dependent (it changes besed on where the cluster is hosted
+    # and which storage solutions are available in your cluster).
+    #
+    # To use this, set enabled to true, and add cluster-specific volume definitions for at least packs and virtualenvs below.
+    # Please consult the documentation for your cluster's storage solution.
+    # Some generic examples are listed under st2.packs.volumes.packs below.
+    volumes:
+      enabled: false
+
+      packs: {}
+        # mounted to /opt/stackstorm/packs
+        # packs volume definition is required if st2.packs.volumes is enabled
+
+        # example using persistentVolumeClaim:
+        #persistentVolumeClaim:
+        #  claim-name: pvc-st2-packs
+
+        # example using NFS:
+        #nfs:
+        #  server: "10.12.34.56"
+        #  path: /var/nfsshare/packs
+
+        # example using a flexVolume + rook-ceph
+        #flexVolume:
+        #  driver: ceph.rook.io/rook
+        #  fsType: ceph
+        #  options:
+        #    fsName: fs1
+        #    clusterNamespace: rook-ceph
+        #    path: /st2/packs
+
+      virtualenvs: {}
+        # mounted to /opt/stackstorm/virtualenvs
+        # virtualenvs volume definition is required if st2.packs.volumes is enabled
+        # see the examples under st2.packs.volumes.packs
+
+      configs: {}
+        # mounted to /opt/stackstorm/configs
+        # configs volume definition is optional, but only used if st2.packs.volumes is enabled
+        # Anything in `st2.packs.configs` will be added to this volume automatically on helm install/upgrade.
+        # see the examples under st2.packs.volumes.packs
+
+    # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
+    # It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance.
+    # Each sensor node needs to be provided with proper partition information to share work with other sensor
+    # nodes so that the same sensor does not run on different nodes.
+    # Defaults come from st2sensorcontainer (see below), with per-sensor overrides defined here.
+    sensors:
+      # Specify default container that executes all sensors.
+      # To partition sensors with one sensor per node, override st2.packs.sensors.
+      # NOTE: Do not modify this file.
+      - name:
+        livenessProbe: {}
+        readinessProbe: {}
+        annotations: {}
+        resources:
+          requests:
+            memory: "100Mi"
+            cpu: "50m"
+        # Override default image settings (for now, only tag can be overridden)
+        image: {}
+          ## Note that Helm templating is supported in this block!
+          #tag: "{{ .Values.image.tag }}"
+        # Additional advanced settings to control pod/deployment placement
+        affinity: {}
+        nodeSelector: {}
+        tolerations: []
+        env: {}
+        # HTTP_PROXY: http://proxy:1234
+        serviceAccount:
+          attach: false
+        # note: postStartScript is not valid here. Use st2sensorcontainer.postStartScript instead.
+  # Import data into StackStorm's Key/Value datastore (https://docs.stackstorm.com/datastore.html)
+  keyvalue:
+    #- name: st2_version
+    #  scope: st2kv.system
+    #  secret: false
+    #  encrypted: false
+    #  value: "2.9"
+    #- name: release_name
+    #  scope: st2kv.system
+    #  secret: false
+    #  encrypted: false
+    #  # Note that Helm templating is supported in this block!
+    #  value: "{{ .Release.Name }}"
+  # Import a list of ST2 API Keys (https://docs.stackstorm.com/authentication.html#api-key-migration)
+  apikeys:
+    #- created_at: '2018-12-15T00:21:48.507388Z'
+    #  enabled: true
+    #  id: 5c14491c6cb8de1a9207e3a2
+    #  key_hash: 56928c2d9637ce44338e9564d4b939df8b258410db23b5a80f8ad69d58e648b574f35f9293c3a76bde263738be9aa8379a81553cd55513ad672540b7b0ec0cac
+    #  metadata: {"comment": "Example unsecure ST2 API key from K8s HA Helm values.yaml"}
+    #  uid: api_key:56928c2d9637ce44338e9564d4b939df8b258410db23b5a80f8ad69d58e648b574f35f9293c3a76bde263738be9aa8379a81553cd55513ad672540b7b0ec0cac
+    #  user: st2admin
   # StackStorm Role Based Access Control settings (https://docs.stackstorm.com/rbac.html)
   rbac:
+    enabled: false
     # Custom StackStorm RBAC roles, shipped in '/opt/stackstorm/rbac/roles/'
     # See https://docs.stackstorm.com/rbac.html#defining-roles-and-permission-grants
     roles:
@@ -54,81 +235,6 @@ enterprise:
       #    - "admin"
 
 ##
-## StackStorm shared variables
-##
-st2:
-  # Custom StackStorm config (st2.user.conf) which will apply settings on top of default st2.conf
-  config: |
-    [api]
-    allow_origin = '*'
-
-  # Custom pack configs and image settings.
-  #
-  # By default, system packs are available. However, since 'st2 pack install' cannot be run in the k8s cluster,
-  # you will need to bake additional packs into an 'st2packs' image. Please see github.com/stackstorm/stackstorm-ha/README.md
-  # for details on how to build this image.
-  packs:
-    # Custom StackStorm pack configs. Each record creates a file in '/opt/stackstorm/configs/'
-    # https://docs.stackstorm.com/reference/pack_configs.html#configuration-file
-    configs:
-      core.yaml: |
-        ---
-        # example core pack config yaml
-
-    # Custom packs image settings. The repository, name, tag and pullPolicy for this image
-    # are specified below.
-    image:
-      # Uncomment the following block to make the custom packs image available to the necessary pods
-      #repository: your-remote-docker-registry.io
-      name: st2packs
-      tag: latest
-      pullPolicy: Always
-      # Optional name of the imagePullSecret if your custom packs image is hosted by a private Docker registry behind the auth
-      #pullSecret: st2packs-auth
-
-    # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
-    # It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance.
-    # Each sensor node needs to be provided with proper partition information to share work with other sensor
-    # nodes so that the same sensor does not run on different nodes.
-    sensors:
-      # Specify default container that executes all sensors.
-      # To partition sensors with one sensor per node, override st2.packs.sensors.
-      # NOTE: Do not modify this file.
-      - name:
-        livenessProbe: {}
-        readinessProbe: {}
-        # TODO: Find out recommended/default resources for this specific service (#5)
-        resources: {}
-        # Additional advanced settings to control pod/deployment placement
-        affinity: {}
-        nodeSelector: {}
-        tolerations: []
-        env: {}
-        # HTTP_PROXY: http://proxy:1234
-  # Import data into StackStorm's Key/Value datastore (https://docs.stackstorm.com/datastore.html)
-  keyvalue:
-    #- name: st2_version
-    #  scope: st2kv.system
-    #  secret: false
-    #  encrypted: false
-    #  value: "2.9"
-    #- name: release_name
-    #  scope: st2kv.system
-    #  secret: false
-    #  encrypted: false
-    #  # Note that Helm templating is supported in this block!
-    #  value: "{{ .Release.Name }}"
-  # Import a list of ST2 API Keys (https://docs.stackstorm.com/authentication.html#api-key-migration)
-  apikeys:
-    #- created_at: '2018-12-15T00:21:48.507388Z'
-    #  enabled: true
-    #  id: 5c14491c6cb8de1a9207e3a2
-    #  key_hash: 56928c2d9637ce44338e9564d4b939df8b258410db23b5a80f8ad69d58e648b574f35f9293c3a76bde263738be9aa8379a81553cd55513ad672540b7b0ec0cac
-    #  metadata: {"comment": "Example unsecure ST2 API key from K8s HA Helm values.yaml"}
-    #  uid: api_key:56928c2d9637ce44338e9564d4b939df8b258410db23b5a80f8ad69d58e648b574f35f9293c3a76bde263738be9aa8379a81553cd55513ad672540b7b0ec0cac
-    #  user: st2admin
-
-##
 ## StackStorm HA Ingress
 ##
 ingress:
@@ -153,51 +259,8 @@ ingress:
   #     - chart-example.test
 
 ##
-## StackStorm HA Cluster Secrets. All fields are required!
-## NB! It's highly recommended to change ALL defaults!
+## NOTE: there used to be a secrets.st2 section here. These values have moved into st2.* above. Please update your values.
 ##
-# TODO: Move to `secrets.yaml` when it gets implemented in Helm (https://github.com/kubernetes/helm/issues/2196) ? (#14)
-# TODO: Alternatively as part of reorganizing Helm values, consider moving values to existing `st2` and `st2web` sections ? (#14)
-secrets:
-  st2:
-    st2chatops:
-      env:
-        HUBOT_SLACK_TOKEN: xoxb-CHANGE-ME-PLEASE
-    # Username, used to login to StackStorm system
-    username: st2admin
-    # Password, used to login to StackStorm system
-    password: Ch@ngeMe
-    # SSH private key for the 'stanley' system user ('system_user.ssh_key_file' in st2.conf)
-    # Warning! Replace with your own SSH key!
-    # TODO: For prod/stable consider auto-generating if no key provided (#15)
-    ssh_key: |-
-      -----BEGIN RSA PRIVATE KEY-----
-      MIIEowIBAAKCAQEAs73kblN3XfLR6tYsHRHyX/aQKx4amcNjT+E+2ufwqkiINDyA
-      CGim0Z4WFOEO6UtZApeOlUehp2MEFGFpl2u8vUC1b7AsWaImB4ywMIPOFblqaEag
-      DskrFp7FOggqZFWX7NwVZpm/KkvCw/fCehnxuv+za+hUtg4Qiv86qXShrlsn98B7
-      64Aq27oxkvhRU2OkDUP/wPNQnXzIZxfFYSvS7rGzKrswdZfWysscIUor4a+7GahM
-      yq8PGD6qp2wkiL7wFarZerS2Sq3M06Y89yzppCoPYI6kaEPuqrjSYZvh38CAVbGG
-      SgPv3CFgR1N3BsBEAx7OF+40R58C+3ldH8e1tQIDAQABAoIBAQCN7137YR3Zqm3p
-      q8aaDhn/fYzK/7KxyYEbCxu/cXiyfyRPW5cfDMTuso9tXWuQ/lcDnPqTF0WoEKCg
-      F2xyjjk0mWytDcl33nt5areXF/4dWZWVUnACPQkxi57i/J+9K3oVKJYdtzsmAz2B
-      0pxYHzSsHk9o3sZGHUUi/fks51TlgPNgOP8hf7/K9w9+FSE26geqjddqWwQbbStI
-      rDc3ZPMcGI4E5DuGmnrxWf4omUqScTB+bvUgN+WC02v1Bj4HaAX7PlLCUZMuTk3S
-      BcG4v7qiglxVYdBjtHNwtg1YAoVYh6sXckxqi1XudhoRXGlgYtyrcW0mWnnB4hIQ
-      vy7//uABAoGBANw8H1h93U1HNsqfIa1Ys3u6qZdHByHvA8e7Jk6GEFUEOAQSyxZ+
-      0RbFWC4knuQL+YklqeDNCXekwVEvVenf2lhZ4rHNbmv/9pWhq7sQcDOQPi5nVxJl
-      bkQoQkeNGeH8KPF1E2RsfJ8uU3NfD00yMFrNaeBUIlY44ABMOQSJREq1AoGBANDu
-      V0IV1BahqEW5mmnTdHLG6+tiSQdutrQv4hxBL59PhwyeMvpzFgwkNmymAZMLl40D
-      Y/0wg2lVr7Fb+peCrLpiNMEPWv/a38IEVTDm7YcsHZayEsc1vdjdMoZ8k5VNi25F
-      +lvQ/CxDNqJGTNEBBYmb5QHopBh8YowwIrT0yZ8BAoGAFYtAGbz+SA/+WSXl+noh
-      3Kmu62CEXxptiT1Siv3sXRSzkhpwiXvQYmTdsm3cqTxOpc7sZlRIZ87TJmj2A5Hl
-      Xx0z4ubQtXntmkedcAg0oaarnoh3aRJJDhvOGAfCj2vGaZBlXD6MllnGyhNzgL63
-      IjrT76DrVvnrV7wdG8d9yb0CgYAuQFT4wDRPPkIuDURtoO3qarbXSM654nx3rxHz
-      B0svjT9sP6kxYEDFN08FBkra7noCMXn1FsRAkUNvk9kJqVfresoK4wdWFHHsVWE2
-      jiiO/+kc7xbRGsiINY91ziYtqxjutHcT1FO+yLJTghSHQB6ls+kiXwnUkdSPDCji
-      vj3UAQKBgE19oSdfKbpKTyHu5rs+lN/KictDuMrqAriWODCygZ1/X1J1zpqvpUbt
-      WE8BWLQ1vBV6c7V4Q0Wp6LuTnNnvu/lvVugJW/TbrzFw6CFe5fEISmIHAMnqVz8x
-      OdOJyinSM1svoBGnYfyAqINKrqCSGSKmprlMo0Ma3erI7SuojWBS
-      -----END RSA PRIVATE KEY-----
 
 ##
 ## StackStorm HA Cluster pod settings for each individual service/component.
@@ -214,6 +277,11 @@ st2web:
       cpu: "50m"
     limits:
       memory: "100Mi"
+  annotations: {}
+  # Override default image settings (for now, only tag can be overridden)
+  image: {}
+    ## Note that Helm templating is supported in this block!
+    #tag: "{{ .Values.image.tag }}"
   # TODO: Add Ingress setting as a way to expose service to public (#6).
   # ingress:
   service:
@@ -230,108 +298,238 @@ st2web:
   affinity: {}
   env: {}
   # HTTP_PROXY: http://proxy:1234
+  serviceAccount:
+    attach: false
+  # User-defined st2web config with custom settings to replace default config.js
+  # See https://github.com/StackStorm/st2web#connecting-to-st2-server for more info
+  # config: |
+  #  // see https://github.com/StackStorm/st2web/blob/master/config.js
+  # postStartScript is optional. It has the contents of a bash script.
+  # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
+  # The pod will not be marked as "running" until this script completes successfully.
+  # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  postStartScript: ""
 # https://docs.stackstorm.com/reference/ha.html#st2auth
 # Multiple st2auth processes can be behind a load balancer in an active-active configuration.
 st2auth:
   replicas: 2
-  # TODO: Find out recommended/default resources for this specific service (#5)
-  resources: {}
+  resources:
+    requests:
+      memory: "85Mi"
+      cpu: "50m"
+  annotations: {}
+  # Override default image settings (for now, only tag can be overridden)
+  image: {}
+    ## Note that Helm templating is supported in this block!
+    #tag: "{{ .Values.image.tag }}"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
   affinity: {}
   env: {}
   # HTTP_PROXY: http://proxy:1234
+  serviceAccount:
+    attach: false
+  # postStartScript is optional. It has the contents of a bash script.
+  # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
+  # The pod will not be marked as "running" until this script completes successfully.
+  # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  postStartScript: ""
 # https://docs.stackstorm.com/reference/ha.html#st2api
 # Multiple st2api process can be behind a load balancer in an active-active configuration.
 st2api:
   replicas: 2
-  # TODO: Find out recommended/default resources for this specific service (#5)
-  resources: {}
+  resources:
+    requests:
+      memory: "150Mi"
+      cpu: "25m"
+  annotations: {}
+  # Override default image settings (for now, only tag can be overridden)
+  image: {}
+    ## Note that Helm templating is supported in this block!
+    #tag: "{{ .Values.image.tag }}"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
   affinity: {}
   env: {}
   # HTTP_PROXY: http://proxy:1234
+  serviceAccount:
+    attach: false
+  # postStartScript is optional. It has the contents of a bash script.
+  # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
+  # The pod will not be marked as "running" until this script completes successfully.
+  # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  postStartScript: ""
 # https://docs.stackstorm.com/reference/ha.html#st2stream
 # Multiple st2stream process can be behind a load balancer in an active-active configuration.
 st2stream:
   replicas: 2
-  # TODO: Find out recommended/default resources for this specific service (#5)
-  resources: {}
+  resources:
+    requests:
+      memory: "100Mi"
+      cpu: "50m"
+  annotations: {}
+  # Override default image settings (for now, only tag can be overridden)
+  image: {}
+    ## Note that Helm templating is supported in this block!
+    #tag: "{{ .Values.image.tag }}"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
   affinity: {}
   env: {}
   # HTTP_PROXY: http://proxy:1234
+  serviceAccount:
+    attach: false
+  # postStartScript is optional. It has the contents of a bash script.
+  # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
+  # The pod will not be marked as "running" until this script completes successfully.
+  # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  postStartScript: ""
 # https://docs.stackstorm.com/reference/ha.html#st2rulesengine
 # Multiple st2rulesengine processes can run in active-active with only connections to MongoDB and RabbitMQ. All these will share the TriggerInstance load and naturally pick up more work if one or more of the processes becomes unavailable.
 st2rulesengine:
   replicas: 2
-  # TODO: Find out recommended/default resources for this specific service (#5)
-  resources: {}
+  resources:
+    requests:
+      memory: "75Mi"
+      cpu: "25m"
+  annotations: {}
+  # Override default image settings (for now, only tag can be overridden)
+  image: {}
+    ## Note that Helm templating is supported in this block!
+    #tag: "{{ .Values.image.tag }}"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
   affinity: {}
   env: {}
   # HTTP_PROXY: http://proxy:1234
+  serviceAccount:
+    attach: false
+  # postStartScript is optional. It has the contents of a bash script.
+  # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
+  # The pod will not be marked as "running" until this script completes successfully.
+  # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  postStartScript: ""
 # https://docs.stackstorm.com/reference/ha.html#st2timersengine
 # Only single replica is created via K8s Deployment as timersengine can't work in active-active mode at the moment and it relies on K8s failover/reschedule capabilities to address cases of process failure.
 st2timersengine:
-  # TODO: Find out recommended/default resources for this specific service (#5)
-  resources: {}
+  resources:
+    requests:
+      memory: "75Mi"
+      cpu: "10m"
+  annotations: {}
+  # Override default image settings (for now, only tag can be overridden)
+  image: {}
+    ## Note that Helm templating is supported in this block!
+    #tag: "{{ .Values.image.tag }}"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
   affinity: {}
   env: {}
   # HTTP_PROXY: http://proxy:1234
+  serviceAccount:
+    attach: false
+  # postStartScript is optional. It has the contents of a bash script.
+  # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
+  # The pod will not be marked as "running" until this script completes successfully.
+  # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  postStartScript: ""
 # https://docs.stackstorm.com/reference/ha.html#st2workflowengine
 # Multiple st2workflowengine processes can run in active-active mode and will share the load and pick up more work if one or more of the processes become available.
 st2workflowengine:
   replicas: 2
-  # TODO: Find out recommended/default resources for this specific service (#5)
-  resources: {}
+  resources:
+    requests:
+      memory: "200Mi"
+      cpu: "100m"
+  annotations: {}
+  # Override default image settings (for now, only tag can be overridden)
+  image: {}
+    ## Note that Helm templating is supported in this block!
+    #tag: "{{ .Values.image.tag }}"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
   affinity: {}
   env: {}
   # HTTP_PROXY: http://proxy:1234
+  serviceAccount:
+    attach: false
+  # postStartScript is optional. It has the contents of a bash script.
+  # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
+  # The pod will not be marked as "running" until this script completes successfully.
+  # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  postStartScript: ""
 # https://docs.stackstorm.com/reference/ha.html#st2scheduler
 # TODO: Description TBD
 st2scheduler:
   replicas: 2
-  # TODO: Find out recommended/default resources for this specific service (#5)
-  resources: {}
+  resources:
+    requests:
+      memory: "75Mi"
+      cpu: "50m"
+  annotations: {}
+  # Override default image settings (for now, only tag can be overridden)
+  image: {}
+    ## Note that Helm templating is supported in this block!
+    #tag: "{{ .Values.image.tag }}"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
   affinity: {}
   env: {}
   # HTTP_PROXY: http://proxy:1234
+  serviceAccount:
+    attach: false
+  # postStartScript is optional. It has the contents of a bash script.
+  # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
+  # The pod will not be marked as "running" until this script completes successfully.
+  # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  postStartScript: ""
 # https://docs.stackstorm.com/reference/ha.html#st2notifier
 # st2notifier runs in active-active mode and requires for that coordination backend like Redis or Zookeeper
 st2notifier:
   replicas: 2
-  # TODO: Find out recommended/default resources for this specific service (#5)
-  resources: {}
+  resources:
+    requests:
+      memory: "75Mi"
+      cpu: "50m"
+  annotations: {}
+  # Override default image settings (for now, only tag can be overridden)
+  image: {}
+    ## Note that Helm templating is supported in this block!
+    #tag: "{{ .Values.image.tag }}"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
   affinity: {}
   env: {}
   # HTTP_PROXY: http://proxy:1234
+  serviceAccount:
+    attach: false
+  # postStartScript is optional. It has the contents of a bash script.
+  # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
+  # The pod will not be marked as "running" until this script completes successfully.
+  # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  postStartScript: ""
 # https://docs.stackstorm.com/reference/ha.html#st2actionrunner
 # Multiple st2actionrunner processes can run in active-active with only connections to MongoDB and RabbitMQ. Work gets naturally
 # distributed across runners via RabbitMQ. Adding more st2actionrunner processes increases the ability of StackStorm to execute actions.
 st2actionrunner:
   replicas: 5
-  # TODO: Find out recommended/default resources for this specific service (#5)
-  resources: {}
+  resources:
+    requests:
+      memory: "200Mi"
+      cpu: "75m"
+  # Override default image settings (for now, only tag can be overridden)
+  image: {}
+    ## Note that Helm templating is supported in this block!
+    #tag: "{{ .Values.image.tag }}"
+  annotations: {}
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
@@ -347,6 +545,58 @@ st2actionrunner:
   #   ip: 8.8.8.8
   env: {}
   # HTTP_PROXY: http://proxy:1234
+  serviceAccount:
+    attach: false
+  # postStartScript is optional. It has the contents of a bash script.
+  # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
+  # The pod will not be marked as "running" until this script completes successfully.
+  # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  postStartScript: ""
+
+# https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
+# Please see st2.packs.sensors for each sensor instance's config.
+# This contains default settings for all sensor pods.
+st2sensorcontainer:
+  resources:
+    requests:
+      memory: "100Mi"
+      cpu: "50m"
+  # Override default image settings (for now, only tag can be overridden)
+  image: {}
+    ## Note that Helm templating is supported in this block!
+    #tag: "{{ .Values.image.tag }}"
+  livenessProbe: {}
+  readinessProbe: {}
+  annotations: {}
+  # Additional advanced settings to control pod/deployment placement
+  affinity: {}
+  nodeSelector: {}
+  tolerations: []
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
+  serviceAccount:
+    attach: false
+  # postStartScript is optional. It has the contents of a bash script.
+  # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
+  # The pod will not be marked as "running" until this script completes successfully.
+  # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  postStartScript: ""
+
+# The st2client deployment/pod simplifies ad-hoc administration.
+# st2client is a special purpose actionrunner pod, but you can customize it separately
+st2client:
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
+  annotations: {}
+  # Override default image settings (for now, only tag can be overridden)
+  image: {}
+    ## Note that Helm templating is supported in this block!
+    #tag: "{{ .Values.image.tag }}"
+  # postStartScript is optional. It has the contents of a bash script.
+  # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
+  # The pod will not be marked as "running" until this script completes successfully.
+  # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  postStartScript: ""
 
 # https://docs.stackstorm.com/reference/ha.html#st2garbagecollector
 # Optional service that cleans up old executions and other operations data based on setup configurations.
@@ -354,18 +604,28 @@ st2actionrunner:
 st2garbagecollector:
   # Having 1 st2garbagecollector unique replica is enough for periodic task like st2 history garbage collection
   replicas: 1
-  # TODO: Find out recommended/default resources for this specific service (#5)
-  resources: {}
+  resources:
+    requests:
+      memory: "80Mi"
+      cpu: "10m"
+  annotations: {}
+  # Override default image settings (for now, only tag can be overridden)
+  image: {}
+    ## Note that Helm templating is supported in this block!
+    #tag: "{{ .Values.image.tag }}"
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
   affinity: {}
   env: {}
   # HTTP_PROXY: http://proxy:1234
-
-st2client:
-  env: {}
-  # HTTP_PROXY: http://proxy:1234
+  serviceAccount:
+    attach: false
+  # postStartScript is optional. It has the contents of a bash script.
+  # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
+  # The pod will not be marked as "running" until this script completes successfully.
+  # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  postStartScript: ""
 
 ##
 ## StackStorm ChatOps (https://docs.stackstorm.com/chatops/index.html)
@@ -379,20 +639,63 @@ st2chatops:
   # for the full list of supported adapters and example ENV variables.
   env:
     HUBOT_ADAPTER: slack
+    HUBOT_SLACK_TOKEN: xoxb-CHANGE-ME-PLEASE
+    # If ST2_API_KEY is defined, then ST2_AUTH_USERNAME/PASSWORD will not be exposed to st2chatops.
+    # Please make sure that the key in ST2_API_KEY gets added to st2.apikeys above so that chatops can use this key.
+    #ST2_API_KEY: 12345
   # Set custom generated st2chatops Docker image source
   # Otherwise default https://hub.docker.com/r/stackstorm/st2chatops is used
   image: {}
     #repository: stackstorm
     #name: st2chatops
     ## Note that Helm templating is supported in this block!
-    #tag: "{{ .Chart.AppVersion }}"
-    #pullPolicy: Always
+    #tag: "{{ .Values.image.tag }}"
+    #pullPolicy: IfNotPresent
   # Tested requested resource consumption for st2chatops & hubot in normal mode
   # Please adjust based on your conscious choice
   resources:
     requests:
       memory: "50Mi"
       cpu: "5m"
+  annotations: {}
+  # Advanced use-cases only. If defined, this hubot-scripts volume gets mounted to: /opt/stackstorm/chatops/scripts
+  # This volume (using any k8s storage solution, including configmap) allows for hubot customization.
+  # Most installations should not use this.
+  # For details on writing .js or .coffeescript hubot extensions, see: https://hubot.github.com/docs/scripting/
+  hubotScriptsVolume: {}
+  # Additional advanced settings to control pod/deployment placement
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  serviceAccount:
+    attach: false
+  # postStartScript is optional. It has the contents of a bash script.
+  # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
+  # The pod will not be marked as "running" until this script completes successfully.
+  # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  postStartScript: ""
+
+##
+## Various batch jobs (apply-rbac-definitions, apikey-load, key-load, register-content)
+##
+jobs:
+  annotations: {}
+  # Override default image settings (for now, only tag can be overridden)
+  # The Jobs use the st2actionrunner image
+  image: {}
+    ## Note that Helm templating is supported in this block!
+    #tag: "{{ .Values.image.tag }}"
+  # If defined, this preRegisterContentCommand runs in an initContainer on the st2-register-content Job.
+  # The initContainer also uses the st2actionrunner image but runs this command instead of its entrypoint.
+  preRegisterContentCommand: []
+    # For example, to disable aliases in the "packs" system pack before content is registered:
+    # - "/bin/bash"
+    # - "-c"
+    # - |
+    #   sed -i -e 's/^\(\s*\)enabled: true/\1enabled: false/' /opt/stackstorm/packs/packs/aliases/*.yaml
+    #   for alias in /opt/stackstorm/packs/packs/aliases/*.yaml; do
+    #     grep -q 'enabled:' ${alias} || sed -i -e 's/^\(\s*\)name:\(.*\)$/\1name: \2\n\1enabled: false/m' ${alias}
+    #   done
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []
@@ -402,60 +705,138 @@ st2chatops:
 ## MongoDB HA configuration (3rd party chart dependency)
 ##
 ## For values.yaml reference:
-## https://github.com/helm/charts/tree/master/stable/mongodb-replicaset
+## https://github.com/bitnami/charts/tree/master/bitnami/mongodb
 ##
-# Specs for the MongoDB image
-mongodb-ha:
+mongodb:
   # Change to `false` to disable in-cluster mongodb deployment.
   # Specify your external [database] connection parameters under st2.config
   enabled: true
   image:
-    # StackStorm currently supports maximum MongoDB v3.4
-    tag: 3.4
+    # StackStorm currently supports maximum MongoDB v4.0
+    tag: "4.0"
+  # MongoDB architecture. Allowed values: standalone or replicaset
+  architecture: replicaset
+  # Name of the replica set
+  # Ignored when mongodb.architecture=standalone
+  replicaSetName: rs0
+  # Number of MongoDB replicas to deploy.
+  # Ignored when mongodb.architecture=standalone
+  replicaCount: 3
   auth:
     enabled: true
-    # NB! It's highly recommended to change ALL defaults!
-    adminUser: "admin"
-    adminPassword: "XeL5Rxwj7F0Wt43tFZVTN7H8Sg5XDHmK"
+    # NB! It's highly recommended to change ALL insecure auth defaults!
+    #
+    # Stackstorm user that services will make connections using
+    username: "st2-admin"
+    # Stackstorm user that services will make connections using
+    password: "XeL5Rxwj7F0Wt43tFZVTN7H8Sg5XDHmK"
+    # Root password for the database
+    rootPassword: "8fAzdnksdzPFUWm4a68EfY7nMhBPaa"
+    # Initial database for stackstorm
+    database: "st2"
     # Minimal key length is 6 symbols
-    key: "82PItDpqroti5RngOA7UqbHH7c6bFUwy"
+    replicaSetKey: "82PItDpqroti5RngOA7UqbHH7c6bFUwy"
+    # Whether to enable the arbiter
+  arbiter:
+    enabled: false
+  resources: {}
 
 ##
-## RabbitMQ HA configuration (3rd party chart dependency)
+## RabbitMQ configuration (3rd party chart dependency)
 ##
 ## For values.yaml reference:
-## https://github.com/helm/charts/tree/master/stable/rabbitmq-ha
+## https://github.com/bitnami/charts/tree/master/bitnami/rabbitmq
 ##
-rabbitmq-ha:
+rabbitmq:
   # Change to `false` to disable in-cluster rabbitmq deployment.
   # Specify your external [messaging] connection parameters under st2.config
   enabled: true
-  rabbitmqUsername: admin
-  # TODO: Use default random 24 character password, but need to fetch this string for use by downstream services
-  rabbitmqPassword: 9jS+w1u07NbHtZke1m+jW4Cj
-  persistentVolume:
+  clustering:
+    # On unclean cluster restarts forceBoot is required to cleanup Mnesia tables (see: https://github.com/helm/charts/issues/13485)
+    # Use it only if you prefer availability over integrity.
+    forceBoot: true
+  # Authentication Details
+  auth:
+    username: admin
+    # TODO: Use default random 10 character password, but need to fetch this string for use by downstream services
+    password: 9jS+w1u07NbHtZke1m+jW4Cj
+    # Up to 255 character string, should be fixed so that re-deploying the chart does not fail (see: https://github.com/helm/charts/issues/12371)
+    # NB! It's highly recommended to change the default insecure rabbitmqErlangCookie value!
+    erlangCookie: 8MrqQdCQ6AQ8U3MacSubHE5RqkSfvNaRHzvxuFcG
+  # RabbitMQ Memory high watermark. See: http://www.rabbitmq.com/memory.html
+  # Default values might not be enough for StackStorm deployment to work properly. We recommend to adjust these settings for you needs as well as enable Pod memory limits via "resources".
+  #rabbitmqMemoryHighWatermark: 512MB
+  #rabbitmqMemoryHighWatermarkType: absolute
+  persistence:
     enabled: true
-  # RabbitMQ application vhost, should match with 'ha' Queue Mirroring definition policy
-  rabbitmqVhost: "/"
-  definitions:
-    # Enable Queue Mirroring between nodes
-    # See https://www.rabbitmq.com/ha.html
-    policies: '{"vhost":"/","name":"ha","pattern":"", "definition":{"ha-mode":"all","ha-sync-mode":"automatic","ha-sync-batch-size":10}}'
+  # Enable Queue Mirroring between nodes
+  # See https://www.rabbitmq.com/ha.html
+  # This code block is commented out waiting for
+  # https://github.com/bitnami/charts/issues/4635
+  loadDefinition:
+    enabled: true
+    existingSecret: "{{ .Release.Name }}-rabbitmq-definitions"
+  extraConfiguration: |
+    load_definitions = /app/rabbitmq-definitions.json
+  # We recommend to set the memory limit for RabbitMQ-HA Pods in production deployments.
+  # Make sure to also change the rabbitmqMemoryHighWatermark following the formula:
+  # rabbitmqMemoryHighWatermark = 0.4 * resources.limits.memory
+  resources: {}
+  # number of replicas in the rabbit cluster
+  replicaCount: 3
+  # As RabbitMQ enabled prometheus operator monitoring by default, disable it for non-prometheus users
+  metrics:
+    enabled: false
 
 ##
-## Etcd HA configuration (3rd party chart dependency)
+## Redis HA configuration (3rd party chart dependency)
 ##
 ## For values.yaml reference:
-## https://github.com/helm/charts/tree/master/stable/etcd-operator
+## https://github.com/bitnami/charts/tree/master/bitnami/redis
 ##
-etcd-operator:
-  # we don't need backup & restore etcd for short-lived coordination operations
-  deployments:
-    backupOperator: false
-    restoreOperator: false
-  customResources:
-    # create default etcd cluster
-    createEtcdClusterCRD: true
+redis:
+  # Change to `false` to disable in-cluster redis deployment.
+  # Specify your external [coordination] connection parameters under st2.config
+  enabled: true
+  # By default the cluster is enabled for the subchart.
+  # We just need replica count here to ensure it is HA
+  cluster:
+    slaveCount: 3
+  # Sentinel settings. Sentinel is enabled for better resiliency.
+  # This is highly recommended as per tooz library documentation.
+  # Hence, the chart requires the setting.
+  # https://docs.openstack.org/tooz/latest/user/drivers.html#redis
+  # https://github.com/bitnami/charts/tree/master/bitnami/redis#master-slave-with-sentinel
+  sentinel:
+    enabled: true
+    # Enable or disable static sentinel IDs for each replicas
+    # If disabled each sentinel will generate a random id at startup
+    # If enabled, each replicas will have a constant ID on each start-up
+    staticID: true
+  networkPolicy:
+    enabled: false
+  usePassword: false
+  metrics:
+    enabled: false
+
+##
+## Settings to be applied to all stackstorm-ha pods
+##
+# https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-policy
+# "ClusterFirst" is the default. Other options: "Default", "ClusterFirstWithHostNet", "None"
+#dnsPolicy: "ClusterFirst"
+# https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
+dnsConfig: {}
+  # example copied from the docs
+  #nameservers:
+  #- 1.2.3.4
+  #searches:
+  #- ns1.svc.cluster-domain.example
+  #- my.dns.search.suffix
+  #options:
+  #- name: ndots
+  #  value: "2"
+  #- name: edns0
 
 ##
 ## External DNS configuration (3rd party chart dependency)
@@ -463,11 +844,12 @@ etcd-operator:
 ## Creates a deployment of external-dns within the cluster to update DNS with CNAME -> ELB
 ##
 ## For values.yaml reference:
-## https://github.com/helm/charts/tree/master/stable/external-dns
+## https://github.com/bitnami/charts/tree/master/bitnami/external-dns
 ##
 ## TODO: If eq st2web.service.type "LoadBalancer", set enabled to true. Any other cases?
 external-dns:
   enabled: false
+  provider: aws
   aws:
     zoneType: "public"
   domainFilters: []

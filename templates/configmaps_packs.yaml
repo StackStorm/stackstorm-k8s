@@ -4,12 +4,11 @@ kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-st2-pack-configs
   annotations:
-    description: Custom StackStorm pack configs, shipped in '/opt/stackstorm/configs/'
+    description: StackStorm pack configs defined in helm values, shipped in (or copied to) '/opt/stackstorm/configs/'
   labels:
     app: st2
     tier: backend
     vendor: stackstorm
-    support: {{ template "supportMethod" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}

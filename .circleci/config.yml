@@ -3,11 +3,9 @@ version: 2.1
 # Add additional CircleCI Orbs dependencies
 orbs:
   # https://circleci.com/orbs/registry/orb/circleci/kubernetes
-  kubernetes: circleci/kubernetes@0.10.1
-  # Pins Helm to v2.x
-  # TODO: Consider upgrading Helm to v3.0 (https://github.com/StackStorm/stackstorm-ha/issues/98)
+  kubernetes: circleci/kubernetes@0.11.0
   # https://circleci.com/orbs/registry/orb/circleci/helm
-  helm: circleci/helm@0.2.0
+  helm: circleci/helm@1.1.1
   # https://circleci.com/orbs/registry/orb/ccpgames/minikube
   minikube: ccpgames/minikube@0.0.1
 
@@ -16,37 +14,26 @@ jobs:
   helm-lint:
     working_directory: ~/stackstorm-ha
     docker:
-      # Pin Helm to v2.x, see https://github.com/StackStorm/stackstorm-ha/issues/98
-      - image: lachlanevenson/k8s-helm:v2.16.1
+      - image: lachlanevenson/k8s-helm:v3.4.2
     steps:
       - checkout
       - run:
           name: Prepare Helm
           command: |
             set -x
-            helm init --client-only
             helm dependency update
       - run:
-          name: Helm Lint Check (Community)
+          name: Helm Lint Check
           command: helm lint
-      - run:
-          name: Helm Lint Check (Enterprise)
-          command: helm lint --set enterprise.enabled=true --set enterprise.license=123asd456fake
       - run:
           name: Helm template
           command: |
-            mkdir -p enterprise community
+            mkdir -p community
             helm template --output-dir community .
-            helm template --output-dir enterprise --set enterprise.enabled=true --set enterprise.license=123asd456fake .
       - persist_to_workspace:
           root: ~/stackstorm-ha/
           paths:
             - community
-            - enterprise
-            # TODO: Fill an issue in https://github.com/garethr/kubeval
-            # 'charts' contains 3rd party templates which doesn't validate against schema due to minor 'object != null' API validation issues
-            # See: https://circleci.com/gh/StackStorm/stackstorm-enterprise-ha/18
-            #- charts
 
   # Run Kubernetes lint checks
   k8s-lint:
@@ -56,18 +43,14 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          name: K8s Kubeval Lint Check (Community)
+          name: K8s Kubeval Lint Check
           command: kubeval $(find . -type f)
           working_directory: community/stackstorm-ha/templates/
-      - run:
-          name: K8s Kubeval Lint Check (Enterprise)
-          command: kubeval $(find . -type f)
-          working_directory: enterprise/stackstorm-ha/templates/
 
   # Spin up minikube K8s cluster and run Helm chart & e2e tests on it
   helm-e2e:
     # 'large' 4 vCPUs & 15GB RAM CircleCI machine executor
-    # required to deploy heavy 'stackstorm-ha' Helm release with RabbitMQ, MongoDB, etcd clusters and 25+ st2 Pods.
+    # required to deploy heavy 'stackstorm-ha' Helm release with RabbitMQ, MongoDB, Redis clusters and 25+ st2 Pods.
     # https://circleci.com/docs/2.0/configuration-reference/#machine-executor-linux
     resource_class: large
     machine:
@@ -78,35 +61,40 @@ jobs:
       - kubernetes/install
       - minikube/minikube-install:
           # https://github.com/kubernetes/minikube/releases
-          version: v1.5.2
+          version: v1.15.1
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt update || true
+            # K8s 1.18 requires conntrack
+            # See: https://github.com/kubernetes/minikube/issues/7179
+            sudo apt install -y conntrack
+      - run:
+          name: Install Helm v3
+          command: curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
       - run:
           name: Create new K8s cluster
-          command: sudo -E minikube start --vm-driver=none --cpus $(nproc) --memory 4096
+          command: sudo -E minikube start --vm-driver=none
           environment:
             CHANGE_MINIKUBE_NONE_USER: true
-      - helm/install-helm-on-cluster
       - run:
           name: Update stackstorm-ha chart dependencies
           command: helm dependency update
       - run:
-          name: Helm install stackstorm-ha chart (Community)
-          command: helm install --timeout 600 --debug --wait --name stackstorm-ha .
+          name: Helm install stackstorm-ha chart
+          command: helm install --timeout 10m0s --debug --wait --name-template stackstorm-ha .
       - run:
-          name: Helm test (Community)
-          command: helm test stackstorm-ha --parallel --cleanup
+          name: Helm test
+          command: helm test stackstorm-ha
       - run:
-          when: always
-          name: Show created K8s resources (Community)
-          command: kubectl get all
+          name: Helm upgrade with RBAC enabled
+          command: helm upgrade --set st2.rbac.enabled=true --timeout 5m0s --debug --wait stackstorm-ha .
       - run:
-          name: Helm upgrade stackstorm-ha (Community -> Enterprise)
-          command: helm upgrade --wait stackstorm-ha . --set enterprise.enabled=true --set enterprise.license=${EWC_LICENSE}
-      - run:
-          name: Helm test (Enterprise)
-          command: helm test stackstorm-ha --parallel
+          name: Helm test with RBAC enabled
+          command: helm test stackstorm-ha
       - run:
           when: always
-          name: Show created K8s resources (Enterprise)
+          name: Show created K8s resources
           command: kubectl get all
 
 workflows:

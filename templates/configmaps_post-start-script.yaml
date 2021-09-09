@@ -1,0 +1,37 @@
+{{- range tuple "st2auth" "st2api" "st2stream" "st2web" "st2rulesengine" "st2timersengine" "st2workflowengine" "st2scheduler" "st2notifier" "st2sensorcontainer" "st2actionrunner" "st2garbagecollector" "st2client" "st2chatops" -}}
+  {{- if or (index $.Values . "postStartScript") (eq . "st2actionrunner") (eq . "st2client") }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $.Release.Name }}-{{ . }}-post-start-script
+  annotations:
+    description: Custom postStart lifecycle event handler script for {{ . }}
+  labels:
+    app: st2
+    tier: backend
+    vendor: stackstorm
+    chart: {{ $.Chart.Name }}-{{ $.Chart.Version }}
+    release: {{ $.Release.Name }}
+    heritage: {{ $.Release.Service }}
+data:
+  # k8s calls this script in parallel with starting {{ . }} (ie the same time as ENTRYPOINT)
+  # The pod will not be marked as "running" until this script completes successfully.
+  # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  post-start.sh: |
+    #!/bin/bash
+    {{- if or (eq . "st2actionrunner") (eq . "st2client") }}
+      {{- $system_user := $.Values.st2.system_user.user }}
+      {{- $ssh_key_file := tpl $.Values.st2.system_user.ssh_key_file $ }}
+      {{- $ssh_key_file_name := base $ssh_key_file }}
+      {{- $ssh_key_file_dir := dir $ssh_key_file }}
+    mkdir -p {{ $ssh_key_file_dir }}
+    cp -L {{ dir $ssh_key_file_dir }}/.ssh-key-vol/{{ $ssh_key_file_name }} {{ $ssh_key_file }}
+    chown -R {{ $system_user }}:{{ $system_user }} {{ $ssh_key_file_dir }}
+    chmod 400 {{ $ssh_key_file }}
+    chmod 500 {{ $ssh_key_file_dir }}
+    {{- end }}
+    {{- index $.Values . "postStartScript" | nindent 4 }}
+
+  {{- end }}
+{{- end -}}
