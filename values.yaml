@@ -700,6 +700,8 @@ jobs:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
 
 ##
 ## MongoDB HA configuration (3rd party chart dependency)
