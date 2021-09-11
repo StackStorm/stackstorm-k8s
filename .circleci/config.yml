@@ -1,0 +1,16 @@
+version: 2.1
+
+jobs:
+  nothing:
+    docker:
+      - image: alpine:latest
+    steps:
+      - run: echo nothing
+workflows:
+  nothing:
+    jobs:
+      - nothing:
+          filters:
+            branches:
+              only: master
+              ignore: gh-pages
