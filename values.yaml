@@ -147,13 +147,16 @@ st2:
         # see the examples under st2.packs.volumes.packs
 
     # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
-    # It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance.
+    # It is possible to run st2sensorcontainer(s) in one of these modes:
+    #   (1) run all sensors in one pod (1 deployment with 1 pod, the default); or
+    #   (2) run one sensor per pod using st2.packs.sensors (here).
     # Each sensor node needs to be provided with proper partition information to share work with other sensor
     # nodes so that the same sensor does not run on different nodes.
     # Defaults come from st2sensorcontainer (see below), with per-sensor overrides defined here.
     sensors:
-      # Specify default container that executes all sensors.
-      # To partition sensors with one sensor per node, override st2.packs.sensors.
+      # With only one sensor listed here, we use all-sensors-in-one-pod mode, unless that sensor has a `ref`.
+      # To partition sensors with one-sensor-per-node, override st2.packs.sensors.
+      # In one-sensor-per-pod mode, make sure each sensor here has both `name` and `ref` (which sensor to run in the pod).
       # NOTE: Do not modify this file.
       - name:
         livenessProbe: {}
