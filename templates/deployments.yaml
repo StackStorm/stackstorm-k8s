@@ -1038,9 +1038,9 @@ spec:
         checksum/post-start-script: {{ $.Values.st2sensorcontainer.postStartScript | sha256sum }}
         {{- end }}
         {{- if $one_sensor_per_pod }}
-        st2sensor/mode: one-sensor-per-pod
+        stackstorm/sensor-mode: one-sensor-per-pod
         {{- else }}
-        st2sensor/mode: all-sensors-in-one-pod
+        stackstorm/sensor-mode: all-sensors-in-one-pod
         {{- end }}
         {{- if $sensor.annotations }}
           {{- toYaml $sensor.annotations | nindent 8 }}
