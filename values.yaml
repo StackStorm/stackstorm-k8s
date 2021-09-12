@@ -174,6 +174,8 @@ st2:
         affinity: {}
         nodeSelector: {}
         tolerations: []
+        env: {}
+        # HTTP_PROXY: http://proxy:1234
         serviceAccount:
           attach: false
         # note: postStartScript is not valid here. Use st2sensorcontainer.postStartScript instead.
@@ -297,6 +299,8 @@ st2web:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
   # User-defined st2web config with custom settings to replace default config.js
@@ -325,6 +329,8 @@ st2auth:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
   # postStartScript is optional. It has the contents of a bash script.
@@ -349,6 +355,8 @@ st2api:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
   # postStartScript is optional. It has the contents of a bash script.
@@ -373,6 +381,8 @@ st2stream:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
   # postStartScript is optional. It has the contents of a bash script.
@@ -397,6 +407,8 @@ st2rulesengine:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
   # postStartScript is optional. It has the contents of a bash script.
@@ -420,6 +432,8 @@ st2timersengine:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
   # postStartScript is optional. It has the contents of a bash script.
@@ -444,6 +458,8 @@ st2workflowengine:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
   # postStartScript is optional. It has the contents of a bash script.
@@ -468,6 +484,8 @@ st2scheduler:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
   # postStartScript is optional. It has the contents of a bash script.
@@ -492,6 +510,8 @@ st2notifier:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
   # postStartScript is optional. It has the contents of a bash script.
@@ -526,6 +546,8 @@ st2actionrunner:
   #  - hostnames:
   #      - bar
   #   ip: 8.8.8.8
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
   # postStartScript is optional. It has the contents of a bash script.
@@ -553,6 +575,8 @@ st2sensorcontainer:
   affinity: {}
   nodeSelector: {}
   tolerations: []
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
   # postStartScript is optional. It has the contents of a bash script.
@@ -564,6 +588,8 @@ st2sensorcontainer:
 # The st2client deployment/pod simplifies ad-hoc administration.
 # st2client is a special purpose actionrunner pod, but you can customize it separately
 st2client:
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
   annotations: {}
   # Override default image settings (for now, only tag can be overridden)
   image: {}
@@ -594,6 +620,8 @@ st2garbagecollector:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
   # postStartScript is optional. It has the contents of a bash script.
@@ -675,6 +703,8 @@ jobs:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
 
 ##
 ## MongoDB HA configuration (3rd party chart dependency)

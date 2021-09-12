@@ -85,6 +85,9 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        {{- if .Values.st2auth.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2auth | nindent 8 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -195,6 +198,9 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        {{- if .Values.st2api.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2api | nindent 8 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -312,6 +318,9 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        {{- if .Values.st2stream.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2stream | nindent 8 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -418,6 +427,9 @@ spec:
 #            path: /api/
 #            port: 443
 #          initialDelaySeconds: 3
+        {{- if .Values.st2web.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2web | nindent 8 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -530,6 +542,9 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        {{- if .Values.st2rulesengine.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2rulesengine | nindent 8 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -638,6 +653,9 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        {{- if .Values.st2timersengine.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2timersengine | nindent 8 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -733,6 +751,9 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        {{- if .Values.st2workflowengine.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2workflowengine | nindent 8 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -840,6 +861,9 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        {{- if .Values.st2scheduler.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2scheduler | nindent 8 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -947,6 +971,9 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        {{- if .Values.st2notifier.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2notifier | nindent 8 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -1081,6 +1108,9 @@ spec:
           - --single-sensor-mode
           - --sensor-ref={{ $sensor.ref }}
         {{- end }}
+        {{- if .env }}
+        env: {{- include "stackstorm-ha.customEnv" . | nindent 8 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ $.Release.Name }}-st2-urls
@@ -1204,6 +1234,9 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        {{- if .Values.st2actionrunner.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2actionrunner | nindent 8 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -1325,6 +1358,9 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        {{- if .Values.st2garbagecollector.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2garbagecollector | nindent 8 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -1457,6 +1493,7 @@ spec:
         env:
         - name: ST2CLIENT
           value: "1"
+        {{- include "stackstorm-ha.customEnv" .Values.st2client | nindent 8 }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
