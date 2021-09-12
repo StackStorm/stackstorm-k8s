@@ -1016,6 +1016,7 @@ spec:
       tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 
+{{- $one_sensor_per_pod := or (gt (len $.Values.st2.packs.sensors) 1) (index $.Values.st2.packs.sensors 0 "ref") }}
 {{- range .Values.st2.packs.sensors }}
   {{- $sensor := omit $.Values.st2sensorcontainer "name" "ref" "postStartScript" }}
   {{- range $key, $val := . }}
@@ -1040,9 +1041,12 @@ spec:
       app: {{ $name }}
       release: {{ $.Release.Name }}
   # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
-  # It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance. Each sensor node needs to be
-  # provided with proper partition information to share work with other sensor nodes so that the same sensor does not run on different nodes.
-  # See Partitioning Sensors for information on how to partition sensors.
+  # It is possible to run st2sensorcontainer(s) in one of these modes:
+  #   (1) run all sensors in one pod (1 deployment with 1 pod, the default); or
+  #   (2) run one sensor per pod using st2.packs.sensors.
+  # It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance.
+  # Each sensor node needs to be provided with proper partition information to share work with other sensor nodes
+  # so that the same sensor does not run on different nodes. See: https://docs.stackstorm.com/reference/sensor_partitioning.html
   replicas: 1
   template:
     metadata:
@@ -1059,6 +1063,11 @@ spec:
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") $ | sha256sum }}
         {{- if $.Values.st2sensorcontainer.postStartScript }}
         checksum/post-start-script: {{ $.Values.st2sensorcontainer.postStartScript | sha256sum }}
+        {{- end }}
+        {{- if $one_sensor_per_pod }}
+        stackstorm/sensor-mode: one-sensor-per-pod
+        {{- else }}
+        stackstorm/sensor-mode: all-sensors-in-one-pod
         {{- end }}
         {{- if $sensor.annotations }}
           {{- toYaml $sensor.annotations | nindent 8 }}
@@ -1090,7 +1099,7 @@ spec:
         livenessProbe:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- if $sensor.ref }}
+        {{- if $one_sensor_per_pod }}
         command:
           - /opt/stackstorm/st2/bin/st2sensorcontainer
           - --config-file=/etc/st2/st2.conf
