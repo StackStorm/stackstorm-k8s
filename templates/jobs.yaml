@@ -48,6 +48,9 @@ spec:
           - --config-file=/etc/st2/st2.conf
           - --config-file=/etc/st2/st2.docker.conf
           - --config-file=/etc/st2/st2.user.conf
+        {{- if .Values.jobs.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.jobs | nindent 8 }}
+        {{- end }}
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
         - name: st2-rbac-roles-vol
@@ -177,6 +180,9 @@ spec:
           - apikey
           - load
           - /etc/st2/apikeys.yaml
+        {{- if .Values.jobs.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.jobs | nindent 8 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -293,6 +299,9 @@ spec:
           - key
           - load
           - /etc/st2/st2kv.yaml
+        {{- if .Values.jobs.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.jobs | nindent 8 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -402,6 +411,9 @@ spec:
           - --config-file=/etc/st2/st2.user.conf
           - --register-all
           - --register-fail-on-failure
+        {{- if .Values.jobs.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.jobs | nindent 8 }}
+        {{- end }}
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
         {{- include "packs-volume-mounts-for-register-job" . | nindent 8 }}

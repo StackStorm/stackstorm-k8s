@@ -14,7 +14,13 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-{{ toYaml .Values.st2.rbac.roles | indent 2 }}
+{{- range $filename, $contents := .Values.st2.rbac.roles }}
+  {{/* to support removing default files, skip files with empty contents */}}
+  {{- if $contents }}
+  {{ $filename }}: |
+    {{- $contents | nindent 4 }}
+  {{- end }}
+{{- end }}
 
 ---
 apiVersion: v1
@@ -31,7 +37,13 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-{{ toYaml .Values.st2.rbac.assignments | indent 2 }}
+{{- range $filename, $contents := .Values.st2.rbac.assignments }}
+  {{/* to support removing default files, skip files with empty contents */}}
+  {{- if $contents }}
+  {{ $filename }}: |
+    {{- $contents | nindent 4 }}
+  {{- end }}
+{{- end }}
 
 ---
 apiVersion: v1

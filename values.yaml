@@ -61,6 +61,7 @@ st2:
   #  -----END RSA PRIVATE KEY-----
 
   # Custom StackStorm config (st2.user.conf) which will apply settings on top of default st2.conf
+  # Note that Helm templating is supported in this block!
   config: |
     [api]
     allow_origin = '*'
@@ -198,6 +199,7 @@ st2:
     # Custom StackStorm RBAC roles, shipped in '/opt/stackstorm/rbac/roles/'
     # See https://docs.stackstorm.com/rbac.html#defining-roles-and-permission-grants
     roles:
+      # TIP: set files to an empty string to remove them (sample.yaml: "")
       sample.yaml: |
         # sample RBAC role file, see https://docs.stackstorm.com/rbac.html#defining-roles-and-permission-grants
         ---
@@ -207,6 +209,7 @@ st2:
     # Custom StackStorm RBAC role assignments, shipped in '/opt/stackstorm/rbac/assignments/'
     # See: https://docs.stackstorm.com/rbac.html#defining-user-role-assignments
     assignments:
+      # TIP: set files to an empty string to remove them (st2admin.yaml: "")
       st2admin.yaml: |
         ---
         username: st2admin
@@ -290,6 +293,8 @@ st2web:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
   # User-defined st2web config with custom settings to replace default config.js
@@ -318,6 +323,8 @@ st2auth:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
   # postStartScript is optional. It has the contents of a bash script.
@@ -342,6 +349,8 @@ st2api:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
   # postStartScript is optional. It has the contents of a bash script.
@@ -366,6 +375,8 @@ st2stream:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
   # postStartScript is optional. It has the contents of a bash script.
@@ -390,6 +401,8 @@ st2rulesengine:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
   # postStartScript is optional. It has the contents of a bash script.
@@ -413,6 +426,8 @@ st2timersengine:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
   # postStartScript is optional. It has the contents of a bash script.
@@ -437,6 +452,8 @@ st2workflowengine:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
   # postStartScript is optional. It has the contents of a bash script.
@@ -461,6 +478,8 @@ st2scheduler:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
   # postStartScript is optional. It has the contents of a bash script.
@@ -485,6 +504,8 @@ st2notifier:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
   # postStartScript is optional. It has the contents of a bash script.
@@ -519,6 +540,8 @@ st2actionrunner:
   #  - hostnames:
   #      - bar
   #   ip: 8.8.8.8
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
   # postStartScript is optional. It has the contents of a bash script.
@@ -549,6 +572,8 @@ st2sensorcontainer:
   affinity: {}
   nodeSelector: {}
   tolerations: []
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
   # postStartScript is optional. It has the contents of a bash script.
@@ -560,6 +585,8 @@ st2sensorcontainer:
 # The st2client deployment/pod simplifies ad-hoc administration.
 # st2client is a special purpose actionrunner pod, but you can customize it separately
 st2client:
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
   annotations: {}
   # Override default image settings (for now, only tag can be overridden)
   image: {}
@@ -590,6 +617,8 @@ st2garbagecollector:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
   # postStartScript is optional. It has the contents of a bash script.
@@ -608,6 +637,7 @@ st2chatops:
   # Custom hubot adapter ENV variables to pass through which will override st2chatops.env defaults.
   # See https://github.com/StackStorm/st2chatops/blob/master/st2chatops.env
   # for the full list of supported adapters and example ENV variables.
+  # Note that Helm templating is supported for env values in this block!
   env:
     HUBOT_ADAPTER: slack
     HUBOT_SLACK_TOKEN: xoxb-CHANGE-ME-PLEASE
@@ -671,6 +701,8 @@ jobs:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  env: {}
+  # HTTP_PROXY: http://proxy:1234
 
 ##
 ## MongoDB HA configuration (3rd party chart dependency)

@@ -249,3 +249,13 @@ Create the name of the stackstorm-ha service account to use
     {{- end }}
   {{- end }}
 {{- end -}}
+
+{{/*
+Create the custom env list for each deployment
+*/}}
+{{- define "stackstorm-ha.customEnv" -}}
+  {{- range $env, $value := .env }}
+- name: {{ $env | quote }}
+  value: {{ $value | quote }}
+  {{- end }}
+{{- end -}}
