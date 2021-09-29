@@ -5,6 +5,7 @@
 * Allow adding custom env variables to any Deployment or Job. (#120) (by @AngryDeveloper)
 * Template the contents of st2.config and the values in st2chatops.env. This allows adding secrets defined elsewhere in values. (#249) (by @cognifloyd)
 * Set default/sample RBAC config files to "" (empty string) to prevent adding them. This is needed because they cannot be removed by overriding the roles/mappings values. (#247) (by @cognifloyd)
+* Make configuring `stackstorm/sensor-mode=all-sensors-in-one-pod` more obvious by using `st2.packs.sensors` only for `one-sensor-per-pod`. `all-sensors-in-one-pod` mode now only uses values from `st2sensorcontainer`. (#246) (by @cognifloyd)
 
 ## v0.70.0
 * New feature: Shared packs volumes `st2.packs.volumes`. Allow using cluster-specific persistent volumes to store packs, virtualenvs, and (optionally) configs. This enables using `st2 pack install`. It even works with `st2packs` images in `st2.packs.images`. (#199) (by @cognifloyd)

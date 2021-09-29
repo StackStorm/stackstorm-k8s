@@ -153,33 +153,24 @@ st2:
     #   (2) run one sensor per pod using st2.packs.sensors (here).
     # Each sensor node needs to be provided with proper partition information to share work with other sensor
     # nodes so that the same sensor does not run on different nodes.
-    # Defaults come from st2sensorcontainer (see below), with per-sensor overrides defined here.
-    sensors:
-      # With only one sensor listed here, we use all-sensors-in-one-pod mode, unless that sensor has a `ref`.
-      # To partition sensors with one-sensor-per-node, override st2.packs.sensors.
-      # In one-sensor-per-pod mode, make sure each sensor here has both `name` and `ref` (which sensor to run in the pod).
-      # NOTE: Do not modify this file.
-      - name:
-        livenessProbe: {}
-        readinessProbe: {}
-        annotations: {}
-        resources:
-          requests:
-            memory: "100Mi"
-            cpu: "50m"
-        # Override default image settings (for now, only tag can be overridden)
-        image: {}
-          ## Note that Helm templating is supported in this block!
-          #tag: "{{ .Values.image.tag }}"
-        # Additional advanced settings to control pod/deployment placement
-        affinity: {}
-        nodeSelector: {}
-        tolerations: []
-        env: {}
-        # HTTP_PROXY: http://proxy:1234
-        serviceAccount:
-          attach: false
-        # note: postStartScript is not valid here. Use st2sensorcontainer.postStartScript instead.
+    # When this is empty (the default), the chart adds one pod to run all sensors.
+    sensors: []
+      # This is a list of sensor pods (stackstorm/sensor-mode=one-sensor-per-pod).
+      # Each entry should have `name` (the pod name) and `ref` (which sensor to run in the pod).
+      # Each entry can also include other pod settings (annotations, image, resources, etc).
+      # These optional pod settings default to the values in st2sensorcontainer,
+      # note: postStartScript is not valid in st2.packs.sensors. Use st2sensorcontainer.postStartScript instead.
+      #
+      # This example only defines name and ref, accepting all defaults in st2sensorcontainer:
+      # - name: some-sensor-node
+      #   ref: some_pack.some_sensor
+      #
+      # This example also uses a custom image tag:
+      # - name: another-sensor-node
+      #   ref: some_pack.another_sensor
+      #   image:
+      #     tag: 3.5.0-another_sensor-r1
+
   # Import data into StackStorm's Key/Value datastore (https://docs.stackstorm.com/datastore.html)
   keyvalue:
     #- name: st2_version
@@ -560,8 +551,11 @@ st2actionrunner:
   postStartScript: ""
 
 # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
-# Please see st2.packs.sensors for each sensor instance's config.
-# This contains default settings for all sensor pods.
+# It is possible to run st2sensorcontainer(s) in one of these modes:
+#   (1) run all sensors in one pod (1 deployment with 1 pod, the default); or
+#   (2) run one sensor per pod using st2.packs.sensors (see above).
+# To use the default mode (all sensors in one pod), st2.packs.sensors must be empty.
+# For one-sensor-per-pod, define defaults here and add config for each sensor to st2.packs.sensors (above).
 st2sensorcontainer:
   resources:
     requests:
