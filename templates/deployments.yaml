@@ -1110,7 +1110,7 @@ spec:
           - --single-sensor-mode
           - --sensor-ref={{ required "You must define `ref` for everything in st2.packs.sensors. This assigns each sensor to a pod." $sensor.ref }}
         {{- end }}
-        {{- if .env }}
+        {{- if $sensor.env }}
         env: {{- include "stackstorm-ha.customEnv" . | nindent 8 }}
         {{- end }}
         envFrom:
