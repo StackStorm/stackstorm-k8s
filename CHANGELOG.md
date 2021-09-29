@@ -3,6 +3,7 @@
 ## In Development
 * Explicitly differentiate sensor modes: `all-sensors-in-one-pod` vs `one-sensor-per-pod`. Exposes the mode in new `stackstorm/sensor-mode` annotation. (#222) (by @cognifloyd)
 * Allow adding custom env variables to any Deployment or Job. (#120) (by @AngryDeveloper)
+* Template the contents of st2.config and the values in st2chatops.env. This allows adding secrets defined elsewhere in values. (#249) (by @cognifloyd)
 * Set default/sample RBAC config files to "" (empty string) to prevent adding them. This is needed because they cannot be removed by overriding the roles/mappings values. (#247) (by @cognifloyd)
 
 ## v0.70.0
@@ -27,7 +28,7 @@
 * Fix a bug when datastore cryto keys are not able to read by the rules engine. ``datastore_crypto_key`` volume is now mounted on the ``st2rulesengine`` pods (#223) (by @moti1992)
 * Minimize required sensor config by using default values from st2sensorcontainer for each sensor in st2.packs.sensors (#221) (by @cognifloyd)
 * Do not template rabbitmq secrets file unless rabbitmq subchart is enabled. (#242) (by @cognifloyd)
-* Automatically st2chatop.env values if needed. (#241) (by @cognifloyd)
+* Automatically stringify st2chatop.env values if needed. (#241) (by @cognifloyd)
 
 ## v0.60.0
 * Switch st2 version to `v3.5dev` as a new latest development version (#187)
