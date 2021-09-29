@@ -208,6 +208,7 @@ st2:
     # Custom StackStorm RBAC roles, shipped in '/opt/stackstorm/rbac/roles/'
     # See https://docs.stackstorm.com/rbac.html#defining-roles-and-permission-grants
     roles:
+      # TIP: set files to an empty string to remove them (sample.yaml: "")
       sample.yaml: |
         # sample RBAC role file, see https://docs.stackstorm.com/rbac.html#defining-roles-and-permission-grants
         ---
@@ -217,6 +218,7 @@ st2:
     # Custom StackStorm RBAC role assignments, shipped in '/opt/stackstorm/rbac/assignments/'
     # See: https://docs.stackstorm.com/rbac.html#defining-user-role-assignments
     assignments:
+      # TIP: set files to an empty string to remove them (st2admin.yaml: "")
       st2admin.yaml: |
         ---
         username: st2admin
