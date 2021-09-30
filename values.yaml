@@ -461,6 +461,10 @@ st2workflowengine:
   # The pod will not be marked as "running" until this script completes successfully.
   # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   postStartScript: ""
+  # mount extra volumes on the st2workflowengine pod(s) (primarily useful for k8s-provisioned secrets)
+  ## Note that Helm templating is supported in 'mount' and 'volume'
+  extra_volumes: []
+    # see examples under st2workflowengine.extra_volumes
 # https://docs.stackstorm.com/reference/ha.html#st2scheduler
 # TODO: Description TBD
 st2scheduler:
@@ -549,6 +553,32 @@ st2actionrunner:
   # The pod will not be marked as "running" until this script completes successfully.
   # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   postStartScript: ""
+  # mount extra volumes on the st2actionrunner pods (primarily useful for k8s-provisioned secrets)
+  ## Note that Helm templating is supported in 'mount' and 'volume'
+  extra_volumes: []
+    # For example, if some actions in the fictional acme pack
+    # needed some file-based client-side certificates:
+    # - name: st2-encryption-key-vol
+    #   mount:
+    #     mountPath: "{{ .Values.acme.ssl_certs_dir }}"
+    #     readOnly: true
+    #   volume:
+    #     secret:
+    #       secretName: "{{ .Release.Name }}-st2-acme-pack-certs"
+    #       items:
+    #       - key: ssl_certificate
+    #         path: acme.crt
+    #       - key: ssl_certificate_key
+    #         path: acme.key
+    #
+    # An example that adds a global ansible.cfg file for the ansible pack.
+    # - name: global-ansible-config
+    #   mount:
+    #     mountPath: /etc/ansible/ansible.cfg
+    #     subPath: ansible.cfg
+    #   volume:
+    #     configMap:
+    #       name: "{{ .Release.Name }}-st2-ansible-config"
 
 # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
 # It is possible to run st2sensorcontainer(s) in one of these modes:
@@ -581,6 +611,10 @@ st2sensorcontainer:
   # The pod will not be marked as "running" until this script completes successfully.
   # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   postStartScript: ""
+  # mount extra volumes on the st2sensorcontainer pod(s) (primarily useful for k8s-provisioned secrets)
+  ## Note that Helm templating is supported in 'mount' and 'volume'
+  extra_volumes: []
+    # see examples under st2actionrunner.extra_volumes
 
 # The st2client deployment/pod simplifies ad-hoc administration.
 # st2client is a special purpose actionrunner pod, but you can customize it separately
@@ -597,6 +631,10 @@ st2client:
   # The pod will not be marked as "running" until this script completes successfully.
   # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   postStartScript: ""
+  # mount extra volumes on the st2client pod (primarily useful for k8s-provisioned secrets)
+  ## Note that Helm templating is supported in 'mount' and 'volume'
+  extra_volumes: []
+    # see examples under st2actionrunner.extra_volumes
 
 # https://docs.stackstorm.com/reference/ha.html#st2garbagecollector
 # Optional service that cleans up old executions and other operations data based on setup configurations.
