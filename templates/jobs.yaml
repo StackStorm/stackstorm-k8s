@@ -298,6 +298,7 @@ spec:
           - st2
           - key
           - load
+          - "--convert"  # Convert non-string types (hash, array, boolean, int, float) to a JSON string before loading
           - /etc/st2/st2kv.yaml
         {{- if .Values.jobs.env }}
         env: {{- include "stackstorm-ha.customEnv" .Values.jobs | nindent 8 }}
