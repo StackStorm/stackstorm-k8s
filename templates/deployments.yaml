@@ -1030,10 +1030,12 @@ spec:
 {{- range ($one_sensor_per_pod | ternary ($.Values.st2.packs.sensors) (until $sensor_deployments_count)) }}
   {{- $sensor := omit $.Values.st2sensorcontainer "name" "ref" "deployments" "postStartScript" }}
   {{- if $one_sensor_per_pod }}
-    {{- range $key, $val := . }}{{/* . is an entry in st2.packs.sensors */}}
+    {{/* . is an entry in st2.packs.sensors */}}
+    {{- range $key, $val := . }}
       {{- $_ := set $sensor $key $val }}
     {{- end }}
   {{- else if $some_sensors_per_pod }}
+    {{/* . is an index number of deployments (starting from 0) */}}
     {{- $max_hash := 4294967296 }}
     {{- $sensor_range_size := div (add1 $max_hash) $sensor_deployments_count }}
     {{- $sensor_range_start := mul . $sensor_range_size }}
@@ -1041,7 +1043,7 @@ spec:
     {{/* deal with integer math rounding errors by moving the last range_end to the max_hash */}}
     {{- $sensor_range_end := eq (add1 .) $sensor_deployments_count | ternary $max_hash $sensor_range_end }}
     {{- $_ := set $sensor "hash_ranges" (print $sensor_range_start ".." $sensor_range_end) }}
-    {{- $_ := set $sensor "name" (. | toString) }}{{/* . is the deployment number (starting from 0) */}}
+    {{- $_ := set $sensor "name" (. | toString) }}
   {{- end }}
   {{- $name := print "st2sensorcontainer" (include "hyphenPrefix" $sensor.name) }}
 ---
@@ -1140,7 +1142,7 @@ spec:
         livenessProbe:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- if or $one_sensor_per_pod $some_sensors_per_pod }}{{/* ie: when there is more than one sensor pod */}}
+        {{- if or $one_sensor_per_pod $some_sensors_per_pod }}{{/* ie: when there is more than one pod of sensors */}}
         command:
           - /opt/stackstorm/st2/bin/st2sensorcontainer
           - --config-file=/etc/st2/st2.conf
