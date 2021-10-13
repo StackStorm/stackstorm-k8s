@@ -1,4 +1,4 @@
-{{- if and .Values.st2.rbac.enabled .Values.jobs.default_hooks.apply_rbac_definitions -}}
+{{- if and .Values.st2.rbac.enabled (not (.Values.jobs.skip | has "apply_rbac_definitions")) -}}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -90,7 +90,7 @@ spec:
     {{- end }}
 
 {{- end }}
-{{- if .Values.jobs.default_hooks.apikey_load }}
+{{- if not (.Values.jobs.skip | has "apikey_load") }}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -220,7 +220,7 @@ spec:
     {{- end }}
 
 {{- end }}
-{{- if .Values.jobs.default_hooks.key_load }}
+{{- if not (.Values.jobs.skip | has "key_load") }}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -344,7 +344,7 @@ spec:
     {{- end }}
 
 {{- end }}
-{{- if .Values.jobs.default_hooks.register_content }}
+{{- if not (.Values.jobs.skip | has "register_content") }}
 ---
 apiVersion: batch/v1
 kind: Job

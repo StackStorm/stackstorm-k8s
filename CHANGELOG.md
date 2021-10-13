@@ -8,7 +8,7 @@
 * Make configuring `stackstorm/sensor-mode=all-sensors-in-one-pod` more obvious by using `st2.packs.sensors` only for `one-sensor-per-pod`. `all-sensors-in-one-pod` mode now only uses values from `st2sensorcontainer`. (#246) (by @cognifloyd)
 * Use "--convert" when loading keys into datastore (in key-load Job) so that `st2.keyvalue[].value` can be any basic JSON data type. (#253) (by @cognifloyd)
 * New feature: Add `extra_volumes` to `st2actionrunner`, `st2client`, `st2sensorcontainer`. This is useful for loading volumes to be used by actions or sensors. This might include secrets (like ssl certificates) and configuration (like system-wide ansible.cfg). (#254) (by @cognifloyd)
-* Some `helm upgrades` do not need to run all the jobs. An upgrade that only touches RBAC config, for example, does not need to run the register-content job. Use `--set jobs.default_hooks.register_content=false` to skip the register-content job. Do likewise for other jobs that you'd like to skip. (#255) (by @cognifloyd)
+* Some `helm upgrades` do not need to run all the jobs. An upgrade that only touches RBAC config, for example, does not need to run the register-content job. Use `--set jobs.skip=apikey_load,key_load,register_content` to skip the other jobs. (#255) (by @cognifloyd)
 
 ## v0.70.0
 * New feature: Shared packs volumes `st2.packs.volumes`. Allow using cluster-specific persistent volumes to store packs, virtualenvs, and (optionally) configs. This enables using `st2 pack install`. It even works with `st2packs` images in `st2.packs.images`. (#199) (by @cognifloyd)
