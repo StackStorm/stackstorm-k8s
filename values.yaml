@@ -741,6 +741,13 @@ jobs:
   affinity: {}
   env: {}
   # HTTP_PROXY: http://proxy:1234
+  #
+  # Advanced controls to skip creating jobs.
+  # This is useful in targeted upgrades with `--set`. Do not set this in values files.
+  # Possible jobs include: apply_rbac_definitions, apikey_load, key_load, register_content
+  # For example, if an upgrade only touches RBAC config, use this to disable other jobs:
+  #   helm upgrade ... --set 'jobs.skip={apikey_load,key_load,register_content}'
+  skip: []
 
 ##
 ## MongoDB HA configuration (3rd party chart dependency)
