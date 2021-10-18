@@ -51,6 +51,13 @@ spec:
         {{- if .Values.jobs.env }}
         env: {{- include "stackstorm-ha.customEnv" .Values.jobs | nindent 8 }}
         {{- end }}
+        {{- if .Values.jobs.envFromSecrets }}
+        envFrom:
+        {{- range .Values.jobs.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
+        {{- end }}
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
         - name: st2-rbac-roles-vol
@@ -178,6 +185,10 @@ spec:
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
+        {{- range .Values.jobs.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
         volumeMounts:
         - name: st2client-config-vol
           mountPath: /root/.st2/
@@ -291,6 +302,10 @@ spec:
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
+        {{- range .Values.jobs.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
         - name: st2client-config-vol
@@ -401,6 +416,13 @@ spec:
           - --register-fail-on-failure
         {{- if .Values.jobs.env }}
         env: {{- include "stackstorm-ha.customEnv" .Values.jobs | nindent 8 }}
+        {{- end }}
+        {{- if .Values.jobs.envFromSecrets }}
+        envFrom:
+        {{- range .Values.jobs.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
         {{- end }}
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
