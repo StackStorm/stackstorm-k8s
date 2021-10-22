@@ -33,19 +33,11 @@ spec:
     envFrom:
     - configMapRef:
         name: {{ .Release.Name }}-st2-urls
+    - secretRef:
+        name: {{ .Release.Name }}-st2-auth
     env:
     - name: BATS_HELPERS_DIR
       value: /tools/bats-helpers/
-    - name: ST2_AUTH_USERNAME
-      valueFrom:
-        secretKeyRef:
-          name: {{ .Release.Name }}-st2-auth
-          key: username
-    - name: ST2_AUTH_PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: {{ .Release.Name }}-st2-auth
-          key: password
     - name: ST2_VERSION
       value: "{{ .Chart.AppVersion }}"
     - name: ST2_RBAC_ENABLED

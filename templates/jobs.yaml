@@ -148,17 +148,8 @@ spec:
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
-        env:
-        - name: ST2_AUTH_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: username
-        - name: ST2_AUTH_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: password
+        - secretRef:
+            name: {{ .Release.Name }}-st2-auth
         volumeMounts:
         - name: st2client-config-vol
           mountPath: /root/.st2/
@@ -269,17 +260,8 @@ spec:
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
-        env:
-        - name: ST2_AUTH_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: username
-        - name: ST2_AUTH_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: password
+        - secretRef:
+            name: {{ .Release.Name }}-st2-auth
         volumeMounts:
         - name: st2client-config-vol
           mountPath: /root/.st2/
