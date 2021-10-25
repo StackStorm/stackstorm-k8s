@@ -749,10 +749,6 @@ spec:
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
-        {{- range .Values.st2workflowengine.envFromSecrets }}
-        - secretRef:
-            name: {{ . }}
-        {{- end }}
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
         {{- if .Values.st2.datastore_crypto_key }}

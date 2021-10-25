@@ -454,8 +454,6 @@ st2workflowengine:
   affinity: {}
   env: {}
   # HTTP_PROXY: http://proxy:1234
-  ## These named secrets (managed outside this chart) will be added to envFrom.
-  envFromSecrets: []
   serviceAccount:
     attach: false
   # postStartScript is optional. It has the contents of a bash script.
