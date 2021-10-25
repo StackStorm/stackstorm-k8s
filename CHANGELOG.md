@@ -10,6 +10,7 @@
 * New feature: Add `extra_volumes` to `st2actionrunner`, `st2client`, `st2sensorcontainer`. This is useful for loading volumes to be used by actions or sensors. This might include secrets (like ssl certificates) and configuration (like system-wide ansible.cfg). (#254) (by @cognifloyd)
 * Some `helm upgrades` do not need to run all the jobs. An upgrade that only touches RBAC config, for example, does not need to run the register-content job. Use `--set 'jobs.skip={apikey_load,key_load,register_content}'` to skip the other jobs. (#255) (by @cognifloyd)
 * Refactor deployments/jobs to inject st2 username/password via `envFrom` instead of via `env`. (#257) (by @cognifloyd)
+* New feature: Add `envFromSecrets` to `st2actionrunner`, `st2client`, `st2sensorcontainer`, and jobs. This is useful for adding custom secrets to the environment. This complements the `extra_volumes` feature (loading secrets as files) to facilitate loading secrets that are not easily injected via the filesystem. (#259) (by @cognifloyd)
 
 ## v0.70.0
 * New feature: Shared packs volumes `st2.packs.volumes`. Allow using cluster-specific persistent volumes to store packs, virtualenvs, and (optionally) configs. This enables using `st2 pack install`. It even works with `st2packs` images in `st2.packs.images`. (#199) (by @cognifloyd)
