@@ -1481,6 +1481,7 @@ spec:
       {{- if and .Values.st2.packs.images (not .Values.st2.packs.volumes.enabled) }}
         {{- include "packs-initContainers" . | nindent 6 }}
       {{- end }}
+      {{- if .Values.st2client.generateST2ClientConfig }}
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       - name: generate-st2client-config
         image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2client.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
@@ -1503,6 +1504,7 @@ spec:
             username = ${ST2_AUTH_USERNAME}
             password = ${ST2_AUTH_PASSWORD}
             EOT
+      {{- end }}
       containers:
       - name: st2client
         image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2client.image.tag | default .Values.image.tag) . }}'
@@ -1528,8 +1530,10 @@ spec:
         - name: st2-rbac-mappings-vol
           mountPath: /opt/stackstorm/rbac/mappings/
         {{- end }}
+        {{- if .Values.st2client.generateST2ClientConfig }}
         - name: st2client-config-vol
           mountPath: /root/.st2/
+        {{- end }}
         - name: st2-ssh-key-vol
           mountPath: {{ tpl .Values.st2.system_user.ssh_key_file . | dir | dir }}/.ssh-key-vol/
         {{- if .Values.st2.datastore_crypto_key }}
@@ -1579,9 +1583,11 @@ spec:
           configMap:
             name: {{ .Release.Name }}-st2-rbac-mappings
         {{- end }}
+        {{- if .Values.st2client.generateST2ClientConfig }}
         - name: st2client-config-vol
           emptyDir:
             medium: Memory
+        {{- end }}
         - name: st2-ssh-key-vol
           secret:
             secretName: {{ .Release.Name }}-st2-ssh
