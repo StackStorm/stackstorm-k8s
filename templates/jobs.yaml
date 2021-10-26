@@ -1,4 +1,4 @@
-{{- if .Values.st2.rbac.enabled -}}
+{{- if and .Values.st2.rbac.enabled (not (.Values.jobs.skip | has "apply_rbac_definitions")) -}}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -51,6 +51,13 @@ spec:
         {{- if .Values.jobs.env }}
         env: {{- include "stackstorm-ha.customEnv" .Values.jobs | nindent 8 }}
         {{- end }}
+        {{- if .Values.jobs.envFromSecrets }}
+        envFrom:
+        {{- range .Values.jobs.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
+        {{- end }}
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
         - name: st2-rbac-roles-vol
@@ -90,6 +97,7 @@ spec:
     {{- end }}
 
 {{- end }}
+{{- if not (.Values.jobs.skip | has "apikey_load") }}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -147,17 +155,8 @@ spec:
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
-        env:
-        - name: ST2_AUTH_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: username
-        - name: ST2_AUTH_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: password
+        - secretRef:
+            name: {{ .Release.Name }}-st2-auth
         volumeMounts:
         - name: st2client-config-vol
           mountPath: /root/.st2/
@@ -186,6 +185,10 @@ spec:
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
+        {{- range .Values.jobs.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
         volumeMounts:
         - name: st2client-config-vol
           mountPath: /root/.st2/
@@ -218,6 +221,8 @@ spec:
       tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 
+{{- end }}
+{{- if not (.Values.jobs.skip | has "key_load") }}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -266,17 +271,8 @@ spec:
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
-        env:
-        - name: ST2_AUTH_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: username
-        - name: ST2_AUTH_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: password
+        - secretRef:
+            name: {{ .Release.Name }}-st2-auth
         volumeMounts:
         - name: st2client-config-vol
           mountPath: /root/.st2/
@@ -306,6 +302,10 @@ spec:
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
+        {{- range .Values.jobs.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
         - name: st2client-config-vol
@@ -340,6 +340,8 @@ spec:
       tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 
+{{- end }}
+{{- if not (.Values.jobs.skip | has "register_content") }}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -415,6 +417,13 @@ spec:
         {{- if .Values.jobs.env }}
         env: {{- include "stackstorm-ha.customEnv" .Values.jobs | nindent 8 }}
         {{- end }}
+        {{- if .Values.jobs.envFromSecrets }}
+        envFrom:
+        {{- range .Values.jobs.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
+        {{- end }}
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
         {{- include "packs-volume-mounts-for-register-job" . | nindent 8 }}
@@ -441,3 +450,5 @@ spec:
     {{- with .Values.jobs.tolerations }}
       tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
+
+{{- end }}

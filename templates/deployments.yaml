@@ -58,17 +58,9 @@ spec:
       - name: generate-htpasswd
         image: '{{ template "imageRepository" . }}/st2auth:{{ tpl (.Values.st2auth.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        env:
-        - name: ST2_AUTH_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: username
-        - name: ST2_AUTH_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: password
+        envFrom:
+        - secretRef:
+            name: {{ .Release.Name }}-st2-auth
         volumeMounts:
         - name: htpasswd-vol
           mountPath: /tmp/st2
@@ -1162,6 +1154,10 @@ spec:
         envFrom:
         - configMapRef:
             name: {{ $.Release.Name }}-st2-urls
+        {{- range $sensor.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
         volumeMounts:
         {{- include "st2-config-volume-mounts" $ | nindent 8 }}
         {{- include "packs-volume-mounts" $ | nindent 8 }}
@@ -1307,6 +1303,10 @@ spec:
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
+        {{- range .Values.st2actionrunner.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
         - name: st2-ssh-key-vol
@@ -1537,17 +1537,8 @@ spec:
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
-        env:
-        - name: ST2_AUTH_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: username
-        - name: ST2_AUTH_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: password
+        - secretRef:
+            name: {{ .Release.Name }}-st2-auth
         volumeMounts:
         - name: st2client-config-vol
           mountPath: /root/.st2/
@@ -1572,6 +1563,10 @@ spec:
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
+        {{- range .Values.st2client.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
         {{- if .Values.st2.rbac.enabled }}
@@ -1700,22 +1695,13 @@ spec:
       - name: st2chatops
         image: '{{ .Values.st2chatops.image.repository | default "stackstorm" }}/{{ .Values.st2chatops.image.name | default "st2chatops" }}:{{ tpl (.Values.st2chatops.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.st2chatops.image.pullPolicy | default .Values.image.pullPolicy }}
-        {{- if not (hasKey .Values.st2chatops.env "ST2_API_KEY") }}
-        env:
-        - name: ST2_AUTH_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: username
-        - name: ST2_AUTH_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: password
-        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
+        {{- if not (hasKey .Values.st2chatops.env "ST2_API_KEY") }}
+        - secretRef:
+            name: {{ .Release.Name }}-st2-auth
+        {{- end }}
         - secretRef:
             name: {{ .Release.Name }}-st2chatops
         ports:
