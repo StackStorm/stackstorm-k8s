@@ -9,6 +9,8 @@
 * Use "--convert" when loading keys into datastore (in key-load Job) so that `st2.keyvalue[].value` can be any basic JSON data type. (#253) (by @cognifloyd)
 * New feature: Add `extra_volumes` to `st2actionrunner`, `st2client`, `st2sensorcontainer`. This is useful for loading volumes to be used by actions or sensors. This might include secrets (like ssl certificates) and configuration (like system-wide ansible.cfg). (#254) (by @cognifloyd)
 * Some `helm upgrades` do not need to run all the jobs. An upgrade that only touches RBAC config, for example, does not need to run the register-content job. Use `--set 'jobs.skip={apikey_load,key_load,register_content}'` to skip the other jobs. (#255) (by @cognifloyd)
+* Refactor deployments/jobs to inject st2 username/password via `envFrom` instead of via `env`. (#257) (by @cognifloyd)
+* New feature: Add `envFromSecrets` to `st2actionrunner`, `st2client`, `st2sensorcontainer`, and jobs. This is useful for adding custom secrets to the environment. This complements the `extra_volumes` feature (loading secrets as files) to facilitate loading secrets that are not easily injected via the filesystem. (#259) (by @cognifloyd)
 * Improve `helm upgrade` so that automated upgrade jobs can use a StackStorm API key instead of username/password. Create an `apikey` in your StackStorm instance, just for helm, and then add the key to your values file under `jobs.api_key`. (#256) (by @cognifloyd)
 
 ## v0.70.0

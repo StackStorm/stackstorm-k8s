@@ -51,6 +51,13 @@ spec:
         {{- if .Values.jobs.env }}
         env: {{- include "stackstorm-ha.customEnv" .Values.jobs | nindent 8 }}
         {{- end }}
+        {{- if .Values.jobs.envFromSecrets }}
+        envFrom:
+        {{- range .Values.jobs.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
+        {{- end }}
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
         - name: st2-rbac-roles-vol
@@ -148,25 +155,8 @@ spec:
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
-        env:
-        {{- if .Values.jobs.api_key }}
-        - name: ST2_API_KEY
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: jobs_api_key
-        {{- else }}
-        - name: ST2_AUTH_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: username
-        - name: ST2_AUTH_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: password
-        {{- end }}
+        - secretRef:
+            name: {{ .Release.Name }}-st2-auth
         volumeMounts:
         - name: st2client-config-vol
           mountPath: /root/.st2/
@@ -177,8 +167,8 @@ spec:
           - |
             cat <<EOT > /root/.st2/config
             [credentials]
-            {{- if .Values.jobs.api_key }}
-            api_key = ${ST2_API_KEY}
+            {{- if and .Release.IsUpgrade .Values.jobs.api_key }}
+            api_key = ${JOBS_ST2_API_KEY}
             {{- else }}
             username = ${ST2_AUTH_USERNAME}
             password = ${ST2_AUTH_PASSWORD}
@@ -199,6 +189,10 @@ spec:
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
+        {{- range .Values.jobs.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
         volumeMounts:
         - name: st2client-config-vol
           mountPath: /root/.st2/
@@ -281,25 +275,8 @@ spec:
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
-        env:
-        {{- if .Values.jobs.api_key }}
-        - name: ST2_API_KEY
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: jobs_api_key
-        {{- else }}
-        - name: ST2_AUTH_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: username
-        - name: ST2_AUTH_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: password
-        {{- end }}
+        - secretRef:
+            name: {{ .Release.Name }}-st2-auth
         volumeMounts:
         - name: st2client-config-vol
           mountPath: /root/.st2/
@@ -310,8 +287,8 @@ spec:
           - |
             cat <<EOT > /root/.st2/config
             [credentials]
-            {{- if .Values.jobs.api_key }}
-            api_key = ${ST2_API_KEY}
+            {{- if and .Release.IsUpgrade .Values.jobs.api_key }}
+            api_key = ${JOBS_ST2_API_KEY}
             {{- else }}
             username = ${ST2_AUTH_USERNAME}
             password = ${ST2_AUTH_PASSWORD}
@@ -333,6 +310,10 @@ spec:
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
+        {{- range .Values.jobs.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
         - name: st2client-config-vol
@@ -443,6 +424,13 @@ spec:
           - --register-fail-on-failure
         {{- if .Values.jobs.env }}
         env: {{- include "stackstorm-ha.customEnv" .Values.jobs | nindent 8 }}
+        {{- end }}
+        {{- if .Values.jobs.envFromSecrets }}
+        envFrom:
+        {{- range .Values.jobs.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
         {{- end }}
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
