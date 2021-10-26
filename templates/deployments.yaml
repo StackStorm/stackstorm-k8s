@@ -1116,6 +1116,10 @@ spec:
         envFrom:
         - configMapRef:
             name: {{ $.Release.Name }}-st2-urls
+        {{- range $sensor.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
         volumeMounts:
         {{- include "st2-config-volume-mounts" $ | nindent 8 }}
         {{- include "packs-volume-mounts" $ | nindent 8 }}
@@ -1250,6 +1254,10 @@ spec:
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
+        {{- range .Values.st2actionrunner.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
         - name: st2-ssh-key-vol
@@ -1506,6 +1514,10 @@ spec:
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
+        {{- range .Values.st2client.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
         {{- if .Values.st2.rbac.enabled }}

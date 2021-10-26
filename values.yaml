@@ -546,6 +546,8 @@ st2actionrunner:
   #   ip: 8.8.8.8
   env: {}
   # HTTP_PROXY: http://proxy:1234
+  ## These named secrets (managed outside this chart) will be added to envFrom.
+  envFromSecrets: []
   serviceAccount:
     attach: false
   # postStartScript is optional. It has the contents of a bash script.
@@ -604,6 +606,8 @@ st2sensorcontainer:
   tolerations: []
   env: {}
   # HTTP_PROXY: http://proxy:1234
+  ## These named secrets (managed outside this chart) will be added to envFrom.
+  envFromSecrets: []
   serviceAccount:
     attach: false
   # postStartScript is optional. It has the contents of a bash script.
@@ -621,6 +625,8 @@ st2sensorcontainer:
 st2client:
   env: {}
   # HTTP_PROXY: http://proxy:1234
+  ## These named secrets (managed outside this chart) will be added to envFrom.
+  envFromSecrets: []
   annotations: {}
   # Override default image settings (for now, only tag can be overridden)
   image: {}
@@ -673,6 +679,7 @@ st2chatops:
   # Enable st2chatops (default: false)
   enabled: false
   # Custom hubot adapter ENV variables to pass through which will override st2chatops.env defaults.
+  # These env vars get stored in a k8s secret loaded using envFrom.
   # See https://github.com/StackStorm/st2chatops/blob/master/st2chatops.env
   # for the full list of supported adapters and example ENV variables.
   # Note that Helm templating is supported for env values in this block!
@@ -741,6 +748,8 @@ jobs:
   affinity: {}
   env: {}
   # HTTP_PROXY: http://proxy:1234
+  ## These named secrets (managed outside this chart) will be added to envFrom.
+  envFromSecrets: []
   #
   # Advanced controls to skip creating jobs.
   # This is useful in targeted upgrades with `--set`. Do not set this in values files.
