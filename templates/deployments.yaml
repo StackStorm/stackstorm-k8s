@@ -1490,6 +1490,10 @@ spec:
             name: {{ .Release.Name }}-st2-urls
         - secretRef:
             name: {{ .Release.Name }}-st2-auth
+        {{- range .Values.st2client.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
         volumeMounts:
         - name: st2client-config-vol
           mountPath: /root/.st2/
