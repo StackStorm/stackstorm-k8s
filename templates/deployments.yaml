@@ -1499,9 +1499,7 @@ spec:
           - '-ec'
           - |
             cat <<EOT > /root/.st2/config
-            [credentials]
-            username = ${ST2_AUTH_USERNAME}
-            password = ${ST2_AUTH_PASSWORD}
+            {{- tpl .Values.st2client.st2clientConfig . | nindent 12 }}
             EOT
       containers:
       - name: st2client
