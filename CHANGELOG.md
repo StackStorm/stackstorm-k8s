@@ -11,6 +11,7 @@
 * Some `helm upgrades` do not need to run all the jobs. An upgrade that only touches RBAC config, for example, does not need to run the register-content job. Use `--set 'jobs.skip={apikey_load,key_load,register_content}'` to skip the other jobs. (#255) (by @cognifloyd)
 * Refactor deployments/jobs to inject st2 username/password via `envFrom` instead of via `env`. (#257) (by @cognifloyd)
 * New feature: Add `envFromSecrets` to `st2actionrunner`, `st2client`, `st2sensorcontainer`, and jobs. This is useful for adding custom secrets to the environment. This complements the `extra_volumes` feature (loading secrets as files) to facilitate loading secrets that are not easily injected via the filesystem. (#259) (by @cognifloyd)
+* New feature to include `nodeSelector`, `affinity` and `tolerations` to `st2client`, allowing more flexibility to pod positioning. (#263) (by @sandesvitor)
 * Template `~/.st2/config`. This allows customizing the settings used by the `st2client` and jobs pods for using the st2 apis. (#262) (by @cognifloyd)
 
 ## v0.70.0
