@@ -641,6 +641,10 @@ st2client:
   ## Note that Helm templating is supported in 'mount' and 'volume'
   extra_volumes: []
     # see examples under st2actionrunner.extra_volumes
+  # Additional advanced settings to control pod/deployment placement
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
 
 # https://docs.stackstorm.com/reference/ha.html#st2garbagecollector
 # Optional service that cleans up old executions and other operations data based on setup configurations.

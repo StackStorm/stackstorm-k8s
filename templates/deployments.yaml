@@ -1599,6 +1599,15 @@ spec:
         - name: st2-post-start-script-vol
           configMap:
             name: {{ .Release.Name }}-st2client-post-start-script
+    {{- with .Values.st2client.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.st2client.affinity }}
+      affinity: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.st2client.tolerations }}
+      tolerations: {{- toYaml . | nindent 8 }}
+    {{- end }}
 
 {{ if .Values.st2chatops.enabled -}}
 ---
