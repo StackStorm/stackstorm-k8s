@@ -624,6 +624,7 @@ st2sensorcontainer:
 # st2client is a special purpose actionrunner pod, but you can customize it separately
 st2client:
   # st2client config (~/.st2/config) template.
+  # see: https://docs.stackstorm.com/reference/cli.html#configuration-file
   # You can access env variables here because this is used in a bash heredoc.
   # For example, you could use a var injected with envFromSecrets.
   # Note that Helm templating is supported in this block!
@@ -738,6 +739,7 @@ st2chatops:
 ##
 jobs:
   # st2client config (~/.st2/config) template for jobs that need it.
+  # see: https://docs.stackstorm.com/reference/cli.html#configuration-file
   # You can access env variables here because this is used in a bash heredoc.
   # For example, you could use a var injected with envFromSecrets.
   # Note that Helm templating is supported in this block!
