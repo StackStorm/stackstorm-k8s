@@ -1490,6 +1490,10 @@ spec:
             name: {{ .Release.Name }}-st2-urls
         - secretRef:
             name: {{ .Release.Name }}-st2-auth
+        {{- range .Values.st2client.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
         volumeMounts:
         - name: st2client-config-vol
           mountPath: /root/.st2/
@@ -1499,9 +1503,7 @@ spec:
           - '-ec'
           - |
             cat <<EOT > /root/.st2/config
-            [credentials]
-            username = ${ST2_AUTH_USERNAME}
-            password = ${ST2_AUTH_PASSWORD}
+            {{- tpl .Values.st2client.st2clientConfig . | nindent 12 }}
             EOT
       containers:
       - name: st2client
