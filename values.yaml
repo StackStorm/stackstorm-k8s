@@ -299,6 +299,10 @@ st2web:
     attach: false
   # Have st2web pod and service use HTTPS on port 443 when true. default: false (use HTTP on port 80)
   use_https: false
+  # mount extra volumes on the st2web pod(s) (primarily useful for k8s-provisioned secrets)
+  ## Note that Helm templating is supported in 'mount' and 'volume'
+  extra_volumes: []
+    # see examples under st2workflowengine.extra_volumes
   # User-defined st2web config with custom settings to replace default config.js
   # See https://github.com/StackStorm/st2web#connecting-to-st2-server for more info
   # config: |

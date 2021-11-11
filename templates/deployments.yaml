@@ -433,11 +433,15 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
             optional: true
-    {{- if or .Values.st2web.config .Values.st2web.postStartScript }}
+    {{- if or .Values.st2web.config .Values.st2web.extra_volumes .Values.st2web.postStartScript }}
         volumeMounts:
     {{- else }}
         volumeMounts: []
     {{- end }}
+        {{- range .Values.st2web.extra_volumes }}
+          - name: {{ required "Each volume must have a 'name' in st2web.extra_volumes" .name }}
+            {{- tpl (required "Each volume must have a 'mount' definition in st2web.extra_volumes" .mount | toYaml) $ | nindent 12 }}
+        {{- end }}
         {{- if .Values.st2web.config }}
           - name: st2web-config-vol
             mountPath: /opt/stackstorm/static/webui/config.js
@@ -457,11 +461,15 @@ spec:
     {{- if .Values.st2web.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
-    {{- if or .Values.st2web.config .Values.st2web.postStartScript }}
+    {{- if or .Values.st2web.config .Values.st2web.extra_volumes .Values.st2web.postStartScript }}
       volumes:
     {{- else }}
       volumes: []
     {{- end }}
+        {{- range .Values.st2web.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2web.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'volume' definition in st2web.extra_volumes" .volume | toYaml) $ | nindent 10 }}
+        {{- end }}
         {{- if .Values.st2web.config }}
         - name: st2web-config-vol
           configMap:
