@@ -49,7 +49,9 @@ st2:
   #password: Ch@ngeMe
   # ST2 crypto key for the  K/V datastore.
   # See https://docs.stackstorm.com/datastore.html#securing-secrets-admin-only for more info.
-  # Warning! Replace with your own generated key!
+  # If set, st2.datastore_crypto_key always overrides any existing datastore_crypto_key.
+  # If not set, the datastore_crypto_key is auto-generated on install and preserved across upgrades.
+  # Generating datastore_crypto_key uses default_datastore_crypto_key below.
   #datastore_crypto_key: >-
   #  {"hmacKey": {"hmacKeyString": "", "size": 256}, "size": 256, "aesKeyString": "", "mode": "CBC"}
   # SSH private key for the 'stanley' system user ('system_user.ssh_key_file' in st2.conf)
@@ -932,3 +934,16 @@ external-dns:
   aws:
     zoneType: "public"
   domainFilters: []
+
+## Do not change this.
+## It is used to generate st2.datastore_crypto_key on install if not defined above.
+default_datastore_crypto_key:
+  # 32 bytes = 256 bits / 8 bits/byte
+  # randBytes returns a base64 encoded string.
+  hmacKey:
+    # this formula is based on an st2-specific version of python's base64.urlsafe_b64encode.
+    hmacKeyString: "{{ randBytes 32 | replace '+' '-' | replace '_' '/' | replace '=' '' }}"
+    size: 256
+  aesKeyString: "{{ randBytes 32 | replace '+' '-' | replace '_' '/' | replace '=' '' }}"
+  mode: CBC
+  size: 256
