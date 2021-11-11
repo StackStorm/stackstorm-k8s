@@ -635,6 +635,15 @@ st2sensorcontainer:
 # The st2client deployment/pod simplifies ad-hoc administration.
 # st2client is a special purpose actionrunner pod, but you can customize it separately
 st2client:
+  # st2client config (~/.st2/config) template.
+  # see: https://docs.stackstorm.com/reference/cli.html#configuration-file
+  # You can access env variables here because this is used in a bash heredoc.
+  # For example, you could use a var injected with envFromSecrets.
+  # Note that Helm templating is supported in this block!
+  st2clientConfig: |
+    [credentials]
+    username = ${ST2_AUTH_USERNAME}
+    password = ${ST2_AUTH_PASSWORD}
   env: {}
   # HTTP_PROXY: http://proxy:1234
   ## These named secrets (managed outside this chart) will be added to envFrom.
@@ -741,6 +750,15 @@ st2chatops:
 ## Various batch jobs (apply-rbac-definitions, apikey-load, key-load, register-content)
 ##
 jobs:
+  # st2client config (~/.st2/config) template for jobs that need it.
+  # see: https://docs.stackstorm.com/reference/cli.html#configuration-file
+  # You can access env variables here because this is used in a bash heredoc.
+  # For example, you could use a var injected with envFromSecrets.
+  # Note that Helm templating is supported in this block!
+  st2clientConfig: |
+    [credentials]
+    username = ${ST2_AUTH_USERNAME}
+    password = ${ST2_AUTH_PASSWORD}
   annotations: {}
   # Override default image settings (for now, only tag can be overridden)
   # The Jobs use the st2actionrunner image
