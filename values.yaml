@@ -295,10 +295,11 @@ st2web:
   affinity: {}
   env: {}
   # HTTP_PROXY: http://proxy:1234
+  ## Advanced: To configure st2web to serve HTTPS (port 443) instead of HTTP (port 80)
+  ## provide ssl certs via extra_volumes, and add the ST2WEB_HTTPS env var here:
+  # ST2WEB_HTTPS: 1
   serviceAccount:
     attach: false
-  # Have st2web pod and service use HTTPS on port 443 when true. default: false (use HTTP on port 80)
-  use_https: false
   # mount extra volumes on the st2web pod(s) (primarily useful for k8s-provisioned secrets)
   ## Note that Helm templating is supported in 'mount' and 'volume'
   extra_volumes: []

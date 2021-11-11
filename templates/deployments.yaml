@@ -400,13 +400,13 @@ spec:
         image: '{{ template "imageRepository" . }}/st2web:{{ tpl (.Values.st2web.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
-        - containerPort: {{ .Values.st2web.use_https | ternary 443 80 }}
+        - containerPort: {{ eq (get .Values.st2web.env "ST2WEB_HTTPS" | toString) "1" | ternary 443 80 }}
         # Probe to check if app is running. Failure will lead to a pod restart.
         livenessProbe:
           httpGet:
-            scheme: {{ .Values.st2web.use_https | ternary "HTTPS" "HTTP" }}
+            scheme: {{ eq (get .Values.st2web.env "ST2WEB_HTTPS" | toString) "1" | ternary "HTTPS" "HTTP" }}
             path: /
-            port: {{ .Values.st2web.use_https | ternary 443 80 }}
+            port: {{ eq (get .Values.st2web.env "ST2WEB_HTTPS" | toString) "1" | ternary 443 80 }}
           initialDelaySeconds: 1
         # Probe to check if app is ready to serve traffic. Failure will lead to temp stop serving traffic.
         # TODO: Failing to add readinessProbe, since st2 requires authorization (401) and we don't have `/healthz` endpoints yet (https://github.com/StackStorm/st2/issues/4020)
@@ -419,15 +419,8 @@ spec:
 #            path: /api/
 #            port: 443
 #          initialDelaySeconds: 3
-        {{- if or .Values.st2web.env .Values.st2web.use_https }}
-        env:
-          {{- if .Values.st2web.env }}
-            {{- include "stackstorm-ha.customEnv" .Values.st2web | nindent 10 }}
-          {{- end }}
-          {{- if .Values.st2web.use_https }}
-          - name: ST2WEB_HTTPS
-            value: "1"
-          {{- end }}
+        {{- if .Values.st2web.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2web | nindent 8 }}
         {{- end }}
         envFrom:
         - configMapRef:
