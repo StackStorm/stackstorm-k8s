@@ -7,6 +7,7 @@
 * Initialize basic unittest infrastructure using `helm-unittest`. Added tests for labels, custom annotations, SecurityContext, pullSecrets, pullPolicy, Resources, nodeSelector, tolerations, affinity, dnsPolicy, dnsConfig, ServiceAccount attach, postStartScript, both sensor-modes, env, envFrom, st2.packs.images, and st2.packs.volumes. (#284, #288, #292)
 * Allow partitioning sensors using the hash_range strategy instead of one sensor per pod. (#218) (by @cognifloyd)
 * New feature to include possibility for external services in st2api, st2stream and st2auth, setting default value for this services as `ClusterIP` and `hostname: ""`. Also, added new entry for custom_annotations_test.yaml and created new unit test services_test.yaml. (by @sandesvitor)
+* Advanced Feature: Add extra Helm hook Jobs. This minimizes the boilerplate required to run stackstorm workflows at various helm hook stages: post-install, pre-upgrade, post-upgrade. (#265) (by @cognifloyd)
 
 ## v0.80.0
 * Switch st2 to `v3.6` as a new default stable version (#274)
