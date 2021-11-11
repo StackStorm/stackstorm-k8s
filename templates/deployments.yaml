@@ -433,15 +433,11 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
             optional: true
-    {{- if or .Values.st2web.use_https .Values.st2web.config .Values.st2web.postStartScript }}
+    {{- if or .Values.st2web.config .Values.st2web.postStartScript }}
         volumeMounts:
     {{- else }}
         volumeMounts: []
     {{- end }}
-        {{- if .Values.st2web.use_https }}
-          - name: st2web-ssl-certs-vol
-            mountPath: /etc/ssl/st2
-        {{- end }}
         {{- if .Values.st2web.config }}
           - name: st2web-config-vol
             mountPath: /opt/stackstorm/static/webui/config.js
@@ -461,21 +457,11 @@ spec:
     {{- if .Values.st2web.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
-    {{- if or .Values.st2web.use_https .Values.st2web.config .Values.st2web.postStartScript }}
+    {{- if or .Values.st2web.config .Values.st2web.postStartScript }}
       volumes:
     {{- else }}
       volumes: []
     {{- end }}
-        {{- if .Values.st2web.use_https }}
-        - name: st2web-ssl-certs-vol
-          secret:
-            secretName: {{ .Release.Name }}-st2web-ssl-certs
-            items:
-              - key: ssl_certificate
-                path: st2.crt
-              - key: ssl_certificate_key
-                path: st2.key
-        {{- end }}
         {{- if .Values.st2web.config }}
         - name: st2web-config-vol
           configMap:
