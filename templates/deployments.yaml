@@ -198,11 +198,9 @@ spec:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
-        {{- if .Values.st2.datastore_crypto_key }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
           readOnly: true
-        {{- end }}
         {{- include "packs-volume-mounts" . | nindent 8 }}
         {{- if .Values.st2.packs.volumes.enabled }}
           {{- include "pack-configs-volume-mount" . | nindent 8 }}
@@ -222,14 +220,12 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        {{- if .Values.st2.datastore_crypto_key }}
         - name: st2-encryption-key-vol
           secret:
             secretName: {{ .Release.Name }}-st2-datastore-crypto-key
             items:
             - key: datastore_crypto_key
               path: datastore_key.json
-        {{- end }}
         {{- include "st2-config-volume" . | nindent 8 }}
         {{- include "packs-volumes" . | nindent 8 }}
         {{- if .Values.st2.packs.volumes.enabled }}
@@ -542,11 +538,9 @@ spec:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
-        {{- if .Values.st2.datastore_crypto_key }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
           readOnly: true
-        {{- end }}
         {{- if .Values.st2rulesengine.postStartScript }}
         - name: st2-post-start-script-vol
           mountPath: /post-start.sh
@@ -563,14 +557,12 @@ spec:
     {{- end }}
       volumes:
         {{- include "st2-config-volume" . | nindent 8 }}
-        {{- if .Values.st2.datastore_crypto_key }}
         - name: st2-encryption-key-vol
           secret:
             secretName: {{ .Release.Name }}-st2-datastore-crypto-key
             items:
             - key: datastore_crypto_key
               path: datastore_key.json
-        {{- end }}
         {{- if .Values.st2rulesengine.postStartScript }}
         - name: st2-post-start-script-vol
           configMap:
@@ -751,11 +743,9 @@ spec:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
-        {{- if .Values.st2.datastore_crypto_key }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
           readOnly: true
-        {{- end }}
         {{- range .Values.st2workflowengine.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in st2workflowengine.extra_volumes" .name }}
           {{- tpl (required "Each volume must have a 'mount' definition in st2workflowengine.extra_volumes" .mount | toYaml) $ | nindent 10 }}
@@ -776,14 +766,12 @@ spec:
     {{- end }}
       volumes:
         {{- include "st2-config-volume" . | nindent 8 }}
-        {{- if .Values.st2.datastore_crypto_key }}
         - name: st2-encryption-key-vol
           secret:
             secretName: {{ .Release.Name }}-st2-datastore-crypto-key
             items:
             - key: datastore_crypto_key
               path: datastore_key.json
-        {{- end }}
         {{- range .Values.st2workflowengine.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in st2workflowengine.extra_volumes" .name }}
           {{- tpl (required "Each volume must have a 'volume' definition in st2workflowengine.extra_volumes" .volume | toYaml) $ | nindent 10 }}
@@ -869,11 +857,9 @@ spec:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
-        {{- if .Values.st2.datastore_crypto_key }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
           readOnly: true
-        {{- end }}
         {{- if .Values.st2scheduler.postStartScript }}
         - name: st2-post-start-script-vol
           mountPath: /post-start.sh
@@ -889,14 +875,12 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        {{- if .Values.st2.datastore_crypto_key }}
         - name: st2-encryption-key-vol
           secret:
             secretName: {{ .Release.Name }}-st2-datastore-crypto-key
             items:
             - key: datastore_crypto_key
               path: datastore_key.json
-        {{- end }}
         {{- include "st2-config-volume" . | nindent 8 }}
         {{- if .Values.st2scheduler.postStartScript }}
         - name: st2-post-start-script-vol
@@ -1123,11 +1107,9 @@ spec:
         volumeMounts:
         {{- include "st2-config-volume-mounts" $ | nindent 8 }}
         {{- include "packs-volume-mounts" $ | nindent 8 }}
-        {{- if $.Values.st2.datastore_crypto_key }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
           readOnly: true
-        {{- end }}
         {{- range $sensor.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in $sensor.extra_volumes" .name }}
           {{- tpl (required "Each volume must have a 'mount' definition in $sensor.extra_volumes" .mount | toYaml) $ | nindent 10 }}
@@ -1147,14 +1129,12 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" $ }}
     {{- end }}
       volumes:
-        {{- if $.Values.st2.datastore_crypto_key }}
         - name: st2-encryption-key-vol
           secret:
             secretName: {{ $.Release.Name }}-st2-datastore-crypto-key
             items:
             - key: datastore_crypto_key
               path: datastore_key.json
-        {{- end }}
         {{- include "st2-config-volume" $ | nindent 8 }}
         {{- include "packs-volumes" $ | nindent 8 }}
         {{- range $sensor.extra_volumes }}
@@ -1262,11 +1242,9 @@ spec:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
         - name: st2-ssh-key-vol
           mountPath: {{ tpl .Values.st2.system_user.ssh_key_file . | dir | dir }}/.ssh-key-vol/
-        {{- if .Values.st2.datastore_crypto_key }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
           readOnly: true
-        {{- end }}
         {{- include "packs-volume-mounts" . | nindent 8 }}
         {{- if .Values.st2.packs.volumes.enabled }}
           {{- include "pack-configs-volume-mount" . | nindent 8 }}
@@ -1288,14 +1266,12 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        {{- if .Values.st2.datastore_crypto_key }}
         - name: st2-encryption-key-vol
           secret:
             secretName: {{ .Release.Name }}-st2-datastore-crypto-key
             items:
             - key: datastore_crypto_key
               path: datastore_key.json
-        {{- end }}
         {{- include "st2-config-volume" . | nindent 8 }}
         - name: st2-ssh-key-vol
           secret:
@@ -1534,11 +1510,9 @@ spec:
           mountPath: /root/.st2/
         - name: st2-ssh-key-vol
           mountPath: {{ tpl .Values.st2.system_user.ssh_key_file . | dir | dir }}/.ssh-key-vol/
-        {{- if .Values.st2.datastore_crypto_key }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
           readOnly: true
-        {{- end }}
         {{- include "packs-volume-mounts" . | nindent 8 }}
         {{- include "pack-configs-volume-mount" . | nindent 8 }}
         {{- range .Values.st2client.extra_volumes }}
@@ -1561,14 +1535,12 @@ spec:
             memory: "5Mi"
             cpu: "5m"
       volumes:
-        {{- if .Values.st2.datastore_crypto_key }}
         - name: st2-encryption-key-vol
           secret:
             secretName: {{ .Release.Name }}-st2-datastore-crypto-key
             items:
             - key: datastore_crypto_key
               path: datastore_key.json
-        {{- end }}
         {{- include "st2-config-volume" . | nindent 8 }}
         {{- if .Values.st2.rbac.enabled }}
         - name: st2-rbac-roles-vol

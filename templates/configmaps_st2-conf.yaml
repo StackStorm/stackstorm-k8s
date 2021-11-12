@@ -42,10 +42,8 @@ data:
     {{- end }}
     port = {{ index .Values "mongodb" "service" "port" }}
     {{- end }}
-    {{- if .Values.st2.datastore_crypto_key }}
     [keyvalue]
     encryption_key_path = /etc/st2/keys/datastore_key.json
-    {{- end }}
     {{- if .Values.st2.rbac.enabled }}
     [rbac]
     enable = True
