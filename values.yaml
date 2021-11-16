@@ -289,6 +289,7 @@ st2web:
     # For more information regarding annotations, see
     # https://kubernetes.io/docs/concepts/services-networking/service/#ssl-support-on-aws
     annotations: {}
+    ssl: false
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}
   tolerations: []

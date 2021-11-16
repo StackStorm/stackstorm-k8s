@@ -100,6 +100,12 @@ spec:
   ports:
   - protocol: TCP
     port: 80
+    name: http
+  {{- if .Values.st2web.service.ssl }}
+  - protocol: TCP
+    port: 443
+    name: https
+  {{- end }}
 
 {{ if .Values.st2chatops.enabled -}}
 ---
