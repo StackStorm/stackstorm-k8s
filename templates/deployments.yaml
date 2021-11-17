@@ -437,9 +437,9 @@ spec:
             subPath: st2web.config.js
         {{- end }}
         {{- if .Values.st2web.postStartScript }}
-        - name: st2-post-start-script-vol
-          mountPath: /post-start.sh
-          subPath: post-start.sh
+          - name: st2-post-start-script-vol
+            mountPath: /post-start.sh
+            subPath: post-start.sh
         lifecycle:
           postStart:
             exec:
