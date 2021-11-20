@@ -93,7 +93,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8  }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8  }}
         - name: htpasswd-vol
           mountPath: /etc/st2/htpasswd
           subPath: htpasswd
@@ -113,7 +113,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        {{- include "st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         - name: htpasswd-vol
           emptyDir:
             medium: Memory
@@ -215,7 +215,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
@@ -248,7 +248,7 @@ spec:
             - key: datastore_crypto_key
               path: datastore_key.json
         {{- end }}
-        {{- include "st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         {{- include "packs-volumes" . | nindent 8 }}
         {{- if .Values.st2.packs.volumes.enabled }}
           {{- include "pack-configs-volume" . | nindent 8 }}
@@ -344,7 +344,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- if .Values.st2stream.postStartScript }}
         - name: st2-post-start-script-vol
           mountPath: /post-start.sh
@@ -360,7 +360,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        {{- include "st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         {{- if .Values.st2stream.postStartScript }}
         - name: st2-post-start-script-vol
           configMap:
@@ -594,7 +594,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
@@ -615,7 +615,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        {{- include "st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
@@ -714,7 +714,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- if .Values.st2timersengine.postStartScript }}
         - name: st2-post-start-script-vol
           mountPath: /post-start.sh
@@ -730,7 +730,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        {{- include "st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         {{- if .Values.st2timersengine.postStartScript }}
         - name: st2-post-start-script-vol
           configMap:
@@ -821,7 +821,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
@@ -846,7 +846,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        {{- include "st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
@@ -948,7 +948,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
@@ -977,7 +977,7 @@ spec:
             - key: datastore_crypto_key
               path: datastore_key.json
         {{- end }}
-        {{- include "st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         {{- if .Values.st2scheduler.postStartScript }}
         - name: st2-post-start-script-vol
           configMap:
@@ -1067,7 +1067,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- if .Values.st2notifier.postStartScript }}
         - name: st2-post-start-script-vol
           mountPath: /post-start.sh
@@ -1083,7 +1083,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        {{- include "st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         {{- if .Values.st2notifier.postStartScript }}
         - name: st2-post-start-script-vol
           configMap:
@@ -1219,7 +1219,7 @@ spec:
             name: {{ . }}
         {{- end }}
         volumeMounts:
-        {{- include "st2-config-volume-mounts" $ | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" $ | nindent 8 }}
         {{- include "packs-volume-mounts" $ | nindent 8 }}
         {{- if ne "disable" (default "" $.Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
@@ -1253,7 +1253,7 @@ spec:
             - key: datastore_crypto_key
               path: datastore_key.json
         {{- end }}
-        {{- include "st2-config-volume" $ | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" $ | nindent 8 }}
         {{- include "packs-volumes" $ | nindent 8 }}
         {{- range $sensor.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in $sensor.extra_volumes" .name }}
@@ -1366,7 +1366,7 @@ spec:
             name: {{ . }}
         {{- end }}
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         - name: st2-ssh-key-vol
           mountPath: {{ tpl .Values.st2.system_user.ssh_key_file . | dir | dir }}/.ssh-key-vol/
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
@@ -1403,7 +1403,7 @@ spec:
             - key: datastore_crypto_key
               path: datastore_key.json
         {{- end }}
-        {{- include "st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         - name: st2-ssh-key-vol
           secret:
             secretName: {{ .Release.Name }}-st2-ssh
@@ -1507,7 +1507,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- if .Values.st2garbagecollector.postStartScript }}
         - name: st2-post-start-script-vol
           mountPath: /post-start.sh
@@ -1523,7 +1523,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        {{- include "st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         {{- if .Values.st2garbagecollector.postStartScript }}
         - name: st2-post-start-script-vol
           configMap:
@@ -1649,7 +1649,7 @@ spec:
             name: {{ . }}
         {{- end }}
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- if .Values.st2.rbac.enabled }}
         - name: st2-rbac-roles-vol
           mountPath: /opt/stackstorm/rbac/roles/
@@ -1697,7 +1697,7 @@ spec:
             - key: datastore_crypto_key
               path: datastore_key.json
         {{- end }}
-        {{- include "st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         {{- if .Values.st2.rbac.enabled }}
         - name: st2-rbac-roles-vol
           configMap:

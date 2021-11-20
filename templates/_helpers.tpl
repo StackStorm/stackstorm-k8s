@@ -86,7 +86,7 @@ Generate list of nodes for Redis with Sentinel connection string, based on numbe
 {{/*
 Reduce duplication of the st2.*.conf volume details
 */}}
-{{- define "st2-config-volume-mounts" -}}
+{{- define "stackstorm-ha.st2-config-volume-mounts" -}}
 - name: st2-config-vol
   mountPath: /etc/st2/st2.docker.conf
   subPath: st2.docker.conf
@@ -94,7 +94,7 @@ Reduce duplication of the st2.*.conf volume details
   mountPath: /etc/st2/st2.user.conf
   subPath: st2.user.conf
 {{- end -}}
-{{- define "st2-config-volume" -}}
+{{- define "stackstorm-ha.st2-config-volume" -}}
 - name: st2-config-vol
   configMap:
     name: {{ $.Release.Name }}-st2-config

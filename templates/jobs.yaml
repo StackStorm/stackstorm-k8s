@@ -65,7 +65,7 @@ spec:
         {{- end }}
         {{- end }}
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         - name: st2-rbac-roles-vol
           mountPath: /opt/stackstorm/rbac/roles/
         - name: st2-rbac-assignments-vol
@@ -75,7 +75,7 @@ spec:
         # TODO: Find out default resource limits for this specific service (#5)
         #resources:
       volumes:
-        {{- include "st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         - name: st2-rbac-roles-vol
           configMap:
             name: {{ .Release.Name }}-st2-rbac-roles
@@ -344,7 +344,7 @@ spec:
             name: {{ . }}
         {{- end }}
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         - name: st2client-config-vol
           mountPath: /root/.st2/
         - name: st2-kv-vol
@@ -353,7 +353,7 @@ spec:
         # TODO: Find out default resource limits for this specific service (#5)
         #resources:
       volumes:
-        {{- include "st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         - name: st2client-config-vol
           emptyDir:
             medium: Memory
@@ -439,7 +439,7 @@ spec:
         {{- end }}
         command: {{- toYaml $.Values.jobs.preRegisterContentCommand | nindent 8 }}
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         - name: st2-pack-configs-vol
           mountPath: /opt/stackstorm/configs/
         {{- if .Values.st2.packs.images }}
@@ -474,13 +474,13 @@ spec:
         {{- end }}
         {{- end }}
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- include "packs-volume-mounts-for-register-job" . | nindent 8 }}
         {{- include "pack-configs-volume-mount" . | nindent 8 }}
         # TODO: Find out default resource limits for this specific service (#5)
         #resources:
       volumes:
-        {{- include "st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         {{- include "packs-volumes" . | nindent 8 }}
         {{- include "pack-configs-volume" . | nindent 8 }}
       restartPolicy: OnFailure
