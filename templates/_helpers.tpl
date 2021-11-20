@@ -281,7 +281,7 @@ Merge packs and virtualenvs from st2 with those from st2packs images
 {{/*
 For custom st2packs-pullSecrets reduce duplicity by defining them here once
 */}}
-{{- define "packs-pullSecrets" -}}
+{{- define "stackstorm-ha.packs-pullSecrets" -}}
   {{- range $.Values.st2.packs.images }}
     {{- if .pullSecret }}
 - name: {{ .pullSecret }}
