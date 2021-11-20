@@ -1116,7 +1116,7 @@ spec:
       {{- $_ := set $sensor $key $val }}
     {{- end }}
   {{- end }}
-  {{- $name := print "st2sensorcontainer" (include "hyphenPrefix" $sensor.name) }}
+  {{- $name := print "st2sensorcontainer" (include "stackstorm-ha.hyphenPrefix" $sensor.name) }}
 ---
 apiVersion: apps/v1
 kind: Deployment

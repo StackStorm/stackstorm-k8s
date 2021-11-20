@@ -26,7 +26,7 @@ Create the name of the stackstorm-ha service account to use
 {{/*
 Generate '-' prefix only when the variable is defined
 */}}
-{{- define "hyphenPrefix" -}}
+{{- define "stackstorm-ha.hyphenPrefix" -}}
 {{ if . }}-{{ . }}{{end}}
 {{- end -}}
 
