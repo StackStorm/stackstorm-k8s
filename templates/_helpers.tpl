@@ -1,9 +1,13 @@
-# Expand the name of the chart.
+{{/*
+Expand the name of the chart.
+*/}}
 {{- define "stackstorm-ha.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-# Generate Docker image repository: Public Docker Hub 'stackstorm' for FOSS version
+{{/*
+Generate Docker image repository: Public Docker Hub 'stackstorm' for FOSS version
+*/}}
 {{- define "imageRepository" -}}
 {{- if .Values.image.repository -}}
 {{ .Values.image.repository }}
@@ -19,15 +23,19 @@ Create the name of the stackstorm-ha service account to use
 {{- default .Chart.Name .Values.serviceAccount.serviceAccountName -}}
 {{- end -}}
 
-# Generate '-' prefix only when the variable is defined
+{{/*
+Generate '-' prefix only when the variable is defined
+*/}}
 {{- define "hyphenPrefix" -}}
 {{ if . }}-{{ . }}{{end}}
 {{- end -}}
 
-# Allow calling helpers from nested sub-chart
-# https://stackoverflow.com/a/52024583/4533625
-# https://github.com/helm/helm/issues/4535#issuecomment-477778391
-# Usage: "{{ include "nested" (list . "mongodb" "mongodb.fullname") }}"
+{{/*
+Allow calling helpers from nested sub-chart
+https://stackoverflow.com/a/52024583/4533625
+https://github.com/helm/helm/issues/4535#issuecomment-477778391
+Usage: "{{ include "nested" (list . "mongodb" "mongodb.fullname") }}"
+*/}}
 {{- define "nested" }}
 {{- $dot := index . 0 }}
 {{- $subchart := index . 1 | splitList "." }}
@@ -39,7 +47,9 @@ Create the name of the stackstorm-ha service account to use
 {{- include $template (dict "Chart" (dict "Name" (last $subchart)) "Values" $values "Release" $dot.Release "Capabilities" $dot.Capabilities) }}
 {{- end }}
 
-# Generate comma-separated list of nodes for MongoDB-HA connection string, based on number of replicas and service name
+{{/*
+Generate comma-separated list of nodes for MongoDB-HA connection string, based on number of replicas and service name
+*/}}
 {{- define "mongodb-nodes" -}}
 {{- $replicas := (int (index .Values "mongodb" "replicaCount")) }}
 {{- $architecture := (index .Values "mongodb" "architecture" ) }}
@@ -54,7 +64,9 @@ Create the name of the stackstorm-ha service account to use
 {{- end -}}
 {{- end -}}
 
-# Generate list of nodes for Redis with Sentinel connection string, based on number of replicas and service name
+{{/*
+Generate list of nodes for Redis with Sentinel connection string, based on number of replicas and service name
+*/}}
 {{- define "redis-nodes" -}}
 {{- if not .Values.redis.sentinel.enabled }}
 {{- fail "value for redis.sentinel.enabled MUST be true" }}
@@ -71,7 +83,9 @@ Create the name of the stackstorm-ha service account to use
 {{- end -}}
 {{- end -}}
 
-# Reduce duplication of the st2.*.conf volume details
+{{/*
+Reduce duplication of the st2.*.conf volume details
+*/}}
 {{- define "st2-config-volume-mounts" -}}
 - name: st2-config-vol
   mountPath: /etc/st2/st2.docker.conf
@@ -126,7 +140,9 @@ Create the name of the stackstorm-ha service account to use
   {{- end }}
 {{- end -}}
 
-# consolidate pack-configs-volumes definitions
+{{/*
+consolidate pack-configs-volumes definitions
+*/}}
 {{- define "pack-configs-volume" -}}
   {{- if and .Values.st2.packs.volumes.enabled .Values.st2.packs.volumes.configs }}
 - name: st2-pack-configs-vol
@@ -151,7 +167,9 @@ Create the name of the stackstorm-ha service account to use
   {{- end }}
 {{- end -}}
 
-# For custom st2packs-Container reduce duplicity by defining it here once
+{{/*
+For custom st2packs-Container reduce duplicity by defining it here once
+*/}}
 {{- define "packs-volumes" -}}
   {{- if .Values.st2.packs.volumes.enabled }}
 - name: st2-packs-vol
@@ -180,7 +198,9 @@ Create the name of the stackstorm-ha service account to use
   readOnly: true
   {{- end }}
 {{- end -}}
-# define this here as well to simplify comparison with packs-volume-mounts
+{{/*
+define this here as well to simplify comparison with packs-volume-mounts
+*/}}
 {{- define "packs-volume-mounts-for-register-job" -}}
   {{- if or .Values.st2.packs.images .Values.st2.packs.volumes.enabled }}
 - name: st2-packs-vol
@@ -190,8 +210,10 @@ Create the name of the stackstorm-ha service account to use
   {{- end }}
 {{- end -}}
 
-# For custom st2packs-initContainers reduce duplicity by defining them here once
-# Merge packs and virtualenvs from st2 with those from st2packs images
+{{/*
+For custom st2packs-initContainers reduce duplicity by defining them here once
+Merge packs and virtualenvs from st2 with those from st2packs images
+*/}}
 {{- define "packs-initContainers" -}}
   {{- if $.Values.st2.packs.images }}
     {{- range $.Values.st2.packs.images }}
@@ -256,7 +278,9 @@ Create the name of the stackstorm-ha service account to use
 {{- end -}}
 
 
-# For custom st2packs-pullSecrets reduce duplicity by defining them here once
+{{/*
+For custom st2packs-pullSecrets reduce duplicity by defining them here once
+*/}}
 {{- define "packs-pullSecrets" -}}
   {{- range $.Values.st2.packs.images }}
     {{- if .pullSecret }}
