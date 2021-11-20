@@ -8,7 +8,7 @@ Expand the name of the chart.
 {{/*
 Generate Docker image repository: Public Docker Hub 'stackstorm' for FOSS version
 */}}
-{{- define "imageRepository" -}}
+{{- define "stackstorm-ha.imageRepository" -}}
 {{- if .Values.image.repository -}}
 {{ .Values.image.repository }}
 {{- else -}}
@@ -239,7 +239,7 @@ Merge packs and virtualenvs from st2 with those from st2packs images
   {{- if or $.Values.st2.packs.images $.Values.st2.packs.volumes.enabled }}
 # System packs
 - name: st2-system-packs
-  image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2actionrunner.image.tag | default .Values.image.tag) . }}'
+  image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2actionrunner.image.tag | default .Values.image.tag) . }}'
   imagePullPolicy: {{ .Values.image.pullPolicy }}
   volumeMounts:
   - name: st2-packs-vol
@@ -259,7 +259,7 @@ Merge packs and virtualenvs from st2 with those from st2packs images
   {{- if and $.Values.st2.packs.configs $.Values.st2.packs.volumes.enabled }}
 # Pack configs defined in helm values
 - name: st2-pack-configs-from-helm
-  image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2actionrunner.image.tag | default .Values.image.tag) . }}'
+  image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2actionrunner.image.tag | default .Values.image.tag) . }}'
   imagePullPolicy: {{ .Values.image.pullPolicy }}
   volumeMounts:
   - name: st2-pack-configs-vol
