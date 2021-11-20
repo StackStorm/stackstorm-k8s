@@ -476,13 +476,13 @@ spec:
         volumeMounts:
         {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- include "packs-volume-mounts-for-register-job" . | nindent 8 }}
-        {{- include "pack-configs-volume-mount" . | nindent 8 }}
+        {{- include "stackstorm-ha.pack-configs-volume-mount" . | nindent 8 }}
         # TODO: Find out default resource limits for this specific service (#5)
         #resources:
       volumes:
         {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         {{- include "packs-volumes" . | nindent 8 }}
-        {{- include "pack-configs-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.pack-configs-volume" . | nindent 8 }}
       restartPolicy: OnFailure
     {{- if .Values.dnsPolicy }}
       dnsPolicy: {{ .Values.dnsPolicy }}

@@ -223,7 +223,7 @@ spec:
         {{- end }}
         {{- include "packs-volume-mounts" . | nindent 8 }}
         {{- if .Values.st2.packs.volumes.enabled }}
-          {{- include "pack-configs-volume-mount" . | nindent 8 }}
+          {{- include "stackstorm-ha.pack-configs-volume-mount" . | nindent 8 }}
         {{- end }}
         {{- if .Values.st2api.postStartScript }}
         - name: st2-post-start-script-vol
@@ -251,7 +251,7 @@ spec:
         {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         {{- include "packs-volumes" . | nindent 8 }}
         {{- if .Values.st2.packs.volumes.enabled }}
-          {{- include "pack-configs-volume" . | nindent 8 }}
+          {{- include "stackstorm-ha.pack-configs-volume" . | nindent 8 }}
         {{- end }}
         {{- if .Values.st2api.postStartScript }}
         - name: st2-post-start-script-vol
@@ -1376,7 +1376,7 @@ spec:
         {{- end }}
         {{- include "packs-volume-mounts" . | nindent 8 }}
         {{- if .Values.st2.packs.volumes.enabled }}
-          {{- include "pack-configs-volume-mount" . | nindent 8 }}
+          {{- include "stackstorm-ha.pack-configs-volume-mount" . | nindent 8 }}
         {{- end }}
         {{- range .Values.st2actionrunner.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in st2actionrunner.extra_volumes" .name }}
@@ -1414,7 +1414,7 @@ spec:
               mode: 256
         {{- include "packs-volumes" . | nindent 8 }}
         {{- if .Values.st2.packs.volumes.enabled }}
-          {{- include "pack-configs-volume" . | nindent 8 }}
+          {{- include "stackstorm-ha.pack-configs-volume" . | nindent 8 }}
         {{- end }}
         {{- range .Values.st2actionrunner.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in st2actionrunner.extra_volumes" .name }}
@@ -1668,7 +1668,7 @@ spec:
           readOnly: true
         {{- end }}
         {{- include "packs-volume-mounts" . | nindent 8 }}
-        {{- include "pack-configs-volume-mount" . | nindent 8 }}
+        {{- include "stackstorm-ha.pack-configs-volume-mount" . | nindent 8 }}
         {{- range .Values.st2client.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in st2client.extra_volumes" .name }}
           {{- tpl (required "Each volume must have a 'mount' definition in st2client.extra_volumes" .mount | toYaml) $ | nindent 10 }}
@@ -1721,7 +1721,7 @@ spec:
               # 0400 file permission
               mode: 256
         {{- include "packs-volumes" . | nindent 8 }}
-        {{- include "pack-configs-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.pack-configs-volume" . | nindent 8 }}
         {{- range .Values.st2client.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in st2client.extra_volumes" .name }}
           {{- tpl (required "Each volume must have a 'volume' definition in st2client.extra_volumes" .volume | toYaml) $ | nindent 10 }}

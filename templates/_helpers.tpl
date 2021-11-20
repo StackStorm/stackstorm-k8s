@@ -143,7 +143,7 @@ Reduce duplication of the st2.*.conf volume details
 {{/*
 consolidate pack-configs-volumes definitions
 */}}
-{{- define "pack-configs-volume" -}}
+{{- define "stackstorm-ha.pack-configs-volume" -}}
   {{- if and .Values.st2.packs.volumes.enabled .Values.st2.packs.volumes.configs }}
 - name: st2-pack-configs-vol
   {{- toYaml .Values.st2.packs.volumes.configs | nindent 2 }}
@@ -158,7 +158,7 @@ consolidate pack-configs-volumes definitions
     name: {{ .Release.Name }}-st2-pack-configs
   {{- end }}
 {{- end -}}
-{{- define "pack-configs-volume-mount" -}}
+{{- define "stackstorm-ha.pack-configs-volume-mount" -}}
 - name: st2-pack-configs-vol
   mountPath: /opt/stackstorm/configs/
   {{- if and .Values.st2.packs.volumes.enabled .Values.st2.packs.volumes.configs .Values.st2.packs.configs }}
