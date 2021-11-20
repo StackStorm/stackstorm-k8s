@@ -100,7 +100,7 @@ Reduce duplication of the st2.*.conf volume details
     name: {{ $.Release.Name }}-st2-config
 {{- end -}}
 
-{{- define "init-containers-wait-for-db" -}}
+{{- define "stackstorm-ha.init-containers-wait-for-db" -}}
 {{- if index .Values "mongodb" "enabled" }}
 {{- $mongodb_port := (int (index .Values "mongodb" "service" "port")) }}
 - name: wait-for-db
@@ -120,7 +120,7 @@ Reduce duplication of the st2.*.conf volume details
 {{- end }}
 {{- end -}}
 
-{{- define "init-containers-wait-for-mq" -}}
+{{- define "stackstorm-ha.init-containers-wait-for-mq" -}}
   {{- if index .Values "rabbitmq" "enabled" }}
     {{- $rabbitmq_port := (int (index .Values "rabbitmq" "service" "port")) }}
 - name: wait-for-queue
