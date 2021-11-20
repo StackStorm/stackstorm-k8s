@@ -45,6 +45,9 @@ spec:
       - name: st2-apply-rbac-definitions
         image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         command:
           - st2-apply-rbac-definitions
           - --verbose
@@ -88,6 +91,9 @@ spec:
     {{- end }}
     {{- with .Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.jobs.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
@@ -147,6 +153,9 @@ spec:
       {{- include "init-containers-wait-for-db" . | nindent 6 }}
       - name: wait-for-api
         image: busybox:1.28
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         command:
           - 'sh'
           - '-c'
@@ -158,6 +167,9 @@ spec:
       - name: generate-st2client-config
         image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -182,6 +194,9 @@ spec:
       - name: st2-apikey-load
         image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         command:
           - st2
           - apikey
@@ -218,6 +233,9 @@ spec:
     {{- end }}
     {{- with .Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.jobs.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
@@ -279,6 +297,9 @@ spec:
       - name: generate-st2client-config
         image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -303,6 +324,9 @@ spec:
       - name: st2-key-load
         image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         command:
           - st2
           - key
@@ -342,6 +366,9 @@ spec:
     {{- end }}
     {{- with .Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.jobs.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
@@ -407,6 +434,9 @@ spec:
       - name: st2-register-content-custom-init
         image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         command: {{- toYaml $.Values.jobs.preRegisterContentCommand | nindent 8 }}
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
@@ -423,6 +453,9 @@ spec:
       - name: st2-register-content
         image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         command:
           - st2-register-content
           - --config-file=/etc/st2/st2.conf
@@ -456,6 +489,9 @@ spec:
     {{- end }}
     {{- with .Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.jobs.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}

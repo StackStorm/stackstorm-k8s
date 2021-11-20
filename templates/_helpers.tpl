@@ -100,6 +100,9 @@ Create the name of the stackstorm-ha service account to use
           echo 'Waiting for MongoDB Connection...'
           sleep 2;
       done
+  {{- with .Values.securityContext }}
+  securityContext: {{- toYaml . | nindent 8 }}
+  {{- end }}
 {{- end }}
 {{- end -}}
 
@@ -117,6 +120,9 @@ Create the name of the stackstorm-ha service account to use
           echo 'Waiting for RabbitMQ Connection...'
           sleep 2;
       done
+  {{- with .Values.securityContext }}
+  securityContext: {{- toYaml . | nindent 8 }}
+  {{- end }}
   {{- end }}
 {{- end -}}
 
@@ -203,6 +209,9 @@ Create the name of the stackstorm-ha service account to use
     - |
       /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
       /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
+  {{- with .Values.securityContext }}
+  securityContext: {{- toYaml . | nindent 8 }}
+  {{- end }}
     {{- end }}
   {{- end }}
   {{- if or $.Values.st2.packs.images $.Values.st2.packs.volumes.enabled }}
@@ -221,6 +230,9 @@ Create the name of the stackstorm-ha service account to use
     - |
       /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
       /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
+  {{- with .Values.securityContext }}
+  securityContext: {{- toYaml . | nindent 8 }}
+  {{- end }}
   {{- end }}
   {{- if and $.Values.st2.packs.configs $.Values.st2.packs.volumes.enabled }}
 # Pack configs defined in helm values
@@ -237,6 +249,9 @@ Create the name of the stackstorm-ha service account to use
     - '-ec'
     - |
       /bin/cp -aR /opt/stackstorm/configs/. /opt/stackstorm/configs-shared
+  {{- with .Values.securityContext }}
+  securityContext: {{- toYaml . | nindent 8 }}
+  {{- end }}
   {{- end }}
 {{- end -}}
 

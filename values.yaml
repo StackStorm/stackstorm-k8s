@@ -234,6 +234,13 @@ st2:
       #    - "admin"
 
 ##
+## Default SecurityContext for pods and containers.
+## Overrides available for st2actionrunner, st2sensorcontainer, and st2client pods.
+##
+podSecurityContext: {}
+securityContext: {}
+
+##
 ## StackStorm HA Ingress
 ##
 ingress:
@@ -561,6 +568,9 @@ st2actionrunner:
   envFromSecrets: []
   serviceAccount:
     attach: false
+  # override the default .podSecurityContext or .securityContext here
+  podSecurityContext: {}
+  securityContext: {}
   # postStartScript is optional. It has the contents of a bash script.
   # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
   # The pod will not be marked as "running" until this script completes successfully.
@@ -621,6 +631,9 @@ st2sensorcontainer:
   envFromSecrets: []
   serviceAccount:
     attach: false
+  # override the default .podSecurityContext or .securityContext here
+  podSecurityContext: {}
+  securityContext: {}
   # postStartScript is optional. It has the contents of a bash script.
   # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
   # The pod will not be marked as "running" until this script completes successfully.
@@ -652,6 +665,9 @@ st2client:
   image: {}
     ## Note that Helm templating is supported in this block!
     #tag: "{{ .Values.image.tag }}"
+  # override the default .podSecurityContext or .securityContext here
+  podSecurityContext: {}
+  securityContext: {}
   # postStartScript is optional. It has the contents of a bash script.
   # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
   # The pod will not be marked as "running" until this script completes successfully.
