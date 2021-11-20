@@ -170,7 +170,7 @@ consolidate pack-configs-volumes definitions
 {{/*
 For custom st2packs-Container reduce duplicity by defining it here once
 */}}
-{{- define "packs-volumes" -}}
+{{- define "stackstorm-ha.packs-volumes" -}}
   {{- if .Values.st2.packs.volumes.enabled }}
 - name: st2-packs-vol
   {{- toYaml .Values.st2.packs.volumes.packs | nindent 2 }}
@@ -183,7 +183,7 @@ For custom st2packs-Container reduce duplicity by defining it here once
   emptyDir: {}
   {{- end }}
 {{- end -}}
-{{- define "packs-volume-mounts" -}}
+{{- define "stackstorm-ha.packs-volume-mounts" -}}
   {{- if .Values.st2.packs.volumes.enabled }}
 - name: st2-packs-vol
   mountPath: /opt/stackstorm/packs
@@ -201,7 +201,7 @@ For custom st2packs-Container reduce duplicity by defining it here once
 {{/*
 define this here as well to simplify comparison with packs-volume-mounts
 */}}
-{{- define "packs-volume-mounts-for-register-job" -}}
+{{- define "stackstorm-ha.packs-volume-mounts-for-register-job" -}}
   {{- if or .Values.st2.packs.images .Values.st2.packs.volumes.enabled }}
 - name: st2-packs-vol
   mountPath: /opt/stackstorm/packs

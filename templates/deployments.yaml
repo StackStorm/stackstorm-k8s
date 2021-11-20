@@ -221,7 +221,7 @@ spec:
           mountPath: /etc/st2/keys
           readOnly: true
         {{- end }}
-        {{- include "packs-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.packs-volume-mounts" . | nindent 8 }}
         {{- if .Values.st2.packs.volumes.enabled }}
           {{- include "stackstorm-ha.pack-configs-volume-mount" . | nindent 8 }}
         {{- end }}
@@ -249,7 +249,7 @@ spec:
               path: datastore_key.json
         {{- end }}
         {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
-        {{- include "packs-volumes" . | nindent 8 }}
+        {{- include "stackstorm-ha.packs-volumes" . | nindent 8 }}
         {{- if .Values.st2.packs.volumes.enabled }}
           {{- include "stackstorm-ha.pack-configs-volume" . | nindent 8 }}
         {{- end }}
@@ -1220,7 +1220,7 @@ spec:
         {{- end }}
         volumeMounts:
         {{- include "stackstorm-ha.st2-config-volume-mounts" $ | nindent 8 }}
-        {{- include "packs-volume-mounts" $ | nindent 8 }}
+        {{- include "stackstorm-ha.packs-volume-mounts" $ | nindent 8 }}
         {{- if ne "disable" (default "" $.Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
@@ -1254,7 +1254,7 @@ spec:
               path: datastore_key.json
         {{- end }}
         {{- include "stackstorm-ha.st2-config-volume" $ | nindent 8 }}
-        {{- include "packs-volumes" $ | nindent 8 }}
+        {{- include "stackstorm-ha.packs-volumes" $ | nindent 8 }}
         {{- range $sensor.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in $sensor.extra_volumes" .name }}
           {{- tpl (required "Each volume must have a 'volume' definition in $sensor.extra_volumes" .volume | toYaml) $ | nindent 10 }}
@@ -1374,7 +1374,7 @@ spec:
           mountPath: /etc/st2/keys
           readOnly: true
         {{- end }}
-        {{- include "packs-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.packs-volume-mounts" . | nindent 8 }}
         {{- if .Values.st2.packs.volumes.enabled }}
           {{- include "stackstorm-ha.pack-configs-volume-mount" . | nindent 8 }}
         {{- end }}
@@ -1412,7 +1412,7 @@ spec:
               path: {{ tpl .Values.st2.system_user.ssh_key_file . | base }}
               # 0400 file permission
               mode: 256
-        {{- include "packs-volumes" . | nindent 8 }}
+        {{- include "stackstorm-ha.packs-volumes" . | nindent 8 }}
         {{- if .Values.st2.packs.volumes.enabled }}
           {{- include "stackstorm-ha.pack-configs-volume" . | nindent 8 }}
         {{- end }}
@@ -1667,7 +1667,7 @@ spec:
           mountPath: /etc/st2/keys
           readOnly: true
         {{- end }}
-        {{- include "packs-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.packs-volume-mounts" . | nindent 8 }}
         {{- include "stackstorm-ha.pack-configs-volume-mount" . | nindent 8 }}
         {{- range .Values.st2client.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in st2client.extra_volumes" .name }}
@@ -1720,7 +1720,7 @@ spec:
               path: {{ tpl .Values.st2.system_user.ssh_key_file . | base }}
               # 0400 file permission
               mode: 256
-        {{- include "packs-volumes" . | nindent 8 }}
+        {{- include "stackstorm-ha.packs-volumes" . | nindent 8 }}
         {{- include "stackstorm-ha.pack-configs-volume" . | nindent 8 }}
         {{- range .Values.st2client.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in st2client.extra_volumes" .name }}
