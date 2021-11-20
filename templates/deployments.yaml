@@ -194,7 +194,7 @@ spec:
       {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
       {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
       {{- if and .Values.st2.packs.images (not .Values.st2.packs.volumes.enabled) }}
-        {{- include "packs-initContainers" . | nindent 6 }}
+        {{- include "stackstorm-ha.packs-initContainers" . | nindent 6 }}
       {{- end }}
       containers:
       - name: st2api
@@ -1181,7 +1181,7 @@ spec:
       {{- include "stackstorm-ha.init-containers-wait-for-db" $ | nindent 6 }}
       {{- include "stackstorm-ha.init-containers-wait-for-mq" $ | nindent 6 }}
       {{- if and $.Values.st2.packs.images (not $.Values.st2.packs.volumes.enabled) }}
-        {{- include "packs-initContainers" $ | nindent 6 }}
+        {{- include "stackstorm-ha.packs-initContainers" $ | nindent 6 }}
       {{- end }}
       containers:
       - name: {{ $name }}
@@ -1343,7 +1343,7 @@ spec:
       {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
       {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
       {{- if and .Values.st2.packs.images (not .Values.st2.packs.volumes.enabled) }}
-        {{- include "packs-initContainers" . | nindent 6 }}
+        {{- include "stackstorm-ha.packs-initContainers" . | nindent 6 }}
       {{- end }}
       containers:
       - name: st2actionrunner
@@ -1601,7 +1601,7 @@ spec:
       {{- end }}
       initContainers:
       {{- if and .Values.st2.packs.images (not .Values.st2.packs.volumes.enabled) }}
-        {{- include "packs-initContainers" . | nindent 6 }}
+        {{- include "stackstorm-ha.packs-initContainers" . | nindent 6 }}
       {{- end }}
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       - name: generate-st2client-config

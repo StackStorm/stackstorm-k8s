@@ -214,7 +214,7 @@ define this here as well to simplify comparison with packs-volume-mounts
 For custom st2packs-initContainers reduce duplicity by defining them here once
 Merge packs and virtualenvs from st2 with those from st2packs images
 */}}
-{{- define "packs-initContainers" -}}
+{{- define "stackstorm-ha.packs-initContainers" -}}
   {{- if $.Values.st2.packs.images }}
     {{- range $.Values.st2.packs.images }}
 - name: 'st2-custom-pack-{{ printf "%s-%s-%s" .repository .name .tag | sha1sum }}'
