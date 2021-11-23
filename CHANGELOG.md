@@ -12,6 +12,7 @@
 * Refactor deployments/jobs to inject st2 username/password via `envFrom` instead of via `env`. (#257) (by @cognifloyd)
 * New feature: Add `envFromSecrets` to `st2actionrunner`, `st2client`, `st2sensorcontainer`, and jobs. This is useful for adding custom secrets to the environment. This complements the `extra_volumes` feature (loading secrets as files) to facilitate loading secrets that are not easily injected via the filesystem. (#259) (by @cognifloyd)
 * New feature to include `nodeSelector`, `affinity` and `tolerations` to `st2client`, allowing more flexibility to pod positioning. (#263) (by @sandesvitor)
+* New feature: adding https port to st2web service if .Values.st2web.service.ssl equals `true`. .Values.st2web.service.ssl defaults to `false` for backward compatibility. (#267) (by @sandesvitor)
 
 ## v0.70.0
 * New feature: Shared packs volumes `st2.packs.volumes`. Allow using cluster-specific persistent volumes to store packs, virtualenvs, and (optionally) configs. This enables using `st2 pack install`. It even works with `st2packs` images in `st2.packs.images`. (#199) (by @cognifloyd)
