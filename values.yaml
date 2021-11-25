@@ -295,7 +295,9 @@ st2web:
   affinity: {}
   env: {}
   # HTTP_PROXY: http://proxy:1234
-  ## Advanced: To configure st2web to serve HTTPS (port 443) instead of HTTP (port 80)
+  ## st2web serves HTTP (port 80) so that SSL termination can be managed
+  ## using kubernetes-native features like LoadBalancer or Ingress Controllers.
+  ## To configure st2web to directly serve HTTPS (port 443) instead of HTTP,
   ## provide ssl certs via extra_volumes, and add the ST2WEB_HTTPS env var here:
   # ST2WEB_HTTPS: 1
   serviceAccount:
