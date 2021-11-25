@@ -400,13 +400,13 @@ spec:
         image: '{{ template "imageRepository" . }}/st2web:{{ tpl (.Values.st2web.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
-        - containerPort: 80
+        - containerPort: {{ eq (get .Values.st2web.env "ST2WEB_HTTPS" | toString) "1" | ternary 443 80 }}
         # Probe to check if app is running. Failure will lead to a pod restart.
         livenessProbe:
           httpGet:
-            scheme: HTTP
+            scheme: {{ eq (get .Values.st2web.env "ST2WEB_HTTPS" | toString) "1" | ternary "HTTPS" "HTTP" }}
             path: /
-            port: 80
+            port: {{ eq (get .Values.st2web.env "ST2WEB_HTTPS" | toString) "1" | ternary 443 80 }}
           initialDelaySeconds: 1
         # Probe to check if app is ready to serve traffic. Failure will lead to temp stop serving traffic.
         # TODO: Failing to add readinessProbe, since st2 requires authorization (401) and we don't have `/healthz` endpoints yet (https://github.com/StackStorm/st2/issues/4020)
@@ -426,11 +426,15 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
             optional: true
-    {{- if or .Values.st2web.config .Values.st2web.postStartScript }}
+    {{- if or .Values.st2web.config .Values.st2web.extra_volumes .Values.st2web.postStartScript }}
         volumeMounts:
     {{- else }}
         volumeMounts: []
     {{- end }}
+        {{- range .Values.st2web.extra_volumes }}
+          - name: {{ required "Each volume must have a 'name' in st2web.extra_volumes" .name }}
+            {{- tpl (required "Each volume must have a 'mount' definition in st2web.extra_volumes" .mount | toYaml) $ | nindent 12 }}
+        {{- end }}
         {{- if .Values.st2web.config }}
           - name: st2web-config-vol
             mountPath: /opt/stackstorm/static/webui/config.js
@@ -450,11 +454,15 @@ spec:
     {{- if .Values.st2web.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
-    {{- if or .Values.st2web.config .Values.st2web.postStartScript }}
+    {{- if or .Values.st2web.config .Values.st2web.extra_volumes .Values.st2web.postStartScript }}
       volumes:
     {{- else }}
       volumes: []
     {{- end }}
+        {{- range .Values.st2web.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2web.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'volume' definition in st2web.extra_volumes" .volume | toYaml) $ | nindent 10 }}
+        {{- end }}
         {{- if .Values.st2web.config }}
         - name: st2web-config-vol
           configMap:

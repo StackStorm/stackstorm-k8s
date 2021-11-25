@@ -295,8 +295,17 @@ st2web:
   affinity: {}
   env: {}
   # HTTP_PROXY: http://proxy:1234
+  ## st2web serves HTTP (port 80) so that SSL termination can be managed
+  ## using kubernetes-native features like LoadBalancer or Ingress Controllers.
+  ## To configure st2web to directly serve HTTPS (port 443) instead of HTTP,
+  ## provide ssl certs via extra_volumes, and add the ST2WEB_HTTPS env var here:
+  # ST2WEB_HTTPS: 1
   serviceAccount:
     attach: false
+  # mount extra volumes on the st2web pod(s) (primarily useful for k8s-provisioned secrets)
+  ## Note that Helm templating is supported in 'mount' and 'volume'
+  extra_volumes: []
+    # see examples under st2workflowengine.extra_volumes
   # User-defined st2web config with custom settings to replace default config.js
   # See https://github.com/StackStorm/st2web#connecting-to-st2-server for more info
   # config: |

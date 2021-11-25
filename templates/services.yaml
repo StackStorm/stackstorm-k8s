@@ -99,7 +99,7 @@ spec:
   {{- end }}
   ports:
   - protocol: TCP
-    port: 80
+    port: {{ eq (get .Values.st2web.env "ST2WEB_HTTPS" | toString) "1" | ternary 443 80 }}
 
 {{ if .Values.st2chatops.enabled -}}
 ---
