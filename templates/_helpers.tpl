@@ -34,9 +34,9 @@ Generate '-' prefix only when the variable is defined
 Allow calling helpers from nested sub-chart
 https://stackoverflow.com/a/52024583/4533625
 https://github.com/helm/helm/issues/4535#issuecomment-477778391
-Usage: "{{ include "nested" (list . "mongodb" "mongodb.fullname") }}"
+Usage: "{{ include "stackstorm-ha.nested" (list . "mongodb" "mongodb.fullname") }}"
 */}}
-{{- define "nested" }}
+{{- define "stackstorm-ha.nested" }}
 {{- $dot := index . 0 }}
 {{- $subchart := index . 1 | splitList "." }}
 {{- $template := index . 2 }}
@@ -50,10 +50,10 @@ Usage: "{{ include "nested" (list . "mongodb" "mongodb.fullname") }}"
 {{/*
 Generate comma-separated list of nodes for MongoDB-HA connection string, based on number of replicas and service name
 */}}
-{{- define "mongodb-nodes" -}}
+{{- define "stackstorm-ha.mongodb-nodes" -}}
 {{- $replicas := (int (index .Values "mongodb" "replicaCount")) }}
 {{- $architecture := (index .Values "mongodb" "architecture" ) }}
-{{- $mongo_fullname := include "nested" (list $ "mongodb" "mongodb.fullname") }}
+{{- $mongo_fullname := include "stackstorm-ha.nested" (list $ "mongodb" "mongodb.fullname") }}
 {{- range $index0 := until $replicas -}}
   {{- $index1 := $index0 | add1 -}}
   {{- if eq $architecture "replicaset" }}
@@ -67,7 +67,7 @@ Generate comma-separated list of nodes for MongoDB-HA connection string, based o
 {{/*
 Generate list of nodes for Redis with Sentinel connection string, based on number of replicas and service name
 */}}
-{{- define "redis-nodes" -}}
+{{- define "stackstorm-ha.redis-nodes" -}}
 {{- if not .Values.redis.sentinel.enabled }}
 {{- fail "value for redis.sentinel.enabled MUST be true" }}
 {{- end }}
