@@ -204,7 +204,7 @@ spec:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
-        {{- if ne "disable" .Values.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
           readOnly: true
@@ -228,7 +228,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        {{- if ne "disable" .Values.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
             secretName: {{ .Release.Name }}-st2-datastore-crypto-key
@@ -565,7 +565,7 @@ spec:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
-        {{- if ne "disable" .Values.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
           readOnly: true
@@ -586,7 +586,7 @@ spec:
     {{- end }}
       volumes:
         {{- include "st2-config-volume" . | nindent 8 }}
-        {{- if ne "disable" .Values.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
             secretName: {{ .Release.Name }}-st2-datastore-crypto-key
@@ -780,7 +780,7 @@ spec:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
-        {{- if ne "disable" .Values.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
           readOnly: true
@@ -805,7 +805,7 @@ spec:
     {{- end }}
       volumes:
         {{- include "st2-config-volume" . | nindent 8 }}
-        {{- if ne "disable" .Values.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
             secretName: {{ .Release.Name }}-st2-datastore-crypto-key
@@ -901,7 +901,7 @@ spec:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
-        {{- if ne "disable" .Values.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
           readOnly: true
@@ -921,7 +921,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        {{- if ne "disable" .Values.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
             secretName: {{ .Release.Name }}-st2-datastore-crypto-key
@@ -1161,7 +1161,7 @@ spec:
         volumeMounts:
         {{- include "st2-config-volume-mounts" $ | nindent 8 }}
         {{- include "packs-volume-mounts" $ | nindent 8 }}
-        {{- if ne "disable" $.Values.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" $.Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
           readOnly: true
@@ -1185,7 +1185,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" $ }}
     {{- end }}
       volumes:
-        {{- if ne "disable" $.Values.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" $.Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
             secretName: {{ $.Release.Name }}-st2-datastore-crypto-key
@@ -1303,7 +1303,7 @@ spec:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
         - name: st2-ssh-key-vol
           mountPath: {{ tpl .Values.st2.system_user.ssh_key_file . | dir | dir }}/.ssh-key-vol/
-        {{- if ne "disable" .Values.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
           readOnly: true
@@ -1329,7 +1329,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        {{- if ne "disable" .Values.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
             secretName: {{ .Release.Name }}-st2-datastore-crypto-key
@@ -1581,7 +1581,7 @@ spec:
           mountPath: /root/.st2/
         - name: st2-ssh-key-vol
           mountPath: {{ tpl .Values.st2.system_user.ssh_key_file . | dir | dir }}/.ssh-key-vol/
-        {{- if ne "disable" .Values.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
           readOnly: true
@@ -1608,7 +1608,7 @@ spec:
             memory: "5Mi"
             cpu: "5m"
       volumes:
-        {{- if ne "disable" .Values.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
             secretName: {{ .Release.Name }}-st2-datastore-crypto-key
