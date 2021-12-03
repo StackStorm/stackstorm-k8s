@@ -11,7 +11,7 @@ It's more than welcome to fine-tune each component settings to fit specific avai
 
 ## Requirements
 * [Kubernetes](https://kubernetes.io/docs/setup/pick-right-solution/) cluster
-* [Helm](https://docs.helm.sh/using_helm/#install-helm) `v3.x`
+* [Helm](https://docs.helm.sh/using_helm/#install-helm) `v3.5` or greater
 
 ## Usage
 1) Edit `values.yaml` with configuration for the StackStorm HA K8s cluster.

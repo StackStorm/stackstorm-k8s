@@ -1,0 +1,13 @@
+# This is used to generate st2.datastore_crypto_key on install if not defined in values.
+
+# The formula is based on an st2-specific version of python's base64.urlsafe_b64encode
+# randBytes returns a base64 encoded string
+# 32 bytes = 256 bits / 8 bits/byte
+
+aesKeyString: '{{ randBytes 32 | replace "+" "-" | replace "_" "/" | replace "=" "" }}'
+mode: CBC
+size: 256
+
+hmacKey:
+  hmacKeyString: '{{ randBytes 32 | replace "+" "-" | replace "_" "/" | replace "=" "" }}'
+  size: 256
