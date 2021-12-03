@@ -20,6 +20,9 @@ metadata:
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+  {{- if .Values.st2auth.annotations }}
+  annotations: {{- toYaml .Values.st2auth.annotations | nindent 4 }}
+  {{- end }}
 spec:
   selector:
     matchLabels:
@@ -141,6 +144,9 @@ metadata:
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+  {{- if .Values.st2api.annotations }}
+  annotations: {{- toYaml .Values.st2api.annotations | nindent 4 }}
+  {{- end }}
 spec:
   selector:
     matchLabels:
@@ -198,7 +204,7 @@ spec:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
-        {{- if .Values.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
           readOnly: true
@@ -222,7 +228,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        {{- if .Values.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
             secretName: {{ .Release.Name }}-st2-datastore-crypto-key
@@ -268,6 +274,9 @@ metadata:
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+  {{- if .Values.st2stream.annotations }}
+  annotations: {{- toYaml .Values.st2stream.annotations | nindent 4 }}
+  {{- end }}
 spec:
   selector:
     matchLabels:
@@ -367,6 +376,9 @@ metadata:
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+  {{- if .Values.st2web.annotations }}
+  annotations: {{- toYaml .Values.st2web.annotations | nindent 4 }}
+  {{- end }}
 spec:
   selector:
     matchLabels:
@@ -501,6 +513,9 @@ metadata:
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+  {{- if .Values.st2rulesengine.annotations }}
+  annotations: {{- toYaml .Values.st2rulesengine.annotations | nindent 4 }}
+  {{- end }}
 spec:
   selector:
     matchLabels:
@@ -550,7 +565,7 @@ spec:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
-        {{- if .Values.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
           readOnly: true
@@ -571,7 +586,7 @@ spec:
     {{- end }}
       volumes:
         {{- include "st2-config-volume" . | nindent 8 }}
-        {{- if .Values.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
             secretName: {{ .Release.Name }}-st2-datastore-crypto-key
@@ -612,6 +627,9 @@ metadata:
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+  {{- if .Values.st2timersengine.annotations }}
+  annotations: {{- toYaml .Values.st2timersengine.annotations | nindent 4 }}
+  {{- end }}
 spec:
   selector:
     matchLabels:
@@ -710,6 +728,9 @@ metadata:
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+  {{- if .Values.st2workflowengine.annotations }}
+  annotations: {{- toYaml .Values.st2workflowengine.annotations | nindent 4 }}
+  {{- end }}
 spec:
   selector:
     matchLabels:
@@ -759,7 +780,7 @@ spec:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
-        {{- if .Values.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
           readOnly: true
@@ -784,7 +805,7 @@ spec:
     {{- end }}
       volumes:
         {{- include "st2-config-volume" . | nindent 8 }}
-        {{- if .Values.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
             secretName: {{ .Release.Name }}-st2-datastore-crypto-key
@@ -829,6 +850,9 @@ metadata:
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+  {{- if .Values.st2scheduler.annotations }}
+  annotations: {{- toYaml .Values.st2scheduler.annotations | nindent 4 }}
+  {{- end }}
 spec:
   selector:
     matchLabels:
@@ -877,7 +901,7 @@ spec:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
-        {{- if .Values.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
           readOnly: true
@@ -897,7 +921,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        {{- if .Values.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
             secretName: {{ .Release.Name }}-st2-datastore-crypto-key
@@ -939,6 +963,9 @@ metadata:
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+  {{- if .Values.st2notifier.annotations }}
+  annotations: {{- toYaml .Values.st2notifier.annotations | nindent 4 }}
+  {{- end }}
 spec:
   selector:
     matchLabels:
@@ -1058,6 +1085,9 @@ metadata:
     chart: {{ $.Chart.Name }}-{{ $.Chart.Version }}
     release: {{ $.Release.Name }}
     heritage: {{ $.Release.Service }}
+  {{- if $sensor.annotations }}
+  annotations: {{- toYaml $sensor.annotations | nindent 4 }}
+  {{- end }}
 spec:
   selector:
     matchLabels:
@@ -1175,7 +1205,7 @@ spec:
           subPath: st2.sensorcontainer.conf
           readOnly: true
         {{- end }}
-        {{- if $.Values.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" $.Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
           readOnly: true
@@ -1199,7 +1229,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" $ }}
     {{- end }}
       volumes:
-        {{- if $.Values.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" $.Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
             secretName: {{ $.Release.Name }}-st2-datastore-crypto-key
@@ -1252,6 +1282,9 @@ metadata:
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+  {{- if .Values.st2actionrunner.annotations }}
+  annotations: {{- toYaml .Values.st2actionrunner.annotations | nindent 4 }}
+  {{- end }}
 spec:
   selector:
     matchLabels:
@@ -1319,7 +1352,7 @@ spec:
         {{- include "st2-config-volume-mounts" . | nindent 8 }}
         - name: st2-ssh-key-vol
           mountPath: {{ tpl .Values.st2.system_user.ssh_key_file . | dir | dir }}/.ssh-key-vol/
-        {{- if .Values.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
           readOnly: true
@@ -1345,7 +1378,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        {{- if .Values.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
             secretName: {{ .Release.Name }}-st2-datastore-crypto-key
@@ -1401,6 +1434,9 @@ metadata:
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+  {{- if .Values.st2garbagecollector.annotations }}
+  annotations: {{- toYaml .Values.st2garbagecollector.annotations | nindent 4 }}
+  {{- end }}
 spec:
   selector:
     matchLabels:
@@ -1498,6 +1534,9 @@ metadata:
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+  {{- if .Values.st2client.annotations }}
+  annotations: {{- toYaml .Values.st2client.annotations | nindent 4 }}
+  {{- end }}
 spec:
   selector:
     matchLabels:
@@ -1591,7 +1630,7 @@ spec:
           mountPath: /root/.st2/
         - name: st2-ssh-key-vol
           mountPath: {{ tpl .Values.st2.system_user.ssh_key_file . | dir | dir }}/.ssh-key-vol/
-        {{- if .Values.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
           readOnly: true
@@ -1618,7 +1657,7 @@ spec:
             memory: "5Mi"
             cpu: "5m"
       volumes:
-        {{- if .Values.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
             secretName: {{ .Release.Name }}-st2-datastore-crypto-key
@@ -1681,6 +1720,9 @@ metadata:
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+  {{- if .Values.st2chatops.annotations }}
+  annotations: {{- toYaml .Values.st2chatops.annotations | nindent 4 }}
+  {{- end }}
 spec:
   selector:
     matchLabels:
