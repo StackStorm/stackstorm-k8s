@@ -16,7 +16,7 @@
 * Fix indent for lifecycle postStart hook of `st2web` pod. (#268) (by @cognifloyd)
 * Advanced Feature: Allow `st2web` to serve HTTPS when the ssl certs are provided via `st2web.extra_volumes`. To enable this, add `ST2WEB_HTTPS: "1"` to `st2web.env` in your values file. (#264) (by @cognifloyd)
 * Custom annotations now apply to deployments and jobs, not just pods. (#270) (by @cognifloyd)
-* Auto-generate `datastore_crypto_key` on install if not provided. This way all HA installs will have a datastore_crypto_key configured. (#266) (by @cognifloyd)
+* BREAKING CHANGE: Auto-generate `datastore_crypto_key` on install if not provided. This way all HA installs will have a datastore_crypto_key configured. This is only a breaking change for installations that do not want a `datastore_crypto_key`. To disable set `datastore_crypto_key` to `disable` instead of setting it to `""`, `null`, or leaving it unset. (#266) (by @cognifloyd)
 
 ## v0.70.0
 * New feature: Shared packs volumes `st2.packs.volumes`. Allow using cluster-specific persistent volumes to store packs, virtualenvs, and (optionally) configs. This enables using `st2 pack install`. It even works with `st2packs` images in `st2.packs.images`. (#199) (by @cognifloyd)

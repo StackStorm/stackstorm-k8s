@@ -51,6 +51,7 @@ st2:
   # See https://docs.stackstorm.com/datastore.html#securing-secrets-admin-only for more info.
   # If set, st2.datastore_crypto_key always overrides any existing datastore_crypto_key.
   # If not set, the datastore_crypto_key is auto-generated on install and preserved across upgrades.
+  # If you want to disable datastore encryption, set "datastore_crypto_key: disable".
   #datastore_crypto_key: >-
   #  {"hmacKey": {"hmacKeyString": "", "size": 256}, "size": 256, "aesKeyString": "", "mode": "CBC"}
   # SSH private key for the 'stanley' system user ('system_user.ssh_key_file' in st2.conf)
