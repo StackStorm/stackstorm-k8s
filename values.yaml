@@ -235,7 +235,7 @@ st2:
 
 ##
 ## Default SecurityContext for pods and containers.
-## Overrides available for st2actionrunner, st2sensorcontainer, and st2client pods.
+## Overrides available for st2web, st2actionrunner, st2sensorcontainer, and st2client pods.
 ##
 podSecurityContext: {}
 securityContext: {}
@@ -311,6 +311,9 @@ st2web:
   # ST2WEB_HTTPS: 1
   serviceAccount:
     attach: false
+  # override the default .podSecurityContext or .securityContext here
+  podSecurityContext: {}
+  securityContext: {}  # NB: nginx requires some capabilities, drop ALL will cause issues.
   # mount extra volumes on the st2web pod(s) (primarily useful for k8s-provisioned secrets)
   ## Note that Helm templating is supported in 'mount' and 'volume'
   extra_volumes: []

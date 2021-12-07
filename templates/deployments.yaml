@@ -432,7 +432,7 @@ spec:
       - name: st2web
         image: '{{ template "imageRepository" . }}/st2web:{{ tpl (.Values.st2web.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        {{- with .Values.securityContext }}
+        {{- with default .Values.securityContext .Values.st2web.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
         {{- end }}
         ports:
@@ -515,7 +515,7 @@ spec:
     {{- with .Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with .Values.podSecurityContext }}
+    {{- with default .Values.podSecurityContext .Values.st2client.podSecurityContext }}
       securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2web.nodeSelector }}
