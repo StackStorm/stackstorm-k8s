@@ -1,6 +1,7 @@
 # Changelog
 
 ## In Development
+* Switch st2 to `v3.6` as a new default stable version (#274)
 * Explicitly differentiate sensor modes: `all-sensors-in-one-pod` vs `one-sensor-per-pod`. Exposes the mode in new `stackstorm/sensor-mode` annotation. (#222) (by @cognifloyd)
 * Allow adding custom env variables to any Deployment or Job. (#120) (by @AngryDeveloper)
 * Template the contents of st2.config and the values in st2chatops.env. This allows adding secrets defined elsewhere in values. (#249) (by @cognifloyd)
