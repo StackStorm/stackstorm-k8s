@@ -1,6 +1,8 @@
 # Changelog
 
 ## In Development
+
+## v0.80.0
 * Switch st2 to `v3.6` as a new default stable version (#274)
 * Explicitly differentiate sensor modes: `all-sensors-in-one-pod` vs `one-sensor-per-pod`. Exposes the mode in new `stackstorm/sensor-mode` annotation. (#222) (by @cognifloyd)
 * Allow adding custom env variables to any Deployment or Job. (#120) (by @AngryDeveloper)
