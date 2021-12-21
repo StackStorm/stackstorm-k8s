@@ -2,6 +2,50 @@ apiVersion: v1
 entries:
   stackstorm-ha:
   - apiVersion: v2
+    appVersion: "3.6"
+    created: "2021-12-20T19:06:53.017521578-06:00"
+    dependencies:
+    - condition: rabbitmq.enabled
+      name: rabbitmq
+      repository: https://charts.bitnami.com/bitnami
+      version: 8.0.2
+    - condition: mongodb.enabled
+      name: mongodb
+      repository: https://charts.bitnami.com/bitnami
+      version: 10.0.1
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://charts.bitnami.com/bitnami
+      version: 4.0.0
+    - condition: redis.enabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 12.3.2
+    description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
+      environment.
+    digest: 189e89857ef054f82b169eca7993df61d7a27c748a41fcb2af1d41c4f0ed1e69
+    home: https://stackstorm.com/
+    icon: https://landscape.cncf.io/logos/stack-storm.svg
+    keywords:
+    - st2
+    - stackstorm
+    - devops
+    - SRE
+    - automation
+    - chatops
+    - event-driven
+    - auto-remediation
+    - IFTTT
+    - HA
+    maintainers:
+    - email: armab@stackstorm.com
+      name: Eugen Cusmaunsa
+      url: https://github.com/armab
+    name: stackstorm-ha
+    urls:
+    - stackstorm-ha-0.80.0.tgz
+    version: 0.80.0
+  - apiVersion: v2
     appVersion: "3.5"
     created: "2021-09-11T14:12:32.868353137-05:00"
     dependencies:
@@ -223,6 +267,24 @@ entries:
   - apiVersion: v1
     appVersion: 3.4dev
     created: "2020-12-27T20:05:48.459819241Z"
+    dependencies:
+    - condition: rabbitmq-ha.enabled
+      name: rabbitmq-ha
+      repository: https://charts.helm.sh/stable
+      version: 1.46.1
+    - alias: mongodb-ha
+      condition: mongodb-ha.enabled
+      name: mongodb-replicaset
+      repository: https://charts.helm.sh/stable
+      version: 3.12.0
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://charts.helm.sh/stable
+      version: 1.6.1
+    - condition: etcd-operator.enabled
+      name: etcd-operator
+      repository: https://charts.helm.sh/stable
+      version: 0.10.3
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 7012f0438c6c8a9dd499ac15a878c0e4883b0edae4bb7118f17bd0fb8d971303
@@ -250,6 +312,24 @@ entries:
   - apiVersion: v1
     appVersion: 3.4dev
     created: "2020-12-27T20:05:48.455648156Z"
+    dependencies:
+    - condition: rabbitmq-ha.enabled
+      name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.46.1
+    - alias: mongodb-ha
+      condition: mongodb-ha.enabled
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.12.0
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.6.1
+    - condition: etcd-operator.enabled
+      name: etcd-operator
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 0.10.3
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: cdb14380d9061705a95f1699939c4590672c69604c14bf5d91cd14c489c059ff
@@ -277,6 +357,24 @@ entries:
   - apiVersion: v1
     appVersion: 3.3dev
     created: "2020-12-27T20:05:48.451283236Z"
+    dependencies:
+    - condition: rabbitmq-ha.enabled
+      name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.44.1
+    - alias: mongodb-ha
+      condition: mongodb-ha.enabled
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.12.0
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.6.1
+    - condition: etcd-operator.enabled
+      name: etcd-operator
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 0.10.3
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 3ebc2316cfbdc44e56c1c1c08a7cfbe9b1a407980b17c61a52df52b2847decc8
@@ -303,6 +401,24 @@ entries:
   - apiVersion: v1
     appVersion: 3.3dev
     created: "2020-12-27T20:05:48.44652952Z"
+    dependencies:
+    - condition: rabbitmq-ha.enabled
+      name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.44.1
+    - alias: mongodb-ha
+      condition: mongodb-ha.enabled
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.12.0
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.6.1
+    - condition: etcd-operator.enabled
+      name: etcd-operator
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 0.10.3
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: a87f5a81572d603cd52f1641e73f4882fed0445362b12760322feda6b8fc6027
@@ -329,6 +445,24 @@ entries:
   - apiVersion: v1
     appVersion: 3.3dev
     created: "2020-12-27T20:05:48.442198145Z"
+    dependencies:
+    - condition: rabbitmq-ha.enabled
+      name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.44.1
+    - alias: mongodb-ha
+      condition: mongodb-ha.enabled
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.14.0
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.6.1
+    - condition: etcd-operator.enabled
+      name: etcd-operator
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 0.10.3
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 216819e808c7f5d90cd4543b117a5ac91099f17275d9fbab70b9d94772433431
@@ -355,6 +489,24 @@ entries:
   - apiVersion: v1
     appVersion: 3.2dev
     created: "2020-12-27T20:05:48.434565534Z"
+    dependencies:
+    - condition: rabbitmq-ha.enabled
+      name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.36.4
+    - alias: mongodb-ha
+      condition: mongodb-ha.enabled
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.9.6
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.6.1
+    - condition: etcd-operator.enabled
+      name: etcd-operator
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 0.10.0
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: bb6775ab1ac56e23084663dfc12f099f810e4f9ff91452660f2d0ebafea0e92e
@@ -381,6 +533,24 @@ entries:
   - apiVersion: v1
     appVersion: 3.2dev
     created: "2020-12-27T20:05:48.430351616Z"
+    dependencies:
+    - condition: rabbitmq-ha.enabled
+      name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.36.4
+    - alias: mongodb-ha
+      condition: mongodb-ha.enabled
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.9.6
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.6.1
+    - condition: etcd-operator.enabled
+      name: etcd-operator
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 0.10.0
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 8a37a93005a5ed33ed8c4a54bf2872c9803c241c3bf65c09ccb455eb80346ea1
@@ -407,6 +577,23 @@ entries:
   - apiVersion: v1
     appVersion: 3.2dev
     created: "2020-12-27T20:05:48.426055155Z"
+    dependencies:
+    - condition: rabbitmq-ha.enabled
+      name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.36.4
+    - alias: mongodb-ha
+      condition: mongodb-ha.enabled
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.9.6
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.6.1
+    - name: etcd-operator
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 0.10.0
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 5fdcd526b0824be55e53d3635c8589d3c3c9a8ad653881a406f22a0b815ecf54
@@ -433,6 +620,23 @@ entries:
   - apiVersion: v1
     appVersion: 3.2dev
     created: "2020-12-27T20:05:48.421195504Z"
+    dependencies:
+    - condition: rabbitmq-ha.enabled
+      name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.36.4
+    - alias: mongodb-ha
+      condition: mongodb-ha.enabled
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.9.6
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.6.1
+    - name: etcd-operator
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 0.10.0
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 4841190b3ceb0c4f2039e2cec6d7456767d5fea4d19d7083890cc84bb0f16308
@@ -459,6 +663,23 @@ entries:
   - apiVersion: v1
     appVersion: 3.2dev
     created: "2020-12-27T20:05:48.416873577Z"
+    dependencies:
+    - condition: rabbitmq-ha.enabled
+      name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.36.4
+    - alias: mongodb-ha
+      condition: mongodb-ha.enabled
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.9.6
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.6.1
+    - name: etcd-operator
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 0.10.0
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 6d4e949913795fa67749cc2a5149c979b43c65090d2bf7744f99ba28bff8a3a9
@@ -485,6 +706,23 @@ entries:
   - apiVersion: v1
     appVersion: 3.2dev
     created: "2020-12-27T20:05:48.412273523Z"
+    dependencies:
+    - condition: rabbitmq-ha.enabled
+      name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.36.4
+    - alias: mongodb-ha
+      condition: mongodb-ha.enabled
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.9.6
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.6.1
+    - name: etcd-operator
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 0.10.0
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: cd69aa4dcac9ffbe5162d302069308e02d2f4c43142f610b2068a51a5469fdd3
@@ -511,6 +749,23 @@ entries:
   - apiVersion: v1
     appVersion: 3.2dev
     created: "2020-12-27T20:05:48.406327361Z"
+    dependencies:
+    - condition: rabbitmq-ha.enabled
+      name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.31.0
+    - alias: mongodb-ha
+      condition: mongodb-ha.enabled
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.9.6
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.6.1
+    - name: etcd-operator
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 0.10.0
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: ac80927bd5057209cfe8a93f296c602a59ffc8719ce493b811690731a5d4ae35
@@ -537,6 +792,31 @@ entries:
   - apiVersion: v1
     appVersion: 3.2dev
     created: "2020-12-27T20:05:48.402534288Z"
+    dependencies:
+    - condition: rabbitmq-ha.enabled
+      name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.31.0
+    - alias: mongodb-ha
+      condition: mongodb-ha.enabled
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.9.6
+    - condition: docker-registry.enabled
+      name: docker-registry
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.7.0
+    - condition: docker-registry.enabled
+      name: kube-registry-proxy
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.3.0
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.6.1
+    - name: etcd-operator
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 0.10.0
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 311393db925b22b2a54de6d0875c9f87461e20416d049eab6d7ec6ad927d89e4
@@ -563,6 +843,31 @@ entries:
   - apiVersion: v1
     appVersion: 3.2dev
     created: "2020-12-27T20:05:48.398352379Z"
+    dependencies:
+    - condition: rabbitmq-ha.enabled
+      name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.31.0
+    - alias: mongodb-ha
+      condition: mongodb-ha.enabled
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.9.6
+    - condition: docker-registry.enabled
+      name: docker-registry
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.7.0
+    - condition: docker-registry.enabled
+      name: kube-registry-proxy
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.3.0
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.6.1
+    - name: etcd
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.6.2
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 1c99f84ebb2212bbe7aa8aa777e2ee3dca285ceea1aed09903e443777f5c00aa
@@ -589,6 +894,29 @@ entries:
   - apiVersion: v1
     appVersion: 3.2dev
     created: "2020-12-27T20:05:48.393989946Z"
+    dependencies:
+    - name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.31.0
+    - alias: mongodb-ha
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.9.2
+    - condition: docker-registry.enabled
+      name: docker-registry
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.7.0
+    - condition: docker-registry.enabled
+      name: kube-registry-proxy
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.3.0
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.6.1
+    - name: etcd
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.6.2
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 0cb06b12a03bd5cd2644871a33fdbcf0507642fdbb8006d06b918248a7286035
@@ -615,6 +943,29 @@ entries:
   - apiVersion: v1
     appVersion: 3.2dev
     created: "2020-12-27T20:05:48.389997847Z"
+    dependencies:
+    - name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.20.1
+    - alias: mongodb-ha
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.9.2
+    - condition: docker-registry.enabled
+      name: docker-registry
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.7.0
+    - condition: docker-registry.enabled
+      name: kube-registry-proxy
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.3.0
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.6.1
+    - name: etcd
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.6.2
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: f455c889368447c6cb097dca05b59772a42e4b75ef90ed6a1d708a938235910b
@@ -641,6 +992,29 @@ entries:
   - apiVersion: v1
     appVersion: 3.1dev
     created: "2020-12-27T20:05:48.383267422Z"
+    dependencies:
+    - name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.20.1
+    - alias: mongodb-ha
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.9.2
+    - condition: docker-registry.enabled
+      name: docker-registry
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.7.0
+    - condition: docker-registry.enabled
+      name: kube-registry-proxy
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.3.0
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.6.1
+    - name: etcd
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.6.2
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 986b4b0f702317ff432723adb310dd6ba1ff20edac4802592d08b9b653213476
@@ -667,6 +1041,29 @@ entries:
   - apiVersion: v1
     appVersion: 3.1dev
     created: "2020-12-27T20:05:48.379235699Z"
+    dependencies:
+    - name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.20.1
+    - alias: mongodb-ha
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.9.2
+    - condition: docker-registry.enabled
+      name: docker-registry
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.7.0
+    - condition: docker-registry.enabled
+      name: kube-registry-proxy
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.3.0
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.6.1
+    - name: etcd
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.6.2
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 5a0ee112c4f789011fa0823687b9d6ec13f6307526f532d5defc28e564bfc24b
@@ -693,6 +1090,29 @@ entries:
   - apiVersion: v1
     appVersion: 3.1dev
     created: "2020-12-27T20:05:48.374452838Z"
+    dependencies:
+    - name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.20.1
+    - alias: mongodb-ha
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.9.2
+    - condition: docker-registry.enabled
+      name: docker-registry
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.7.0
+    - condition: docker-registry.enabled
+      name: kube-registry-proxy
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.3.0
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.6.1
+    - name: etcd
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.6.2
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 8951e4043e3c3a8501d93d330257f13f6a7417a8548ded1b842f676618afe9e1
@@ -719,6 +1139,29 @@ entries:
   - apiVersion: v1
     appVersion: 3.1dev
     created: "2020-12-27T20:05:48.370188846Z"
+    dependencies:
+    - name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.20.1
+    - alias: mongodb-ha
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.9.2
+    - condition: docker-registry.enabled
+      name: docker-registry
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.7.0
+    - condition: docker-registry.enabled
+      name: kube-registry-proxy
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.3.0
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.6.1
+    - name: etcd
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.6.2
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: e574dd92e44e985d87c786375f307ca8770f1757c26b1bee154a2b5656bf7a23
@@ -745,6 +1188,29 @@ entries:
   - apiVersion: v1
     appVersion: 3.0dev
     created: "2020-12-27T20:05:48.365867141Z"
+    dependencies:
+    - name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.20.1
+    - alias: mongodb-ha
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.9.2
+    - condition: docker-registry.enabled
+      name: docker-registry
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.7.0
+    - condition: docker-registry.enabled
+      name: kube-registry-proxy
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.3.0
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.6.1
+    - name: etcd
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.6.2
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: c13fa8551667846ca02cda40fb5218d9830dd18ffc7aff27e6084f478782ad5e
@@ -771,6 +1237,29 @@ entries:
   - apiVersion: v1
     appVersion: 3.0dev
     created: "2020-12-27T20:05:48.360496675Z"
+    dependencies:
+    - name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.20.1
+    - alias: mongodb-ha
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.9.2
+    - condition: docker-registry.enabled
+      name: docker-registry
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.7.0
+    - condition: docker-registry.enabled
+      name: kube-registry-proxy
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.3.0
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.6.1
+    - name: etcd
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.6.2
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: f4cd76b74edb6b0c8e76c18b4b7c426a5eb63b8fe81bfe7eac4273abe8fb6aaf
@@ -797,6 +1286,29 @@ entries:
   - apiVersion: v1
     appVersion: 3.0dev
     created: "2020-12-27T20:05:48.356356631Z"
+    dependencies:
+    - name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.20.1
+    - alias: mongodb-ha
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.9.2
+    - condition: docker-registry.enabled
+      name: docker-registry
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.7.0
+    - condition: docker-registry.enabled
+      name: kube-registry-proxy
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.3.0
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.6.1
+    - name: etcd
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.6.2
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 3ab99857d68907e92745db4aeb4326f8316f35d4464119884dde97e17356df4f
@@ -823,6 +1335,29 @@ entries:
   - apiVersion: v1
     appVersion: 3.0dev
     created: "2020-12-27T20:05:48.350797664Z"
+    dependencies:
+    - name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.20.1
+    - alias: mongodb-ha
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.9.2
+    - condition: docker-registry.enabled
+      name: docker-registry
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.7.0
+    - condition: docker-registry.enabled
+      name: kube-registry-proxy
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.3.0
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.6.1
+    - name: etcd
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.6.2
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: beb0fafe7607075318ec42dc2fe0593dd5f8487262ac6fd0b7f48262f976d0e0
@@ -848,6 +1383,26 @@ entries:
   - apiVersion: v1
     appVersion: 3.0dev
     created: "2020-12-27T20:05:48.494079622Z"
+    dependencies:
+    - name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.8.1
+    - alias: mongodb-ha
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.5.3
+    - condition: docker-registry.enabled
+      name: docker-registry
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.5.3
+    - condition: docker-registry.enabled
+      name: kube-registry-proxy
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.2.2
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.0.2
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 07b7ac8ea87d1e1783ecce8e0e92c70a030748df4e7a6f3df39c4e62f6bf5a5a
@@ -873,6 +1428,26 @@ entries:
   - apiVersion: v1
     appVersion: 3.0dev
     created: "2020-12-27T20:05:48.490751825Z"
+    dependencies:
+    - name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.8.1
+    - alias: mongodb-ha
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.5.3
+    - condition: docker-registry.enabled
+      name: docker-registry
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.5.3
+    - condition: docker-registry.enabled
+      name: kube-registry-proxy
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.2.2
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.0.2
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 38ba338b752523c32286a03085db8c0f586f93d21834054a6be7f28d632a4fcc
@@ -898,6 +1473,26 @@ entries:
   - apiVersion: v1
     appVersion: 2.10dev
     created: "2020-12-27T20:05:48.48742681Z"
+    dependencies:
+    - name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.8.1
+    - alias: mongodb-ha
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.5.3
+    - condition: docker-registry.enabled
+      name: docker-registry
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.5.3
+    - condition: docker-registry.enabled
+      name: kube-registry-proxy
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.2.2
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.0.2
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: c7e40a2d4fbd53181b8044559ebf7c3d753ec1e36a13f090e64ddcef7f62c46d
@@ -923,6 +1518,26 @@ entries:
   - apiVersion: v1
     appVersion: 3.0dev
     created: "2020-12-27T20:05:48.482712706Z"
+    dependencies:
+    - name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.8.1
+    - alias: mongodb-ha
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.5.3
+    - condition: docker-registry.enabled
+      name: docker-registry
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.5.3
+    - condition: docker-registry.enabled
+      name: kube-registry-proxy
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.2.2
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.0.2
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 4cc6578518fe6ec3dd51041b6ebd79634efc02fa0058d591d73724a53260866f
@@ -948,6 +1563,26 @@ entries:
   - apiVersion: v1
     appVersion: 3.0dev
     created: "2020-12-27T20:05:48.479365676Z"
+    dependencies:
+    - name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.8.1
+    - alias: mongodb-ha
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.5.3
+    - condition: docker-registry.enabled
+      name: docker-registry
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.5.3
+    - condition: docker-registry.enabled
+      name: kube-registry-proxy
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.2.2
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.0.2
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 65d37ae6ddbcdab4a4c760cd9e260b06d812264f98c265615f2baf38db5d5908
@@ -973,6 +1608,26 @@ entries:
   - apiVersion: v1
     appVersion: 3.0dev
     created: "2020-12-27T20:05:48.476095875Z"
+    dependencies:
+    - name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.8.1
+    - alias: mongodb-ha
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.5.3
+    - condition: docker-registry.enabled
+      name: docker-registry
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.5.3
+    - condition: docker-registry.enabled
+      name: kube-registry-proxy
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.2.2
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.0.2
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 34c080387df93365a2d25acfb40e05f0d6fe7ef9e6b036721dc0b7455d21e5b1
@@ -998,6 +1653,22 @@ entries:
   - apiVersion: v1
     appVersion: 3.0dev
     created: "2020-12-27T20:05:48.471427439Z"
+    dependencies:
+    - name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.8.1
+    - alias: mongodb-ha
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.5.3
+    - condition: docker-registry.enabled
+      name: docker-registry
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.5.3
+    - condition: docker-registry.enabled
+      name: kube-registry-proxy
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.2.2
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 6ea909176c0c40cb95c8c066598cb9c11e60ffa681772ee9606c1bc6f3c2c086
@@ -1023,6 +1694,22 @@ entries:
   - apiVersion: v1
     appVersion: 3.0dev
     created: "2020-12-27T20:05:48.467007017Z"
+    dependencies:
+    - name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.8.1
+    - alias: mongodb-ha
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.5.3
+    - condition: docker-registry.enabled
+      name: docker-registry
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.5.3
+    - condition: docker-registry.enabled
+      name: kube-registry-proxy
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.2.2
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 4f8c28e440a960c7dd697292fd44706dc7293b1397a5ddc06addcf4686a6c1ed
@@ -1048,6 +1735,22 @@ entries:
   - apiVersion: v1
     appVersion: 3.0dev
     created: "2020-12-27T20:05:48.463639067Z"
+    dependencies:
+    - name: rabbitmq-ha
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.8.1
+    - alias: mongodb-ha
+      name: mongodb-replicaset
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 3.5.3
+    - condition: docker-registry.enabled
+      name: docker-registry
+      repository: https://kubernetes-charts.storage.googleapis.com/
+      version: 1.5.3
+    - condition: docker-registry.enabled
+      name: kube-registry-proxy
+      repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+      version: 0.2.2
     description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
       environment.
     digest: 296a0d0303b2f720c06e344cbb2d10c4d8953e0047fa47534320452376fb12eb
@@ -1070,4 +1773,4 @@ entries:
     urls:
     - stackstorm-ha-0.6.0.tgz
     version: 0.6.0
-generated: "2021-09-11T14:12:32.511184716-05:00"
+generated: "2021-12-20T19:06:52.615890226-06:00"
