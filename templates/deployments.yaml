@@ -61,6 +61,9 @@ spec:
       - name: generate-htpasswd
         image: '{{ template "imageRepository" . }}/st2auth:{{ tpl (.Values.st2auth.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         envFrom:
         - secretRef:
             name: {{ .Release.Name }}-st2-auth
@@ -75,6 +78,9 @@ spec:
       - name: st2auth
         image: '{{ template "imageRepository" . }}/st2auth:{{ tpl (.Values.st2auth.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         ports:
         - containerPort: 9100
         # TODO: Add liveness/readiness probes (#3)
@@ -121,6 +127,9 @@ spec:
     {{- end }}
     {{- with .Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2auth.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
@@ -191,6 +200,9 @@ spec:
       - name: st2api
         image: '{{ template "imageRepository" . }}/st2api:{{ tpl (.Values.st2api.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         ports:
         - containerPort: 9101
         # TODO: Add liveness/readiness probes (#3)
@@ -251,6 +263,9 @@ spec:
     {{- end }}
     {{- with .Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2api.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
@@ -314,6 +329,9 @@ spec:
       - name: st2stream
         image: '{{ template "imageRepository" . }}/st2stream:{{ tpl (.Values.st2stream.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         ports:
         - containerPort: 9102
         # TODO: Add liveness/readiness probes (#3)
@@ -353,6 +371,9 @@ spec:
     {{- end }}
     {{- with .Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2stream.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
@@ -411,6 +432,9 @@ spec:
       - name: st2web
         image: '{{ template "imageRepository" . }}/st2web:{{ tpl (.Values.st2web.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with default .Values.securityContext .Values.st2web.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         ports:
         - containerPort: {{ eq (get .Values.st2web.env "ST2WEB_HTTPS" | toString) "1" | ternary 443 80 }}
         # Probe to check if app is running. Failure will lead to a pod restart.
@@ -491,6 +515,9 @@ spec:
     {{- with .Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
     {{- end }}
+    {{- with default .Values.podSecurityContext .Values.st2client.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
+    {{- end }}
     {{- with .Values.st2web.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
@@ -554,6 +581,9 @@ spec:
       - name: st2rulesengine
         image: '{{ template "imageRepository" . }}/st2rulesengine:{{ tpl (.Values.st2rulesengine.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
@@ -604,6 +634,9 @@ spec:
     {{- end }}
     {{- with .Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2rulesengine.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
@@ -668,6 +701,9 @@ spec:
       - name: st2timersengine
         image: '{{ template "imageRepository" . }}/st2timersengine:{{ tpl (.Values.st2timersengine.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
@@ -705,6 +741,9 @@ spec:
     {{- end }}
     {{- with .Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2timersengine.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
@@ -769,6 +808,9 @@ spec:
       - name: st2workflowengine
         image: '{{ template "imageRepository" . }}/st2workflowengine:{{ tpl (.Values.st2workflowengine.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
@@ -827,6 +869,9 @@ spec:
     {{- end }}
     {{- with .Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2workflowengine.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
@@ -890,6 +935,9 @@ spec:
       - name: st2scheduler
         image: '{{ template "imageRepository" . }}/st2scheduler:{{ tpl (.Values.st2scheduler.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
@@ -940,6 +988,9 @@ spec:
     {{- end }}
     {{- with .Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2scheduler.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
@@ -1003,6 +1054,9 @@ spec:
       - name: st2notifier
         image: '{{ template "imageRepository" . }}/st2notifier:{{ tpl (.Values.st2notifier.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
@@ -1040,6 +1094,9 @@ spec:
     {{- end }}
     {{- with .Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2notifier.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
@@ -1130,6 +1187,9 @@ spec:
       - name: {{ $name }}
         image: '{{ template "imageRepository" $ }}/st2sensorcontainer:{{ tpl ($sensor.image.tag | default $.Values.image.tag) $ }}'
         imagePullPolicy: {{ $.Values.image.pullPolicy }}
+        {{- with default $.Values.securityContext $sensor.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         {{- with $sensor.readinessProbe }}
         # Probe to check if app is running. Failure will lead to a pod restart.
         readinessProbe:
@@ -1210,6 +1270,9 @@ spec:
     {{- with $.Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
     {{- end }}
+    {{- with default $.Values.podSecurityContext $sensor.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
+    {{- end }}
     {{- with $sensor.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
@@ -1286,6 +1349,9 @@ spec:
       - name: st2actionrunner
         image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2actionrunner.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with default .Values.securityContext .Values.st2actionrunner.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
@@ -1363,6 +1429,9 @@ spec:
     {{- with .Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
     {{- end }}
+    {{- with default .Values.podSecurityContext .Values.st2actionrunner.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
+    {{- end }}
     {{- with .Values.st2actionrunner.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
@@ -1425,6 +1494,9 @@ spec:
       - name: st2garbagecollector
         image: '{{ template "imageRepository" . }}/st2garbagecollector:{{ tpl (.Values.st2garbagecollector.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
@@ -1462,6 +1534,9 @@ spec:
     {{- end }}
     {{- with .Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2garbagecollector.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
@@ -1532,6 +1607,9 @@ spec:
       - name: generate-st2client-config
         image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2client.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -1556,6 +1634,9 @@ spec:
       - name: st2client
         image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2client.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with default .Values.securityContext .Values.st2actionrunner.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         env:
         - name: ST2CLIENT
           value: "1"
@@ -1648,6 +1729,15 @@ spec:
         - name: st2-post-start-script-vol
           configMap:
             name: {{ .Release.Name }}-st2client-post-start-script
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with default .Values.podSecurityContext .Values.st2client.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
+    {{- end }}
     {{- with .Values.st2client.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
@@ -1707,6 +1797,9 @@ spec:
       - name: st2chatops
         image: '{{ .Values.st2chatops.image.repository | default "stackstorm" }}/{{ .Values.st2chatops.image.name | default "st2chatops" }}:{{ tpl (.Values.st2chatops.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.st2chatops.image.pullPolicy | default .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -1764,6 +1857,9 @@ spec:
     {{- end }}
     {{- with .Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2chatops.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
