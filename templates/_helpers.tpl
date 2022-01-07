@@ -209,7 +209,7 @@ Create the name of the stackstorm-ha service account to use
     - |
       /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
       /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
-  {{- with .Values.securityContext }}
+  {{- with $.Values.securityContext }}
   securityContext: {{- toYaml . | nindent 8 }}
   {{- end }}
     {{- end }}
