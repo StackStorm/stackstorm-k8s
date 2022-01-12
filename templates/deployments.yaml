@@ -55,11 +55,11 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
-      {{- include "init-containers-wait-for-db" . | nindent 6 }}
-      {{- include "init-containers-wait-for-mq" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
       # Sidecar container for generating .htpasswd with st2 username & password pair and sharing produced file with the main st2auth container
       - name: generate-htpasswd
-        image: '{{ template "imageRepository" . }}/st2auth:{{ tpl (.Values.st2auth.image.tag | default .Values.image.tag) . }}'
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2auth:{{ tpl (.Values.st2auth.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -76,7 +76,7 @@ spec:
           - printf "${ST2_AUTH_USERNAME}:$(openssl passwd -apr1 "${ST2_AUTH_PASSWORD}")\n" > /tmp/st2/htpasswd
       containers:
       - name: st2auth
-        image: '{{ template "imageRepository" . }}/st2auth:{{ tpl (.Values.st2auth.image.tag | default .Values.image.tag) . }}'
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2auth:{{ tpl (.Values.st2auth.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -93,7 +93,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8  }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8  }}
         - name: htpasswd-vol
           mountPath: /etc/st2/htpasswd
           subPath: htpasswd
@@ -113,7 +113,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        {{- include "st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         - name: htpasswd-vol
           emptyDir:
             medium: Memory
@@ -188,17 +188,17 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       {{- if .Values.st2.packs.images }}
-        {{- include "packs-pullSecrets" . | nindent 6 }}
+        {{- include "stackstorm-ha.packs-pullSecrets" . | nindent 6 }}
       {{- end }}
       initContainers:
-      {{- include "init-containers-wait-for-db" . | nindent 6 }}
-      {{- include "init-containers-wait-for-mq" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
       {{- if and .Values.st2.packs.images (not .Values.st2.packs.volumes.enabled) }}
-        {{- include "packs-initContainers" . | nindent 6 }}
+        {{- include "stackstorm-ha.packs-initContainers" . | nindent 6 }}
       {{- end }}
       containers:
       - name: st2api
-        image: '{{ template "imageRepository" . }}/st2api:{{ tpl (.Values.st2api.image.tag | default .Values.image.tag) . }}'
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2api:{{ tpl (.Values.st2api.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -215,15 +215,15 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
           readOnly: true
         {{- end }}
-        {{- include "packs-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.packs-volume-mounts" . | nindent 8 }}
         {{- if .Values.st2.packs.volumes.enabled }}
-          {{- include "pack-configs-volume-mount" . | nindent 8 }}
+          {{- include "stackstorm-ha.pack-configs-volume-mount" . | nindent 8 }}
         {{- end }}
         {{- if .Values.st2api.postStartScript }}
         - name: st2-post-start-script-vol
@@ -248,10 +248,10 @@ spec:
             - key: datastore_crypto_key
               path: datastore_key.json
         {{- end }}
-        {{- include "st2-config-volume" . | nindent 8 }}
-        {{- include "packs-volumes" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.packs-volumes" . | nindent 8 }}
         {{- if .Values.st2.packs.volumes.enabled }}
-          {{- include "pack-configs-volume" . | nindent 8 }}
+          {{- include "stackstorm-ha.pack-configs-volume" . | nindent 8 }}
         {{- end }}
         {{- if .Values.st2api.postStartScript }}
         - name: st2-post-start-script-vol
@@ -323,11 +323,11 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
-      {{- include "init-containers-wait-for-db" . | nindent 6 }}
-      {{- include "init-containers-wait-for-mq" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
       containers:
       - name: st2stream
-        image: '{{ template "imageRepository" . }}/st2stream:{{ tpl (.Values.st2stream.image.tag | default .Values.image.tag) . }}'
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2stream:{{ tpl (.Values.st2stream.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -344,7 +344,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- if .Values.st2stream.postStartScript }}
         - name: st2-post-start-script-vol
           mountPath: /post-start.sh
@@ -360,7 +360,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        {{- include "st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         {{- if .Values.st2stream.postStartScript }}
         - name: st2-post-start-script-vol
           configMap:
@@ -430,7 +430,7 @@ spec:
       {{- end }}
       containers:
       - name: st2web
-        image: '{{ template "imageRepository" . }}/st2web:{{ tpl (.Values.st2web.image.tag | default .Values.image.tag) . }}'
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2web:{{ tpl (.Values.st2web.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{- with default .Values.securityContext .Values.st2web.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -575,11 +575,11 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
-      {{- include "init-containers-wait-for-db" . | nindent 6 }}
-      {{- include "init-containers-wait-for-mq" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
       containers:
       - name: st2rulesengine
-        image: '{{ template "imageRepository" . }}/st2rulesengine:{{ tpl (.Values.st2rulesengine.image.tag | default .Values.image.tag) . }}'
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2rulesengine:{{ tpl (.Values.st2rulesengine.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -594,7 +594,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
@@ -615,7 +615,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        {{- include "st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
@@ -695,11 +695,11 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
-      {{- include "init-containers-wait-for-db" . | nindent 6 }}
-      {{- include "init-containers-wait-for-mq" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
       containers:
       - name: st2timersengine
-        image: '{{ template "imageRepository" . }}/st2timersengine:{{ tpl (.Values.st2timersengine.image.tag | default .Values.image.tag) . }}'
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2timersengine:{{ tpl (.Values.st2timersengine.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -714,7 +714,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- if .Values.st2timersengine.postStartScript }}
         - name: st2-post-start-script-vol
           mountPath: /post-start.sh
@@ -730,7 +730,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        {{- include "st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         {{- if .Values.st2timersengine.postStartScript }}
         - name: st2-post-start-script-vol
           configMap:
@@ -802,11 +802,11 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
-      {{- include "init-containers-wait-for-db" . | nindent 6 }}
-      {{- include "init-containers-wait-for-mq" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
       containers:
       - name: st2workflowengine
-        image: '{{ template "imageRepository" . }}/st2workflowengine:{{ tpl (.Values.st2workflowengine.image.tag | default .Values.image.tag) . }}'
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2workflowengine:{{ tpl (.Values.st2workflowengine.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -821,7 +821,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
@@ -846,7 +846,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        {{- include "st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
@@ -929,11 +929,11 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
-      {{- include "init-containers-wait-for-db" . | nindent 6 }}
-      {{- include "init-containers-wait-for-mq" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
       containers:
       - name: st2scheduler
-        image: '{{ template "imageRepository" . }}/st2scheduler:{{ tpl (.Values.st2scheduler.image.tag | default .Values.image.tag) . }}'
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2scheduler:{{ tpl (.Values.st2scheduler.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -948,7 +948,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
@@ -977,7 +977,7 @@ spec:
             - key: datastore_crypto_key
               path: datastore_key.json
         {{- end }}
-        {{- include "st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         {{- if .Values.st2scheduler.postStartScript }}
         - name: st2-post-start-script-vol
           configMap:
@@ -1048,11 +1048,11 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
-      {{- include "init-containers-wait-for-db" . | nindent 6 }}
-      {{- include "init-containers-wait-for-mq" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
       containers:
       - name: st2notifier
-        image: '{{ template "imageRepository" . }}/st2notifier:{{ tpl (.Values.st2notifier.image.tag | default .Values.image.tag) . }}'
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2notifier:{{ tpl (.Values.st2notifier.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -1067,7 +1067,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- if .Values.st2notifier.postStartScript }}
         - name: st2-post-start-script-vol
           mountPath: /post-start.sh
@@ -1083,7 +1083,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        {{- include "st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         {{- if .Values.st2notifier.postStartScript }}
         - name: st2-post-start-script-vol
           configMap:
@@ -1116,7 +1116,7 @@ spec:
       {{- $_ := set $sensor $key $val }}
     {{- end }}
   {{- end }}
-  {{- $name := print "st2sensorcontainer" (include "hyphenPrefix" $sensor.name) }}
+  {{- $name := print "st2sensorcontainer" (include "stackstorm-ha.hyphenPrefix" $sensor.name) }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -1175,17 +1175,17 @@ spec:
       - name: {{ $.Values.image.pullSecret }}
       {{- end }}
       {{- if $.Values.st2.packs.images }}
-        {{- include "packs-pullSecrets" $ | nindent 6 }}
+        {{- include "stackstorm-ha.packs-pullSecrets" $ | nindent 6 }}
       {{- end }}
       initContainers:
-      {{- include "init-containers-wait-for-db" $ | nindent 6 }}
-      {{- include "init-containers-wait-for-mq" $ | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-db" $ | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-mq" $ | nindent 6 }}
       {{- if and $.Values.st2.packs.images (not $.Values.st2.packs.volumes.enabled) }}
-        {{- include "packs-initContainers" $ | nindent 6 }}
+        {{- include "stackstorm-ha.packs-initContainers" $ | nindent 6 }}
       {{- end }}
       containers:
       - name: {{ $name }}
-        image: '{{ template "imageRepository" $ }}/st2sensorcontainer:{{ tpl ($sensor.image.tag | default $.Values.image.tag) $ }}'
+        image: '{{ template "stackstorm-ha.imageRepository" $ }}/st2sensorcontainer:{{ tpl ($sensor.image.tag | default $.Values.image.tag) $ }}'
         imagePullPolicy: {{ $.Values.image.pullPolicy }}
         {{- with default $.Values.securityContext $sensor.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -1219,8 +1219,8 @@ spec:
             name: {{ . }}
         {{- end }}
         volumeMounts:
-        {{- include "st2-config-volume-mounts" $ | nindent 8 }}
-        {{- include "packs-volume-mounts" $ | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" $ | nindent 8 }}
+        {{- include "stackstorm-ha.packs-volume-mounts" $ | nindent 8 }}
         {{- if ne "disable" (default "" $.Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
@@ -1253,8 +1253,8 @@ spec:
             - key: datastore_crypto_key
               path: datastore_key.json
         {{- end }}
-        {{- include "st2-config-volume" $ | nindent 8 }}
-        {{- include "packs-volumes" $ | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" $ | nindent 8 }}
+        {{- include "stackstorm-ha.packs-volumes" $ | nindent 8 }}
         {{- range $sensor.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in $sensor.extra_volumes" .name }}
           {{- tpl (required "Each volume must have a 'volume' definition in $sensor.extra_volumes" .volume | toYaml) $ | nindent 10 }}
@@ -1337,17 +1337,17 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       {{- if .Values.st2.packs.images }}
-        {{- include "packs-pullSecrets" . | nindent 6 }}
+        {{- include "stackstorm-ha.packs-pullSecrets" . | nindent 6 }}
       {{- end }}
       initContainers:
-      {{- include "init-containers-wait-for-db" . | nindent 6 }}
-      {{- include "init-containers-wait-for-mq" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
       {{- if and .Values.st2.packs.images (not .Values.st2.packs.volumes.enabled) }}
-        {{- include "packs-initContainers" . | nindent 6 }}
+        {{- include "stackstorm-ha.packs-initContainers" . | nindent 6 }}
       {{- end }}
       containers:
       - name: st2actionrunner
-        image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2actionrunner.image.tag | default .Values.image.tag) . }}'
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2actionrunner.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{- with default .Values.securityContext .Values.st2actionrunner.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -1366,7 +1366,7 @@ spec:
             name: {{ . }}
         {{- end }}
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         - name: st2-ssh-key-vol
           mountPath: {{ tpl .Values.st2.system_user.ssh_key_file . | dir | dir }}/.ssh-key-vol/
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
@@ -1374,9 +1374,9 @@ spec:
           mountPath: /etc/st2/keys
           readOnly: true
         {{- end }}
-        {{- include "packs-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.packs-volume-mounts" . | nindent 8 }}
         {{- if .Values.st2.packs.volumes.enabled }}
-          {{- include "pack-configs-volume-mount" . | nindent 8 }}
+          {{- include "stackstorm-ha.pack-configs-volume-mount" . | nindent 8 }}
         {{- end }}
         {{- range .Values.st2actionrunner.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in st2actionrunner.extra_volumes" .name }}
@@ -1403,7 +1403,7 @@ spec:
             - key: datastore_crypto_key
               path: datastore_key.json
         {{- end }}
-        {{- include "st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         - name: st2-ssh-key-vol
           secret:
             secretName: {{ .Release.Name }}-st2-ssh
@@ -1412,9 +1412,9 @@ spec:
               path: {{ tpl .Values.st2.system_user.ssh_key_file . | base }}
               # 0400 file permission
               mode: 256
-        {{- include "packs-volumes" . | nindent 8 }}
+        {{- include "stackstorm-ha.packs-volumes" . | nindent 8 }}
         {{- if .Values.st2.packs.volumes.enabled }}
-          {{- include "pack-configs-volume" . | nindent 8 }}
+          {{- include "stackstorm-ha.pack-configs-volume" . | nindent 8 }}
         {{- end }}
         {{- range .Values.st2actionrunner.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in st2actionrunner.extra_volumes" .name }}
@@ -1488,11 +1488,11 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
-      {{- include "init-containers-wait-for-db" . | nindent 6 }}
-      {{- include "init-containers-wait-for-mq" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
       containers:
       - name: st2garbagecollector
-        image: '{{ template "imageRepository" . }}/st2garbagecollector:{{ tpl (.Values.st2garbagecollector.image.tag | default .Values.image.tag) . }}'
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2garbagecollector:{{ tpl (.Values.st2garbagecollector.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -1507,7 +1507,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- if .Values.st2garbagecollector.postStartScript }}
         - name: st2-post-start-script-vol
           mountPath: /post-start.sh
@@ -1523,7 +1523,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        {{- include "st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         {{- if .Values.st2garbagecollector.postStartScript }}
         - name: st2-post-start-script-vol
           configMap:
@@ -1594,18 +1594,18 @@ spec:
     spec:
       imagePullSecrets:
       {{- if .Values.st2.packs.images }}
-        {{- include "packs-pullSecrets" . | nindent 6 }}
+        {{- include "stackstorm-ha.packs-pullSecrets" . | nindent 6 }}
       {{- end }}
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
       {{- if and .Values.st2.packs.images (not .Values.st2.packs.volumes.enabled) }}
-        {{- include "packs-initContainers" . | nindent 6 }}
+        {{- include "stackstorm-ha.packs-initContainers" . | nindent 6 }}
       {{- end }}
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       - name: generate-st2client-config
-        image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2client.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2client.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -1632,7 +1632,7 @@ spec:
             EOT
       containers:
       - name: st2client
-        image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2client.image.tag | default .Values.image.tag) . }}'
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2client.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{- with default .Values.securityContext .Values.st2actionrunner.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -1649,7 +1649,7 @@ spec:
             name: {{ . }}
         {{- end }}
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- if .Values.st2.rbac.enabled }}
         - name: st2-rbac-roles-vol
           mountPath: /opt/stackstorm/rbac/roles/
@@ -1667,8 +1667,8 @@ spec:
           mountPath: /etc/st2/keys
           readOnly: true
         {{- end }}
-        {{- include "packs-volume-mounts" . | nindent 8 }}
-        {{- include "pack-configs-volume-mount" . | nindent 8 }}
+        {{- include "stackstorm-ha.packs-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.pack-configs-volume-mount" . | nindent 8 }}
         {{- range .Values.st2client.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in st2client.extra_volumes" .name }}
           {{- tpl (required "Each volume must have a 'mount' definition in st2client.extra_volumes" .mount | toYaml) $ | nindent 10 }}
@@ -1697,7 +1697,7 @@ spec:
             - key: datastore_crypto_key
               path: datastore_key.json
         {{- end }}
-        {{- include "st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         {{- if .Values.st2.rbac.enabled }}
         - name: st2-rbac-roles-vol
           configMap:
@@ -1720,8 +1720,8 @@ spec:
               path: {{ tpl .Values.st2.system_user.ssh_key_file . | base }}
               # 0400 file permission
               mode: 256
-        {{- include "packs-volumes" . | nindent 8 }}
-        {{- include "pack-configs-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.packs-volumes" . | nindent 8 }}
+        {{- include "stackstorm-ha.pack-configs-volume" . | nindent 8 }}
         {{- range .Values.st2client.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in st2client.extra_volumes" .name }}
           {{- tpl (required "Each volume must have a 'volume' definition in st2client.extra_volumes" .volume | toYaml) $ | nindent 10 }}

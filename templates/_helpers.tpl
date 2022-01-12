@@ -1,10 +1,14 @@
-# Expand the name of the chart.
+{{/*
+Expand the name of the chart.
+*/}}
 {{- define "stackstorm-ha.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-# Generate Docker image repository: Public Docker Hub 'stackstorm' for FOSS version
-{{- define "imageRepository" -}}
+{{/*
+Generate Docker image repository: Public Docker Hub 'stackstorm' for FOSS version
+*/}}
+{{- define "stackstorm-ha.imageRepository" -}}
 {{- if .Values.image.repository -}}
 {{ .Values.image.repository }}
 {{- else -}}
@@ -19,16 +23,20 @@ Create the name of the stackstorm-ha service account to use
 {{- default .Chart.Name .Values.serviceAccount.serviceAccountName -}}
 {{- end -}}
 
-# Generate '-' prefix only when the variable is defined
-{{- define "hyphenPrefix" -}}
+{{/*
+Generate '-' prefix only when the variable is defined
+*/}}
+{{- define "stackstorm-ha.hyphenPrefix" -}}
 {{ if . }}-{{ . }}{{end}}
 {{- end -}}
 
-# Allow calling helpers from nested sub-chart
-# https://stackoverflow.com/a/52024583/4533625
-# https://github.com/helm/helm/issues/4535#issuecomment-477778391
-# Usage: "{{ include "nested" (list . "mongodb" "mongodb.fullname") }}"
-{{- define "nested" }}
+{{/*
+Allow calling helpers from nested sub-chart
+https://stackoverflow.com/a/52024583/4533625
+https://github.com/helm/helm/issues/4535#issuecomment-477778391
+Usage: "{{ include "stackstorm-ha.nested" (list . "mongodb" "mongodb.fullname") }}"
+*/}}
+{{- define "stackstorm-ha.nested" }}
 {{- $dot := index . 0 }}
 {{- $subchart := index . 1 | splitList "." }}
 {{- $template := index . 2 }}
@@ -39,11 +47,13 @@ Create the name of the stackstorm-ha service account to use
 {{- include $template (dict "Chart" (dict "Name" (last $subchart)) "Values" $values "Release" $dot.Release "Capabilities" $dot.Capabilities) }}
 {{- end }}
 
-# Generate comma-separated list of nodes for MongoDB-HA connection string, based on number of replicas and service name
-{{- define "mongodb-nodes" -}}
+{{/*
+Generate comma-separated list of nodes for MongoDB-HA connection string, based on number of replicas and service name
+*/}}
+{{- define "stackstorm-ha.mongodb-nodes" -}}
 {{- $replicas := (int (index .Values "mongodb" "replicaCount")) }}
 {{- $architecture := (index .Values "mongodb" "architecture" ) }}
-{{- $mongo_fullname := include "nested" (list $ "mongodb" "mongodb.fullname") }}
+{{- $mongo_fullname := include "stackstorm-ha.nested" (list $ "mongodb" "mongodb.fullname") }}
 {{- range $index0 := until $replicas -}}
   {{- $index1 := $index0 | add1 -}}
   {{- if eq $architecture "replicaset" }}
@@ -54,8 +64,10 @@ Create the name of the stackstorm-ha service account to use
 {{- end -}}
 {{- end -}}
 
-# Generate list of nodes for Redis with Sentinel connection string, based on number of replicas and service name
-{{- define "redis-nodes" -}}
+{{/*
+Generate list of nodes for Redis with Sentinel connection string, based on number of replicas and service name
+*/}}
+{{- define "stackstorm-ha.redis-nodes" -}}
 {{- if not .Values.redis.sentinel.enabled }}
 {{- fail "value for redis.sentinel.enabled MUST be true" }}
 {{- end }}
@@ -71,8 +83,10 @@ Create the name of the stackstorm-ha service account to use
 {{- end -}}
 {{- end -}}
 
-# Reduce duplication of the st2.*.conf volume details
-{{- define "st2-config-volume-mounts" -}}
+{{/*
+Reduce duplication of the st2.*.conf volume details
+*/}}
+{{- define "stackstorm-ha.st2-config-volume-mounts" -}}
 - name: st2-config-vol
   mountPath: /etc/st2/st2.docker.conf
   subPath: st2.docker.conf
@@ -80,13 +94,13 @@ Create the name of the stackstorm-ha service account to use
   mountPath: /etc/st2/st2.user.conf
   subPath: st2.user.conf
 {{- end -}}
-{{- define "st2-config-volume" -}}
+{{- define "stackstorm-ha.st2-config-volume" -}}
 - name: st2-config-vol
   configMap:
     name: {{ $.Release.Name }}-st2-config
 {{- end -}}
 
-{{- define "init-containers-wait-for-db" -}}
+{{- define "stackstorm-ha.init-containers-wait-for-db" -}}
 {{- if index .Values "mongodb" "enabled" }}
 {{- $mongodb_port := (int (index .Values "mongodb" "service" "port")) }}
 - name: wait-for-db
@@ -106,7 +120,7 @@ Create the name of the stackstorm-ha service account to use
 {{- end }}
 {{- end -}}
 
-{{- define "init-containers-wait-for-mq" -}}
+{{- define "stackstorm-ha.init-containers-wait-for-mq" -}}
   {{- if index .Values "rabbitmq" "enabled" }}
     {{- $rabbitmq_port := (int (index .Values "rabbitmq" "service" "port")) }}
 - name: wait-for-queue
@@ -126,8 +140,10 @@ Create the name of the stackstorm-ha service account to use
   {{- end }}
 {{- end -}}
 
-# consolidate pack-configs-volumes definitions
-{{- define "pack-configs-volume" -}}
+{{/*
+consolidate pack-configs-volumes definitions
+*/}}
+{{- define "stackstorm-ha.pack-configs-volume" -}}
   {{- if and .Values.st2.packs.volumes.enabled .Values.st2.packs.volumes.configs }}
 - name: st2-pack-configs-vol
   {{- toYaml .Values.st2.packs.volumes.configs | nindent 2 }}
@@ -142,7 +158,7 @@ Create the name of the stackstorm-ha service account to use
     name: {{ .Release.Name }}-st2-pack-configs
   {{- end }}
 {{- end -}}
-{{- define "pack-configs-volume-mount" -}}
+{{- define "stackstorm-ha.pack-configs-volume-mount" -}}
 - name: st2-pack-configs-vol
   mountPath: /opt/stackstorm/configs/
   {{- if and .Values.st2.packs.volumes.enabled .Values.st2.packs.volumes.configs .Values.st2.packs.configs }}
@@ -151,8 +167,10 @@ Create the name of the stackstorm-ha service account to use
   {{- end }}
 {{- end -}}
 
-# For custom st2packs-Container reduce duplicity by defining it here once
-{{- define "packs-volumes" -}}
+{{/*
+For custom st2packs-Container reduce duplicity by defining it here once
+*/}}
+{{- define "stackstorm-ha.packs-volumes" -}}
   {{- if .Values.st2.packs.volumes.enabled }}
 - name: st2-packs-vol
   {{- toYaml .Values.st2.packs.volumes.packs | nindent 2 }}
@@ -165,7 +183,7 @@ Create the name of the stackstorm-ha service account to use
   emptyDir: {}
   {{- end }}
 {{- end -}}
-{{- define "packs-volume-mounts" -}}
+{{- define "stackstorm-ha.packs-volume-mounts" -}}
   {{- if .Values.st2.packs.volumes.enabled }}
 - name: st2-packs-vol
   mountPath: /opt/stackstorm/packs
@@ -180,8 +198,10 @@ Create the name of the stackstorm-ha service account to use
   readOnly: true
   {{- end }}
 {{- end -}}
-# define this here as well to simplify comparison with packs-volume-mounts
-{{- define "packs-volume-mounts-for-register-job" -}}
+{{/*
+define this here as well to simplify comparison with packs-volume-mounts
+*/}}
+{{- define "stackstorm-ha.packs-volume-mounts-for-register-job" -}}
   {{- if or .Values.st2.packs.images .Values.st2.packs.volumes.enabled }}
 - name: st2-packs-vol
   mountPath: /opt/stackstorm/packs
@@ -190,9 +210,11 @@ Create the name of the stackstorm-ha service account to use
   {{- end }}
 {{- end -}}
 
-# For custom st2packs-initContainers reduce duplicity by defining them here once
-# Merge packs and virtualenvs from st2 with those from st2packs images
-{{- define "packs-initContainers" -}}
+{{/*
+For custom st2packs-initContainers reduce duplicity by defining them here once
+Merge packs and virtualenvs from st2 with those from st2packs images
+*/}}
+{{- define "stackstorm-ha.packs-initContainers" -}}
   {{- if $.Values.st2.packs.images }}
     {{- range $.Values.st2.packs.images }}
 - name: 'st2-custom-pack-{{ printf "%s-%s-%s" .repository .name .tag | sha1sum }}'
@@ -217,7 +239,7 @@ Create the name of the stackstorm-ha service account to use
   {{- if or $.Values.st2.packs.images $.Values.st2.packs.volumes.enabled }}
 # System packs
 - name: st2-system-packs
-  image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2actionrunner.image.tag | default .Values.image.tag) . }}'
+  image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2actionrunner.image.tag | default .Values.image.tag) . }}'
   imagePullPolicy: {{ .Values.image.pullPolicy }}
   volumeMounts:
   - name: st2-packs-vol
@@ -237,7 +259,7 @@ Create the name of the stackstorm-ha service account to use
   {{- if and $.Values.st2.packs.configs $.Values.st2.packs.volumes.enabled }}
 # Pack configs defined in helm values
 - name: st2-pack-configs-from-helm
-  image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2actionrunner.image.tag | default .Values.image.tag) . }}'
+  image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2actionrunner.image.tag | default .Values.image.tag) . }}'
   imagePullPolicy: {{ .Values.image.pullPolicy }}
   volumeMounts:
   - name: st2-pack-configs-vol
@@ -256,8 +278,10 @@ Create the name of the stackstorm-ha service account to use
 {{- end -}}
 
 
-# For custom st2packs-pullSecrets reduce duplicity by defining them here once
-{{- define "packs-pullSecrets" -}}
+{{/*
+For custom st2packs-pullSecrets reduce duplicity by defining them here once
+*/}}
+{{- define "stackstorm-ha.packs-pullSecrets" -}}
   {{- range $.Values.st2.packs.images }}
     {{- if .pullSecret }}
 - name: {{ .pullSecret }}

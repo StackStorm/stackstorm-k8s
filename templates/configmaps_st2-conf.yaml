@@ -24,7 +24,7 @@ data:
     ssh_key_file = {{ tpl .Values.st2.system_user.ssh_key_file . }}
     {{- if index .Values "redis" "enabled" }}
     [coordination]
-    url = redis://{{ template "redis-nodes" $ }}
+    url = redis://{{ template "stackstorm-ha.redis-nodes" $ }}
     {{- end }}
     {{- if index .Values "rabbitmq" "enabled" }}
     [messaging]
@@ -33,12 +33,12 @@ data:
     {{- if index .Values "mongodb" "enabled" }}
     [database]
     {{- if index .Values "mongodb" "auth" "enabled" }}
-    host = mongodb://{{ template "mongodb-nodes" $ }}/{{ required "mongodb.auth.database is required!" (index .Values "mongodb" "auth" "database") }}?authSource={{ required "mongodb.auth.database is required!" (index .Values "mongodb" "auth" "database") }}&replicaSet={{ index .Values "mongodb" "replicaSetName" }}
+    host = mongodb://{{ template "stackstorm-ha.mongodb-nodes" $ }}/{{ required "mongodb.auth.database is required!" (index .Values "mongodb" "auth" "database") }}?authSource={{ required "mongodb.auth.database is required!" (index .Values "mongodb" "auth" "database") }}&replicaSet={{ index .Values "mongodb" "replicaSetName" }}
     username = {{ required "mongodb.auth.username is required!" (index .Values "mongodb" "auth" "username") }}
     password = {{ required "mongodb.auth.password is required!" (index .Values "mongodb" "auth" "password") }}
     db_name = {{ required "mongodb.auth.database is required!" (index .Values "mongodb" "auth" "database") }}
     {{- else }}
-    host = mongodb://{{ template "mongodb-nodes" $ }}/?replicaSet={{ index .Values "mongodb" "replicaSetName" }}
+    host = mongodb://{{ template "stackstorm-ha.mongodb-nodes" $ }}/?replicaSet={{ index .Values "mongodb" "replicaSetName" }}
     {{- end }}
     port = {{ index .Values "mongodb" "service" "port" }}
     {{- end }}
