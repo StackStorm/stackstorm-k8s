@@ -40,7 +40,7 @@ Ingress is enabled. You may access following endpoints:
 {{- end }}
 
 2. Get the password needed to login:
-kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.data.password}" secret {{ .Release.Name }}-st2-auth | base64 --decode
+kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.data.ST2_AUTH_PASSWORD}" secret {{ .Release.Name }}-st2-auth | base64 --decode
 
 3. Login with this username and the password retrieved above:
 username: {{ .Values.st2.username }}
