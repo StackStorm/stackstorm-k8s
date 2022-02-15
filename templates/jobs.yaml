@@ -43,8 +43,11 @@ spec:
       {{- end }}
       containers:
       - name: st2-apply-rbac-definitions
-        image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         command:
           - st2-apply-rbac-definitions
           - --verbose
@@ -62,7 +65,7 @@ spec:
         {{- end }}
         {{- end }}
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         - name: st2-rbac-roles-vol
           mountPath: /opt/stackstorm/rbac/roles/
         - name: st2-rbac-assignments-vol
@@ -72,7 +75,7 @@ spec:
         # TODO: Find out default resource limits for this specific service (#5)
         #resources:
       volumes:
-        {{- include "st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         - name: st2-rbac-roles-vol
           configMap:
             name: {{ .Release.Name }}-st2-rbac-roles
@@ -88,6 +91,9 @@ spec:
     {{- end }}
     {{- with .Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.jobs.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
@@ -144,9 +150,12 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
-      {{- include "init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
       - name: wait-for-api
         image: busybox:1.28
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         command:
           - 'sh'
           - '-c'
@@ -156,8 +165,11 @@ spec:
             done
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       - name: generate-st2client-config
-        image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -180,8 +192,11 @@ spec:
             EOT
       containers:
       - name: st2-apikey-load
-        image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         command:
           - st2
           - apikey
@@ -218,6 +233,9 @@ spec:
     {{- end }}
     {{- with .Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.jobs.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
@@ -274,11 +292,14 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
-      {{- include "init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       - name: generate-st2client-config
-        image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
@@ -301,8 +322,11 @@ spec:
             EOT
       containers:
       - name: st2-key-load
-        image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         command:
           - st2
           - key
@@ -320,7 +344,7 @@ spec:
             name: {{ . }}
         {{- end }}
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         - name: st2client-config-vol
           mountPath: /root/.st2/
         - name: st2-kv-vol
@@ -329,7 +353,7 @@ spec:
         # TODO: Find out default resource limits for this specific service (#5)
         #resources:
       volumes:
-        {{- include "st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         - name: st2client-config-vol
           emptyDir:
             medium: Memory
@@ -342,6 +366,9 @@ spec:
     {{- end }}
     {{- with .Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.jobs.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
@@ -398,18 +425,21 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       {{- if $.Values.st2.packs.images -}}
-        {{- include "packs-pullSecrets" . | nindent 6 }}
+        {{- include "stackstorm-ha.packs-pullSecrets" . | nindent 6 }}
       {{- end }}
       initContainers:
-      {{- include "init-containers-wait-for-db" . | nindent 6 }}
-      {{- include "packs-initContainers" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "stackstorm-ha.packs-initContainers" . | nindent 6 }}
       {{- if $.Values.jobs.preRegisterContentCommand }}
       - name: st2-register-content-custom-init
-        image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         command: {{- toYaml $.Values.jobs.preRegisterContentCommand | nindent 8 }}
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         - name: st2-pack-configs-vol
           mountPath: /opt/stackstorm/configs/
         {{- if .Values.st2.packs.images }}
@@ -421,8 +451,11 @@ spec:
       {{ end }}
       containers:
       - name: st2-register-content
-        image: '{{ template "imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         command:
           - st2-register-content
           - --config-file=/etc/st2/st2.conf
@@ -441,21 +474,24 @@ spec:
         {{- end }}
         {{- end }}
         volumeMounts:
-        {{- include "st2-config-volume-mounts" . | nindent 8 }}
-        {{- include "packs-volume-mounts-for-register-job" . | nindent 8 }}
-        {{- include "pack-configs-volume-mount" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.packs-volume-mounts-for-register-job" . | nindent 8 }}
+        {{- include "stackstorm-ha.pack-configs-volume-mount" . | nindent 8 }}
         # TODO: Find out default resource limits for this specific service (#5)
         #resources:
       volumes:
-        {{- include "st2-config-volume" . | nindent 8 }}
-        {{- include "packs-volumes" . | nindent 8 }}
-        {{- include "pack-configs-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.packs-volumes" . | nindent 8 }}
+        {{- include "stackstorm-ha.pack-configs-volume" . | nindent 8 }}
       restartPolicy: OnFailure
     {{- if .Values.dnsPolicy }}
       dnsPolicy: {{ .Values.dnsPolicy }}
     {{- end }}
     {{- with .Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.jobs.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
