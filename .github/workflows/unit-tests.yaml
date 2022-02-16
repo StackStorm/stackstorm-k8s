@@ -1,5 +1,5 @@
 ---
-name: Python package
+name: Unit Tests
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
       - master
 
 jobs:
-  build:
+  pytest:
 
     runs-on: ubuntu-latest
     strategy:
