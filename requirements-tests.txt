@@ -1,0 +1,6 @@
+jmespath
+jsonschema
+kubernetes
+pytest
+pyyaml
+requests
