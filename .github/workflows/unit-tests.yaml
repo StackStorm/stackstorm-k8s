@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - master
-      - unit-tests  # TODO: drop this
   pull_request:
     branches:
       - master
