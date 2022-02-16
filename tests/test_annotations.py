@@ -13,7 +13,9 @@ import pytest
         ),
     ],
 )
-def test_annotations(chart_resources: List[Dict[str, Any]], expected_annotations: Dict[str, str]) -> None:
+def test_annotations(
+    chart_resources: List[Dict[str, Any]], expected_annotations: Dict[str, str]
+) -> None:
     """Make sure that annotations are working"""
     # based on apache/airflow:chart/tests/tests_annotations::test_annotations_are_added
 
