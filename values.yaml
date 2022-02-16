@@ -318,7 +318,7 @@ st2web:
   # mount extra volumes on the st2web pod(s) (primarily useful for k8s-provisioned secrets)
   ## Note that Helm templating is supported in 'mount' and 'volume'
   extra_volumes: []
-    # see examples under st2workflowengine.extra_volumes
+    # see examples under st2actionrunner.extra_volumes
   # User-defined st2web config with custom settings to replace default config.js
   # See https://github.com/StackStorm/st2web#connecting-to-st2-server for more info
   # config: |
@@ -328,6 +328,7 @@ st2web:
   # The pod will not be marked as "running" until this script completes successfully.
   # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   postStartScript: ""
+
 # https://docs.stackstorm.com/reference/ha.html#st2auth
 # Multiple st2auth processes can be behind a load balancer in an active-active configuration.
 st2auth:
@@ -354,6 +355,11 @@ st2auth:
   # The pod will not be marked as "running" until this script completes successfully.
   # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   postStartScript: ""
+  # mount extra volumes on the st2auth pod(s) (primarily useful for custom logging conf)
+  ## Note that Helm templating is supported in 'mount' and 'volume'
+  extra_volumes: []
+    # see examples under st2actionrunner.extra_volumes
+
 # https://docs.stackstorm.com/reference/ha.html#st2api
 # Multiple st2api process can be behind a load balancer in an active-active configuration.
 st2api:
@@ -380,6 +386,11 @@ st2api:
   # The pod will not be marked as "running" until this script completes successfully.
   # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   postStartScript: ""
+  # mount extra volumes on the st2api pod(s) (primarily useful for custom logging conf)
+  ## Note that Helm templating is supported in 'mount' and 'volume'
+  extra_volumes: []
+    # see examples under st2actionrunner.extra_volumes
+
 # https://docs.stackstorm.com/reference/ha.html#st2stream
 # Multiple st2stream process can be behind a load balancer in an active-active configuration.
 st2stream:
@@ -406,6 +417,11 @@ st2stream:
   # The pod will not be marked as "running" until this script completes successfully.
   # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   postStartScript: ""
+  # mount extra volumes on the st2stream pod(s) (primarily useful for custom logging conf)
+  ## Note that Helm templating is supported in 'mount' and 'volume'
+  extra_volumes: []
+    # see examples under st2actionrunner.extra_volumes
+
 # https://docs.stackstorm.com/reference/ha.html#st2rulesengine
 # Multiple st2rulesengine processes can run in active-active with only connections to MongoDB and RabbitMQ. All these will share the TriggerInstance load and naturally pick up more work if one or more of the processes becomes unavailable.
 st2rulesengine:
@@ -432,6 +448,11 @@ st2rulesengine:
   # The pod will not be marked as "running" until this script completes successfully.
   # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   postStartScript: ""
+  # mount extra volumes on the st2rulesengine pod(s) (primarily useful for custom logging conf)
+  ## Note that Helm templating is supported in 'mount' and 'volume'
+  extra_volumes: []
+    # see examples under st2actionrunner.extra_volumes
+
 # https://docs.stackstorm.com/reference/ha.html#st2timersengine
 # Only single replica is created via K8s Deployment as timersengine can't work in active-active mode at the moment and it relies on K8s failover/reschedule capabilities to address cases of process failure.
 st2timersengine:
@@ -457,6 +478,11 @@ st2timersengine:
   # The pod will not be marked as "running" until this script completes successfully.
   # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   postStartScript: ""
+  # mount extra volumes on the st2timersengine pod (primarily useful for custom logging conf)
+  ## Note that Helm templating is supported in 'mount' and 'volume'
+  extra_volumes: []
+    # see examples under st2actionrunner.extra_volumes
+
 # https://docs.stackstorm.com/reference/ha.html#st2workflowengine
 # Multiple st2workflowengine processes can run in active-active mode and will share the load and pick up more work if one or more of the processes become available.
 st2workflowengine:
@@ -483,10 +509,11 @@ st2workflowengine:
   # The pod will not be marked as "running" until this script completes successfully.
   # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   postStartScript: ""
-  # mount extra volumes on the st2workflowengine pod(s) (primarily useful for k8s-provisioned secrets)
+  # mount extra volumes on the st2workflowengine pod(s) (primarily useful for custom logging conf)
   ## Note that Helm templating is supported in 'mount' and 'volume'
   extra_volumes: []
-    # see examples under st2workflowengine.extra_volumes
+    # see examples under st2actionrunner.extra_volumes
+
 # https://docs.stackstorm.com/reference/ha.html#st2scheduler
 # TODO: Description TBD
 st2scheduler:
@@ -513,6 +540,11 @@ st2scheduler:
   # The pod will not be marked as "running" until this script completes successfully.
   # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   postStartScript: ""
+  # mount extra volumes on the st2scheduler pod(s) (primarily useful for custom logging conf)
+  ## Note that Helm templating is supported in 'mount' and 'volume'
+  extra_volumes: []
+    # see examples under st2actionrunner.extra_volumes
+
 # https://docs.stackstorm.com/reference/ha.html#st2notifier
 # st2notifier runs in active-active mode and requires for that coordination backend like Redis or Zookeeper
 st2notifier:
@@ -539,6 +571,11 @@ st2notifier:
   # The pod will not be marked as "running" until this script completes successfully.
   # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   postStartScript: ""
+  # mount extra volumes on the st2notifier pod(s) (primarily useful for custom logging conf)
+  ## Note that Helm templating is supported in 'mount' and 'volume'
+  extra_volumes: []
+    # see examples under st2actionrunner.extra_volumes
+
 # https://docs.stackstorm.com/reference/ha.html#st2actionrunner
 # Multiple st2actionrunner processes can run in active-active with only connections to MongoDB and RabbitMQ. Work gets naturally
 # distributed across runners via RabbitMQ. Adding more st2actionrunner processes increases the ability of StackStorm to execute actions.
@@ -606,6 +643,15 @@ st2actionrunner:
     #   volume:
     #     configMap:
     #       name: "{{ .Release.Name }}-st2-ansible-config"
+    #
+    # An example that loads logging conf from a custom config map
+    # - name: custom-logging-conf
+    #   mount:
+    #     mountPath: /etc/st2/logging.docker.conf
+    #     subPath: logging.actionrunner.conf
+    #   volume:
+    #     configMap:
+    #       name: "{{ .Release.Name }}-st2-logging-conf"
 
 # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
 # It is possible to run st2sensorcontainer(s) in one of these modes:
@@ -725,6 +771,10 @@ st2garbagecollector:
   # The pod will not be marked as "running" until this script completes successfully.
   # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   postStartScript: ""
+  # mount extra volumes on the st2garbagecollector pod(s) (primarily useful for custom logging conf)
+  ## Note that Helm templating is supported in 'mount' and 'volume'
+  extra_volumes: []
+    # see examples under st2actionrunner.extra_volumes
 
 ##
 ## StackStorm ChatOps (https://docs.stackstorm.com/chatops/index.html)
