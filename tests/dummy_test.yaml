@@ -1,0 +1,76 @@
+---
+suite: Dummy Tests
+templates:
+  - configmaps_st2-conf.yaml
+
+# this optionally overrides {{ .Release }}
+#release:
+#  name: my-release         # default: release-name
+#  namespace: my-namespace  # default: namespace
+#  revision: 1              # default: 0
+#  isUpgrade: true          # default: false
+
+# this optionally overrides {{ .Capabilities }}
+#capabilities:
+#  majorVersion: 1          # default from Helm
+#  minorVersion: 10         # default from Helm
+#  apiVersions:             # defaults to versionset used by k8s version
+#    - br.dev.local/v2
+
+# this optionally overrides {{ .Chart }}
+#chart:
+#  version: 1.0.0           # default from Chart.yaml
+#  appVersion: 1.0.0        # default from Chart.yaml
+  
+tests:
+
+  # name your test
+  - it: should pass
+
+  # define values
+    #values:  # like `helm install -f` or `helm install --values`
+    #  - ./values/staging.yaml
+    #set:  # like `helm install --set`
+    #  image.pullPolicy: Always
+    #  resources:
+    #    limits:
+    #      memory: 128Mi
+
+  # narrow the template selection if needed.
+    #template: deployment.yaml
+
+  # Select which document rendered by the template to use.
+  # This will be fiddly for us as we have multiple documents in many of our templates.
+  # So, we'll have to hard-code the order in our tests. Ick.
+    #documentIndex: 0  # default: -1 (ie assert on all documents)
+
+  # specify relevant overrides
+    #release:       # {{ .Release }}
+    #  name: my-release
+    #  namespace:
+    #  revision: 9
+    #  isUpgrade: true
+    #capabilities:  # {{ .Capabilities }}
+    #  majorVersion: 1
+    #  minorVersion: 12
+    #  apiVersions:
+    #    - custom.api/v1
+    #chart:         # {{ .Chart }}
+    #  version: 1.0.0
+    #  appVersion: 1.0.0
+
+  # the meat of the test
+    asserts:
+      #- equal:
+      #    path: metadata.name
+      #    value: my-deploy
+      #- equal:
+      #    path: metadata.name
+      #    value: your-service
+      #  not: true
+      #  template: web/service.yaml
+      #  documentIndex: 0
+
+    # our dummy test
+      - hasDocuments:
+          count: 1
