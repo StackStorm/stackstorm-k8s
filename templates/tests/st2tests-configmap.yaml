@@ -11,4 +11,4 @@ metadata:
     heritage: {{ .Release.Service }}
 data:
   st2tests.sh: |
-{{ .Files.Get "tests/st2tests.sh" | indent 4 }}
+{{ .Files.Get "tests/integration/st2tests.sh" | indent 4 }}
