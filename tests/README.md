@@ -20,7 +20,7 @@ To run the tests manually from the chart's root dir:
 helm unittest --helm3 -f tests/unit/*_test.yaml .
 ```
 
-> Note! If you need to add unit tests, file names should follow this pattern: `tests/unit-name_your_test.yaml`
+> Note! If you need to add unit tests, file names should follow this pattern: `tests/unit/name_your_test.yaml`
 
 See https://github.com/quintush/helm-unittest/blob/master/DOCUMENT.md for details on writing unit tests.
 
