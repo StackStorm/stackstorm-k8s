@@ -42,4 +42,4 @@ jobs:
     - name: Run helm-unittest
       # by default looks for tests/*_test.yaml
       run: |
-        helm unittest --color --helm3 -f tests/unit/*_test.yaml .
+        helm unittest --color --helm3 .
