@@ -1,10 +1,10 @@
 # `stackstorm-ha` Helm chart Tests
 
-This directory contains Helm chart integration (under `tests/integration/`) and unit tests (`tests/unit-*_test.yaml`).
+This directory contains Helm chart unit and integration tests (under `tests/unit/` and `tests/integration/` respectively).
 
 ## Unit tests
 
-Unit tests (`tests/unit-*_test.yaml`) use [`helm-unittest`](https://github.com/quintush/helm-unittest).
+Unit tests (`tests/unit/*_test.yaml`) use [`helm-unittest`](https://github.com/quintush/helm-unittest).
 `helm-unittest` uses a yaml-based test file to ensure that the templates generate expected features.
 For example, they can ensure that custom annotations are applied consistently to all of the deployments.
 Unit tests do not require a running kubernetes cluster.
@@ -17,7 +17,7 @@ helm dependency update
 
 To run the tests manually from the chart's root dir:
 ```
-helm unittest --helm3 .
+helm unittest --helm3 -f tests/unit/*_test.yaml .
 ```
 
 
