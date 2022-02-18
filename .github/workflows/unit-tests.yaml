@@ -1,0 +1,45 @@
+---
+name: Unit Tests
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  helm-unittest:
+
+    runs-on: ubuntu-latest
+#    strategy:
+#      matrix:
+        # Relevant tools installed by default on ubuntu 20.04:
+        #   - helm 3.8.0
+        #   - jq 1.6
+        #   - kind 0.11.1
+        #   - kubectl 1.23.3
+        #   - minikube 1.25.1
+        #   - python 3.8.10
+        #   - yamllint 1.26.3
+        #   - yq 4.19.1
+        # see: https://github.com/actions/virtual-environments/blob/main/images/linux/Ubuntu2004-Readme.md
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install helm-unittest
+      # We should periodically check to see if another fork has taken over maintenance,
+      # as the de-facto "best" fork has changed several times over the years.
+      run: |
+        helm plugin install https://github.com/quintush/helm-unittest
+
+    - name: Install chart dependencies
+      run: |
+        helm dependency update
+
+    - name: Run helm-unittest
+      # by default looks for tests/*_test.yaml
+      run: |
+        helm unittest --color --helm3 -f tests/unit/*_test.yaml .
