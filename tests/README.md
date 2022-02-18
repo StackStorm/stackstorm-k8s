@@ -20,11 +20,6 @@ To run the tests manually from the chart's root dir:
 helm unittest --helm3 .
 ```
 
-Note that `helm-unittest` still defaults to helm 2, so you must pass `--helm3` or `-3` for short.
-`helm-unittest` does not have a configuraiton file which makes using non-standard directories (like `tests/unit/`)
-very inconvenient (you would have to specify `-f tests/unit/*_test.yaml` on every invocation).
-So, we keep all of the unit test files under tests, but prefix them with `unit-` to separate them from
-the integration tests.
 
 > Note! If you need to add unit tests, file names should follow this pattern: `tests/unit-name_your_test.yaml`
 
