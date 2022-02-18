@@ -1,0 +1,169 @@
+---
+suite: Custom Annotations
+templates:
+  # primary template files
+  - deployments.yaml
+  - ingress.yaml
+  - jobs.yaml
+  - service-account.yaml
+  - services.yaml
+
+  # included templates must also be listed
+  - configmaps_packs.yaml
+  - configmaps_rbac.yaml
+  - configmaps_st2-conf.yaml
+  - configmaps_st2-urls.yaml
+  - configmaps_st2web.yaml
+  - secrets_datastore_crypto_key.yaml
+  - secrets_ssh.yaml
+  - secrets_st2apikeys.yaml
+  - secrets_st2auth.yaml
+  - secrets_st2chatops.yaml
+
+tests:
+  - it: ServiceAccount accepts custom annotations
+    template: service-account.yaml
+    set:
+      serviceAccount:
+        create: true
+        serviceAccountAnnotations: &annotations
+          foo: bar
+          answer: "42"
+    asserts: &annotations_asserts
+      - isNotNull:
+          path: metadata.annotations
+      - equal:
+          path: metadata.annotations.foo
+          value: bar
+      - equal:
+          path: metadata.annotations.answer
+          value: "42"
+
+  - it: st2web Ingress accepts custom annotations
+    template: ingress.yaml
+    set:
+      st2web:
+        service:
+          hostname: some-host-name
+      ingress:
+        enabled: true
+        annotations: *annotations
+    asserts: *annotations_asserts
+
+  # st2auth, st2api, st2stream services do not accept custom annotations
+
+  - it: st2web Service accepts custom annotations
+    template: services.yaml
+    documentIndex: 3
+    set:
+      st2web:
+        service:
+          hostname: some-host-name
+          annotations: *annotations
+    asserts: *annotations_asserts
+
+  # st2chatops service does not accept custom annotations
+
+  - it: Deployments+Pods accept custom annotations
+    template: deployments.yaml
+    set:
+      st2auth:
+        annotations: &deployment_annotations
+          foo: bar
+          answer: "42"
+      st2api:
+        annotations: *deployment_annotations
+      st2stream:
+        annotations: *deployment_annotations
+      st2web:
+        annotations: *deployment_annotations
+      st2rulesengine:
+        annotations: *deployment_annotations
+      st2timersengine:
+        annotations: *deployment_annotations
+      st2workflowengine:
+        annotations: *deployment_annotations
+      st2scheduler:
+        annotations: *deployment_annotations
+      st2notifier:
+        annotations: *deployment_annotations
+      st2sensorcontainer:
+        annotations: *deployment_annotations
+      st2: { packs: { sensors: [] } }  # ensure only 1 sensor
+      st2actionrunner:
+        annotations: *deployment_annotations
+      st2garbagecollector:
+        annotations: *deployment_annotations
+      st2client:
+        annotations: *deployment_annotations
+      st2chatops:
+        enabled: true
+        annotations: *deployment_annotations
+    asserts:
+      - hasDocuments:
+          count: 14
+          # st2auth, st2api,
+          # st2stream, st2web,
+          # st2rulesengine, st2timersengine,
+          # st2workflowengine, st2scheduler,
+          # st2notifier, (1) st2sensorcontainer,
+          # st2actionrunner, st2garbagecollector,
+          # st2client, st2chatops
+
+      # deployment annotations
+      - isNotNull:
+          path: metadata.annotations
+      - equal:
+          path: metadata.annotations.foo
+          value: bar
+      - equal:
+          path: metadata.annotations.answer
+          value: "42"
+
+      # pod annotations
+      - isNotNull:
+          path: spec.template.metadata.annotations
+      - equal:
+          path: spec.template.metadata.annotations.foo
+          value: bar
+      - equal:
+          path: spec.template.metadata.annotations.answer
+          value: "42"
+
+  - it: Jobs+Pods accept custom annotations
+    template: jobs.yaml
+    set:
+      st2:
+        rbac:
+          enabled: true # enable rbac job
+      jobs:
+        annotations:
+          foo: bar
+          answer: "42"
+    asserts:
+      - hasDocuments:
+          count: 4
+          # job-st2-apply-rbac-defintions
+          # job-st2-apikey-load
+          # job-st2-key-load
+          # job-st2-register-content
+
+      # job annotations
+      - isNotNull:
+          path: metadata.annotations
+      - equal:
+          path: metadata.annotations.foo
+          value: bar
+      - equal:
+          path: metadata.annotations.answer
+          value: "42"
+
+      # pod annotations
+      - isNotNull:
+          path: spec.template.metadata.annotations
+      - equal:
+          path: spec.template.metadata.annotations.foo
+          value: bar
+      - equal:
+          path: spec.template.metadata.annotations.answer
+          value: "42"
