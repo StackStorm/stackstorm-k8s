@@ -33,7 +33,7 @@ tests:
   - it: Deployments+Pods have requried labels
     template: deployments.yaml
     set:
-      st2: { packs: { sensors: [] } }  # ensure only 1 sensor
+      st2: { packs: { sensors: [] } } # ensure only 1 sensor
       st2chatops:
         enabled: true
     asserts:
