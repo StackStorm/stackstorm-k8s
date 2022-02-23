@@ -15,23 +15,6 @@ templates:
   - secrets_st2auth.yaml
   - secrets_st2chatops.yaml
 
-# st2.packs.sensors.postStartScript is not valid
-# post start script on all deployments (not on jobs)
-#   st2web.postStartScript
-#   st2auth.postStartScript
-#   st2api.postStartScript
-#   st2stream.postStartScript
-#   st2rulesengine.postStartScript
-#   st2timersengine.postStartScript
-#   st2workflowengine.postStartScript
-#   st2scheduler.postStartScript
-#   st2notifier.postStartScript
-#   st2actionrunner.postStartScript
-#   st2sensorcontainer.postStartScript
-#   st2garbagecollector.postStartScript
-#   st2client.postStartScript
-#   st2chatops.postStartScript
-
 tests:
   - it: post-start script for st2actionrunner and st2client
     template: configmaps_post-start-script.yaml
@@ -265,6 +248,7 @@ tests:
         postStartScript: *custom_post_start_script
       st2actionrunner:
         postStartScript: *custom_post_start_script
+      # st2.packs.sensors.postStartScript is not valid
       st2sensorcontainer:
         postStartScript: *custom_post_start_script
       st2garbagecollector:

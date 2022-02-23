@@ -17,10 +17,6 @@ templates:
   - secrets_st2auth.yaml
   - secrets_st2chatops.yaml
 
-# relevant values:
-#   dnsPolicy:
-#   dnsConfig:
-
 tests:
   - it: Deployments and Jobs default to no dnsPolicy or dnsConfig
     templates:
