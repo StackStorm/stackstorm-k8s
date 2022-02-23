@@ -4,7 +4,7 @@
 * Advanced Feature: Make securityContext (on Deployments/Jobs) and podSecurityContext (on Pods) configurable. This allows dropping all capabilities, for example. You can override the securityContext for `st2actionrunner`, `st2sensorcontainer`, and `st2client` if your actions or sensors need, for example, additional capabilites that the rest of StackStorm does not need. (#271) (by @cognifloyd)
 * Prefix template helpers with chart name and format helper comments as template comments. (#272) (by @cognifloyd)
 * New feature: Add `extra_volumes` to all python-based st2 deployments. This can facilitate changing log levels by loading logging conf file(s) from a custom ConfigMap. (#276) (by @cognifloyd)
-* Initialize basic unittest infrastructure using `helm-unittest`. Added tests for labels, custom annotations, SecurityContext, pullSecrets, pullPolicy, Resources, nodeSelector, tolerations, and affinity. (#284, #288)
+* Initialize basic unittest infrastructure using `helm-unittest`. Added tests for labels, custom annotations, SecurityContext, pullSecrets, pullPolicy, Resources, nodeSelector, tolerations, affinity, dnsPolicy, and dnsConfig. (#284, #288)
 
 ## v0.80.0
 * Switch st2 to `v3.6` as a new default stable version (#274)
