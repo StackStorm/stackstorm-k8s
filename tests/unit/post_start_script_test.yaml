@@ -65,8 +65,7 @@ tests:
       st2:
         packs: { sensors: [] } # ensure only 1 sensor
       st2web:
-        postStartScript: &custom_post_start_script
-          echo hello world
+        postStartScript: &custom_post_start_script echo hello world
       st2auth:
         postStartScript: *custom_post_start_script
       st2api:
@@ -105,9 +104,10 @@ tests:
           path: data.[post-start.sh]
       - matchRegex:
           path: data.[post-start.sh]
-          # Could also match the shebang at the begginning
-          # but I'm not sure how to match more than one line.
-          pattern: echo hello world
+          # (?m) = multi-line mode: ^ and $ match begin/end line in addition to begin/end text
+          # (?s) = let . match \n
+          # .*? = any character zero or more times, prefer fewer
+          pattern: '(?ms)^#!/bin/bash$.*?^echo hello world$'
 
   - it: Deployments st2actionrunner and st2client have lifecycle.postStartScipt by default
     template: deployments.yaml
