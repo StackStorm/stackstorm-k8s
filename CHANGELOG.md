@@ -5,6 +5,7 @@
 * Prefix template helpers with chart name and format helper comments as template comments. (#272) (by @cognifloyd)
 * New feature: Add `extra_volumes` to all python-based st2 deployments. This can facilitate changing log levels by loading logging conf file(s) from a custom ConfigMap. (#276) (by @cognifloyd)
 * Initialize basic unittest infrastructure using `helm-unittest`. Added tests for custom annotations. (#284)
+* New Feature: Add `existingConfigSecret` .  If this is defined, the `st2.secrets.conf` key within this secret will be written as /etc/st2/st2.secrets.conf and added to the end of the command line arguments of all pods. (#289) (by @eric-al)
 
 ## v0.80.0
 * Switch st2 to `v3.6` as a new default stable version (#274)

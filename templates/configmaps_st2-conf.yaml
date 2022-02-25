@@ -13,7 +13,6 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-  # TODO: Bundle DB/MQ login secrets in dynamic ENV-based st2.secrets.conf, leave custom user-defined settings for st2.user.conf (?)
   # Docker/K8s-based st2 config file used for templating service names and common overrides on top of original st2.conf.
   # The order of merging: st2.conf < st2.docker.conf < st2.user.conf
   st2.docker.conf: |

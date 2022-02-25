@@ -68,6 +68,12 @@ st2:
     [api]
     allow_origin = '*'
 
+  # Custom StackStorm config (st2.secret.conf) which will be created from the key 'st2.secret.conf' within this secret.
+  # If this is defined, '--config-file=/etc/st2/st2.secrets.conf' will be added to the end of the command line arguments 
+  # for all pods, superseding all other configuration values.
+  # This secret must be populated outside of this chart.
+  # existingConfigSecret: stackstorm-config-secret
+
   # This mirrors the [system_user] section of st2.conf, but makes the values available for helm templating.
   # If you change the user, you must provide a customized st2actionrunner image that includes your user.
   system_user:
@@ -893,7 +899,7 @@ mongodb:
     rootPassword: "8fAzdnksdzPFUWm4a68EfY7nMhBPaa"
     # Initial database for stackstorm
     database: "st2"
-    # Minimal key length is 6 symbols
+    # Minimal key length is 6 symbols and may only contain characters in the base64 set.
     replicaSetKey: "82PItDpqroti5RngOA7UqbHH7c6bFUwy"
     # Whether to enable the arbiter
   arbiter:

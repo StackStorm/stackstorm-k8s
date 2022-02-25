@@ -83,6 +83,9 @@ spec:
         {{- end }}
         ports:
         - containerPort: 9100
+        command:
+          - /opt/stackstorm/st2/bin/st2auth
+        {{- include "st2-config-file-parameters" $ | nindent 10 }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
@@ -213,6 +216,9 @@ spec:
         {{- end }}
         ports:
         - containerPort: 9101
+        command:
+          - /opt/stackstorm/st2/bin/st2api
+        {{- include "st2-config-file-parameters" $ | nindent 10 }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
@@ -350,6 +356,9 @@ spec:
         {{- end }}
         ports:
         - containerPort: 9102
+        command:
+          - /opt/stackstorm/st2/bin/st2stream
+        {{- include "st2-config-file-parameters" $ | nindent 10 }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
@@ -605,6 +614,9 @@ spec:
       - name: st2rulesengine
         image: '{{ template "stackstorm-ha.imageRepository" . }}/st2rulesengine:{{ tpl (.Values.st2rulesengine.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command:
+          - /opt/stackstorm/st2/bin/st2rulesengine
+        {{- include "st2-config-file-parameters" $ | nindent 10 }}
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
         {{- end }}
@@ -733,6 +745,9 @@ spec:
       - name: st2timersengine
         image: '{{ template "stackstorm-ha.imageRepository" . }}/st2timersengine:{{ tpl (.Values.st2timersengine.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command:
+          - /opt/stackstorm/st2/bin/st2timersengine
+        {{- include "st2-config-file-parameters" $ | nindent 10 }}
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
         {{- end }}
@@ -848,6 +863,10 @@ spec:
       - name: st2workflowengine
         image: '{{ template "stackstorm-ha.imageRepository" . }}/st2workflowengine:{{ tpl (.Values.st2workflowengine.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command:
+          - /opt/stackstorm/st2/bin/st2workflowengine
+        {{- include "st2-config-file-parameters" $ | nindent 10 }}
+        # TODO: Add liveness/readiness probes (#3)
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
         {{- end }}
@@ -975,6 +994,9 @@ spec:
       - name: st2scheduler
         image: '{{ template "stackstorm-ha.imageRepository" . }}/st2scheduler:{{ tpl (.Values.st2scheduler.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command:
+          - /opt/stackstorm/st2/bin/st2scheduler
+        {{- include "st2-config-file-parameters" $ | nindent 10 }}
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
         {{- end }}
@@ -1102,6 +1124,9 @@ spec:
       - name: st2notifier
         image: '{{ template "stackstorm-ha.imageRepository" . }}/st2notifier:{{ tpl (.Values.st2notifier.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command:
+          - /opt/stackstorm/st2/bin/st2notifier
+        {{- include "st2-config-file-parameters" $ | nindent 10 }}
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
         {{- end }}
@@ -1255,12 +1280,10 @@ spec:
         livenessProbe:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- if $one_sensor_per_pod }}
         command:
           - /opt/stackstorm/st2/bin/st2sensorcontainer
-          - --config-file=/etc/st2/st2.conf
-          - --config-file=/etc/st2/st2.docker.conf
-          - --config-file=/etc/st2/st2.user.conf
+        {{- include "st2-config-file-parameters" $ | nindent 10 }}
+        {{- if $one_sensor_per_pod }}
           - --single-sensor-mode
           - --sensor-ref={{ required "You must define `ref` for everything in st2.packs.sensors. This assigns each sensor to a pod." $sensor.ref }}
         {{- end }}
@@ -1405,6 +1428,9 @@ spec:
       - name: st2actionrunner
         image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2actionrunner.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command:
+          - /opt/stackstorm/st2/bin/st2actionrunner
+        {{- include "st2-config-file-parameters" $ | nindent 10 }}
         {{- with default .Values.securityContext .Values.st2actionrunner.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
         {{- end }}
@@ -1550,6 +1576,9 @@ spec:
       - name: st2garbagecollector
         image: '{{ template "stackstorm-ha.imageRepository" . }}/st2garbagecollector:{{ tpl (.Values.st2garbagecollector.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command:
+          - /opt/stackstorm/st2/bin/st2garbagecollector
+        {{- include "st2-config-file-parameters" $ | nindent 10 }}
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
         {{- end }}
