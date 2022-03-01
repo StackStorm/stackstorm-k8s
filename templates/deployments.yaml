@@ -1166,7 +1166,10 @@ spec:
 
 {{- $sensor_deployments_count := max 1 ($.Values.st2sensorcontainer.deployments|int) | int }}
 {{- $one_sensor_per_pod := not ($.Values.st2.packs.sensors | empty) }}
-{{- $some_sensors_per_pod := and (not $one_sensor_per_pod) (gt $sensor_deployments_count 1) }}
+{{- $some_sensors_per_pod := gt $sensor_deployments_count 1 }}
+{{- if and $one_sensor_per_pod $some_sensors_per_pod }}
+  {{- fail "The sensor values are ambiguous. To use one-sensor-per-pod, use `st2.packs.sensors`. To use multiple-sensors-per-pod, use `st2sensorcontainer.deployments > 1`. Do not use both!" }}
+{{- end }}
 {{- range ($one_sensor_per_pod | ternary ($.Values.st2.packs.sensors) (until $sensor_deployments_count)) }}
   {{- $sensor := omit $.Values.st2sensorcontainer "name" "ref" "deployments" "postStartScript" }}
   {{- if $one_sensor_per_pod }}

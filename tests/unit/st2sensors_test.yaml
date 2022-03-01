@@ -383,3 +383,18 @@ tests:
       - equal: *multiSensorSecurityContext
         documentIndex: *third_sensor_doc
 
+  - it: ambiguous stackstorm/sensor-mode fails
+    template: deployments.yaml
+    release:
+      name: missing-sensor-ref-release
+    set:
+      st2:
+        packs:
+          sensors:
+            - name: foo
+              ref: some_pack.foo_sensor
+      st2sensorcontainer:
+        deployments: 2
+    asserts:
+      - failedTemplate:
+          errorMessage: "The sensor values are ambiguous. To use one-sensor-per-pod, use `st2.packs.sensors`. To use multiple-sensors-per-pod, use `st2sensorcontainer.deployments > 1`. Do not use both!"

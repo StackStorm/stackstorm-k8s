@@ -662,7 +662,7 @@ st2actionrunner:
 # For one-sensor-per-pod, define defaults here and add config for each sensor to st2.packs.sensors (above).
 st2sensorcontainer:
   # "deployments" is analogous to "replicas" for other services. Each deployment has 1 replica.
-  # The deployments count is only used if st2.packs.sensors is empty.
+  # The deployments count cannot be greater than 1 unless st2.packs.sensors is empty.
   # If deployments is 1 (the default), then StackStorm puts all sensors in one pod.
   # If deployments is 2+, StackStorm is configured to use sensor hash ranges to ensure that
   # each sensor runs on only one pod. Each hash range is assigned to a separate
