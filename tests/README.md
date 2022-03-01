@@ -17,7 +17,7 @@ helm dependency update
 
 To run the tests manually from the chart's root dir:
 ```
-helm unittest --helm3 -f tests/unit/*_test.yaml .
+helm unittest --helm3 -f 'tests/unit/*_test.yaml' .
 ```
 
 > Note! If you need to add unit tests, file names should follow this pattern: `tests/unit/name_your_test.yaml`

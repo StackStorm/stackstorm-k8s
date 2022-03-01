@@ -89,7 +89,7 @@ tests:
         annotations: *deployment_annotations
       st2sensorcontainer:
         annotations: *deployment_annotations
-      st2: { packs: { sensors: [] } }  # ensure only 1 sensor
+      st2: { packs: { sensors: [] } } # ensure only 1 sensor
       st2actionrunner:
         annotations: *deployment_annotations
       st2garbagecollector:
