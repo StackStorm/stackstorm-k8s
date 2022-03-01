@@ -1,0 +1,8 @@
+---
+# st2.packs.volumes
+#   st2api
+#   st2sensorcontainer
+#   st2actionrunner
+#   st2client
+#
+# fails if st2.packs.volumes.enabled without volume definitions

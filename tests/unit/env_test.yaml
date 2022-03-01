@@ -1,0 +1,22 @@
+---
+# st2web.env
+# st2auth.env
+# st2api.env
+# st2stream.env
+# st2rulesengine.env
+# st2timersengine.env
+# st2workflowengine.env
+# st2scheduler.env
+# st2notifier.env
+# st2actionrunner.env
+# st2sensorcontainer.env
+# st2client.env
+# st2garbagecollector.env
+# st2chatops.env  # prob handled by st2chatops test
+# jobs.env
+
+# st2actionrunner.envFromSecrets
+# st2sensorcontainer.envFromSecrets
+# st2client.envFromSecrets
+# jobs.envFromSecrets
+
