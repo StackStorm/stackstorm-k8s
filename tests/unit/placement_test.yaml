@@ -39,6 +39,12 @@ tests:
         packs: { sensors: [] } # ensure only 1 sensor
       st2chatops:
         enabled: true
+      jobs:
+        extra_hooks: &jobs_extra_hooks
+          - name: upgrade-warning
+            hook: pre-upgrade, pre-rollback
+            hook_weight: -5
+            command: ["st2", "run", "--tail", "custom_pack.warn_about_upgrade"]
     asserts:
       - isNull:
           path: spec.template.spec.nodeSelector
@@ -157,6 +163,7 @@ tests:
         nodeSelector: *custom_nodeSelector
         tolerations: *custom_tolerations
         affinity: *custom_affinity
+        extra_hooks: *jobs_extra_hooks
     asserts:
       - equal:
           path: spec.template.spec.nodeSelector

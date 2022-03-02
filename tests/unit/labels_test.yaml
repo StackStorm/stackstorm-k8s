@@ -101,13 +101,20 @@ tests:
       st2:
         rbac:
           enabled: true # enable rbac job
+      jobs:
+        extra_hooks:
+          - name: upgrade-warning
+            hook: pre-upgrade, pre-rollback
+            hook_weight: -5
+            command: ["st2", "run", "--tail", "custom_pack.warn_about_upgrade"]
     asserts:
       - hasDocuments:
-          count: 4
+          count: 5
           # job-st2-apply-rbac-defintions
           # job-st2-apikey-load
           # job-st2-key-load
           # job-st2-register-content
+          # extra_hooks job
 
       # unlike deployments, jobs should not have selector.matchLabels
 

@@ -26,6 +26,12 @@ tests:
       st2: 
         packs: { sensors: [] } # ensure only 1 sensor
         rbac: { enabled: true } # enable rbac job
+      jobs:
+        extra_hooks: &jobs_extra_hooks
+          - name: upgrade-warning
+            hook: pre-upgrade, pre-rollback
+            hook_weight: -5
+            command: ["st2", "run", "--tail", "custom_pack.warn_about_upgrade"]
     asserts:
       - isNull:
           path: spec.template.spec.dnsPolicy
@@ -51,6 +57,8 @@ tests:
       st2: 
         packs: { sensors: [] } # ensure only 1 sensor
         rbac: { enabled: true } # enable rbac job
+      jobs:
+        extra_hooks: *jobs_extra_hooks
     asserts:
       - equal:
           path: spec.template.spec.dnsPolicy
