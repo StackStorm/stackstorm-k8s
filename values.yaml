@@ -377,6 +377,14 @@ st2api:
   tolerations: []
   affinity: {}
   env: {}
+  service:
+    # type can be one of "ClusterIP", "NodePort", "LoadBalancer" or "ExternalName"
+    type: "ClusterIP"
+    # The hostname associated with st2api service (externalName, added to external DNS, etc.)
+    hostname: ""
+    # For more information regarding annotations, see
+    # https://kubernetes.io/docs/concepts/services-networking/service/#ssl-support-on-aws
+    annotations: {}
   # HTTP_PROXY: http://proxy:1234
   serviceAccount:
     attach: false
@@ -706,6 +714,14 @@ st2client:
     username = ${ST2_AUTH_USERNAME}
     password = ${ST2_AUTH_PASSWORD}
   env: {}
+  service:
+    # type can be one of "ClusterIP", "NodePort", "LoadBalancer" or "ExternalName"
+    type: "ClusterIP"
+    # The hostname associated with st2client service (externalName, added to external DNS, etc.)
+    hostname: ""
+    # For more information regarding annotations, see
+    # https://kubernetes.io/docs/concepts/services-networking/service/#ssl-support-on-aws
+    annotations: {}
   # HTTP_PROXY: http://proxy:1234
   ## These named secrets (managed outside this chart) will be added to envFrom.
   envFromSecrets: []

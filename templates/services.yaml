@@ -28,6 +28,12 @@ metadata:
   name: {{ .Release.Name }}-st2api
   annotations:
     description: StackStorm st2api - service hosts the REST API endpoints that serve requests from WebUI, CLI, ChatOps and other st2 services.
+    {{- if .Values.st2web.service.hostname }}
+    external-dns.alpha.kubernetes.io/hostname: {{ .Values.st2api.service.hostname | quote }}
+    {{- end }}
+    {{- if .Values.st2api.service.annotations }}
+      {{- toYaml .Values.st2api.service.annotations | nindent 4 }}
+    {{- end }}
   labels:
     app: st2api
     tier: backend
@@ -39,7 +45,12 @@ spec:
   selector:
     app: st2api
     release: {{ .Release.Name }}
-  type: ClusterIP
+  type: {{ .Values.st2api.service.type }}
+  {{- if contains "ExternalName" .Values.st2api.service.type }}
+  {{- if .Values.st2api.service.hostname }}
+  externalName: {{ .Values.st2api.service.hostname }}
+  {{- end }}
+  {{- end }}
   ports:
   - protocol: TCP
     port: 9101
@@ -125,3 +136,34 @@ spec:
   - protocol: TCP
     port: 8081
 {{- end }}
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ .Release.Name }}-st2client
+  annotations:
+    description: StackStorm st2client
+    {{- if .Values.st2client.service.hostname }}
+    external-dns.alpha.kubernetes.io/hostname: {{ .Values.st2client.service.hostname | quote }}
+    {{- end }}
+    {{- if .Values.st2client.service.annotations }}
+      {{- toYaml .Values.st2client.service.annotations | nindent 4 }}
+    {{- end }}
+  labels:
+    app: st2client
+    tier: frontend
+    vendor: stackstorm
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  selector:
+    app: st2client
+    release: {{ .Release.Name }}
+  type: {{ .Values.st2client.service.type }}
+  {{- if contains "ExternalName" .Values.st2client.service.type }}
+  {{- if .Values.st2client.service.hostname }}
+  externalName: {{ .Values.st2client.service.hostname }}
+  {{- end }}
+  {{- end }}
