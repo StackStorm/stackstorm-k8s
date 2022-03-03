@@ -5,6 +5,12 @@ metadata:
   name: {{ .Release.Name }}-st2auth
   annotations:
     description: StackStorm st2auth - all authentication is managed by this service.
+    {{- if .Values.st2auth.service.hostname }}
+    external-dns.alpha.kubernetes.io/hostname: {{ .Values.st2auth.service.hostname | quote }}
+    {{- end }}
+    {{- if .Values.st2auth.service.annotations }}
+      {{- toYaml .Values.st2auth.service.annotations | nindent 4 }}
+    {{- end }}
   labels:
     app: st2auth
     tier: backend
@@ -16,7 +22,12 @@ spec:
   selector:
     app: st2auth
     release: {{ .Release.Name }}
-  type: ClusterIP
+  type: {{ .Values.st2auth.service.type }}
+  {{- if contains "ExternalName" .Values.st2auth.service.type }}
+  {{- if .Values.st2auth.service.hostname }}
+  externalName: {{ .Values.st2auth.service.hostname }}
+  {{- end }}
+  {{- end }}
   ports:
   - protocol: TCP
     port: 9100
@@ -136,34 +147,3 @@ spec:
   - protocol: TCP
     port: 8081
 {{- end }}
-
----
-kind: Service
-apiVersion: v1
-metadata:
-  name: {{ .Release.Name }}-st2client
-  annotations:
-    description: StackStorm st2client
-    {{- if .Values.st2client.service.hostname }}
-    external-dns.alpha.kubernetes.io/hostname: {{ .Values.st2client.service.hostname | quote }}
-    {{- end }}
-    {{- if .Values.st2client.service.annotations }}
-      {{- toYaml .Values.st2client.service.annotations | nindent 4 }}
-    {{- end }}
-  labels:
-    app: st2client
-    tier: frontend
-    vendor: stackstorm
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
-spec:
-  selector:
-    app: st2client
-    release: {{ .Release.Name }}
-  type: {{ .Values.st2client.service.type }}
-  {{- if contains "ExternalName" .Values.st2client.service.type }}
-  {{- if .Values.st2client.service.hostname }}
-  externalName: {{ .Values.st2client.service.hostname }}
-  {{- end }}
-  {{- end }}
