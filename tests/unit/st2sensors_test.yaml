@@ -247,3 +247,154 @@ tests:
     asserts:
       - failedTemplate:
           errorMessage: "You must define `ref` for everything in st2.packs.sensors. This assigns each sensor to a pod."
+
+  - it: stackstorm/sensor-mode = multiple-sensors-per-pod
+    template: deployments.yaml
+    release:
+      name: multi-sensor-release
+    set:
+      st2:
+        packs: { sensors: [] }
+      image:
+        tag: globaldefault
+      st2sensorcontainer:
+        image:
+          tag: sensordefault
+        deployments: 3
+        securityContext: *override_security_context
+      securityContext: *global_security_context
+    asserts:
+      - hasDocuments:
+          count: 15 # all but st2chatops
+
+      - isKind:
+          of: Deployment
+        documentIndex: *first_sensor_doc
+      - isKind:
+          of: Deployment
+        documentIndex: *second_sensor_doc
+      - isKind:
+          of: Deployment
+        documentIndex: *third_sensor_doc
+
+      - equal:
+          path: metadata.name
+          value: multi-sensor-release-st2sensorcontainer-0
+        documentIndex: *first_sensor_doc
+      - equal:
+          path: metadata.name
+          value: multi-sensor-release-st2sensorcontainer-1
+        documentIndex: *second_sensor_doc
+      - equal:
+          path: metadata.name
+          value: multi-sensor-release-st2sensorcontainer-2
+        documentIndex: *third_sensor_doc
+
+      - equal:
+          path: metadata.labels.app
+          value: st2sensorcontainer-0
+        documentIndex: *first_sensor_doc
+      - equal:
+          path: metadata.labels.app
+          value: st2sensorcontainer-1
+        documentIndex: *second_sensor_doc
+      - equal:
+          path: metadata.labels.app
+          value: st2sensorcontainer-2
+        documentIndex: *third_sensor_doc
+
+      - equal:
+          path: spec.template.metadata.labels.app
+          value: st2sensorcontainer-0
+        documentIndex: *first_sensor_doc
+      - equal:
+          path: spec.template.metadata.labels.app
+          value: st2sensorcontainer-1
+        documentIndex: *second_sensor_doc
+      - equal:
+          path: spec.template.metadata.labels.app
+          value: st2sensorcontainer-2
+        documentIndex: *third_sensor_doc
+
+      - equal:
+          path: spec.selector.matchLabels.app
+          value: st2sensorcontainer-0
+        documentIndex: *first_sensor_doc
+      - equal:
+          path: spec.selector.matchLabels.app
+          value: st2sensorcontainer-1
+        documentIndex: *second_sensor_doc
+      - equal:
+          path: spec.selector.matchLabels.app
+          value: st2sensorcontainer-2
+        documentIndex: *third_sensor_doc
+
+      - equal: *oneReplica
+        documentIndex: *first_sensor_doc
+      - equal: *oneReplica
+        documentIndex: *second_sensor_doc
+      - equal: *oneReplica
+        documentIndex: *third_sensor_doc
+
+      - equal: &multiSensorAnnotation
+          path: spec.template.metadata.annotations.stackstorm/sensor-mode
+          value: multiple-sensors-per-pod
+        documentIndex: *first_sensor_doc
+      - equal: *multiSensorAnnotation
+        documentIndex: *second_sensor_doc
+      - equal: *multiSensorAnnotation
+        documentIndex: *third_sensor_doc
+
+      - notContains: &notSingleSensorMode
+          path: spec.template.spec.containers[0].command
+          content: '--single-sensor-mode'
+        documentIndex: *first_sensor_doc
+      - notContains: *notSingleSensorMode
+        documentIndex: *second_sensor_doc
+      - notContains: *notSingleSensorMode
+        documentIndex: *third_sensor_doc
+
+      - contains: &sensorConf
+          path: spec.template.spec.containers[0].command
+          content: '--config-file=/etc/st2/st2.sensorcontainer.conf'
+        documentIndex: *first_sensor_doc
+      - contains: *sensorConf
+        documentIndex: *second_sensor_doc
+      - contains: *sensorConf
+        documentIndex: *third_sensor_doc
+
+      # st2sensorcontainer values apply to all sensor containers replacing globals
+
+      - matchRegex: &multiSensorTag
+          path: spec.template.spec.containers[0].image
+          pattern: '.*:sensordefault$'
+        documentIndex: *first_sensor_doc
+      - matchRegex: *multiSensorTag
+        documentIndex: *second_sensor_doc
+      - matchRegex: *multiSensorTag
+        documentIndex: *third_sensor_doc
+
+      - equal: &multiSensorSecurityContext
+          path: spec.template.spec.containers[0].securityContext
+          value: *override_security_context
+        documentIndex: *first_sensor_doc
+      - equal: *multiSensorSecurityContext
+        documentIndex: *second_sensor_doc
+      - equal: *multiSensorSecurityContext
+        documentIndex: *third_sensor_doc
+
+  - it: ambiguous stackstorm/sensor-mode fails
+    template: deployments.yaml
+    release:
+      name: missing-sensor-ref-release
+    set:
+      st2:
+        packs:
+          sensors:
+            - name: foo
+              ref: some_pack.foo_sensor
+      st2sensorcontainer:
+        deployments: 2
+    asserts:
+      - failedTemplate:
+          errorMessage: "The sensor values are ambiguous. To use one-sensor-per-pod, use `st2.packs.sensors`. To use multiple-sensors-per-pod, use `st2sensorcontainer.deployments > 1`. Do not use both!"

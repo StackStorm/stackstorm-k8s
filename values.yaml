@@ -152,10 +152,11 @@ st2:
     # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
     # It is possible to run st2sensorcontainer(s) in one of these modes:
     #   (1) run all sensors in one pod (1 deployment with 1 pod, the default); or
-    #   (2) run one sensor per pod using st2.packs.sensors (here).
+    #   (2) run multiple sensors per pod (2+ deployments with 1 pod each) using hash range partitions; or
+    #   (3) run one sensor per pod using st2.packs.sensors (here).
     # Each sensor node needs to be provided with proper partition information to share work with other sensor
     # nodes so that the same sensor does not run on different nodes.
-    # When this is empty (the default), the chart adds one pod to run all sensors.
+    # By default, this is empty and st2sensorcontainer.deployments (below) is 1 so that there is one pod to run all sensors.
     sensors: []
       # This is a list of sensor pods (stackstorm/sensor-mode=one-sensor-per-pod).
       # Each entry should have `name` (the pod name) and `ref` (which sensor to run in the pod).
@@ -679,10 +680,21 @@ st2actionrunner:
 # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
 # It is possible to run st2sensorcontainer(s) in one of these modes:
 #   (1) run all sensors in one pod (1 deployment with 1 pod, the default); or
-#   (2) run one sensor per pod using st2.packs.sensors (see above).
-# To use the default mode (all sensors in one pod), st2.packs.sensors must be empty.
+#   (2) run multiple sensor per pod (2+ deployments with 1 pod each) using hash range partitions; or
+#   (3) run one sensor per pod using st2.packs.sensors (see above).
+# To use the deployments (modes 1 and 2 in this list), st2.packs.sensors must be empty.
 # For one-sensor-per-pod, define defaults here and add config for each sensor to st2.packs.sensors (above).
 st2sensorcontainer:
+  # "deployments" is analogous to "replicas" for other services. Each deployment has 1 replica.
+  # The deployments count cannot be greater than 1 unless st2.packs.sensors is empty.
+  # If deployments is 1 (the default), then StackStorm puts all sensors in one pod.
+  # If deployments is 2+, StackStorm is configured to use sensor hash ranges to ensure that
+  # each sensor runs on only one pod. Each hash range is assigned to a separate
+  # deployment to ease maintenance of the sensor deployments and pods.
+  # See: https://docs.stackstorm.com/reference/sensor_partitioning.html#hash
+  deployments: 1
+
+  # values below this point are also used as defaults in st2.packs.sensors (if used)
   resources:
     requests:
       memory: "100Mi"
