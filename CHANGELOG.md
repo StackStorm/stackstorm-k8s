@@ -5,7 +5,7 @@
 * Prefix template helpers with chart name and format helper comments as template comments. (#272) (by @cognifloyd)
 * New feature: Add `extra_volumes` to all python-based st2 deployments. This can facilitate changing log levels by loading logging conf file(s) from a custom ConfigMap. (#276) (by @cognifloyd)
 * Initialize basic unittest infrastructure using `helm-unittest`. Added tests for labels, custom annotations, SecurityContext, pullSecrets, pullPolicy, Resources, nodeSelector, tolerations, affinity, dnsPolicy, dnsConfig, ServiceAccount attach, postStartScript, and both sensor-modes. (#284, #288)
-* New feature to include possibility for external services in st2api and st2auth, setting default value for this services as `ClusterIP` and `hostname: ""`. (by @sandesvitor)
+* New feature to include possibility for external services in st2api, st2stream and st2auth, setting default value for this services as `ClusterIP` and `hostname: ""`. (by @sandesvitor)
 
 ## v0.80.0
 * Switch st2 to `v3.6` as a new default stable version (#274)

@@ -425,6 +425,14 @@ st2stream:
   affinity: {}
   env: {}
   # HTTP_PROXY: http://proxy:1234
+  service:
+    # type can be one of "ClusterIP", "NodePort", "LoadBalancer" or "ExternalName"
+    type: "ClusterIP"
+    # The hostname associated with st2api service (externalName, added to external DNS, etc.)
+    hostname: ""
+    # For more information regarding annotations, see
+    # https://kubernetes.io/docs/concepts/services-networking/service/#ssl-support-on-aws
+    annotations: {}
   serviceAccount:
     attach: false
   # postStartScript is optional. It has the contents of a bash script.
