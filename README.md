@@ -123,6 +123,11 @@ which in our case is `Redis`.
 st2sensorcontainer manages StackStorm sensors: It starts, stops and restarts them as subprocesses.
 By default, deployment is configured with `1` replica containing all the sensors.
 
+You can increase the number of `st2sensorcontainer` pods by increasing the number of deployments.
+The replicas count is still only `1` per deployment, but the sensors are distributed between the deployments using
+[Sensor Hash Range Partitioning](https://docs.stackstorm.com/reference/sensor_partitioning.html#hash).
+The hash ranges are calculated automatically based on the number of deployments.
+
 st2sensorcontainer also supports a more Docker-friendly single-sensor-per-container mode as a way of
 [Sensor Partitioning](https://docs.stackstorm.com/latest/reference/sensor_partitioning.html). This
 distributes the computing load between many pods and relies on K8s failover/reschedule mechanisms,
