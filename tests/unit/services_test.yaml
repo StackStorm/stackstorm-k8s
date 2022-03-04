@@ -1,0 +1,20 @@
+---
+suite: Services hostname and type
+templates:
+  # primary template files
+  - services.yaml
+
+tests:
+  - it: st2web, st2auth, st2api, st2stream should work without hostname 
+    set:
+      st2web:
+        service:
+          hostname: some-host-name
+          type: LoadBalancer
+    asserts:
+      - equal:
+        path: spec.type
+        value: LoadBalancer
+      - equal:
+        path: spec.externalName
+        value: some-host-name
