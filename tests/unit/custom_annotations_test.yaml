@@ -72,6 +72,8 @@ tests:
         service:
           hostname: some-host-name
           annotations: *annotations
+      st2chatops:
+        enabled: false # exclude st2chatops to only test other services
     asserts: *annotations_asserts
 
   # st2chatops service does not accept custom annotations
