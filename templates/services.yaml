@@ -39,7 +39,7 @@ metadata:
   name: {{ .Release.Name }}-st2api
   annotations:
     description: StackStorm st2api - service hosts the REST API endpoints that serve requests from WebUI, CLI, ChatOps and other st2 services.
-    {{- if .Values.st2web.service.hostname }}
+    {{- if .Values.st2api.service.hostname }}
     external-dns.alpha.kubernetes.io/hostname: {{ .Values.st2api.service.hostname | quote }}
     {{- end }}
     {{- if .Values.st2api.service.annotations }}
