@@ -73,7 +73,7 @@ metadata:
   name: {{ .Release.Name }}-st2stream
   annotations:
     description: StackStorm st2stream - exposes a server-sent event stream, used by the clients like WebUI and ChatOps to receive update from the st2stream server.
-    {- if .Values.st2stream.service.hostname }}
+    {{- if .Values.st2stream.service.hostname }}
     external-dns.alpha.kubernetes.io/hostname: {{ .Values.st2stream.service.hostname | quote }}
     {{- end }}
     {{- if .Values.st2stream.service.annotations }}
