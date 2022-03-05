@@ -52,14 +52,27 @@ tests:
 
   # st2auth, st2api, st2stream services do not accept custom annotations
 
-  - it: st2web Service accepts custom annotations
+  - it: st2web, st2auth, st2api and st2stream Services accept custom annotations
     template: services.yaml
-    documentIndex: 3
     set:
       st2web:
         service:
           hostname: some-host-name
           annotations: *annotations
+      st2api:
+        service:
+          hostname: some-host-name
+          annotations: *annotations
+      st2auth:
+        service:
+          hostname: some-host-name
+          annotations: *annotations
+      st2stream:
+        service:
+          hostname: some-host-name
+          annotations: *annotations
+      st2chatops:
+        enabled: false # exclude st2chatops to only test other services
     asserts: *annotations_asserts
 
   # st2chatops service does not accept custom annotations
