@@ -1018,11 +1018,68 @@ tests:
       - notContains: *pack_configs_vol_mnt
         documentIndex: 2
 
-# st2.packs.volumes
-#   st2api
-#   st2sensorcontainer
-#   st2actionrunner
-#   st2client
-#   jobs register_content
-#
-# fails if st2.packs.volumes.enabled without volume definitions
+  - it: Deployments with st2.packs.volumes but missing volumes config
+    template: deployments.yaml
+    set:
+      st2:
+        rbac: { enabled: true } # enable rbac job
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: []
+          volumes:
+            enabled: true
+            packs: {} # required when enabled
+            virtualenvs: {} # required when enabled
+            configs: {} # optional
+          configs: {} # has one core.yaml config file by default (dicts get merged)
+      st2chatops:
+        enabled: true
+    release:
+      name: missing-volumes-release
+    asserts:
+      - failedTemplate:
+          errorMessage: &volumes_err "Volume definition(s) missing! When st2.packs.volumes.enabled, you must define volumes for both packs and virtualenvs."
+
+  - it: Deployments with st2.packs.volumes but missing packs volume config
+    template: deployments.yaml
+    set:
+      st2:
+        rbac: { enabled: true } # enable rbac job
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: []
+          volumes:
+            enabled: true
+            packs: *nfs_packs_volume # required when enabled
+            virtualenvs: {} # required when enabled
+            configs: {} # optional
+          configs: {} # has one core.yaml config file by default (dicts get merged)
+      st2chatops:
+        enabled: true
+    release:
+      name: missing-volumes-release
+    asserts:
+      - failedTemplate:
+          errorMessage: *volumes_err
+
+  - it: Deployments with st2.packs.volumes but missing virtualenvs volume config
+    template: deployments.yaml
+    set:
+      st2:
+        rbac: { enabled: true } # enable rbac job
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: []
+          volumes:
+            enabled: true
+            packs: {} # required when enabled
+            virtualenvs: *nfs_venvs_volume # required when enabled
+            configs: {} # optional
+          configs: {} # has one core.yaml config file by default (dicts get merged)
+      st2chatops:
+        enabled: true
+    release:
+      name: missing-volumes-release
+    asserts:
+      - failedTemplate:
+          errorMessage: *volumes_err
