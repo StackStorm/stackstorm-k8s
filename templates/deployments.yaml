@@ -1964,6 +1964,9 @@ spec:
           configMap:
             name: {{ .Release.Name }}-st2chatops-post-start-script
       {{- end }}
+    {{- else }}
+        volumeMounts: []
+      volumes: []
     {{- end }}
     {{- if .Values.st2chatops.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
