@@ -1306,7 +1306,7 @@ spec:
           {{- end }}
         {{- end }}
         {{- if $sensor.env }}
-        env: {{- include "stackstorm-ha.customEnv" $ | nindent 8 }}
+        env: {{- include "stackstorm-ha.customEnv" $sensor | nindent 8 }}
         {{- end }}
         envFrom:
         - configMapRef:
