@@ -52,7 +52,7 @@ tests:
 
   # st2auth, st2api, st2stream services do not accept custom annotations
 
-  - it: st2web, st2auth, st2api and st2stream Services accepts custom annotations
+  - it: st2web, st2auth, st2api and st2stream Services accept custom annotations
     template: services.yaml
     set:
       st2web:

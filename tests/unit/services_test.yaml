@@ -14,8 +14,6 @@ tests:
           count: 4
       - isNull:
           path: spec.externalName
-          value: some-host-name
-
   
   - it: st2web, st2auth, st2api, st2stream should work with externalName if type is ExternalName
     set:
