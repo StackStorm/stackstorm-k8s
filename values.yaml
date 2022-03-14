@@ -769,7 +769,7 @@ st2client:
 
 # https://docs.stackstorm.com/reference/ha.html#st2garbagecollector
 # Optional service that cleans up old executions and other operations data based on setup configurations.
-# By default this process does nothing and needs to be setup in st2.conf to perform any work.
+# By default this process only cleans action output and needs to be setup in st2.conf to perform any other work.
 st2garbagecollector:
   # Having 1 st2garbagecollector unique replica is enough for periodic task like st2 history garbage collection
   replicas: 1
