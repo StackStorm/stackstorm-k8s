@@ -143,38 +143,6 @@ tests:
           content:
             configMapRef:
               name: st2ha-st2-urls
-        documentIndex: 0
-      - contains: *contains_st2_urls
-        documentIndex: 1
-      - contains: *contains_st2_urls
-        documentIndex: 2
-      - contains:
-          path: spec.template.spec.containers[0].envFrom
-          content:
-            configMapRef:
-              name: st2ha-st2-urls
-              optional: true # TODO: consider dropping this unique diff from other deployments
-        documentIndex: 3  # st2web
-      - contains: *contains_st2_urls
-        documentIndex: 4
-      - contains: *contains_st2_urls
-        documentIndex: 5
-      - contains: *contains_st2_urls
-        documentIndex: 6
-      - contains: *contains_st2_urls
-        documentIndex: 7
-      - contains: *contains_st2_urls
-        documentIndex: 8
-      - contains: *contains_st2_urls
-        documentIndex: 9
-      - contains: *contains_st2_urls
-        documentIndex: 10
-      - contains: *contains_st2_urls
-        documentIndex: 11
-      - contains: *contains_st2_urls
-        documentIndex: 12
-      - contains: *contains_st2_urls
-        documentIndex: 13
       # this is how st2chatops.env loads vars
       - contains:
           path: spec.template.spec.containers[0].envFrom

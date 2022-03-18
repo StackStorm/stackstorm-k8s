@@ -485,7 +485,6 @@ spec:
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
-            optional: true
     {{- if or .Values.st2web.config .Values.st2web.extra_volumes .Values.st2web.postStartScript }}
         volumeMounts:
     {{- else }}
