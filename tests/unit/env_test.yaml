@@ -66,9 +66,15 @@ tests:
     set:
       st2:
         rbac: { enabled: true } # enable rbac job
+      jobs:
+        extra_hooks: &extra_hooks_jobs
+          - name: upgrade-warning
+            hook: pre-upgrade, pre-rollback
+            hook_weight: -5
+            command: ["st2", "run", "--tail", "custom_pack.warn_about_upgrade"]
     asserts:
       - hasDocuments:
-          count: 4
+          count: 5
       - isNull: *is_null_env
 
   - it: Deployments accept custom env
@@ -121,9 +127,10 @@ tests:
         rbac: { enabled: true } # enable rbac job
       jobs:
         env: *env
+        extra_hooks: *extra_hooks_jobs
     asserts:
       - hasDocuments:
-          count: 4
+          count: 5
 
       - contains: *contains_env
 
@@ -156,11 +163,13 @@ tests:
     set:
       st2:
         rbac: { enabled: true } # enable rbac job
+      jobs:
+        extra_hooks: *extra_hooks_jobs
     release:
       name: st2ha
     asserts:
       - hasDocuments:
-          count: 4
+          count: 5
 
       - contains: *contains_st2_urls
         documentIndex: 1
@@ -215,6 +224,7 @@ tests:
         rbac: { enabled: true } # enable rbac job
       jobs:
         envFromSecrets: *envFromSecrets
+        extra_hooks: *extra_hooks_jobs
     asserts:
       - contains: *contains_external_secret1
       - contains: *contains_external_secret2

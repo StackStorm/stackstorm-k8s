@@ -140,11 +140,17 @@ tests:
           volumes:
             enabled: false
           configs: {} # has one core.yaml config file by default (dicts get merged)
+      jobs:
+        extra_hooks: &extra_hooks_jobs
+          - name: upgrade-warning
+            hook: pre-upgrade, pre-rollback
+            hook_weight: -5
+            command: ["st2", "run", "--tail", "custom_pack.warn_about_upgrade"]
     release:
       name: st2ha
     asserts:
       - hasDocuments:
-          count: 4
+          count: 5
 
       - notContains: *packs_vol
       - notContains: *venvs_vol
@@ -393,11 +399,13 @@ tests:
           volumes:
             enabled: false
           configs: {} # has one core.yaml config file by default (dicts get merged)
+      jobs:
+        extra_hooks: *extra_hooks_jobs
     release:
       name: st2ha
     asserts:
       - hasDocuments:
-          count: 4
+          count: 5
 
       - contains: *packs_vol
         documentIndex: 3 # register_content
@@ -687,11 +695,13 @@ tests:
             virtualenvs: *nfs_venvs_volume
             configs: *nfs_pack_configs_volume
           configs: {} # has one core.yaml config file by default (dicts get merged)
+      jobs:
+        extra_hooks: *extra_hooks_jobs
     release:
       name: st2ha
     asserts:
       - hasDocuments:
-          count: 4
+          count: 5
 
       - contains: *nfs_packs_vol
         documentIndex: 3 # register_content
@@ -960,11 +970,13 @@ tests:
             virtualenvs: *nfs_venvs_volume
             configs: *nfs_pack_configs_volume
           configs: {} # has one core.yaml config file by default (dicts get merged)
+      jobs:
+        extra_hooks: *extra_hooks_jobs
     release:
       name: st2ha
     asserts:
       - hasDocuments:
-          count: 4
+          count: 5
 
       - contains: *nfs_packs_vol
         documentIndex: 3 # register_content
