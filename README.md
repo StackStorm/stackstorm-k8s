@@ -325,6 +325,36 @@ Grab all logs only for stackstorm backend services, excluding st2web and DB/MQ/r
 kubectl logs -l release=<release-name>,tier=backend
 ```
 
+## Running jobs before/after install, upgrade, or rollback
+WARNING: The feature described in this section is an Advanced feature that new users should not need.
+
+It may be convenient to run one or more `Job`(s) in your `stackstorm-ha` cluster to manage your release's life cycle.
+As the [Helm docs]() explain:
+
+> Helm provides a _hook_ mechanism to allow chart developers to intervene at certain points in a release's life cycle.
+
+The `jobs.extra_hooks` feature in this chart simplifies creating `Jobs` that Helm will run in its hooks.
+These jobs will use the same settings as any other job defined by this chart (eg image, annotations, pod placement).
+The `st2.conf` files and packs volumes will be mounted in the Job and the `st2` cli will be configured.
+This feature is primarily useful when you need to run a StackStorm workflow (with `st2 run ...`) after install,
+before/after upgrades, or before/after rollbacks.
+
+NOTE: The `jobs.extra_hooks` feature is very opinionated. If you need to to apply helm hooks to anything other than
+`Jobs`, or if these jobs do not meet your needs, then you will need to do so from a parent chart. For example, parent charts
+are much better suited to jobs that don't need access to the packs, configs, configmaps, and secrets that this chart provides.
+See "Extending this chart" below.
+
+These extra hooks jobs can be used for st2 installation-specific jobs like:
+
+- running a pre-upgrade st2 workflow that notifies on various channels that the upgrade is happening,
+- running post-upgrade smoke tests to ensure st2 can connect to vital services (vault, kubernetes, aws, etc),
+- running a pre-upgrade st2 workflow that pauses long-running workflows,
+- running a post-upgrade st2 workflow that resumes long-running workflows,
+- running one-time post-install configuration (such as generating dynamic secrets in the st2kv datastore),
+
+To configure the `jobs.extra_hooks`, set `jobs.extra_hooks` in your values file.
+Please refer to stackstorm-ha's default values.yaml file for examples.
+
 ## Extending this chart
 If you have any suggestions or ideas about how to extend this chart functionality,
 we welcome you to collaborate in [Issues](https://github.com/stackstorm/stackstorm-ha/issues)
