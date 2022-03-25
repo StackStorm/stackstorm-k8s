@@ -27,12 +27,14 @@ templates:
 
 release:
   name: some-release-name
-chart:
+chart: &chart # workaround for bug where top-level appVersion does not take affect
   version: 1.0.999
+  appVersion: &appVersion "3.999"
 
 tests:
   - it: Deployments+Pods have requried labels
     template: deployments.yaml
+    chart: *chart
     set:
       st2: { packs: { sensors: [] } } # ensure only 1 sensor
       st2chatops:
@@ -86,6 +88,13 @@ tests:
           value: stackstorm
 
       - equal:
+          path: metadata.labels.[app.kubernetes.io/version]
+          value: *appVersion
+      - equal:
+          path: spec.template.metadata.labels.[app.kubernetes.io/version]
+          value: *appVersion
+
+      - equal:
           path: metadata.labels.[helm.sh/chart]
           value: stackstorm-ha-1.0.999
       - equal:
@@ -101,6 +110,7 @@ tests:
 
   - it: Jobs+Pods have requried labels
     template: jobs.yaml
+    chart: *chart
     set:
       st2:
         rbac:
@@ -152,6 +162,13 @@ tests:
           value: stackstorm
 
       - equal:
+          path: metadata.labels.[app.kubernetes.io/version]
+          value: *appVersion
+      - equal:
+          path: spec.template.metadata.labels.[app.kubernetes.io/version]
+          value: *appVersion
+
+      - equal:
           path: metadata.labels.[helm.sh/chart]
           value: stackstorm-ha-1.0.999
       - equal:
@@ -167,6 +184,7 @@ tests:
 
   - it: Services have required labels
     template: services.yaml
+    chart: *chart
     set:
       st2chatops:
         enabled: true
@@ -187,6 +205,9 @@ tests:
           path: metadata.labels.[app.kubernetes.io/part-of]
           value: stackstorm
       - equal:
+          path: metadata.labels.[app.kubernetes.io/version]
+          value: *appVersion
+      - equal:
           path: metadata.labels.[helm.sh/chart]
           value: stackstorm-ha-1.0.999
       - equal:
@@ -195,6 +216,7 @@ tests:
 
   - it: ServiceAccount has required labels
     template: service-account.yaml
+    chart: *chart
     set:
       serviceAccount:
         create: true
@@ -213,6 +235,9 @@ tests:
       - equal:
           path: metadata.labels.[app.kubernetes.io/part-of]
           value: stackstorm
+      - equal:
+          path: metadata.labels.[app.kubernetes.io/version]
+          value: *appVersion
       - equal:
           path: metadata.labels.[helm.sh/chart]
           value: stackstorm-ha-1.0.999
@@ -240,6 +265,7 @@ tests:
 
   - it: st2web Ingress has required labels
     template: ingress.yaml
+    chart: *chart
     set:
       st2web:
         service:
@@ -261,6 +287,9 @@ tests:
       - equal:
           path: metadata.labels.[app.kubernetes.io/part-of]
           value: stackstorm
+      - equal:
+          path: metadata.labels.[app.kubernetes.io/version]
+          value: *appVersion
       - equal:
           path: metadata.labels.[helm.sh/chart]
           value: stackstorm-ha-1.0.999

@@ -12,6 +12,8 @@ Usage: "{{ include "stackstorm-ha.labels" (list $ "st2servicename") }}"
 {{- define "stackstorm-ha.labels" -}}
 {{- $root := index . 0 }}
 {{- $name := index . 1 }}
+{{- $valuesKey := regexReplaceAll "-.*" $name "" }}
+{{- $appVersion := dig $valuesKey "image" "tag" ($root.Values.image.tag) ($root.Values|merge (dict)) }}
 {{ include "stackstorm-ha.selectorLabels" . }}
 {{- if list "st2web" "ingress" | has $name }}
 app.kubernetes.io/component: frontend
@@ -21,6 +23,7 @@ app.kubernetes.io/component: tests
 app.kubernetes.io/component: backend
 {{- end }}
 app.kubernetes.io/part-of: stackstorm
+app.kubernetes.io/version: {{ tpl $appVersion $root | quote }}
 helm.sh/chart: {{ $root.Chart.Name }}-{{ $root.Chart.Version }}
 app.kubernetes.io/managed-by: {{ $root.Release.Service }}
 {{- end -}}
