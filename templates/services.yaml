@@ -11,17 +11,9 @@ metadata:
     {{- if .Values.st2auth.service.annotations }}
       {{- toYaml .Values.st2auth.service.annotations | nindent 4 }}
     {{- end }}
-  labels:
-    app: st2auth
-    tier: backend
-    vendor: stackstorm
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" "st2auth" | nindent 4 }}
 spec:
-  selector:
-    app: st2auth
-    release: {{ .Release.Name }}
+  selector: {{- include "stackstorm-ha.selectorLabels" "st2auth" | nindent 4 }}
   type: {{ .Values.st2auth.service.type }}
   {{- if contains "ExternalName" .Values.st2auth.service.type }}
   {{- if .Values.st2auth.service.hostname }}
@@ -45,17 +37,9 @@ metadata:
     {{- if .Values.st2api.service.annotations }}
       {{- toYaml .Values.st2api.service.annotations | nindent 4 }}
     {{- end }}
-  labels:
-    app: st2api
-    tier: backend
-    vendor: stackstorm
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" "st2api" | nindent 4 }}
 spec:
-  selector:
-    app: st2api
-    release: {{ .Release.Name }}
+  selector: {{- include "stackstorm-ha.selectorLabels" "st2api" | nindent 4 }}
   type: {{ .Values.st2api.service.type }}
   {{- if contains "ExternalName" .Values.st2api.service.type }}
   {{- if .Values.st2api.service.hostname }}
@@ -79,17 +63,9 @@ metadata:
     {{- if .Values.st2stream.service.annotations }}
       {{- toYaml .Values.st2stream.service.annotations | nindent 4 }}
     {{- end }}
-  labels:
-    app: st2stream
-    tier: backend
-    vendor: stackstorm
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" "st2stream" | nindent 4 }}
 spec:
-  selector:
-    app: st2stream
-    release: {{ .Release.Name }}
+  selector: {{- include "stackstorm-ha.selectorLabels" "st2stream" | nindent 4 }}
   type: {{ .Values.st2stream.service.type }}
   {{- if contains "ExternalName" .Values.st2stream.service.type }}
   {{- if .Values.st2stream.service.hostname }}
@@ -113,17 +89,9 @@ metadata:
     {{- if .Values.st2web.service.annotations }}
       {{- toYaml .Values.st2web.service.annotations | nindent 4 }}
     {{- end }}
-  labels:
-    app: st2web
-    tier: frontend
-    vendor: stackstorm
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" "st2web" | nindent 4 }}
 spec:
-  selector:
-    app: st2web
-    release: {{ .Release.Name }}
+  selector: {{- include "stackstorm-ha.selectorLabels" "st2web" | nindent 4 }}
   type: {{ .Values.st2web.service.type }}
   {{- if contains "ExternalName" .Values.st2web.service.type }}
   {{- if .Values.st2web.service.hostname }}
@@ -142,17 +110,9 @@ metadata:
   name: {{ .Release.Name }}-st2chatops
   annotations:
     description: StackStorm st2chatops, - conversation-driven automation service exposed as hubot instance with predefined list of chat adapters
-  labels:
-    app: st2chatops
-    tier: backend
-    vendor: stackstorm
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" "st2chatops" | nindent 4 }}
 spec:
-  selector:
-    app: st2chatops
-    release: {{ .Release.Name }}
+  selector: {{- include "stackstorm-ha.selectorLabels" "st2chatops" | nindent 4 }}
   type: ClusterIP
   ports:
   - protocol: TCP

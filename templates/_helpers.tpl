@@ -6,6 +6,40 @@ Expand the name of the chart.
 {{- end -}}
 
 {{/*
+Create chart name and version as used by the chart label.
+*/}}
+{{- define "stackstorm-ha.chart" -}}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Common labels
+Usage: "{{ include "stackstorm-ha.labels" "st2servicename" }}"
+*/}}
+{{- define "stackstorm-ha.labels" -}}
+{{ include "stackstorm-ha.selectorLabels" . }}
+{{- if list "st2web" "ingress" | has . }}
+tier: frontend
+{{- else if eq . "st2tests" }}
+tier: tests
+{{- else }}
+tier: backend
+{{- end }}
+vendor: stackstorm
+chart: {{ include "stackstorm-ha.chart" $ }}
+heritage: {{ $.Release.Service }}
+{{- end -}}
+
+{{/*
+Selector labels
+Usage: "{{ include "stackstorm-ha.selectorLabels" "st2servicename" }}"
+*/}}
+{{- define "stackstorm-ha.selectorLabels" -}}
+app: {{ . }}
+release: {{ $.Release.Name }}
+{{- end -}}
+
+{{/*
 Generate Docker image repository: Public Docker Hub 'stackstorm' for FOSS version
 */}}
 {{- define "stackstorm-ha.imageRepository" -}}

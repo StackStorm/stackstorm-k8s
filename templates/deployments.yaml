@@ -13,33 +13,19 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-st2auth
-  labels:
-    app: st2auth
-    tier: backend
-    vendor: stackstorm
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" "st2auth" | nindent 4 }}
   {{- if .Values.st2auth.annotations }}
   annotations: {{- toYaml .Values.st2auth.annotations | nindent 4 }}
   {{- end }}
 spec:
   selector:
-    matchLabels:
-      app: st2auth
-      release: {{ .Release.Name }}
+    matchLabels: {{- include "stackstorm-ha.selectorLabels" "st2auth" | nindent 6 }}
   # https://docs.stackstorm.com/reference/ha.html#st2auth
   # Multiple st2auth processes can be behind a load balancer in an active-active configuration.
   replicas: {{ default 2 .Values.st2auth.replicas }}
   template:
     metadata:
-      labels:
-        app: st2auth
-        tier: backend
-        vendor: stackstorm
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" "st2auth" | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/auth: {{ include (print $.Template.BasePath "/secrets_st2auth.yaml") . | sha256sum }}
@@ -154,33 +140,19 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-st2api
-  labels:
-    app: st2api
-    tier: backend
-    vendor: stackstorm
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" "st2api" | nindent 4 }}
   {{- if .Values.st2api.annotations }}
   annotations: {{- toYaml .Values.st2api.annotations | nindent 4 }}
   {{- end }}
 spec:
   selector:
-    matchLabels:
-      app: st2api
-      release: {{ .Release.Name }}
+    matchLabels: {{- include "stackstorm-ha.selectorLabels" "st2api" | nindent 6 }}
   # https://docs.stackstorm.com/reference/ha.html#st2api
   # Multiple st2api process can be behind a load balancer in an active-active configuration.
   replicas: {{ default 2 .Values.st2api.replicas }}
   template:
     metadata:
-      labels:
-        app: st2api
-        tier: backend
-        vendor: stackstorm
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" "st2api" | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
@@ -298,33 +270,19 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-st2stream
-  labels:
-    app: st2stream
-    tier: backend
-    vendor: stackstorm
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" "st2stream" | nindent 4 }}
   {{- if .Values.st2stream.annotations }}
   annotations: {{- toYaml .Values.st2stream.annotations | nindent 4 }}
   {{- end }}
 spec:
   selector:
-    matchLabels:
-      app: st2stream
-      release: {{ .Release.Name }}
+    matchLabels: {{- include "stackstorm-ha.selectorLabels" "st2stream" | nindent 6 }}
   # https://docs.stackstorm.com/reference/ha.html#st2stream
   # Multiple st2stream process can be behind a load balancer in an active-active configuration.
   replicas: {{ default 2 .Values.st2stream.replicas }}
   template:
     metadata:
-      labels:
-        app: st2stream
-        tier: backend
-        vendor: stackstorm
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" "st2stream" | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         {{- if .Values.st2stream.postStartScript }}
@@ -414,31 +372,17 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-st2web
-  labels:
-    app: st2web
-    tier: frontend
-    vendor: stackstorm
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" "st2web" | nindent 4 }}
   {{- if .Values.st2web.annotations }}
   annotations: {{- toYaml .Values.st2web.annotations | nindent 4 }}
   {{- end }}
 spec:
   selector:
-    matchLabels:
-      app: st2web
-      release: {{ .Release.Name }}
+    matchLabels: {{- include "stackstorm-ha.selectorLabels" "st2web" | nindent 6 }}
   replicas: {{ default 2 .Values.st2web.replicas }}
   template:
     metadata:
-      labels:
-        app: st2web
-        tier: frontend
-        vendor: stackstorm
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" "st2web" | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2web.yaml") . | sha256sum }}
         {{- if .Values.st2web.postStartScript }}
@@ -556,33 +500,19 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-st2rulesengine
-  labels:
-    app: st2rulesengine
-    tier: backend
-    vendor: stackstorm
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" "st2rulesengine" | nindent 4 }}
   {{- if .Values.st2rulesengine.annotations }}
   annotations: {{- toYaml .Values.st2rulesengine.annotations | nindent 4 }}
   {{- end }}
 spec:
   selector:
-    matchLabels:
-      app: st2rulesengine
-      release: {{ .Release.Name }}
+    matchLabels: {{- include "stackstorm-ha.selectorLabels" "st2rulesengine" | nindent 6 }}
   # https://docs.stackstorm.com/reference/ha.html#st2rulesengine
   # Multiple st2rulesengine processes can run in active-active with only connections to MongoDB and RabbitMQ. All these will share the TriggerInstance load and naturally pick up more work if one or more of the processes becomes unavailable.
   replicas: {{ default 2 .Values.st2rulesengine.replicas }}
   template:
     metadata:
-      labels:
-        app: st2rulesengine
-        tier: backend
-        vendor: stackstorm
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" "st2rulesengine" | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
@@ -684,34 +614,20 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-st2timersengine
-  labels:
-    app: st2timersengine
-    tier: backend
-    vendor: stackstorm
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" "st2timersengine" | nindent 4 }}
   {{- if .Values.st2timersengine.annotations }}
   annotations: {{- toYaml .Values.st2timersengine.annotations | nindent 4 }}
   {{- end }}
 spec:
   selector:
-    matchLabels:
-      app: st2timersengine
-      release: {{ .Release.Name }}
+    matchLabels: {{- include "stackstorm-ha.selectorLabels" "st2timersengine" | nindent 6 }}
   # https://docs.stackstorm.com/reference/ha.html#st2timersengine
   # Only single replica is created as timersengine can't work in active-active mode at the moment and it relies on
   # K8s failover/reschedule capabilities to address cases when the process fails.
   replicas: 1
   template:
     metadata:
-      labels:
-        app: st2timersengine
-        tier: backend
-        vendor: stackstorm
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" "st2timersengine" | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         {{- if .Values.st2timersengine.postStartScript }}
@@ -799,33 +715,19 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-st2workflowengine
-  labels:
-    app: st2workflowengine
-    tier: backend
-    vendor: stackstorm
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" "st2workflowengine" | nindent 4 }}
   {{- if .Values.st2workflowengine.annotations }}
   annotations: {{- toYaml .Values.st2workflowengine.annotations | nindent 4 }}
   {{- end }}
 spec:
   selector:
-    matchLabels:
-      app: st2workflowengine
-      release: {{ .Release.Name }}
+    matchLabels: {{- include "stackstorm-ha.selectorLabels" "st2workflowengine" | nindent 6 }}
   # https://docs.stackstorm.com/reference/ha.html#st2workflowengine
   # Multiple st2workflowengine processes can run in active-active mode and will share the load and pick up more work if one or more of the processes become available.
   replicas: {{ default 2 .Values.st2workflowengine.replicas }}
   template:
     metadata:
-      labels:
-        app: st2workflowengine
-        tier: backend
-        vendor: stackstorm
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" "st2workflowengine" | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
@@ -927,32 +829,18 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-st2scheduler
-  labels:
-    app: st2scheduler
-    tier: backend
-    vendor: stackstorm
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" "st2scheduler" | nindent 4 }}
   {{- if .Values.st2scheduler.annotations }}
   annotations: {{- toYaml .Values.st2scheduler.annotations | nindent 4 }}
   {{- end }}
 spec:
   selector:
-    matchLabels:
-      app: st2scheduler
-      release: {{ .Release.Name }}
+    matchLabels: {{- include "stackstorm-ha.selectorLabels" "st2scheduler" | nindent 6 }}
   # https://docs.stackstorm.com/reference/ha.html#st2scheduler
   replicas: {{ default 2 .Values.st2scheduler.replicas }}
   template:
     metadata:
-      labels:
-        app: st2scheduler
-        tier: backend
-        vendor: stackstorm
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" "st2scheduler" | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
@@ -1054,33 +942,19 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-st2notifier
-  labels:
-    app: st2notifier
-    tier: backend
-    vendor: stackstorm
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" "st2notifier" | nindent 4 }}
   {{- if .Values.st2notifier.annotations }}
   annotations: {{- toYaml .Values.st2notifier.annotations | nindent 4 }}
   {{- end }}
 spec:
   selector:
-    matchLabels:
-      app: st2notifier
-      release: {{ .Release.Name }}
+    matchLabels: {{- include "stackstorm-ha.selectorLabels" "st2notifier" | nindent 6 }}
   # https://docs.stackstorm.com/reference/ha.html#st2notifier
   # st2notifier runs in active-active mode and requires for that coordination backend like Redis or Zookeeper
   replicas: {{ default 2 .Values.st2notifier.replicas }}
   template:
     metadata:
-      labels:
-        app: st2notifier
-        tier: backend
-        vendor: stackstorm
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" "st2notifier" | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         {{- if .Values.st2notifier.postStartScript }}
@@ -1193,21 +1067,13 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ $.Release.Name }}-{{ $name }}
-  labels:
-    app: {{ $name }}
-    tier: backend
-    vendor: stackstorm
-    chart: {{ $.Chart.Name }}-{{ $.Chart.Version }}
-    release: {{ $.Release.Name }}
-    heritage: {{ $.Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" $name | nindent 4 }}
   {{- if $sensor.annotations }}
   annotations: {{- toYaml $sensor.annotations | nindent 4 }}
   {{- end }}
 spec:
   selector:
-    matchLabels:
-      app: {{ $name }}
-      release: {{ $.Release.Name }}
+    matchLabels: {{- include "stackstorm-ha.selectorLabels" $name | nindent 6 }}
   # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
   # It is possible to run st2sensorcontainer(s) in one of these modes:
   #   (1) run all sensors in one pod (1 deployment with 1 pod, the default); or
@@ -1218,13 +1084,7 @@ spec:
   replicas: 1
   template:
     metadata:
-      labels:
-        app: {{ $name }}
-        tier: backend
-        vendor: stackstorm
-        chart: {{ $.Chart.Name }}-{{ $.Chart.Version }}
-        release: {{ $.Release.Name }}
-        heritage: {{ $.Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" $name | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") $ | sha256sum }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") $ | sha256sum }}
@@ -1396,34 +1256,20 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-st2actionrunner
-  labels:
-    app: st2actionrunner
-    tier: backend
-    vendor: stackstorm
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" "st2actionrunner" | nindent 4 }}
   {{- if .Values.st2actionrunner.annotations }}
   annotations: {{- toYaml .Values.st2actionrunner.annotations | nindent 4 }}
   {{- end }}
 spec:
   selector:
-    matchLabels:
-      app: st2actionrunner
-      release: {{ .Release.Name }}
+    matchLabels: {{- include "stackstorm-ha.selectorLabels" "st2actionrunner" | nindent 6 }}
   # https://docs.stackstorm.com/reference/ha.html#st2actionrunner
   # Multiple st2actionrunner processes can run in active-active with only connections to MongoDB and RabbitMQ. Work gets naturally
   # distributed across runners via RabbitMQ. Adding more st2actionrunner processes increases the ability of StackStorm to execute actions.
   replicas: {{ default 5 .Values.st2actionrunner.replicas }}
   template:
     metadata:
-      labels:
-        app: st2actionrunner
-        tier: backend
-        vendor: stackstorm
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" "st2actionrunner" | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/ssh: {{ include (print $.Template.BasePath "/secrets_ssh.yaml") . | sha256sum }}
@@ -1554,33 +1400,19 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-st2garbagecollector
-  labels:
-    app: st2garbagecollector
-    tier: backend
-    vendor: stackstorm
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" "st2garbagecollector" | nindent 4 }}
   {{- if .Values.st2garbagecollector.annotations }}
   annotations: {{- toYaml .Values.st2garbagecollector.annotations | nindent 4 }}
   {{- end }}
 spec:
   selector:
-    matchLabels:
-      app: st2garbagecollector
-      release: {{ .Release.Name }}
+    matchLabels: {{- include "stackstorm-ha.selectorLabels" "st2garbagecollector" | nindent 6 }}
   # https://docs.stackstorm.com/reference/ha.html#st2garbagecollector
   # Having 1 st2garbagecollector unique replica is enough for periodic task like st2 history garbage collection
   replicas: {{ default 1 .Values.st2garbagecollector.replicas }}
   template:
     metadata:
-      labels:
-        app: st2garbagecollector
-        tier: backend
-        vendor: stackstorm
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" "st2garbagecollector" | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         {{- if .Values.st2garbagecollector.postStartScript }}
@@ -1668,31 +1500,17 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-st2client
-  labels:
-    app: st2client
-    tier: backend
-    vendor: stackstorm
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" "st2client" | nindent 4 }}
   {{- if .Values.st2client.annotations }}
   annotations: {{- toYaml .Values.st2client.annotations | nindent 4 }}
   {{- end }}
 spec:
   selector:
-    matchLabels:
-      app: st2client
-      release: {{ .Release.Name }}
+    matchLabels: {{- include "stackstorm-ha.selectorLabels" "st2client" | nindent 6 }}
   replicas: 1
   template:
     metadata:
-      labels:
-        app: st2client
-        tier: backend
-        vendor: stackstorm
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" "st2client" | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/rbac: {{ include (print $.Template.BasePath "/configmaps_rbac.yaml") . | sha256sum }}
@@ -1869,32 +1687,18 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-st2chatops
-  labels:
-    app: st2chatops
-    tier: backend
-    vendor: stackstorm
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" "st2chatops" | nindent 4 }}
   {{- if .Values.st2chatops.annotations }}
   annotations: {{- toYaml .Values.st2chatops.annotations | nindent 4 }}
   {{- end }}
 spec:
   selector:
-    matchLabels:
-      app: st2chatops
-      release: {{ .Release.Name }}
+    matchLabels: {{- include "stackstorm-ha.selectorLabels" "st2chatops" | nindent 6 }}
   # As hubot can't be HA scaled properly, we deploy only single replica of st2chatops
   replicas: 1
   template:
     metadata:
-      labels:
-        app: st2chatops
-        tier: backend
-        vendor: stackstorm
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" "st2chatops" | nindent 8 }}
       annotations:
         checksum/chatops: {{ include (print $.Template.BasePath "/secrets_st2chatops.yaml") . | sha256sum }}
         {{- if .Values.st2chatops.postStartScript }}
