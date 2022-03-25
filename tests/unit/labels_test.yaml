@@ -49,51 +49,54 @@ tests:
           # st2client, st2chatops
 
       # each of these should be the same, but there is no test for that:
-      #   metdata.labels.app
-      #   spec.selector.matchLabels.app
-      #   spec.template.metadata.labels.app
+      #   metdata.labels.[app.kubernetes.io/name]
+      #   spec.selector.matchLabels.[app.kubernetes.io/name]
+      #   spec.template.metadata.labels.[app.kubernetes.io/name]
       # So, we use isNotNull instead.
       # see: https://github.com/quintush/helm-unittest/issues/122
-      - isNotNull: { path: metadata.labels.app }
-      - isNotNull: { path: spec.selector.matchLabels.app }
-      - isNotNull: { path: spec.template.metadata.labels.app }
+      - isNotNull:
+          path: metadata.labels.[app.kubernetes.io/name]
+      - isNotNull:
+          path: spec.selector.matchLabels.[app.kubernetes.io/name]
+      - isNotNull:
+          path: spec.template.metadata.labels.[app.kubernetes.io/name]
 
       - equal:
-          path: metadata.labels.release
+          path: metadata.labels.[app.kubernetes.io/instance]
           value: some-release-name
       - equal:
-          path: spec.selector.matchLabels.release
+          path: spec.selector.matchLabels.[app.kubernetes.io/instance]
           value: some-release-name
       - equal:
-          path: spec.template.metadata.labels.release
+          path: spec.template.metadata.labels.[app.kubernetes.io/instance]
           value: some-release-name
 
       - matchRegex:
-          path: metadata.labels.tier
+          path: metadata.labels.[app.kubernetes.io/component]
           pattern: ^(backend|frontend)$
       - matchRegex:
-          path: spec.template.metadata.labels.tier
+          path: spec.template.metadata.labels.[app.kubernetes.io/component]
           pattern: ^(backend|frontend)$
 
       - equal:
-          path: metadata.labels.vendor
+          path: metadata.labels.[app.kubernetes.io/part-of]
           value: stackstorm
       - equal:
-          path: spec.template.metadata.labels.vendor
+          path: spec.template.metadata.labels.[app.kubernetes.io/part-of]
           value: stackstorm
 
       - equal:
-          path: metadata.labels.chart
+          path: metadata.labels.[helm.sh/chart]
           value: stackstorm-ha-1.0.999
       - equal:
-          path: spec.template.metadata.labels.chart
+          path: spec.template.metadata.labels.[helm.sh/chart]
           value: stackstorm-ha-1.0.999
 
       - equal:
-          path: metadata.labels.heritage
+          path: metadata.labels.[app.kubernetes.io/managed-by]
           value: Helm
       - equal:
-          path: spec.template.metadata.labels.heritage
+          path: spec.template.metadata.labels.[app.kubernetes.io/managed-by]
           value: Helm
 
   - it: Jobs+Pods have requried labels
@@ -120,44 +123,46 @@ tests:
       # unlike deployments, jobs should not have selector.matchLabels
 
       # like deployments each of these should be the same:
-      #   metdata.labels.app
-      #   spec.template.metadata.labels.app
-      - isNotNull: { path: metadata.labels.app }
-      - isNotNull: { path: spec.template.metadata.labels.app }
+      #   metdata.labels.[app.kubernetes.io/name]
+      #   spec.template.metadata.labels.[app.kubernetes.io/name]
+      - isNotNull:
+          path: metadata.labels.[app.kubernetes.io/name]
+      - isNotNull:
+          path: spec.template.metadata.labels.[app.kubernetes.io/name]
 
       - equal:
-          path: metadata.labels.release
+          path: metadata.labels.[app.kubernetes.io/instance]
           value: some-release-name
       - equal:
-          path: spec.template.metadata.labels.release
+          path: spec.template.metadata.labels.[app.kubernetes.io/instance]
           value: some-release-name
 
       - matchRegex:
-          path: metadata.labels.tier
+          path: metadata.labels.[app.kubernetes.io/component]
           pattern: ^(backend|frontend)$
       - matchRegex:
-          path: spec.template.metadata.labels.tier
+          path: spec.template.metadata.labels.[app.kubernetes.io/component]
           pattern: ^(backend|frontend)$
 
       - equal:
-          path: metadata.labels.vendor
+          path: metadata.labels.[app.kubernetes.io/part-of]
           value: stackstorm
       - equal:
-          path: spec.template.metadata.labels.vendor
+          path: spec.template.metadata.labels.[app.kubernetes.io/part-of]
           value: stackstorm
 
       - equal:
-          path: metadata.labels.chart
+          path: metadata.labels.[helm.sh/chart]
           value: stackstorm-ha-1.0.999
       - equal:
-          path: spec.template.metadata.labels.chart
+          path: spec.template.metadata.labels.[helm.sh/chart]
           value: stackstorm-ha-1.0.999
 
       - equal:
-          path: metadata.labels.heritage
+          path: metadata.labels.[app.kubernetes.io/managed-by]
           value: Helm
       - equal:
-          path: spec.template.metadata.labels.heritage
+          path: spec.template.metadata.labels.[app.kubernetes.io/managed-by]
           value: Helm
 
   - it: Services have required labels
@@ -170,21 +175,22 @@ tests:
           count: 5
           # st2auth, st2api, st2stream, st2web, st2chatops
 
-      - isNotNull: { path: metadata.labels.app }
+      - isNotNull:
+          path: metadata.labels.[app.kubernetes.io/name]
       - equal:
-          path: metadata.labels.release
+          path: metadata.labels.[app.kubernetes.io/instance]
           value: some-release-name
       - matchRegex:
-          path: metadata.labels.tier
+          path: metadata.labels.[app.kubernetes.io/component]
           pattern: ^(backend|frontend)$
       - equal:
-          path: metadata.labels.vendor
+          path: metadata.labels.[app.kubernetes.io/part-of]
           value: stackstorm
       - equal:
-          path: metadata.labels.chart
+          path: metadata.labels.[helm.sh/chart]
           value: stackstorm-ha-1.0.999
       - equal:
-          path: metadata.labels.heritage
+          path: metadata.labels.[app.kubernetes.io/managed-by]
           value: Helm
 
   - it: ServiceAccount has required labels
@@ -196,22 +202,22 @@ tests:
       - hasDocuments:
           count: 1
       - equal:
-          path: metadata.labels.app
+          path: metadata.labels.[app.kubernetes.io/name]
           value: stackstorm-ha
       - equal:
-          path: metadata.labels.release
+          path: metadata.labels.[app.kubernetes.io/instance]
           value: some-release-name
       - equal:
-          path: metadata.labels.tier
+          path: metadata.labels.[app.kubernetes.io/component]
           value: backend
       - equal:
-          path: metadata.labels.vendor
+          path: metadata.labels.[app.kubernetes.io/part-of]
           value: stackstorm
       - equal:
-          path: metadata.labels.chart
+          path: metadata.labels.[helm.sh/chart]
           value: stackstorm-ha-1.0.999
       - equal:
-          path: metadata.labels.heritage
+          path: metadata.labels.[app.kubernetes.io/managed-by]
           value: Helm
 
   - it: ServiceAccount accepts custom labels
@@ -244,22 +250,22 @@ tests:
       - hasDocuments:
           count: 1
       - equal:
-          path: metadata.labels.app
+          path: metadata.labels.[app.kubernetes.io/name]
           value: ingress
       - equal:
-          path: metadata.labels.release
+          path: metadata.labels.[app.kubernetes.io/instance]
           value: some-release-name
       - equal:
-          path: metadata.labels.tier
+          path: metadata.labels.[app.kubernetes.io/component]
           value: frontend
       - equal:
-          path: metadata.labels.vendor
+          path: metadata.labels.[app.kubernetes.io/part-of]
           value: stackstorm
       - equal:
-          path: metadata.labels.chart
+          path: metadata.labels.[helm.sh/chart]
           value: stackstorm-ha-1.0.999
       - equal:
-          path: metadata.labels.heritage
+          path: metadata.labels.[app.kubernetes.io/managed-by]
           value: Helm
 
   - it: ConfigMaps and Secrets have required labels

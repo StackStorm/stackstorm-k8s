@@ -14,15 +14,15 @@ Usage: "{{ include "stackstorm-ha.labels" (list $ "st2servicename") }}"
 {{- $name := index . 1 }}
 {{ include "stackstorm-ha.selectorLabels" . }}
 {{- if list "st2web" "ingress" | has $name }}
-tier: frontend
+app.kubernetes.io/component: frontend
 {{- else if eq $name "st2tests" }}
-tier: tests
+app.kubernetes.io/component: tests
 {{- else }}
-tier: backend
+app.kubernetes.io/component: backend
 {{- end }}
-vendor: stackstorm
-chart: {{ $root.Chart.Name }}-{{ $root.Chart.Version }}
-heritage: {{ $root.Release.Service }}
+app.kubernetes.io/part-of: stackstorm
+helm.sh/chart: {{ $root.Chart.Name }}-{{ $root.Chart.Version }}
+app.kubernetes.io/managed-by: {{ $root.Release.Service }}
 {{- end -}}
 
 {{/*
@@ -32,8 +32,8 @@ Usage: "{{ include "stackstorm-ha.selectorLabels" (list $ "st2servicename") }}"
 {{- define "stackstorm-ha.selectorLabels" -}}
 {{- $root := index . 0 }}
 {{- $name := index . 1 }}
-app: {{ $name }}
-release: {{ $root.Release.Name }}
+app.kubernetes.io/name: {{ $name }}
+app.kubernetes.io/instance: {{ $root.Release.Name }}
 {{- end -}}
 
 {{/*
