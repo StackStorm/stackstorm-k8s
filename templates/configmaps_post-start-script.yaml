@@ -7,7 +7,7 @@ metadata:
   name: {{ $.Release.Name }}-{{ . }}-post-start-script
   annotations:
     description: Custom postStart lifecycle event handler script for {{ . }}
-  labels: {{- include "stackstorm-ha.labels" "st2" | nindent 4 }}
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2") | nindent 4 }}
 data:
   # k8s calls this script in parallel with starting {{ . }} (ie the same time as ENTRYPOINT)
   # The pod will not be marked as "running" until this script completes successfully.

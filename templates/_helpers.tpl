@@ -14,29 +14,33 @@ Create chart name and version as used by the chart label.
 
 {{/*
 Common labels
-Usage: "{{ include "stackstorm-ha.labels" "st2servicename" }}"
+Usage: "{{ include "stackstorm-ha.labels" (list $ "st2servicename") }}"
 */}}
 {{- define "stackstorm-ha.labels" -}}
+{{- $root := index . 0 }}
+{{- $name := index . 1 }}
 {{ include "stackstorm-ha.selectorLabels" . }}
-{{- if list "st2web" "ingress" | has . }}
+{{- if list "st2web" "ingress" | has $name }}
 tier: frontend
-{{- else if eq . "st2tests" }}
+{{- else if eq $name "st2tests" }}
 tier: tests
 {{- else }}
 tier: backend
 {{- end }}
 vendor: stackstorm
-chart: {{ include "stackstorm-ha.chart" $ }}
-heritage: {{ $.Release.Service }}
+chart: {{ include "stackstorm-ha.chart" $root }}
+heritage: {{ $root.Release.Service }}
 {{- end -}}
 
 {{/*
 Selector labels
-Usage: "{{ include "stackstorm-ha.selectorLabels" "st2servicename" }}"
+Usage: "{{ include "stackstorm-ha.selectorLabels" (list $ "st2servicename") }}"
 */}}
 {{- define "stackstorm-ha.selectorLabels" -}}
-app: {{ . }}
-release: {{ $.Release.Name }}
+{{- $root := index . 0 }}
+{{- $name := index . 1 }}
+app: {{ $name }}
+release: {{ $root.Release.Name }}
 {{- end -}}
 
 {{/*

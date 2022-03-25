@@ -5,6 +5,6 @@ metadata:
   name: {{ .Release.Name }}-st2-pack-configs
   annotations:
     description: StackStorm pack configs defined in helm values, shipped in (or copied to) '/opt/stackstorm/configs/'
-  labels: {{- include "stackstorm-ha.labels" "st2" | nindent 4 }}
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2") | nindent 4 }}
 data:
 {{ toYaml .Values.st2.packs.configs | indent 2 }}
