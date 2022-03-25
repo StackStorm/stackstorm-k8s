@@ -6,14 +6,14 @@ templates:
   - services.yaml
 
   - configmaps_packs.yaml
-  - configmaps_post-start-scripts.yaml
+  - configmaps_post-start-script.yaml
   - configmaps_rbac.yaml
   - configmaps_st2-conf.yaml
   - configmaps_st2-urls.yaml
   - configmaps_st2web.yaml
 
   - secrets_datastore_crypto_key.yaml
-  - secrets_rabbit.yaml
+  - secrets_rabbitmq.yaml
   - secrets_ssh.yaml
   - secrets_st2apikeys.yaml
   - secrets_st2auth.yaml
@@ -233,6 +233,175 @@ tests:
       - equal:
           path: metadata.labels.tier
           value: frontend
+      - equal:
+          path: metadata.labels.vendor
+          value: stackstorm
+      - equal:
+          path: metadata.labels.chart
+          value: stackstorm-ha-1.0.999
+      - equal:
+          path: metadata.labels.heritage
+          value: Helm
+
+  - it: ConfigMaps and Secrets have required labels
+    templates:
+      - configmaps_packs.yaml
+      - configmaps_st2-conf.yaml
+      - configmaps_st2-urls.yaml
+
+      - secrets_datastore_crypto_key.yaml
+      - secrets_rabbitmq.yaml
+      - secrets_ssh.yaml
+      - secrets_st2apikeys.yaml
+      - secrets_st2auth.yaml
+      - secrets_st2kv.yaml
+    set:
+      rabbitmq: # for secrets_rabbitmq.yaml
+        enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: metadata.labels.app
+          value: st2
+      - equal:
+          path: metadata.labels.release
+          value: some-release-name
+      - equal:
+          path: metadata.labels.tier
+          value: backend
+      - equal:
+          path: metadata.labels.vendor
+          value: stackstorm
+      - equal:
+          path: metadata.labels.chart
+          value: stackstorm-ha-1.0.999
+      - equal:
+          path: metadata.labels.heritage
+          value: Helm
+
+  - it: RBAC ConfigMaps have required labels
+    templates:
+      - configmaps_rbac.yaml
+    set:
+      st2:
+        rbac:
+          enabled: true # enable rbac config maps
+    asserts:
+      - hasDocuments:
+          count: 3
+      - equal:
+          path: metadata.labels.app
+          value: st2
+      - equal:
+          path: metadata.labels.release
+          value: some-release-name
+      - equal:
+          path: metadata.labels.tier
+          value: backend
+      - equal:
+          path: metadata.labels.vendor
+          value: stackstorm
+      - equal:
+          path: metadata.labels.chart
+          value: stackstorm-ha-1.0.999
+      - equal:
+          path: metadata.labels.heritage
+          value: Helm
+
+  - it: st2chatops Secret has required labels
+    templates:
+      - secrets_st2chatops.yaml
+    set:
+      st2chatops:
+        enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: metadata.labels.app
+          value: st2chatops
+      - equal:
+          path: metadata.labels.release
+          value: some-release-name
+      - equal:
+          path: metadata.labels.tier
+          value: backend
+      - equal:
+          path: metadata.labels.vendor
+          value: stackstorm
+      - equal:
+          path: metadata.labels.chart
+          value: stackstorm-ha-1.0.999
+      - equal:
+          path: metadata.labels.heritage
+          value: Helm
+
+  - it: st2web ConfigMap has required labels
+    templates:
+      #- configmaps_post-start-scripts.yaml # needs postStartScript for each service
+      - configmaps_st2web.yaml
+    set:
+      st2web:
+        config: |
+          // see https://github.com/StackStorm/st2web/blob/master/config.js
+          'use strict';
+          /* global angular */
+          angular.module('main').constant('st2Config', {});
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: metadata.labels.app
+          value: st2 # should this be st2web?
+      - equal:
+          path: metadata.labels.release
+          value: some-release-name
+      - equal:
+          path: metadata.labels.tier
+          value: backend # should this be frontend?
+      - equal:
+          path: metadata.labels.vendor
+          value: stackstorm
+      - equal:
+          path: metadata.labels.chart
+          value: stackstorm-ha-1.0.999
+      - equal:
+          path: metadata.labels.heritage
+          value: Helm
+
+  - it: post-start-script ConfigMaps have required labels
+    templates:
+      - configmaps_post-start-script.yaml
+    set:
+      st2auth: &postStartScript
+        postStartScript: |
+          echo hello world
+      st2api: *postStartScript
+      st2stream: *postStartScript
+      st2web: *postStartScript
+      st2rulesengine: *postStartScript
+      st2timersengine: *postStartScript
+      st2workflowengine: *postStartScript
+      st2scheduler: *postStartScript
+      st2notifier: *postStartScript
+      st2sensorcontainer: *postStartScript
+      st2actionrunner: *postStartScript
+      st2garbagecollector: *postStartScript
+      st2client: *postStartScript
+      st2chatops: *postStartScript
+    asserts:
+      - hasDocuments:
+          count: 14
+      - equal:
+          path: metadata.labels.app
+          value: st2
+      - equal:
+          path: metadata.labels.release
+          value: some-release-name
+      - equal:
+          path: metadata.labels.tier
+          value: backend
       - equal:
           path: metadata.labels.vendor
           value: stackstorm
