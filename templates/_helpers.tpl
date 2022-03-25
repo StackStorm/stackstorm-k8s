@@ -6,13 +6,6 @@ Expand the name of the chart.
 {{- end -}}
 
 {{/*
-Create chart name and version as used by the chart label.
-*/}}
-{{- define "stackstorm-ha.chart" -}}
-{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
 Common labels
 Usage: "{{ include "stackstorm-ha.labels" (list $ "st2servicename") }}"
 */}}
@@ -28,7 +21,7 @@ tier: tests
 tier: backend
 {{- end }}
 vendor: stackstorm
-chart: {{ include "stackstorm-ha.chart" $root }}
+chart: {{ $root.Chart.Name }}-{{ $root.Chart.Version }}
 heritage: {{ $root.Release.Service }}
 {{- end -}}
 
