@@ -192,6 +192,8 @@ tests:
       serviceAccount:
         create: true
     asserts:
+      - hasDocuments:
+          count: 1
       - equal:
           path: metadata.labels.app
           value: stackstorm-ha
@@ -219,7 +221,9 @@ tests:
           hostname: some-host-name
       ingress:
         enabled: true
-    assert:
+    asserts:
+      - hasDocuments:
+          count: 1
       - equal:
           path: metadata.labels.app
           value: ingress
