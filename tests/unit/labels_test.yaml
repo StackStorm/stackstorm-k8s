@@ -198,13 +198,12 @@ tests:
       - equal:
           path: metadata.labels.release
           value: some-release-name
-      # ServiceAccount does not have tier or vendor
-      #- equal:
-      #    path: metadata.labels.tier
-      #    value: backend
-      #- equal:
-      #    path: metadata.labels.vendor
-      #    value: stackstorm
+      - equal:
+          path: metadata.labels.tier
+          value: backend
+      - equal:
+          path: metadata.labels.vendor
+          value: stackstorm
       - equal:
           path: metadata.labels.chart
           value: stackstorm-ha-1.0.999
