@@ -98,6 +98,10 @@ spec:
           mountPath: /etc/st2/htpasswd
           subPath: htpasswd
           readOnly: true
+        {{- range .Values.st2auth.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2auth.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'mount' definition in st2auth.extra_volumes" .mount | toYaml) $ | nindent 10 }}
+        {{- end }}
         {{- if .Values.st2auth.postStartScript }}
         - name: st2-post-start-script-vol
           mountPath: /post-start.sh
@@ -117,6 +121,10 @@ spec:
         - name: htpasswd-vol
           emptyDir:
             medium: Memory
+        {{- range .Values.st2auth.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2auth.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'volume' definition in st2auth.extra_volumes" .volume | toYaml) $ | nindent 10 }}
+        {{- end }}
         {{- if .Values.st2auth.postStartScript }}
         - name: st2-post-start-script-vol
           configMap:
@@ -225,6 +233,10 @@ spec:
         {{- if .Values.st2.packs.volumes.enabled }}
           {{- include "stackstorm-ha.pack-configs-volume-mount" . | nindent 8 }}
         {{- end }}
+        {{- range .Values.st2api.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2api.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'mount' definition in st2api.extra_volumes" .mount | toYaml) $ | nindent 10 }}
+        {{- end }}
         {{- if .Values.st2api.postStartScript }}
         - name: st2-post-start-script-vol
           mountPath: /post-start.sh
@@ -252,6 +264,10 @@ spec:
         {{- include "stackstorm-ha.packs-volumes" . | nindent 8 }}
         {{- if .Values.st2.packs.volumes.enabled }}
           {{- include "stackstorm-ha.pack-configs-volume" . | nindent 8 }}
+        {{- end }}
+        {{- range .Values.st2api.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2api.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'volume' definition in st2api.extra_volumes" .volume | toYaml) $ | nindent 10 }}
         {{- end }}
         {{- if .Values.st2api.postStartScript }}
         - name: st2-post-start-script-vol
@@ -345,6 +361,10 @@ spec:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
         {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
+        {{- range .Values.st2stream.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2stream.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'mount' definition in st2stream.extra_volumes" .mount | toYaml) $ | nindent 10 }}
+        {{- end }}
         {{- if .Values.st2stream.postStartScript }}
         - name: st2-post-start-script-vol
           mountPath: /post-start.sh
@@ -361,6 +381,10 @@ spec:
     {{- end }}
       volumes:
         {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
+        {{- range .Values.st2stream.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2stream.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'volume' definition in st2stream.extra_volumes" .volume | toYaml) $ | nindent 10 }}
+        {{- end }}
         {{- if .Values.st2stream.postStartScript }}
         - name: st2-post-start-script-vol
           configMap:
@@ -461,7 +485,6 @@ spec:
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
-            optional: true
     {{- if or .Values.st2web.config .Values.st2web.extra_volumes .Values.st2web.postStartScript }}
         volumeMounts:
     {{- else }}
@@ -600,6 +623,10 @@ spec:
           mountPath: /etc/st2/keys
           readOnly: true
         {{- end }}
+        {{- range .Values.st2rulesengine.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2rulesengine.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'mount' definition in st2rulesengine.extra_volumes" .mount | toYaml) $ | nindent 10 }}
+        {{- end }}
         {{- if .Values.st2rulesengine.postStartScript }}
         - name: st2-post-start-script-vol
           mountPath: /post-start.sh
@@ -623,6 +650,10 @@ spec:
             items:
             - key: datastore_crypto_key
               path: datastore_key.json
+        {{- end }}
+        {{- range .Values.st2rulesengine.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2rulesengine.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'volume' definition in st2rulesengine.extra_volumes" .volume | toYaml) $ | nindent 10 }}
         {{- end }}
         {{- if .Values.st2rulesengine.postStartScript }}
         - name: st2-post-start-script-vol
@@ -715,6 +746,10 @@ spec:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
         {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
+        {{- range .Values.st2timersengine.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2timersengine.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'mount' definition in st2timersengine.extra_volumes" .mount | toYaml) $ | nindent 10 }}
+        {{- end }}
         {{- if .Values.st2timersengine.postStartScript }}
         - name: st2-post-start-script-vol
           mountPath: /post-start.sh
@@ -731,6 +766,10 @@ spec:
     {{- end }}
       volumes:
         {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
+        {{- range .Values.st2timersengine.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2timersengine.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'volume' definition in st2timersengine.extra_volumes" .volume | toYaml) $ | nindent 10 }}
+        {{- end }}
         {{- if .Values.st2timersengine.postStartScript }}
         - name: st2-post-start-script-vol
           configMap:
@@ -954,6 +993,10 @@ spec:
           mountPath: /etc/st2/keys
           readOnly: true
         {{- end }}
+        {{- range .Values.st2scheduler.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2scheduler.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'mount' definition in st2scheduler.extra_volumes" .mount | toYaml) $ | nindent 10 }}
+        {{- end }}
         {{- if .Values.st2scheduler.postStartScript }}
         - name: st2-post-start-script-vol
           mountPath: /post-start.sh
@@ -978,6 +1021,10 @@ spec:
               path: datastore_key.json
         {{- end }}
         {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
+        {{- range .Values.st2scheduler.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2scheduler.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'volume' definition in st2scheduler.extra_volumes" .volume | toYaml) $ | nindent 10 }}
+        {{- end }}
         {{- if .Values.st2scheduler.postStartScript }}
         - name: st2-post-start-script-vol
           configMap:
@@ -1068,6 +1115,10 @@ spec:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
         {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
+        {{- range .Values.st2notifier.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2notifier.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'mount' definition in st2notifier.extra_volumes" .mount | toYaml) $ | nindent 10 }}
+        {{- end }}
         {{- if .Values.st2notifier.postStartScript }}
         - name: st2-post-start-script-vol
           mountPath: /post-start.sh
@@ -1084,6 +1135,10 @@ spec:
     {{- end }}
       volumes:
         {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
+        {{- range .Values.st2notifier.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2notifier.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'volume' definition in st2notifier.extra_volumes" .volume | toYaml) $ | nindent 10 }}
+        {{- end }}
         {{- if .Values.st2notifier.postStartScript }}
         - name: st2-post-start-script-vol
           configMap:
@@ -1108,13 +1163,29 @@ spec:
       tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 
+{{- $sensor_deployments_count := max 1 ($.Values.st2sensorcontainer.deployments|int) | int }}
 {{- $one_sensor_per_pod := not ($.Values.st2.packs.sensors | empty) }}
-{{- range ($one_sensor_per_pod | ternary ($.Values.st2.packs.sensors) (until 1)) }}
-  {{- $sensor := omit $.Values.st2sensorcontainer "name" "ref" "postStartScript" }}
+{{- $some_sensors_per_pod := gt $sensor_deployments_count 1 }}
+{{- if and $one_sensor_per_pod $some_sensors_per_pod }}
+  {{- fail "The sensor values are ambiguous. To use one-sensor-per-pod, use `st2.packs.sensors`. To use multiple-sensors-per-pod, use `st2sensorcontainer.deployments > 1`. Do not use both!" }}
+{{- end }}
+{{- range ($one_sensor_per_pod | ternary ($.Values.st2.packs.sensors) (until $sensor_deployments_count)) }}
+  {{- $sensor := omit $.Values.st2sensorcontainer "name" "ref" "deployments" "postStartScript" }}
   {{- if $one_sensor_per_pod }}
+    {{/* . is an entry in st2.packs.sensors */}}
     {{- range $key, $val := . }}
       {{- $_ := set $sensor $key $val }}
     {{- end }}
+  {{- else if $some_sensors_per_pod }}
+    {{/* . is an index number of deployments (starting from 0) */}}
+    {{- $max_hash := 4294967296 }}
+    {{- $sensor_range_size := div (add1 $max_hash) $sensor_deployments_count }}
+    {{- $sensor_range_start := mul . $sensor_range_size }}
+    {{- $sensor_range_end := add $sensor_range_start $sensor_range_size -1 }}
+    {{/* deal with integer math rounding errors by moving the last range_end to the max_hash */}}
+    {{- $sensor_range_end := eq (add1 .) $sensor_deployments_count | ternary $max_hash $sensor_range_end }}
+    {{- $_ := set $sensor "hash_ranges" (print $sensor_range_start ".." $sensor_range_end) }}
+    {{- $_ := set $sensor "name" (. | toString) }}
   {{- end }}
   {{- $name := print "st2sensorcontainer" (include "stackstorm-ha.hyphenPrefix" $sensor.name) }}
 ---
@@ -1140,8 +1211,8 @@ spec:
   # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
   # It is possible to run st2sensorcontainer(s) in one of these modes:
   #   (1) run all sensors in one pod (1 deployment with 1 pod, the default); or
-  #   (2) run one sensor per pod using st2.packs.sensors.
-  # It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance.
+  #   (2) run multiple sensors per pod (2+ deployments with 1 pod each) using hash range partitions; or
+  #   (3) run one sensor per pod using st2.packs.sensors.
   # Each sensor node needs to be provided with proper partition information to share work with other sensor nodes
   # so that the same sensor does not run on different nodes. See: https://docs.stackstorm.com/reference/sensor_partitioning.html
   replicas: 1
@@ -1163,6 +1234,9 @@ spec:
         {{- end }}
         {{- if $one_sensor_per_pod }}
         stackstorm/sensor-mode: one-sensor-per-pod
+        {{- else if $some_sensors_per_pod }}
+        stackstorm/sensor-mode: multiple-sensors-per-pod
+        stackstorm/sensor-hash-ranges: {{ $sensor.hash_ranges | quote }}
         {{- else }}
         stackstorm/sensor-mode: all-sensors-in-one-pod
         {{- end }}
@@ -1178,6 +1252,23 @@ spec:
         {{- include "stackstorm-ha.packs-pullSecrets" $ | nindent 6 }}
       {{- end }}
       initContainers:
+      {{- if $some_sensors_per_pod }}
+      - name: {{ $name }}-init-config
+        image: busybox:1.28
+        volumeMounts:
+        - name: st2-sensor-config-vol
+          mountPath: /tmp/st2
+        command:
+          - 'sh'
+          - '-ec'
+          - |
+              cat <<EOT > /tmp/st2/st2.sensorcontainer.conf
+              [sensorcontainer]
+              sensor_node_name = {{ $name }}
+              partition_provider = name:hash, hash_ranges:{{ $sensor.hash_ranges }}
+              single_sensor_mode = False
+              EOT
+      {{- end }}
       {{- include "stackstorm-ha.init-containers-wait-for-db" $ | nindent 6 }}
       {{- include "stackstorm-ha.init-containers-wait-for-mq" $ | nindent 6 }}
       {{- if and $.Values.st2.packs.images (not $.Values.st2.packs.volumes.enabled) }}
@@ -1199,17 +1290,22 @@ spec:
         livenessProbe:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- if $one_sensor_per_pod }}
+        {{- if or $one_sensor_per_pod $some_sensors_per_pod }}{{/* ie: when there is more than one pod of sensors */}}
         command:
           - /opt/stackstorm/st2/bin/st2sensorcontainer
           - --config-file=/etc/st2/st2.conf
           - --config-file=/etc/st2/st2.docker.conf
           - --config-file=/etc/st2/st2.user.conf
+          {{- if $one_sensor_per_pod }}{{/* only in st2.packs.sensors[] */}}
           - --single-sensor-mode
           - --sensor-ref={{ required "You must define `ref` for everything in st2.packs.sensors. This assigns each sensor to a pod." $sensor.ref }}
+          {{- else if $some_sensors_per_pod }}
+          # injected by {{ $name }}-init-config
+          - --config-file=/etc/st2/st2.sensorcontainer.conf
+          {{- end }}
         {{- end }}
         {{- if $sensor.env }}
-        env: {{- include "stackstorm-ha.customEnv" . | nindent 8 }}
+        env: {{- include "stackstorm-ha.customEnv" $sensor | nindent 8 }}
         {{- end }}
         envFrom:
         - configMapRef:
@@ -1221,6 +1317,12 @@ spec:
         volumeMounts:
         {{- include "stackstorm-ha.st2-config-volume-mounts" $ | nindent 8 }}
         {{- include "stackstorm-ha.packs-volume-mounts" $ | nindent 8 }}
+        {{- if $some_sensors_per_pod }}
+        - name: st2-sensor-config-vol
+          mountPath: /etc/st2/st2.sensorcontainer.conf
+          subPath: st2.sensorcontainer.conf
+          readOnly: true
+        {{- end }}
         {{- if ne "disable" (default "" $.Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
@@ -1255,6 +1357,11 @@ spec:
         {{- end }}
         {{- include "stackstorm-ha.st2-config-volume" $ | nindent 8 }}
         {{- include "stackstorm-ha.packs-volumes" $ | nindent 8 }}
+        {{- if $some_sensors_per_pod }}
+        - name: st2-sensor-config-vol
+          emptyDir: # This is for a tiny file
+            medium: Memory
+        {{- end }}
         {{- range $sensor.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in $sensor.extra_volumes" .name }}
           {{- tpl (required "Each volume must have a 'volume' definition in $sensor.extra_volumes" .volume | toYaml) $ | nindent 10 }}
@@ -1508,6 +1615,10 @@ spec:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
         {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
+        {{- range .Values.st2garbagecollector.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2garbagecollector.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'mount' definition in st2garbagecollector.extra_volumes" .mount | toYaml) $ | nindent 10 }}
+        {{- end }}
         {{- if .Values.st2garbagecollector.postStartScript }}
         - name: st2-post-start-script-vol
           mountPath: /post-start.sh
@@ -1524,6 +1635,10 @@ spec:
     {{- end }}
       volumes:
         {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
+        {{- range .Values.st2garbagecollector.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2garbagecollector.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'volume' definition in st2garbagecollector.extra_volumes" .volume | toYaml) $ | nindent 10 }}
+        {{- end }}
         {{- if .Values.st2garbagecollector.postStartScript }}
         - name: st2-post-start-script-vol
           configMap:
@@ -1848,6 +1963,9 @@ spec:
           configMap:
             name: {{ .Release.Name }}-st2chatops-post-start-script
       {{- end }}
+    {{- else }}
+        volumeMounts: []
+      volumes: []
     {{- end }}
     {{- if .Values.st2chatops.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}

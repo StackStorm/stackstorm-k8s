@@ -1,0 +1,400 @@
+---
+suite: Sensors
+templates:
+  # primary template files
+  - deployments.yaml
+
+  # included templates must also be listed
+  - configmaps_packs.yaml
+  - configmaps_rbac.yaml
+  - configmaps_st2-conf.yaml
+  - configmaps_st2web.yaml
+  - secrets_datastore_crypto_key.yaml
+  - secrets_ssh.yaml
+  - secrets_st2auth.yaml
+  - secrets_st2chatops.yaml
+
+tests:
+  - it: stackstorm/sensor-mode = all-sensors-in-one-pod
+    template: deployments.yaml
+    release:
+      name: foo-release
+    set:
+      st2:
+        packs: { sensors: [] } # ensure only 1 sensor
+    asserts:
+      - hasDocuments:
+          count: 13 # all but st2chatops
+
+      - isKind:
+          of: Deployment
+        documentIndex: &first_sensor_doc 9
+
+      - equal:
+          path: metadata.name
+          value: foo-release-st2sensorcontainer
+        documentIndex: *first_sensor_doc
+
+      - equal:
+          path: metadata.labels.app
+          value: st2sensorcontainer
+        documentIndex: *first_sensor_doc
+
+      - equal:
+          path: spec.template.metadata.labels.app
+          value: st2sensorcontainer
+        documentIndex: *first_sensor_doc
+
+      - equal:
+          path: spec.selector.matchLabels.app
+          value: st2sensorcontainer
+        documentIndex: *first_sensor_doc
+
+      - equal:
+          path: spec.replicas
+          # sensors should never have more than 1 replica
+          value: 1
+        documentIndex: *first_sensor_doc
+
+      - equal:
+          path: spec.template.metadata.annotations.stackstorm/sensor-mode
+          value: all-sensors-in-one-pod
+        documentIndex: *first_sensor_doc
+
+      - isNull:
+          path: spec.template.spec.containers[0].command
+      #- notContains:
+      #    path: spec.template.spec.containers[0].command
+      #    content: '--single-sensor-mode'
+        documentIndex: *first_sensor_doc
+
+  - it: stackstorm/sensor-mode = one-sensor-per-pod
+    template: deployments.yaml
+    release:
+      name: foobarbaz-release
+    set:
+      image:
+        tag: globaldefault
+      st2sensorcontainer:
+        image:
+          tag: sensordefault
+      st2:
+        packs:
+          sensors:
+            # we define image.tag and securityContext to test overrides
+            - name: foo
+              ref: some_pack.foo_sensor
+              image:
+                tag: "{{ .Values.image.tag }}templated"
+            - name: bar
+              ref: some_pack.bar_sensor
+            - name: baz
+              ref: some_pack.baz_sensor
+              image:
+                tag: baz
+              securityContext: &override_security_context
+                allowPrivilegeEscalation: false
+      securityContext: &global_security_context
+        capabilities:
+          drop: [ALL]
+    asserts:
+      - hasDocuments:
+          count: 15 # all but st2chatops
+
+      - isKind:
+          of: Deployment
+        documentIndex: *first_sensor_doc
+      - isKind:
+          of: Deployment
+        documentIndex: &second_sensor_doc 10
+      - isKind:
+          of: Deployment
+        documentIndex: &third_sensor_doc 11
+
+      - equal:
+          path: metadata.name
+          value: foobarbaz-release-st2sensorcontainer-foo
+        documentIndex: *first_sensor_doc
+      - equal:
+          path: metadata.name
+          value: foobarbaz-release-st2sensorcontainer-bar
+        documentIndex: *second_sensor_doc
+      - equal:
+          path: metadata.name
+          value: foobarbaz-release-st2sensorcontainer-baz
+        documentIndex: *third_sensor_doc
+
+      - equal:
+          path: metadata.labels.app
+          value: st2sensorcontainer-foo
+        documentIndex: *first_sensor_doc
+      - equal:
+          path: metadata.labels.app
+          value: st2sensorcontainer-bar
+        documentIndex: *second_sensor_doc
+      - equal:
+          path: metadata.labels.app
+          value: st2sensorcontainer-baz
+        documentIndex: *third_sensor_doc
+
+      - equal:
+          path: spec.template.metadata.labels.app
+          value: st2sensorcontainer-foo
+        documentIndex: *first_sensor_doc
+      - equal:
+          path: spec.template.metadata.labels.app
+          value: st2sensorcontainer-bar
+        documentIndex: *second_sensor_doc
+      - equal:
+          path: spec.template.metadata.labels.app
+          value: st2sensorcontainer-baz
+        documentIndex: *third_sensor_doc
+
+      - equal:
+          path: spec.selector.matchLabels.app
+          value: st2sensorcontainer-foo
+        documentIndex: *first_sensor_doc
+      - equal:
+          path: spec.selector.matchLabels.app
+          value: st2sensorcontainer-bar
+        documentIndex: *second_sensor_doc
+      - equal:
+          path: spec.selector.matchLabels.app
+          value: st2sensorcontainer-baz
+        documentIndex: *third_sensor_doc
+
+      - equal: &oneReplica
+          path: spec.replicas
+          # sensors should never have more than 1 replica
+          value: 1
+        documentIndex: *first_sensor_doc
+      - equal: *oneReplica
+        documentIndex: *second_sensor_doc
+      - equal: *oneReplica
+        documentIndex: *third_sensor_doc
+
+      - equal: &oneSensorAnnotation
+          path: spec.template.metadata.annotations.stackstorm/sensor-mode
+          value: one-sensor-per-pod
+        documentIndex: *first_sensor_doc
+      - equal: *oneSensorAnnotation
+        documentIndex: *second_sensor_doc
+      - equal: *oneSensorAnnotation
+        documentIndex: *third_sensor_doc
+
+      - contains: &singleSensorMode
+          path: spec.template.spec.containers[0].command
+          content: '--single-sensor-mode'
+        documentIndex: *first_sensor_doc
+      - contains: *singleSensorMode
+        documentIndex: *second_sensor_doc
+      - contains: *singleSensorMode
+        documentIndex: *third_sensor_doc
+
+      - contains:
+          path: spec.template.spec.containers[0].command
+          content: '--sensor-ref=some_pack.foo_sensor'
+        documentIndex: *first_sensor_doc
+      - contains:
+          path: spec.template.spec.containers[0].command
+          content: '--sensor-ref=some_pack.bar_sensor'
+        documentIndex: *second_sensor_doc
+      - contains:
+          path: spec.template.spec.containers[0].command
+          content: '--sensor-ref=some_pack.baz_sensor'
+        documentIndex: *third_sensor_doc
+
+      # make sure value overrides work
+      # global default > st2sensorcontainer > st2.pack.sensors
+      # and helm templating works
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: '.*:globaldefaulttemplated$'
+        documentIndex: *first_sensor_doc
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: '.*:sensordefault$'
+        documentIndex: *second_sensor_doc
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: '.*:baz$'
+        documentIndex: *third_sensor_doc
+
+      - equal:
+          path: spec.template.spec.containers[0].securityContext
+          value: *global_security_context
+        documentIndex: *first_sensor_doc
+      - equal:
+          path: spec.template.spec.containers[0].securityContext
+          value: *global_security_context
+        documentIndex: *second_sensor_doc
+      - equal:
+          path: spec.template.spec.containers[0].securityContext
+          value: *override_security_context
+        documentIndex: *third_sensor_doc
+
+  - it: stackstorm/sensor-mode = one-sensor-per-pod fails for missing sensor ref
+    template: deployments.yaml
+    release:
+      name: missing-sensor-ref-release
+    set:
+      st2:
+        packs:
+          sensors:
+            - name: foo
+              ref: some_pack.foo_sensor
+            - name: bar
+    asserts:
+      - failedTemplate:
+          errorMessage: "You must define `ref` for everything in st2.packs.sensors. This assigns each sensor to a pod."
+
+  - it: stackstorm/sensor-mode = multiple-sensors-per-pod
+    template: deployments.yaml
+    release:
+      name: multi-sensor-release
+    set:
+      st2:
+        packs: { sensors: [] }
+      image:
+        tag: globaldefault
+      st2sensorcontainer:
+        image:
+          tag: sensordefault
+        deployments: 3
+        securityContext: *override_security_context
+      securityContext: *global_security_context
+    asserts:
+      - hasDocuments:
+          count: 15 # all but st2chatops
+
+      - isKind:
+          of: Deployment
+        documentIndex: *first_sensor_doc
+      - isKind:
+          of: Deployment
+        documentIndex: *second_sensor_doc
+      - isKind:
+          of: Deployment
+        documentIndex: *third_sensor_doc
+
+      - equal:
+          path: metadata.name
+          value: multi-sensor-release-st2sensorcontainer-0
+        documentIndex: *first_sensor_doc
+      - equal:
+          path: metadata.name
+          value: multi-sensor-release-st2sensorcontainer-1
+        documentIndex: *second_sensor_doc
+      - equal:
+          path: metadata.name
+          value: multi-sensor-release-st2sensorcontainer-2
+        documentIndex: *third_sensor_doc
+
+      - equal:
+          path: metadata.labels.app
+          value: st2sensorcontainer-0
+        documentIndex: *first_sensor_doc
+      - equal:
+          path: metadata.labels.app
+          value: st2sensorcontainer-1
+        documentIndex: *second_sensor_doc
+      - equal:
+          path: metadata.labels.app
+          value: st2sensorcontainer-2
+        documentIndex: *third_sensor_doc
+
+      - equal:
+          path: spec.template.metadata.labels.app
+          value: st2sensorcontainer-0
+        documentIndex: *first_sensor_doc
+      - equal:
+          path: spec.template.metadata.labels.app
+          value: st2sensorcontainer-1
+        documentIndex: *second_sensor_doc
+      - equal:
+          path: spec.template.metadata.labels.app
+          value: st2sensorcontainer-2
+        documentIndex: *third_sensor_doc
+
+      - equal:
+          path: spec.selector.matchLabels.app
+          value: st2sensorcontainer-0
+        documentIndex: *first_sensor_doc
+      - equal:
+          path: spec.selector.matchLabels.app
+          value: st2sensorcontainer-1
+        documentIndex: *second_sensor_doc
+      - equal:
+          path: spec.selector.matchLabels.app
+          value: st2sensorcontainer-2
+        documentIndex: *third_sensor_doc
+
+      - equal: *oneReplica
+        documentIndex: *first_sensor_doc
+      - equal: *oneReplica
+        documentIndex: *second_sensor_doc
+      - equal: *oneReplica
+        documentIndex: *third_sensor_doc
+
+      - equal: &multiSensorAnnotation
+          path: spec.template.metadata.annotations.stackstorm/sensor-mode
+          value: multiple-sensors-per-pod
+        documentIndex: *first_sensor_doc
+      - equal: *multiSensorAnnotation
+        documentIndex: *second_sensor_doc
+      - equal: *multiSensorAnnotation
+        documentIndex: *third_sensor_doc
+
+      - notContains: &notSingleSensorMode
+          path: spec.template.spec.containers[0].command
+          content: '--single-sensor-mode'
+        documentIndex: *first_sensor_doc
+      - notContains: *notSingleSensorMode
+        documentIndex: *second_sensor_doc
+      - notContains: *notSingleSensorMode
+        documentIndex: *third_sensor_doc
+
+      - contains: &sensorConf
+          path: spec.template.spec.containers[0].command
+          content: '--config-file=/etc/st2/st2.sensorcontainer.conf'
+        documentIndex: *first_sensor_doc
+      - contains: *sensorConf
+        documentIndex: *second_sensor_doc
+      - contains: *sensorConf
+        documentIndex: *third_sensor_doc
+
+      # st2sensorcontainer values apply to all sensor containers replacing globals
+
+      - matchRegex: &multiSensorTag
+          path: spec.template.spec.containers[0].image
+          pattern: '.*:sensordefault$'
+        documentIndex: *first_sensor_doc
+      - matchRegex: *multiSensorTag
+        documentIndex: *second_sensor_doc
+      - matchRegex: *multiSensorTag
+        documentIndex: *third_sensor_doc
+
+      - equal: &multiSensorSecurityContext
+          path: spec.template.spec.containers[0].securityContext
+          value: *override_security_context
+        documentIndex: *first_sensor_doc
+      - equal: *multiSensorSecurityContext
+        documentIndex: *second_sensor_doc
+      - equal: *multiSensorSecurityContext
+        documentIndex: *third_sensor_doc
+
+  - it: ambiguous stackstorm/sensor-mode fails
+    template: deployments.yaml
+    release:
+      name: missing-sensor-ref-release
+    set:
+      st2:
+        packs:
+          sensors:
+            - name: foo
+              ref: some_pack.foo_sensor
+      st2sensorcontainer:
+        deployments: 2
+    asserts:
+      - failedTemplate:
+          errorMessage: "The sensor values are ambiguous. To use one-sensor-per-pod, use `st2.packs.sensors`. To use multiple-sensors-per-pod, use `st2sensorcontainer.deployments > 1`. Do not use both!"

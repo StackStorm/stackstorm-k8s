@@ -1,0 +1,241 @@
+---
+suite: Labels
+templates:
+  - deployments.yaml
+  - jobs.yaml
+  - services.yaml
+
+  - configmaps_packs.yaml
+  - configmaps_post-start-scripts.yaml
+  - configmaps_rbac.yaml
+  - configmaps_st2-conf.yaml
+  - configmaps_st2-urls.yaml
+  - configmaps_st2web.yaml
+
+  - secrets_datastore_crypto_key.yaml
+  - secrets_rabbit.yaml
+  - secrets_ssh.yaml
+  - secrets_st2apikeys.yaml
+  - secrets_st2auth.yaml
+  - secrets_st2chatops.yaml
+  - secrets_st2kv.yaml
+
+  - service-account.yaml
+
+  - ingress.yaml
+
+release:
+  name: some-release-name
+chart:
+  version: 1.0.999
+
+tests:
+  - it: Deployments+Pods have requried labels
+    template: deployments.yaml
+    set:
+      st2: { packs: { sensors: [] } } # ensure only 1 sensor
+      st2chatops:
+        enabled: true
+    asserts:
+      - hasDocuments:
+          count: 14
+          # st2auth, st2api,
+          # st2stream, st2web,
+          # st2rulesengine, st2timersengine,
+          # st2workflowengine, st2scheduler,
+          # st2notifier, (1) st2sensorcontainer,
+          # st2actionrunner, st2garbagecollector,
+          # st2client, st2chatops
+
+      # each of these should be the same, but there is no test for that:
+      #   metdata.labels.app
+      #   spec.selector.matchLabels.app
+      #   spec.template.metadata.labels.app
+      # So, we use isNotNull instead.
+      # see: https://github.com/quintush/helm-unittest/issues/122
+      - isNotNull: { path: metadata.labels.app }
+      - isNotNull: { path: spec.selector.matchLabels.app }
+      - isNotNull: { path: spec.template.metadata.labels.app }
+
+      - equal:
+          path: metadata.labels.release
+          value: some-release-name
+      - equal:
+          path: spec.selector.matchLabels.release
+          value: some-release-name
+      - equal:
+          path: spec.template.metadata.labels.release
+          value: some-release-name
+
+      - matchRegex:
+          path: metadata.labels.tier
+          pattern: ^(backend|frontend)$
+      - matchRegex:
+          path: spec.template.metadata.labels.tier
+          pattern: ^(backend|frontend)$
+
+      - equal:
+          path: metadata.labels.vendor
+          value: stackstorm
+      - equal:
+          path: spec.template.metadata.labels.vendor
+          value: stackstorm
+
+      - equal:
+          path: metadata.labels.chart
+          value: stackstorm-ha-1.0.999
+      - equal:
+          path: spec.template.metadata.labels.chart
+          value: stackstorm-ha-1.0.999
+
+      - equal:
+          path: metadata.labels.heritage
+          value: Helm
+      - equal:
+          path: spec.template.metadata.labels.heritage
+          value: Helm
+
+  - it: Jobs+Pods have requried labels
+    template: jobs.yaml
+    set:
+      st2:
+        rbac:
+          enabled: true # enable rbac job
+      jobs:
+        extra_hooks:
+          - name: upgrade-warning
+            hook: pre-upgrade, pre-rollback
+            hook_weight: -5
+            command: ["st2", "run", "--tail", "custom_pack.warn_about_upgrade"]
+    asserts:
+      - hasDocuments:
+          count: 5
+          # job-st2-apply-rbac-defintions
+          # job-st2-apikey-load
+          # job-st2-key-load
+          # job-st2-register-content
+          # extra_hooks job
+
+      # unlike deployments, jobs should not have selector.matchLabels
+
+      # like deployments each of these should be the same:
+      #   metdata.labels.app
+      #   spec.template.metadata.labels.app
+      - isNotNull: { path: metadata.labels.app }
+      - isNotNull: { path: spec.template.metadata.labels.app }
+
+      - equal:
+          path: metadata.labels.release
+          value: some-release-name
+      - equal:
+          path: spec.template.metadata.labels.release
+          value: some-release-name
+
+      - matchRegex:
+          path: metadata.labels.tier
+          pattern: ^(backend|frontend)$
+      - matchRegex:
+          path: spec.template.metadata.labels.tier
+          pattern: ^(backend|frontend)$
+
+      - equal:
+          path: metadata.labels.vendor
+          value: stackstorm
+      - equal:
+          path: spec.template.metadata.labels.vendor
+          value: stackstorm
+
+      - equal:
+          path: metadata.labels.chart
+          value: stackstorm-ha-1.0.999
+      - equal:
+          path: spec.template.metadata.labels.chart
+          value: stackstorm-ha-1.0.999
+
+      - equal:
+          path: metadata.labels.heritage
+          value: Helm
+      - equal:
+          path: spec.template.metadata.labels.heritage
+          value: Helm
+
+  - it: Services have required labels
+    template: services.yaml
+    set:
+      st2chatops:
+        enabled: true
+    asserts:
+      - hasDocuments:
+          count: 5
+          # st2auth, st2api, st2stream, st2web, st2chatops
+
+      - isNotNull: { path: metadata.labels.app }
+      - equal:
+          path: metadata.labels.release
+          value: some-release-name
+      - matchRegex:
+          path: metadata.labels.tier
+          pattern: ^(backend|frontend)$
+      - equal:
+          path: metadata.labels.vendor
+          value: stackstorm
+      - equal:
+          path: metadata.labels.chart
+          value: stackstorm-ha-1.0.999
+      - equal:
+          path: metadata.labels.heritage
+          value: Helm
+
+  - it: ServiceAccount has required labels
+    template: service-account.yaml
+    set:
+      serviceAccount:
+        create: true
+    asserts:
+      - equal:
+          path: metadata.labels.app
+          value: stackstorm-ha
+      - equal:
+          path: metadata.labels.release
+          value: some-release-name
+      # ServiceAccount does not have tier or vendor
+      #- equal:
+      #    path: metadata.labels.tier
+      #    value: backend
+      #- equal:
+      #    path: metadata.labels.vendor
+      #    value: stackstorm
+      - equal:
+          path: metadata.labels.chart
+          value: stackstorm-ha-1.0.999
+      - equal:
+          path: metadata.labels.heritage
+          value: Helm
+
+  - it: st2web Ingress has required labels
+    template: ingress.yaml
+    set:
+      st2web:
+        service:
+          hostname: some-host-name
+      ingress:
+        enabled: true
+    assert:
+      - equal:
+          path: metadata.labels.app
+          value: ingress
+      - equal:
+          path: metadata.labels.release
+          value: some-release-name
+      - equal:
+          path: metadata.labels.tier
+          value: frontend
+      - equal:
+          path: metadata.labels.vendor
+          value: stackstorm
+      - equal:
+          path: metadata.labels.chart
+          value: stackstorm-ha-1.0.999
+      - equal:
+          path: metadata.labels.heritage
+          value: Helm

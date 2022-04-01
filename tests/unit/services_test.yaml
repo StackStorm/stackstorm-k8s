@@ -1,0 +1,47 @@
+---
+suite: Services
+templates:
+  # primary template files
+  - services.yaml
+
+tests:
+  - it: st2web, st2auth, st2api, st2stream should work without externalName
+    set:
+      st2chatops:
+        enabled: false 
+    asserts:
+      - hasDocuments:
+          count: 4
+      - isNull:
+          path: spec.externalName
+  
+  - it: st2web, st2auth, st2api, st2stream should work with externalName if type is ExternalName
+    set:
+      st2web:
+        service:
+          hostname: some-host-name
+          type: ExternalName
+      st2auth:
+        service:
+          hostname: some-host-name
+          type: ExternalName
+      st2api:
+        service:
+          hostname: some-host-name
+          type: ExternalName
+      st2stream:
+        service:
+          hostname: some-host-name
+          type: ExternalName
+      st2chatops:
+        enabled: false 
+    asserts:
+      - hasDocuments:
+          count: 4
+      - equal:
+          path: spec.type
+          value: ExternalName
+      - equal:
+          path: spec.externalName
+          value: some-host-name
+
