@@ -78,7 +78,7 @@ st2:
   # Custom pack configs and image settings.
   #
   # By default, system packs are available. By default, however, `st2 pack install` cannot be run in the k8s cluster,
-  # so you will need to bake additional packs into an 'st2packs' image. Please see github.com/stackstorm/stackstorm-ha/README.md
+  # so you will need to bake additional packs into an 'st2packs' image. Please see github.com/stackstorm/stackstorm-k8s/README.md
   # for details on how to build this image.
   # To change this default, and use persistent/shared/writable storage that is available in your cluster, you need to
   # enable st2.packs.volumes below, adding volume definitions customized for use your cluster's storage provider.
