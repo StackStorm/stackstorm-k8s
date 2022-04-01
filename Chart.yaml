@@ -7,7 +7,7 @@ description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA e
 home: https://stackstorm.com/
 icon: https://landscape.cncf.io/logos/stack-storm.svg
 source:
-  - https://github.com/stackstorm/stackstorm-ha
+  - https://github.com/stackstorm/stackstorm-k8s
 keywords:
   - st2
   - stackstorm
