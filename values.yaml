@@ -75,6 +75,14 @@ st2:
     # templating is allowed for this key
     ssh_key_file: "/home/{{ .Values.st2.system_user.user }}/.ssh/stanley_rsa"
 
+  ## This setting allows you to define a custom Pypi repo for use in stackstorm
+  #
+  # A list of pypi private repos you may have
+  # Example:
+  #  https://<user>:<pass>@<server>/<repository>/pypi/simple/
+  #
+  #customPyPiRepUrl: ""
+
   # Custom pack configs and image settings.
   #
   # By default, system packs are available. By default, however, `st2 pack install` cannot be run in the k8s cluster,

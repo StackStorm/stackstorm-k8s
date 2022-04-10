@@ -298,3 +298,26 @@ Create the custom env list for each deployment
   value: {{ $value | quote }}
   {{- end }}
 {{- end -}}
+
+{{/*
+Define pypi volumeMounts
+*/}}
+{{- define "stackstorm-pypi-volume-mounts" -}}
+{{- if .Values.st2.customPyPiRepUrl }}
+- name: st2-custom-pip-conf
+  mountPath: /etc/pip.conf
+  subPath: pip.conf
+  readOnly: true
+{{- end -}}
+{{- end -}}
+
+{{/*
+Define pypi volumes
+*/}}
+{{- define "stackstorm-pypi-volume" -}}
+{{- if .Values.st2.customPyPiRepUrl }}
+- name: st2-custom-pip-conf
+  secret:
+    secretName: {{ .Release.Name }}-secrets-custom-pip-conf
+{{- end -}}
+{{- end -}}
