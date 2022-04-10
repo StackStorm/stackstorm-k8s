@@ -1,6 +1,10 @@
 {{- if .Values.ingress.enabled }}
 ---
+{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1" }}
+apiVersion: networking.k8s.io/v1
+{{- else }}
 apiVersion: networking.k8s.io/v1beta1
+{{- end }}
 kind: Ingress
 metadata:
   name: {{ .Release.Name }}-st2web-ingress
@@ -26,9 +30,18 @@ spec:
       paths:
       {{- range .paths }}
         - path: {{ default "/*" .path }}
+          {{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1" }}
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ .serviceName }}
+              port:
+                number: {{ .servicePort }}
+          {{- else }}
           backend:
             serviceName: {{ .serviceName }}
             servicePort: {{ .servicePort }}
+          {{- end }}
       {{- end }}
   {{- else }}
     {{- if required "Missing context '.Values.st2web.service.hostname'!" .Values.st2web.service.hostname }}
@@ -37,9 +50,18 @@ spec:
     http:
       paths:
         - path: "/"
+          {{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1" }}
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ .Release.Name }}-st2web
+              port:
+                number: 80
+          {{- else }}
           backend:
             serviceName: {{ .Release.Name }}-st2web
             servicePort: 80
+          {{- end }}
   {{- end }}
   {{- if .Values.ingress.tls }}
   tls:
