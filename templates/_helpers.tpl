@@ -302,7 +302,7 @@ Create the custom env list for each deployment
 {{/*
 Define pypi volumeMounts
 */}}
-{{- define "stackstorm-pypi-volume-mounts" -}}
+{{- define "stackstorm-pypi-volume-mount" -}}
 {{- if .Values.st2.customPyPiRepUrl }}
 - name: st2-custom-pip-conf
   mountPath: /etc/pip.conf
