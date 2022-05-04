@@ -933,8 +933,8 @@ mongodb:
   # Specify your external [database] connection parameters under st2.config
   enabled: true
   image:
-    # StackStorm currently supports maximum MongoDB v4.0
-    tag: "4.0"
+    # StackStorm currently supports maximum MongoDB v4.4
+    tag: "4.4"
   # MongoDB architecture. Allowed values: standalone or replicaset
   architecture: replicaset
   # Name of the replica set
