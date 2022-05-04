@@ -1,6 +1,7 @@
 # Changelog
 
 ## In Development
+* Upgrade MongoDB `v4.0` -> `v4.4` as 4.0 has reached its EOL. (#304)
 
 ## v0.90.0
 * Advanced Feature: Make securityContext (on Deployments/Jobs) and podSecurityContext (on Pods) configurable. This allows dropping all capabilities, for example. You can override the securityContext for `st2actionrunner`, `st2sensorcontainer`, and `st2client` if your actions or sensors need, for example, additional capabilites that the rest of StackStorm does not need. (#271) (by @cognifloyd)
