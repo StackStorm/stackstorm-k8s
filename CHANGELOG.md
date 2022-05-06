@@ -1,6 +1,7 @@
 # Changelog
 
 ## In Development
+* Upgrade MongoDB `v4.0` -> `v4.4` as 4.0 has reached its EOL. (#304)
 * Migrate from `python 3.6` `Ubuntu Bionic` to `python 3.8` `Ubuntu Focal` as a base StackStorm OS (StackStorm/st2-dockerfiles#54)
 
 ## v0.90.0
