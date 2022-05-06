@@ -1,6 +1,6 @@
 apiVersion: v2
 # StackStorm version which refers to Docker images tag
-appVersion: "3.6"
+appVersion: "3.7"
 name: stackstorm-ha
 version: 0.90.0
 description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA environment.
