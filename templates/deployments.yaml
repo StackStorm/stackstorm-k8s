@@ -1700,6 +1700,7 @@ spec:
         checksum/auth: {{ include (print $.Template.BasePath "/secrets_st2auth.yaml") . | sha256sum }}
         checksum/ssh: {{ include (print $.Template.BasePath "/secrets_ssh.yaml") . | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+        checksum/overrides: {{ include (print $.Template.BasePath "/configmaps_overrides.yaml") . | sha256sum }}
         {{- if .Values.st2client.postStartScript }}
         checksum/post-start-script: {{ .Values.st2client.postStartScript | sha256sum }}
         {{- end }}
@@ -1765,6 +1766,8 @@ spec:
         {{- end }}
         volumeMounts:
         {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
+        - name: st2-overrides-vol
+          mountPath: /opt/stackstorm/config/overrides/
         {{- if .Values.st2.rbac.enabled }}
         - name: st2-rbac-roles-vol
           mountPath: /opt/stackstorm/rbac/roles/
@@ -1813,6 +1816,9 @@ spec:
               path: datastore_key.json
         {{- end }}
         {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
+        - name: st2-overrides-vol
+          configMap:
+            name: {{ .Release.Name }}-st2-override-configs
         {{- if .Values.st2.rbac.enabled }}
         - name: st2-rbac-roles-vol
           configMap:
