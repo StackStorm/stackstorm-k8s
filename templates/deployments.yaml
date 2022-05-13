@@ -1767,7 +1767,7 @@ spec:
         volumeMounts:
         {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         - name: st2-overrides-vol
-          mountPath: /opt/stackstorm/config/overrides/
+          mountPath: /opt/stackstorm/overrides/
         {{- if .Values.st2.rbac.enabled }}
         - name: st2-rbac-roles-vol
           mountPath: /opt/stackstorm/rbac/roles/

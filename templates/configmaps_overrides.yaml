@@ -4,7 +4,7 @@ kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-st2-override-configs
   annotations:
-    description: StackStorm pack configs defined in helm values, shipped in (or copied to) '/opt/stackstorm/configs/overrides'
+    description: StackStorm override configs defined in helm values, shipped in (or copied to) '/opt/stackstorm/overrides'
   labels:
     app: st2
     tier: backend
