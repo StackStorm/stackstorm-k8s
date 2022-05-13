@@ -1818,9 +1818,6 @@ spec:
               path: datastore_key.json
         {{- end }}
         {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
-        - name: st2-overrides-vol
-          configMap:
-            name: {{ .Release.Name }}-st2-override-configs
         {{- if .Values.st2.rbac.enabled }}
         - name: st2-rbac-roles-vol
           configMap:
