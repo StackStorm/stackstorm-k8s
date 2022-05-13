@@ -1766,8 +1766,6 @@ spec:
         {{- end }}
         volumeMounts:
         {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
-        - name: st2-overrides-vol
-          mountPath: /opt/stackstorm/overrides/
         {{- if .Values.st2.rbac.enabled }}
         - name: st2-rbac-roles-vol
           mountPath: /opt/stackstorm/rbac/roles/
@@ -1775,6 +1773,10 @@ spec:
           mountPath: /opt/stackstorm/rbac/assignments/
         - name: st2-rbac-mappings-vol
           mountPath: /opt/stackstorm/rbac/mappings/
+        {{- end }}
+        {{- if .Values.st2.override.enabled }}
+        - name: st2-overrides-vol
+          mountPath: /opt/stackstorm/overrides/
         {{- end }}
         - name: st2client-config-vol
           mountPath: /root/.st2/
@@ -1829,6 +1831,11 @@ spec:
         - name: st2-rbac-mappings-vol
           configMap:
             name: {{ .Release.Name }}-st2-rbac-mappings
+        {{- end }}
+        {{- if .Values.st2.override.enabled }}
+        - name: st2-overrides-vol
+          configMap:
+            name: {{ .Release.Name }}-st2-override-configs
         {{- end }}
         - name: st2client-config-vol
           emptyDir:
