@@ -82,6 +82,8 @@ st2:
   # for details on how to build this image.
   # To change this default, and use persistent/shared/writable storage that is available in your cluster, you need to
   # enable st2.packs.volumes below, adding volume definitions customized for use your cluster's storage provider.
+  override:
+    enabled: true
   packs:
     # Custom StackStorm pack configs. Each record creates a file in '/opt/stackstorm/configs/'
     # https://docs.stackstorm.com/reference/pack_configs.html#configuration-file
