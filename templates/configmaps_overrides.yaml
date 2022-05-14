@@ -1,4 +1,4 @@
-{{- if .Values.st2.overrides.enabled }}
+{{- if .Values.st2.overrides.configs }}
 ---
 apiVersion: v1
 kind: ConfigMap
