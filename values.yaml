@@ -69,8 +69,21 @@ st2:
     allow_origin = '*'
   
   #Override Definitions can be added here. 
+  #  overrides:
+  #  enabled: true
+  #  configs:
+  #    _global.yaml: |
+  #    ---
+  #    rules:
+  #      defaults:
+  #        enabled: true
+  #  packA.yaml: |
+  #  ---
+  #  rules:
+  #    rule.name:
+  #      enabled: false
   # https://docs.stackstorm.com/latest/packs.html#overriding-pack-defaults
-  override:
+  overrides:
     enabled: false
   # This mirrors the [system_user] section of st2.conf, but makes the values available for helm templating.
   # If you change the user, you must provide a customized st2actionrunner image that includes your user.
@@ -1078,3 +1091,4 @@ external-dns:
   aws:
     zoneType: "public"
   domainFilters: []
+  
