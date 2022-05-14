@@ -39,7 +39,6 @@ tests:
       st2chatops:
         enabled: true
       st2:
-        override: { enabled: true } # enable override jobs
         packs: { sensors: [] } # ensure only 1 sensor
         rbac: { enabled: true } # enable rbac job
       jobs:
@@ -82,7 +81,6 @@ tests:
       st2chatops:
         enabled: true
       st2:
-        override: { enabled: true } # enable overrides
         packs: { sensors: [] } # ensure only 1 sensor
         rbac: { enabled: true } # enable rbac job
       jobs:
@@ -116,7 +114,6 @@ tests:
     template: deployments.yaml
     set:
       st2:
-        override: { enabled: true } # enable overrides
         packs: { sensors: [] } # ensure only 1 sensor
         rbac: { enabled: true } # enable rbac job
 
