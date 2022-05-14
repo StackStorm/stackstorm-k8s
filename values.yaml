@@ -67,24 +67,16 @@ st2:
   config: |
     [api]
     allow_origin = '*'
-
+  
+  #Override Definitions can be added here. 
+  # https://docs.stackstorm.com/latest/packs.html#overriding-pack-defaults
+  override:
   # This mirrors the [system_user] section of st2.conf, but makes the values available for helm templating.
   # If you change the user, you must provide a customized st2actionrunner image that includes your user.
   system_user:
     user: stanley
     # templating is allowed for this key
     ssh_key_file: "/home/{{ .Values.st2.system_user.user }}/.ssh/stanley_rsa"
-    
-  # Override definition settings. Eache record creates a file in `/opt/stackstorm/overrides`
-  # https://docs.stackstorm.com/latest/packs.html#overriding-pack-defaults
-  #configs:
-  #  _global.yaml: |
-  #  ---
-  #  rules:
-  #    defaults:
-  #      enabled: false # This will disable all rules globally.
-  override:
-    enabled: true
 
   # Custom pack configs and image settings.
   #
@@ -101,7 +93,7 @@ st2:
       core.yaml: |
         ---
         # example core pack config yaml
-    #
+
     # Custom packs images settings.
     #
     # For each given st2packs container you can define repository, name, tag and pullPolicy for this image below.
@@ -124,6 +116,8 @@ st2:
     # To use this, set enabled to true, and add cluster-specific volume definitions for at least packs and virtualenvs below.
     # Please consult the documentation for your cluster's storage solution.
     # Some generic examples are listed under st2.packs.volumes.packs below.
+    volumes:
+      enabled: false
 
       packs: {}
         # mounted to /opt/stackstorm/packs
