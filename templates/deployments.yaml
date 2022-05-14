@@ -1774,7 +1774,7 @@ spec:
         - name: st2-rbac-mappings-vol
           mountPath: /opt/stackstorm/rbac/mappings/
         {{- end }}
-        {{- if .Values.st2.override.enabled }}
+        {{- if .Values.st2.overrides.configs }}
         - name: st2-overrides-vol
           mountPath: /opt/stackstorm/overrides/
         {{- end }}
@@ -1829,7 +1829,7 @@ spec:
           configMap:
             name: {{ .Release.Name }}-st2-rbac-mappings
         {{- end }}
-        {{- if .Values.st2.override.enabled }}
+        {{- if .Values.st2.overrides.configs }}
         - name: st2-overrides-vol
           configMap:
             name: {{ .Release.Name }}-st2-override-configs
