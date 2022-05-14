@@ -77,15 +77,14 @@ st2:
     
   # Override definition settings. Eache record creates a file in `/opt/stackstorm/overrides`
   # https://docs.stackstorm.com/latest/packs.html#overriding-pack-defaults
+  #configs:
+  #  _global.yaml: |
+  #  ---
+  #  rules:
+  #    defaults:
+  #      enabled: false # This will disable all rules globally.
   override:
-    enabled: false
-    # Note: This needs to be set to enabled for the directory to be made. 
-    #configs:
-    #  _global.yaml: |
-    #  ---
-    #  rules:
-    #    defaults:
-    #      enabled: false
+    enabled: true
 
   # Custom pack configs and image settings.
   #
