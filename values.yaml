@@ -71,6 +71,7 @@ st2:
   #Override Definitions can be added here. 
   # https://docs.stackstorm.com/latest/packs.html#overriding-pack-defaults
   override:
+    enabled: false
   # This mirrors the [system_user] section of st2.conf, but makes the values available for helm templating.
   # If you change the user, you must provide a customized st2actionrunner image that includes your user.
   system_user:
