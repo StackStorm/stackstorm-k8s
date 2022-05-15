@@ -70,8 +70,6 @@ st2:
   
   #Override Definitions can be added here. 
   #  overrides:
-  #  enabled: true
-  #  configs:
   #    _global.yaml: |
   #    ---
   #    rules:
@@ -83,8 +81,7 @@ st2:
   #    rule.name:
   #      enabled: false
   # https://docs.stackstorm.com/latest/packs.html#overriding-pack-defaults
-  overrides:
-    enabled: false
+  overrides: {}
   # This mirrors the [system_user] section of st2.conf, but makes the values available for helm templating.
   # If you change the user, you must provide a customized st2actionrunner image that includes your user.
   system_user:
@@ -1091,4 +1088,3 @@ external-dns:
   aws:
     zoneType: "public"
   domainFilters: []
-  

@@ -1,4 +1,4 @@
-{{- if .Values.st2.overrides.configs }}
+{{- if .Values.st2.overrides }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -14,5 +14,5 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-{{ toYaml .Values.st2.overrides.configs | indent 2 }}
+{{ toYaml .Values.st2.overrides | indent 2 }}
 {{- end }}
