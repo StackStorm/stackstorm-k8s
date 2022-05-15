@@ -76,10 +76,10 @@ st2:
   #      defaults:
   #        enabled: true
   #  packA.yaml: |
-  #  ---
-  #  rules:
-  #    rule.name:
-  #      enabled: false
+  #    ---
+  #    rules:
+  #      rule.name:
+  #        enabled: false
   # https://docs.stackstorm.com/latest/packs.html#overriding-pack-defaults
   overrides: {}
   # This mirrors the [system_user] section of st2.conf, but makes the values available for helm templating.
