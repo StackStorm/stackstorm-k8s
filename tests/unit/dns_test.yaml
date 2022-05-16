@@ -24,7 +24,8 @@ tests:
       - deployments.yaml
       - jobs.yaml
     set:
-      st2: 
+      st2:
+        overrides: {} 
         packs: { sensors: [] } # ensure only 1 sensor
         rbac: { enabled: true } # enable rbac job
       jobs:
@@ -55,7 +56,8 @@ tests:
           - name: ndots
             value: "2"
           - name: edns0
-      st2: 
+      st2:
+        overrides: {} 
         packs: { sensors: [] } # ensure only 1 sensor
         rbac: { enabled: true } # enable rbac job
       jobs:
