@@ -1776,9 +1776,7 @@ spec:
         - name: st2-rbac-mappings-vol
           mountPath: /opt/stackstorm/rbac/mappings/
         {{- end }}
-        {{- if .Values.st2.overrides }}
-          {{- include "stackstorm-ha.override-config-mounts" . | nindent 8 }}
-        {{- end }}
+        {{- include "stackstorm-ha.override-config-mounts" . | nindent 8 }}
         - name: st2client-config-vol
           mountPath: /root/.st2/
         - name: st2-ssh-key-vol
@@ -1830,9 +1828,7 @@ spec:
           configMap:
             name: {{ .Release.Name }}-st2-rbac-mappings
         {{- end }}
-        {{- if .Values.st2.overrides }}
-          {{- include "stackstorm-ha.override-configs" . | nindent 8 }}
-        {{- end }}
+        {{- include "stackstorm-ha.override-configs" . | nindent 8 }}
         - name: st2client-config-vol
           emptyDir:
             medium: Memory
