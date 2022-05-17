@@ -48,38 +48,31 @@ tests:
       - hasDocuments:
           count: 5
 
-      - contains: &override_vol
+      - contains: &override_volume
           path: spec.template.spec.volumes
           content:
             name: st2-overrides-vol
-            <<: *override_vol
+        documentIndex: 3 # register_content
+
    
-      - contains: &override_vol_mnt
+      - contains: &override_mnt
           path: spec.template.spec.containers[0].volumeMounts
           content:
             name: st2-overrides-vol
             mountPath: /opt/stackstorm/overrides
-            <<: *override_vol_mnt
-
-      - notContains: *override_vol
-      - notContains: *override_vol_mnt
-
-      - contains: *override_vol_mnt
-        documentIndex: 3 # register_content
-      - contains: *override_vol
         documentIndex: 3 # register_content
 
-      - notContains: *override_vol
+      - notContains: *override_volume
         documentIndex: 0
-      - notContains: *override_vol_mnt
+      - notContains: *override_mnt
         documentIndex: 0
 
-      - notContains: *override_vol
+      - notContains: *override_volume
         documentIndex: 1
-      - notContains: *override_vol_mnt
+      - notContains: *override_mnt
         documentIndex: 1
 
-      - notContains: *override_vol
+      - notContains: *override_volume
         documentIndex: 2
-      - notContains: *override_vol_mnt
+      - notContains: *override_mnt
         documentIndex: 2
