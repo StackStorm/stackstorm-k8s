@@ -212,14 +212,14 @@ define this here as well to simplify comparison with packs-volume-mounts
 
 #Inserted for override ability to happen via helm charts
 
-{{- define "stackstorm-ha.override-config-mounts" -}}
+{{- define "stackstorm-ha.overrides-config-mounts" -}}
   {{- if .Values.st2.overrides }}
 - name: st2-overrides-vol
   mountPath: /opt/stackstorm/overrides/
   {{- end }}
 {{- end -}}
 
-{{- define "stackstorm-ha.override-configs" -}}
+{{- define "stackstorm-ha.overrides-configs" -}}
   {{- if .Values.st2.overrides }}
 - name: st2-overrides-vol
   configMap:

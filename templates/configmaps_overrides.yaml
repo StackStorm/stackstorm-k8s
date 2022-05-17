@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-st2-override-configs
+  name: {{ .Release.Name }}-st2-overrides-configs
   annotations:
     description: StackStorm override configs defined in helm values, shipped in (or copied to) '/opt/stackstorm/overrides'
   labels:
