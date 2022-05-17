@@ -61,25 +61,25 @@ tests:
             mountPath: /opt/stackstorm/overrides
             <<: *override_vol_mnt
 
-      - notContains: *override_volume
-      - notContains: *override_mnt
+      - notContains: *override_vol
+      - notContains: *override_vol_mnt
 
-      - contains: *override_mnt
+      - contains: *override_vol_mnt
         documentIndex: 3 # register_content
-      - contains: *override_volume
+      - contains: *override_vol
         documentIndex: 3 # register_content
 
-      - notContains: *override_volume
+      - notContains: *override_vol
         documentIndex: 0
-      - notContains: *override_mnt
+      - notContains: *override_vol_mnt
         documentIndex: 0
 
-      - notContains: *override_volume
+      - notContains: *override_vol
         documentIndex: 1
-      - notContains: *override_mnt
+      - notContains: *override_vol_mnt
         documentIndex: 1
 
-      - notContains: *override_volume
+      - notContains: *override_vol
         documentIndex: 2
-      - notContains: *override_mnt
+      - notContains: *override_vol_mnt
         documentIndex: 2
