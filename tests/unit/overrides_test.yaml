@@ -54,7 +54,7 @@ tests:
             name: st2-overrides-vol
             <<: *override_vol
    
-   - contains: &override_vol_mnt
+      - contains: &override_vol_mnt
           path: spec.template.spec.containers[0].volumeMounts
           content:
             name: st2-overrides-vol
