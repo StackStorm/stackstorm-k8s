@@ -1,5 +1,5 @@
 ---
-suite: Override check
+suite: Overrides check
 templates:
   # primary template files
   - deployments.yaml
@@ -24,7 +24,7 @@ tests:
     template: jobs.yaml
     set:
       st2:
-        overrides: #Enabling the override mounts in register-content job.
+        overrides: #Enabling the overrides mounts in register-content job.
           _global.yaml: |
             ---
             rules:
@@ -114,9 +114,9 @@ tests:
         documentIndex: 1
       - notContains: *overrides_mnt
         documentIndex: 1 # st2api
-      - notContains: *overrides_volume # only contains if volumes.enabled
+      - notContains: *overrides_volume
         documentIndex: 10 # st2actionrunner
-      - notContains: *overrides_mnt # only contains if volumes.enabled
+      - notContains: *overrides_mnt
         documentIndex: 10 # st2actionrunner
       - notContains: *overrides_volume
         documentIndex: 0
