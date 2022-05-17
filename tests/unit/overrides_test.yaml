@@ -52,14 +52,14 @@ tests:
           path: spec.template.spec.volumes
           content:
             name: st2-overrides-vol
-            <<: *override_volume
+            <<: *override_vol
    
    - contains: &override_vol_mnt
           path: spec.template.spec.containers[0].volumeMounts
           content:
             name: st2-overrides-vol
             mountPath: /opt/stackstorm/overrides
-            <<: *override_mnt
+            <<: *override_vol_mnt
 
       - notContains: *override_volume
       - notContains: *override_mnt
