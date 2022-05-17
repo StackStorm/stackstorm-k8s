@@ -416,7 +416,9 @@ spec:
         # TODO: Investigate/propose running Helm hook only on condition when ConfigMap or Secret has changed
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") . | sha256sum }}
+        {{- if .Values.st2.overrides }}
         checksum/overrides: {{ include (print $.Template.BasePath "/configmaps_overrides.yaml") . | sha256sum }}
+        {{- end }}
         {{- if .Values.jobs.annotations }}
           {{- toYaml .Values.jobs.annotations | nindent 8 }}
         {{- end }}
@@ -543,6 +545,9 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") $ | sha256sum }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") $ | sha256sum }}
+        {{- if $.Values.st2.overrides }}
+        checksum/overrides: {{ include (print $.Template.BasePath "/configmaps_overrides.yaml") $ | sha256sum }}
+        {{- end }}
         {{- if $.Values.jobs.annotations }}
           {{- toYaml $.Values.jobs.annotations | nindent 8 }}
         {{- end }}
@@ -608,6 +613,7 @@ spec:
         volumeMounts:
         - name: st2client-config-vol
           mountPath: /root/.st2/
+        {{- include "stackstorm-ha.override-config-mounts" $ | nindent 8 }}
         {{- include "stackstorm-ha.st2-config-volume-mounts" $ | nindent 8 }}
         {{- include "stackstorm-ha.packs-volume-mounts-for-register-job" $ | nindent 8 }}
         {{- include "stackstorm-ha.pack-configs-volume-mount" $ | nindent 8 }}
@@ -618,6 +624,7 @@ spec:
         - name: st2client-config-vol
           emptyDir:
             medium: Memory
+        {{- include "stackstorm-ha.override-configs" $ | nindent 8 }}
         {{- include "stackstorm-ha.st2-config-volume" $ | nindent 8 }}
         {{- include "stackstorm-ha.packs-volumes" $ | nindent 8 }}
         {{- include "stackstorm-ha.pack-configs-volume" $ | nindent 8 }}
