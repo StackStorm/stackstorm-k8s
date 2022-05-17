@@ -68,10 +68,8 @@ st2:
     [api]
     allow_origin = '*'
   
-  #Override Definitions can be added here. Overrides can be used to disable rules/actions/sensors either individually
-  #on a per pack level. _global.yaml is the global file for adjusting overrides, however you can create a pack_name.yaml 
-  #to define what happens to rules for a pack. You can set everything to enabled/disabled with the defaults option or specify
-  #individual rule names! See documentation for more examples! https://docs.stackstorm.com/latest/packs.html#overriding-pack-defaults
+  #Override Definitions can be added here.
+  #https://docs.stackstorm.com/latest/packs.html#overriding-pack-defaults
   overrides: {}
   #  overrides:
   #    _global.yaml: |
