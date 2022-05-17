@@ -68,20 +68,22 @@ st2:
     [api]
     allow_origin = '*'
   
-  #Override Definitions can be added here. 
+  #Override Definitions can be added here.
+  #https://docs.stackstorm.com/latest/packs.html#overriding-pack-defaults
+  overrides: {}
   #  overrides:
   #    _global.yaml: |
-  #    ---
-  #    rules:
-  #      defaults:
-  #        enabled: true
-  #  packA.yaml: |
-  #    ---
-  #    rules:
-  #      rule.name:
-  #        enabled: false
-  # https://docs.stackstorm.com/latest/packs.html#overriding-pack-defaults
-  overrides: {}
+  #      ---
+  #      rules:
+  #        defaults:
+  #          enabled: true
+  #    packA.yaml: |
+  #      ---
+  #      rules:
+  #        rule.name:
+  #          enabled: false
+
+
   # This mirrors the [system_user] section of st2.conf, but makes the values available for helm templating.
   # If you change the user, you must provide a customized st2actionrunner image that includes your user.
   system_user:
