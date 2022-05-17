@@ -546,7 +546,7 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") $ | sha256sum }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") $ | sha256sum }}
         {{- if $.Values.st2.overrides }}
-        checksum/overrides: {{ include (print $.Template.BasePath "/configmaps_overrides.yaml") . | sha256sum }}
+        checksum/overrides: {{ include (print $.Template.BasePath "/configmaps_overrides.yaml") $ | sha256sum }}
         {{- end }}
         {{- if $.Values.jobs.annotations }}
           {{- toYaml $.Values.jobs.annotations | nindent 8 }}

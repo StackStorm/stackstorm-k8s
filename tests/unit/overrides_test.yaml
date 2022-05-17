@@ -1,5 +1,5 @@
 ---
-suite: Image Pull
+suite: Override check
 templates:
   # primary template files
   - deployments.yaml
@@ -20,7 +20,7 @@ templates:
   - secrets_st2chatops.yaml
 
 tests:
-  - it: Jobs without st2.packs.images or st2.packs.volumes
+  - it: Jobs with overrides mounted
     template: jobs.yaml
     set:
       st2:
@@ -31,11 +31,7 @@ tests:
               defaults:
                 enabled: false
         rbac: { enabled: true } # enable rbac job
-        packs:
-          images: [] # no extra packs to load
-          volumes:
-            enabled: false
-          configs: {} # has one core.yaml config file by default (dicts get merged)
+        packs: { sensors: [] } # ensure only 1 sensor
       jobs:
         extra_hooks: &extra_hooks_jobs
           - name: upgrade-warning
