@@ -613,7 +613,7 @@ spec:
         volumeMounts:
         - name: st2client-config-vol
           mountPath: /root/.st2/
-        {{- include "stackstorm-ha.override-config-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.override-config-mounts" $ | nindent 8 }}
         {{- include "stackstorm-ha.st2-config-volume-mounts" $ | nindent 8 }}
         {{- include "stackstorm-ha.packs-volume-mounts-for-register-job" $ | nindent 8 }}
         {{- include "stackstorm-ha.pack-configs-volume-mount" $ | nindent 8 }}
@@ -624,7 +624,7 @@ spec:
         - name: st2client-config-vol
           emptyDir:
             medium: Memory
-        {{- include "stackstorm-ha.override-configs" . | nindent 8 }}
+        {{- include "stackstorm-ha.override-configs" $ | nindent 8 }}
         {{- include "stackstorm-ha.st2-config-volume" $ | nindent 8 }}
         {{- include "stackstorm-ha.packs-volumes" $ | nindent 8 }}
         {{- include "stackstorm-ha.pack-configs-volume" $ | nindent 8 }}
