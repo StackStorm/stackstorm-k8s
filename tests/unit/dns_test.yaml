@@ -25,7 +25,6 @@ tests:
       - jobs.yaml
     set:
       st2:
-        overrides: {} 
         packs: { sensors: [] } # ensure only 1 sensor
         rbac: { enabled: true } # enable rbac job
       jobs:
@@ -57,7 +56,6 @@ tests:
             value: "2"
           - name: edns0
       st2:
-        overrides: {} 
         packs: { sensors: [] } # ensure only 1 sensor
         rbac: { enabled: true } # enable rbac job
       jobs:
