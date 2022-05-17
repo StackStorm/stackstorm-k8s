@@ -75,3 +75,86 @@ tests:
       - notContains: *override_mnt
         documentIndex: 2
   
+  - it: Deployments with overrides
+    template: deployments.yaml
+    set:
+      st2:
+        overrides: #Enabling the override mounts in register-content job.
+          _global.yaml: |
+            ---
+            rules:
+              defaults:
+                enabled: false
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: [] # no extra packs to load
+          volumes:
+            enabled: false
+          configs: {} # has one core.yaml config file by default (dicts get merged)
+      st2chatops:
+        enabled: true
+    release:
+      name: st2ha
+    asserts:
+      - hasDocuments:
+          count: 14
+
+
+      - contains: *override_volume # always included
+        documentIndex: 12 # st2client
+      - contains: *override_mnt # always included
+        documentIndex: 12 # st2client
+
+     
+      - notContains: *override_volume
+        documentIndex: 1
+      - notContains: *override_mnt
+        documentIndex: 1 # st2api
+      - notContains: *override_volume # only contains if volumes.enabled
+        documentIndex: 10 # st2actionrunner
+      - notContains: *override_mnt # only contains if volumes.enabled
+        documentIndex: 10 # st2actionrunner
+      - notContains: *override_volume
+        documentIndex: 0
+      - notContains: *override_mnt
+        documentIndex: 0
+      - notContains: *override_volume
+        documentIndex: 2
+      - notContains: *override_mnt
+        documentIndex: 2
+      - notContains: *override_volume
+        documentIndex: 3
+      - notContains: *override_mnt
+        documentIndex: 3
+      - notContains: *override_volume
+        documentIndex: 4
+      - notContains: *override_mnt
+        documentIndex: 4
+      - notContains: *override_volume
+        documentIndex: 5
+      - notContains: *override_mnt
+        documentIndex: 5
+      - notContains: *override_volume
+        documentIndex: 6
+      - notContains: *override_mnt
+        documentIndex: 6
+      - notContains: *override_volume
+        documentIndex: 7
+      - notContains: *override_mnt
+        documentIndex: 7
+      - notContains: *override_volume
+        documentIndex: 8
+      - notContains: *override_mnt
+        documentIndex: 8
+      - notContains: *override_volume # never
+        documentIndex: 9 # st2sensorcontainer
+      - notContains: *override_mnt # never
+        documentIndex: 9 # st2sensorcontainer
+      - notContains: *override_volume
+        documentIndex: 11
+      - notContains: *override_mnt
+        documentIndex: 11
+      - notContains: *override_volume
+        documentIndex: 13
+      - notContains: *override_mnt
+        documentIndex: 13
