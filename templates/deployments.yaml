@@ -1700,6 +1700,9 @@ spec:
         checksum/auth: {{ include (print $.Template.BasePath "/secrets_st2auth.yaml") . | sha256sum }}
         checksum/ssh: {{ include (print $.Template.BasePath "/secrets_ssh.yaml") . | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+        {{- if .Values.st2.overrides }}
+        checksum/overrides: {{ include (print $.Template.BasePath "/configmaps_overrides.yaml") . | sha256sum }}
+        {{- end }}
         {{- if .Values.st2client.postStartScript }}
         checksum/post-start-script: {{ .Values.st2client.postStartScript | sha256sum }}
         {{- end }}
@@ -1773,6 +1776,7 @@ spec:
         - name: st2-rbac-mappings-vol
           mountPath: /opt/stackstorm/rbac/mappings/
         {{- end }}
+        {{- include "stackstorm-ha.overrides-config-mounts" . | nindent 8 }}
         - name: st2client-config-vol
           mountPath: /root/.st2/
         - name: st2-ssh-key-vol
@@ -1824,6 +1828,7 @@ spec:
           configMap:
             name: {{ .Release.Name }}-st2-rbac-mappings
         {{- end }}
+        {{- include "stackstorm-ha.overrides-configs" . | nindent 8 }}
         - name: st2client-config-vol
           emptyDir:
             medium: Memory

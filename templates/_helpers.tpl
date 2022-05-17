@@ -210,6 +210,23 @@ define this here as well to simplify comparison with packs-volume-mounts
   {{- end }}
 {{- end -}}
 
+#Inserted for override ability to happen via helm charts
+
+{{- define "stackstorm-ha.overrides-config-mounts" -}}
+  {{- if .Values.st2.overrides }}
+- name: st2-overrides-vol
+  mountPath: /opt/stackstorm/overrides
+  {{- end }}
+{{- end -}}
+
+{{- define "stackstorm-ha.overrides-configs" -}}
+  {{- if .Values.st2.overrides }}
+- name: st2-overrides-vol
+  configMap:
+    name: {{ .Release.Name }}-st2-overrides-configs
+  {{- end }}
+{{- end -}}
+
 {{/*
 For custom st2packs-initContainers reduce duplicity by defining them here once
 Merge packs and virtualenvs from st2 with those from st2packs images
