@@ -215,7 +215,7 @@ define this here as well to simplify comparison with packs-volume-mounts
 {{- define "stackstorm-ha.overrides-config-mounts" -}}
   {{- if .Values.st2.overrides }}
 - name: st2-overrides-vol
-  mountPath: /opt/stackstorm/overrides/
+  mountPath: /opt/stackstorm/overrides
   {{- end }}
 {{- end -}}
 
