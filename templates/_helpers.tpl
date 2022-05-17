@@ -223,7 +223,7 @@ define this here as well to simplify comparison with packs-volume-mounts
   {{- if .Values.st2.overrides }}
 - name: st2-overrides-vol
   configMap:
-    name: {{ .Release.Name }}-st2-override-configs
+    name: {{ .Release.Name }}-st2-overrides-configs
   {{- end }}
 {{- end -}}
 

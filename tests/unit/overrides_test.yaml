@@ -57,23 +57,27 @@ tests:
           path: spec.template.spec.containers[0].volumeMounts
           content:
             name: st2-overrides-vol
-            mountPath: /opt/stackstorm/overrides
+            mountPath: /opt/stackstorm/overrides/
         documentIndex: 3 # register_content
+      
+      - contains: *overrides_mnt
+        documentIndex: 4 #Extra_jobs
+      - contains: *overrides_volume
+        documentIndex: 4 #extra_jobs
 
-      - notContains: *override_volume
+      - notContains: *overrides_volume
         documentIndex: 0
-      - notContains: *override_mnt
+      - notContains: *overrides_mnt
         documentIndex: 0
-
-      - notContains: *override_volume
+      - notContains: *overrides_volume
         documentIndex: 1
-      - notContains: *override_mnt
+      - notContains: *overrides_mnt
         documentIndex: 1
+      - notContains: *overrides_volume
+        documentIndex: 2
+      - notContains: *overrides_mnt
+        documentIndex: 2
 
-      - notContains: *override_volume
-        documentIndex: 2
-      - notContains: *override_mnt
-        documentIndex: 2
   
   - it: Deployments with overrides
     template: deployments.yaml
@@ -100,61 +104,61 @@ tests:
           count: 14
 
 
-      - contains: *override_volume # always included
+      - contains: *overrides_volume # always included
         documentIndex: 12 # st2client
-      - contains: *override_mnt # always included
+      - contains: *overrides_mnt # always included
         documentIndex: 12 # st2client
 
      
-      - notContains: *override_volume
+      - notContains: *overrides_volume
         documentIndex: 1
-      - notContains: *override_mnt
+      - notContains: *overrides_mnt
         documentIndex: 1 # st2api
-      - notContains: *override_volume # only contains if volumes.enabled
+      - notContains: *overrides_volume # only contains if volumes.enabled
         documentIndex: 10 # st2actionrunner
-      - notContains: *override_mnt # only contains if volumes.enabled
+      - notContains: *overrides_mnt # only contains if volumes.enabled
         documentIndex: 10 # st2actionrunner
-      - notContains: *override_volume
+      - notContains: *overrides_volume
         documentIndex: 0
-      - notContains: *override_mnt
+      - notContains: *overrides_mnt
         documentIndex: 0
-      - notContains: *override_volume
+      - notContains: *overrides_volume
         documentIndex: 2
-      - notContains: *override_mnt
+      - notContains: *overrides_mnt
         documentIndex: 2
-      - notContains: *override_volume
+      - notContains: *overrides_volume
         documentIndex: 3
-      - notContains: *override_mnt
+      - notContains: *overrides_mnt
         documentIndex: 3
-      - notContains: *override_volume
+      - notContains: *overrides_volume
         documentIndex: 4
-      - notContains: *override_mnt
+      - notContains: *overrides_mnt
         documentIndex: 4
-      - notContains: *override_volume
+      - notContains: *overrides_volume
         documentIndex: 5
-      - notContains: *override_mnt
+      - notContains: *overrides_mnt
         documentIndex: 5
-      - notContains: *override_volume
+      - notContains: *overrides_volume
         documentIndex: 6
-      - notContains: *override_mnt
+      - notContains: *overrides_mnt
         documentIndex: 6
-      - notContains: *override_volume
+      - notContains: *overrides_volume
         documentIndex: 7
-      - notContains: *override_mnt
+      - notContains: *overrides_mnt
         documentIndex: 7
-      - notContains: *override_volume
+      - notContains: *overrides_volume
         documentIndex: 8
-      - notContains: *override_mnt
+      - notContains: *overrides_mnt
         documentIndex: 8
-      - notContains: *override_volume # never
+      - notContains: *overrides_volume # never
         documentIndex: 9 # st2sensorcontainer
-      - notContains: *override_mnt # never
+      - notContains: *overrides_mnt # never
         documentIndex: 9 # st2sensorcontainer
-      - notContains: *override_volume
+      - notContains: *overrides_volume
         documentIndex: 11
-      - notContains: *override_mnt
+      - notContains: *overrides_mnt
         documentIndex: 11
-      - notContains: *override_volume
+      - notContains: *overrides_volume
         documentIndex: 13
-      - notContains: *override_mnt
+      - notContains: *overrides_mnt
         documentIndex: 13
