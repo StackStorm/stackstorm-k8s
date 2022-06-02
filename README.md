@@ -1,5 +1,5 @@
 # `stackstorm-ha` Helm Chart
-[![Build Status](https://circleci.com/gh/StackStorm/stackstorm-ha/tree/master.svg?style=shield)](https://circleci.com/gh/StackStorm/stackstorm-ha)
+[![Build Status](https://circleci.com/gh/StackStorm/stackstorm-k8s/tree/master.svg?style=shield)](https://circleci.com/gh/StackStorm/stackstorm-k8s)
 [![Artifact HUB](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/stackstorm-ha)](https://artifacthub.io/packages/helm/stackstorm/stackstorm-ha)
 
 K8s Helm Chart for running StackStorm cluster in HA mode.
@@ -357,8 +357,8 @@ Please refer to stackstorm-ha's default values.yaml file for examples.
 
 ## Extending this chart
 If you have any suggestions or ideas about how to extend this chart functionality,
-we welcome you to collaborate in [Issues](https://github.com/stackstorm/stackstorm-ha/issues)
-and contribute via [Pull Requests](https://github.com/stackstorm/stackstorm-ha/pulls).
+we welcome you to collaborate in [Issues](https://github.com/stackstorm/stackstorm-k8s/issues)
+and contribute via [Pull Requests](https://github.com/stackstorm/stackstorm-k8s/pulls).
 However if you need something very custom and specific to your infra that doesn't fit official chart plans,
 we strongly recommend you to create a parent Helm chart with custom K8s objects and referencing `stackstorm-ha` chart
 as a child dependency.

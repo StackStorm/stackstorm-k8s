@@ -5,6 +5,7 @@ templates:
   - jobs.yaml
   - services.yaml
 
+  - configmaps_overrides.yaml
   - configmaps_packs.yaml
   - configmaps_post-start-script.yaml
   - configmaps_rbac.yaml

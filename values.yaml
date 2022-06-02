@@ -67,6 +67,22 @@ st2:
   config: |
     [api]
     allow_origin = '*'
+  
+  #Override Definitions can be added here.
+  #https://docs.stackstorm.com/latest/packs.html#overriding-pack-defaults
+  overrides: {}
+  #  overrides:
+  #    _global.yaml: |
+  #      ---
+  #      rules:
+  #        defaults:
+  #          enabled: true
+  #    packA.yaml: |
+  #      ---
+  #      rules:
+  #        rule.name:
+  #          enabled: false
+
 
   # This mirrors the [system_user] section of st2.conf, but makes the values available for helm templating.
   # If you change the user, you must provide a customized st2actionrunner image that includes your user.
@@ -78,7 +94,7 @@ st2:
   # Custom pack configs and image settings.
   #
   # By default, system packs are available. By default, however, `st2 pack install` cannot be run in the k8s cluster,
-  # so you will need to bake additional packs into an 'st2packs' image. Please see github.com/stackstorm/stackstorm-ha/README.md
+  # so you will need to bake additional packs into an 'st2packs' image. Please see github.com/stackstorm/stackstorm-k8s/README.md
   # for details on how to build this image.
   # To change this default, and use persistent/shared/writable storage that is available in your cluster, you need to
   # enable st2.packs.volumes below, adding volume definitions customized for use your cluster's storage provider.
@@ -933,8 +949,8 @@ mongodb:
   # Specify your external [database] connection parameters under st2.config
   enabled: true
   image:
-    # StackStorm currently supports maximum MongoDB v4.0
-    tag: "4.0"
+    # StackStorm currently supports maximum MongoDB v4.4
+    tag: "4.4"
   # MongoDB architecture. Allowed values: standalone or replicaset
   architecture: replicaset
   # Name of the replica set
