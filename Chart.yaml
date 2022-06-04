@@ -30,17 +30,17 @@ details:
 dependencies:
   - name: rabbitmq
     version: 8.0.2
-    repository: https://charts.bitnami.com/bitnami
+    repository: https://raw.githubusercontent.com/bitnami/charts/defb094c658024e4aa8245622dab202874880cbc/bitnami
     condition: rabbitmq.enabled
   - name: mongodb
     version: 10.0.1
-    repository: https://charts.bitnami.com/bitnami
+    repository: https://raw.githubusercontent.com/bitnami/charts/defb094c658024e4aa8245622dab202874880cbc/bitnami
     condition: mongodb.enabled
   - name: external-dns
     version: 4.0.0
-    repository: https://charts.bitnami.com/bitnami
+    repository: https://raw.githubusercontent.com/bitnami/charts/defb094c658024e4aa8245622dab202874880cbc/bitnami
     condition: external-dns.enabled
   - name: redis
     version: 12.3.2
-    repository: https://charts.bitnami.com/bitnami
+    repository: https://raw.githubusercontent.com/bitnami/charts/defb094c658024e4aa8245622dab202874880cbc/bitnami
     condition: redis.enabled
