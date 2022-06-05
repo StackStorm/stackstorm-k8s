@@ -4,13 +4,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: {{ .Release.Name }}-job-st2-apply-rbac-definitions
-  labels:
-    app: st2-apply-rbac-definitions
-    tier: backend
-    vendor: stackstorm
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2-apply-rbac-definitions") | nindent 4 }}
   annotations:
     helm.sh/hook: post-install, post-upgrade, post-rollback
     helm.sh/hook-delete-policy: before-hook-creation
@@ -22,13 +16,7 @@ spec:
   template:
     metadata:
       name: job-st2-apply-rbac-definitions
-      labels:
-        app: st2-apply-rbac-definitions
-        tier: backend
-        vendor: stackstorm
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" (list $ "st2-apply-rbac-definitions") | nindent 8 }}
       annotations:
         # TODO: Investigate/propose running Helm hook only on condition when ConfigMap or Secret has changed
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
@@ -112,13 +100,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: {{ .Release.Name }}-job-st2-apikey-load
-  labels:
-    app: st2
-    tier: backend
-    vendor: stackstorm
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2") | nindent 4 }}
   annotations:
     helm.sh/hook: post-install, post-upgrade, post-rollback
     helm.sh/hook-delete-policy: before-hook-creation
@@ -130,13 +112,7 @@ spec:
   template:
     metadata:
       name: job-st2-apikey-load
-      labels:
-        app: st2
-        tier: backend
-        vendor: stackstorm
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" (list $ "st2") | nindent 8 }}
       annotations:
         # TODO: Investigate/propose running Helm hook only on condition when ConfigMap or Secret has changed
         checksum/urls: {{ include (print $.Template.BasePath "/configmaps_st2-urls.yaml") . | sha256sum }}
@@ -254,13 +230,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: {{ .Release.Name }}-job-st2-key-load
-  labels:
-    app: st2
-    tier: backend
-    vendor: stackstorm
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2") | nindent 4 }}
   annotations:
     helm.sh/hook: post-install, post-upgrade, post-rollback
     helm.sh/hook-delete-policy: before-hook-creation
@@ -272,13 +242,7 @@ spec:
   template:
     metadata:
       name: job-st2-key-load
-      labels:
-        app: st2
-        tier: backend
-        vendor: stackstorm
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" (list $ "st2") | nindent 8 }}
       annotations:
         # TODO: Investigate/propose running Helm hook only on condition when ConfigMap or Secret has changed
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
@@ -387,13 +351,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: {{ .Release.Name }}-job-st2-register-content
-  labels:
-    app: st2-register-content
-    tier: backend
-    vendor: stackstorm
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2-register-content") | nindent 4 }}
   annotations:
     helm.sh/hook: post-install, post-upgrade, post-rollback
     helm.sh/hook-delete-policy: before-hook-creation
@@ -405,13 +363,7 @@ spec:
   template:
     metadata:
       name: job-st2-register-content
-      labels:
-        app: st2-register-content
-        tier: backend
-        vendor: stackstorm
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" (list $ "st2-register-content") | nindent 8 }}
       annotations:
         # TODO: Investigate/propose running Helm hook only on condition when ConfigMap or Secret has changed
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
@@ -517,13 +469,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: {{ $.Release.Name }}-job-{{ $name }}
-  labels:
-    app: {{ $name }}
-    tier: backend
-    vendor: stackstorm
-    chart: {{ $.Chart.Name }}-{{ $.Chart.Version }}
-    release: {{ $.Release.Name }}
-    heritage: {{ $.Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" (list $ $name) | nindent 4 }}
   annotations:
     helm.sh/hook: {{ required "Each entry in jobs.extra_hooks must include 'hook' (the helm.sh/hook value)" .hook }}
     helm.sh/hook-delete-policy: before-hook-creation
@@ -535,13 +481,7 @@ spec:
   template:
     metadata:
       name: job-{{ $name }}
-      labels:
-        app: {{ $name }}
-        tier: backend
-        vendor: stackstorm
-        chart: {{ $.Chart.Name }}-{{ $.Chart.Version }}
-        release: {{ $.Release.Name }}
-        heritage: {{ $.Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" (list $ $name) | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") $ | sha256sum }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") $ | sha256sum }}

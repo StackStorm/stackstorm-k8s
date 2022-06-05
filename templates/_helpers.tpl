@@ -6,6 +6,37 @@ Expand the name of the chart.
 {{- end -}}
 
 {{/*
+Common labels
+Usage: "{{ include "stackstorm-ha.labels" (list $ "st2servicename") }}"
+*/}}
+{{- define "stackstorm-ha.labels" -}}
+{{- $root := index . 0 }}
+{{- $name := index . 1 }}
+{{ include "stackstorm-ha.selectorLabels" . }}
+{{- if list "st2web" "ingress" | has $name }}
+tier: frontend
+{{- else if eq $name "st2tests" }}
+tier: tests
+{{- else }}
+tier: backend
+{{- end }}
+vendor: stackstorm
+chart: {{ $root.Chart.Name }}-{{ $root.Chart.Version }}
+heritage: {{ $root.Release.Service }}
+{{- end -}}
+
+{{/*
+Selector labels
+Usage: "{{ include "stackstorm-ha.selectorLabels" (list $ "st2servicename") }}"
+*/}}
+{{- define "stackstorm-ha.selectorLabels" -}}
+{{- $root := index . 0 }}
+{{- $name := index . 1 }}
+app: {{ $name }}
+release: {{ $root.Release.Name }}
+{{- end -}}
+
+{{/*
 Generate Docker image repository: Public Docker Hub 'stackstorm' for FOSS version
 */}}
 {{- define "stackstorm-ha.imageRepository" -}}

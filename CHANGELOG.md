@@ -2,6 +2,7 @@
 
 ## In Development
 * Temporary workaround for #311 to use previous bitnami index from: https://github.com/bitnami/charts/issues/10539 (#312) (by @0xhaven)
+* Refactor label definitions to be more consistent by building labels and label selectors in partial helper templates. (#299) (by @cognifloyd)
 
 ## v0.100.0
 * Switch st2 to `v3.7` as a new default stable version (#274)
