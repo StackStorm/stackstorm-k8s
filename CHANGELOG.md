@@ -2,6 +2,7 @@
 
 ## In Development
 * Temporary workaround for #311 to use previous bitnami index from: https://github.com/bitnami/charts/issues/10539 (#312) (by @0xhaven)
+* Refactor label definitions to be more consistent by building labels and label selectors in partial helper templates. (#299) (by @cognifloyd)
 
 ## v0.100.0
 * Switch st2 to `v3.7` as a new default stable version (#274)
@@ -17,7 +18,6 @@
 * Allow partitioning sensors using the hash_range strategy instead of one sensor per pod. (#218) (by @cognifloyd)
 * New feature to include possibility for external services in st2api, st2stream and st2auth, setting default value for this services as `ClusterIP` and `hostname: ""`. Also, added new entry for custom_annotations_test.yaml and created new unit test services_test.yaml. (by @sandesvitor)
 * Advanced Feature: Add extra Helm hook Jobs. This minimizes the boilerplate required to run stackstorm workflows at various helm hook stages: post-install, pre-upgrade, post-upgrade. (#265) (by @cognifloyd)
-* Refactor label definitions to be more consistent by building labels and label selectors in partial helper templates. (#299) (by @cognifloyd)
 
 ## v0.80.0
 * Switch st2 to `v3.6` as a new default stable version (#274)
