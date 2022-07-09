@@ -3,6 +3,7 @@
 ## In Development
 * Temporary workaround for #311 to use previous bitnami index from: https://github.com/bitnami/charts/issues/10539 (#312 #318) (by @0xhaven)
 * Refactor label definitions to be more consistent by building labels and label selectors in partial helper templates. (#299) (by @cognifloyd)
+* Use the correct `apiVersion` for `Ingress` to add support for Kubernetes `v1.22`. (by @arms11)
 * New Feature: Add `existingConfigSecret` .  If this is defined, the `st2.secrets.conf` key within this secret will be written as /etc/st2/st2.secrets.conf and added to the end of the command line arguments of all pods. (#289) (by @eric-al)
 
 ## v0.100.0
