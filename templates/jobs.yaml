@@ -1,57 +1,59 @@
-{{ if .Values.enterprise.enabled }}
+{{- if and .Values.st2.rbac.enabled (not (.Values.jobs.skip | has "apply_rbac_definitions")) -}}
 ---
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: {{ .Release.Name }}-job-st2-apply-rbac-definitions
-  labels:
-    app: st2-apply-rbac-definitions
-    tier: backend
-    vendor: stackstorm
-    support: enterprise
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2-apply-rbac-definitions") | nindent 4 }}
   annotations:
     helm.sh/hook: post-install, post-upgrade, post-rollback
     helm.sh/hook-delete-policy: before-hook-creation
     helm.sh/hook-weight: "5"
+  {{- if .Values.jobs.annotations }}
+    {{- toYaml .Values.jobs.annotations | nindent 4 }}
+  {{- end }}
 spec:
   template:
     metadata:
       name: job-st2-apply-rbac-definitions
-      labels:
-        app: st2-apply-rbac-definitions
-        tier: backend
-        vendor: stackstorm
-        support: enterprise
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" (list $ "st2-apply-rbac-definitions") | nindent 8 }}
       annotations:
         # TODO: Investigate/propose running Helm hook only on condition when ConfigMap or Secret has changed
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/rbac: {{ include (print $.Template.BasePath "/configmaps_rbac.yaml") . | sha256sum }}
+        {{- if .Values.jobs.annotations }}
+          {{- toYaml .Values.jobs.annotations | nindent 8 }}
+        {{- end }}
     spec:
       imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
+      {{- end }}
       containers:
       - name: st2-apply-rbac-definitions
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         command:
           - st2-apply-rbac-definitions
           - --verbose
           - --config-file=/etc/st2/st2.conf
           - --config-file=/etc/st2/st2.docker.conf
           - --config-file=/etc/st2/st2.user.conf
+        {{- if .Values.jobs.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.jobs | nindent 8 }}
+        {{- end }}
+        {{- if .Values.jobs.envFromSecrets }}
+        envFrom:
+        {{- range .Values.jobs.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
+        {{- end }}
         volumeMounts:
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.docker.conf
-          subPath: st2.docker.conf
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.user.conf
-          subPath: st2.user.conf
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         - name: st2-rbac-roles-vol
           mountPath: /opt/stackstorm/rbac/roles/
         - name: st2-rbac-assignments-vol
@@ -61,9 +63,7 @@ spec:
         # TODO: Find out default resource limits for this specific service (#5)
         #resources:
       volumes:
-        - name: st2-config-vol
-          configMap:
-            name: {{ .Release.Name }}-st2-config
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         - name: st2-rbac-roles-vol
           configMap:
             name: {{ .Release.Name }}-st2-rbac-roles
@@ -74,65 +74,87 @@ spec:
           configMap:
             name: {{ .Release.Name }}-st2-rbac-mappings
       restartPolicy: OnFailure
-{{ end }}
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.jobs.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.jobs.affinity }}
+      affinity: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.jobs.tolerations }}
+      tolerations: {{- toYaml . | nindent 8 }}
+    {{- end }}
 
+{{- end }}
+{{- if not (.Values.jobs.skip | has "apikey_load") }}
 ---
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: {{ .Release.Name }}-job-st2-apikey-load
-  labels:
-    app: st2
-    tier: backend
-    vendor: stackstorm
-    support: {{ template "supportMethod" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2") | nindent 4 }}
   annotations:
     helm.sh/hook: post-install, post-upgrade, post-rollback
     helm.sh/hook-delete-policy: before-hook-creation
     helm.sh/hook-weight: "6"
+  {{- if .Values.jobs.annotations }}
+    {{- toYaml .Values.jobs.annotations | nindent 4 }}
+  {{- end }}
 spec:
   template:
     metadata:
       name: job-st2-apikey-load
-      labels:
-        app: st2
-        tier: backend
-        vendor: stackstorm
-        support: {{ template "supportMethod" . }}
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" (list $ "st2") | nindent 8 }}
       annotations:
         # TODO: Investigate/propose running Helm hook only on condition when ConfigMap or Secret has changed
         checksum/urls: {{ include (print $.Template.BasePath "/configmaps_st2-urls.yaml") . | sha256sum }}
         checksum/apikeys: {{ include (print $.Template.BasePath "/secrets_st2apikeys.yaml") . | sha256sum }}
+        {{- if .Values.jobs.annotations }}
+          {{- toYaml .Values.jobs.annotations | nindent 8 }}
+        {{- end }}
     spec:
-      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
+      {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
+      - name: wait-for-api
+        image: busybox:1.28
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            until nc -z -w 2 {{ .Release.Name }}-st2api 9101 && echo st2api ready;
+              do sleep 2;
+            done
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       - name: generate-st2client-config
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
-        env:
-        - name: ST2_AUTH_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: username
-        - name: ST2_AUTH_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: password
+        - secretRef:
+            name: {{ .Release.Name }}-st2-auth
+        {{- range .Values.jobs.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
         volumeMounts:
         - name: st2client-config-vol
           mountPath: /root/.st2/
@@ -142,22 +164,30 @@ spec:
           - '-ec'
           - |
             cat <<EOT > /root/.st2/config
-            [credentials]
-            username = ${ST2_AUTH_USERNAME}
-            password = ${ST2_AUTH_PASSWORD}
+            {{- tpl .Values.jobs.st2clientConfig . | nindent 12 }}
             EOT
       containers:
       - name: st2-apikey-load
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         command:
           - st2
           - apikey
           - load
           - /etc/st2/apikeys.yaml
+        {{- if .Values.jobs.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.jobs | nindent 8 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
+        {{- range .Values.jobs.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
         volumeMounts:
         - name: st2client-config-vol
           mountPath: /root/.st2/
@@ -174,64 +204,319 @@ spec:
           secret:
             secretName: {{ .Release.Name }}-st2-apikeys
       restartPolicy: OnFailure
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.jobs.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.jobs.affinity }}
+      affinity: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.jobs.tolerations }}
+      tolerations: {{- toYaml . | nindent 8 }}
+    {{- end }}
 
+{{- end }}
+{{- if not (.Values.jobs.skip | has "key_load") }}
 ---
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: {{ .Release.Name }}-job-st2-key-load
-  labels:
-    app: st2
-    tier: backend
-    vendor: stackstorm
-    support: {{ template "supportMethod" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2") | nindent 4 }}
   annotations:
     helm.sh/hook: post-install, post-upgrade, post-rollback
     helm.sh/hook-delete-policy: before-hook-creation
     helm.sh/hook-weight: "6"
+  {{- if .Values.jobs.annotations }}
+    {{- toYaml .Values.jobs.annotations | nindent 4 }}
+  {{- end }}
 spec:
   template:
     metadata:
       name: job-st2-key-load
-      labels:
-        app: st2
-        tier: backend
-        vendor: stackstorm
-        support: {{ template "supportMethod" . }}
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" (list $ "st2") | nindent 8 }}
       annotations:
         # TODO: Investigate/propose running Helm hook only on condition when ConfigMap or Secret has changed
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/urls: {{ include (print $.Template.BasePath "/configmaps_st2-urls.yaml") . | sha256sum }}
+        {{- if .Values.jobs.annotations }}
+          {{- toYaml .Values.jobs.annotations | nindent 8 }}
+        {{- end }}
     spec:
-      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
+      {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       - name: generate-st2client-config
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
-        env:
-        - name: ST2_AUTH_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: username
-        - name: ST2_AUTH_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: password
+        - secretRef:
+            name: {{ .Release.Name }}-st2-auth
+        {{- range .Values.jobs.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
+        volumeMounts:
+        - name: st2client-config-vol
+          mountPath: /root/.st2/
+        # `st2 login` doesn't exit on failure correctly, use old methods instead. See bug: https://github.com/StackStorm/st2/issues/4338
+        command:
+          - 'sh'
+          - '-ec'
+          - |
+            cat <<EOT > /root/.st2/config
+            {{- tpl .Values.jobs.st2clientConfig . | nindent 12 }}
+            EOT
+      containers:
+      - name: st2-key-load
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
+        command:
+          - st2
+          - key
+          - load
+          - "--convert"  # Convert non-string types (hash, array, boolean, int, float) to a JSON string before loading
+          - /etc/st2/st2kv.yaml
+        {{- if .Values.jobs.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.jobs | nindent 8 }}
+        {{- end }}
+        envFrom:
+        - configMapRef:
+            name: {{ .Release.Name }}-st2-urls
+        {{- range .Values.jobs.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
+        volumeMounts:
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
+        - name: st2client-config-vol
+          mountPath: /root/.st2/
+        - name: st2-kv-vol
+          mountPath: /etc/st2/st2kv.yaml
+          subPath: st2kv.yaml
+        # TODO: Find out default resource limits for this specific service (#5)
+        #resources:
+      volumes:
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
+        - name: st2client-config-vol
+          emptyDir:
+            medium: Memory
+        - name: st2-kv-vol
+          secret:
+            secretName: {{ .Release.Name }}-st2-kv
+      restartPolicy: OnFailure
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.jobs.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.jobs.affinity }}
+      affinity: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.jobs.tolerations }}
+      tolerations: {{- toYaml . | nindent 8 }}
+    {{- end }}
+
+{{- end }}
+{{- if not (.Values.jobs.skip | has "register_content") }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-job-st2-register-content
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2-register-content") | nindent 4 }}
+  annotations:
+    helm.sh/hook: post-install, post-upgrade, post-rollback
+    helm.sh/hook-delete-policy: before-hook-creation
+    helm.sh/hook-weight: "7"
+  {{- if .Values.jobs.annotations }}
+    {{- toYaml .Values.jobs.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  template:
+    metadata:
+      name: job-st2-register-content
+      labels: {{- include "stackstorm-ha.labels" (list $ "st2-register-content") | nindent 8 }}
+      annotations:
+        # TODO: Investigate/propose running Helm hook only on condition when ConfigMap or Secret has changed
+        checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") . | sha256sum }}
+        {{- if .Values.st2.overrides }}
+        checksum/overrides: {{ include (print $.Template.BasePath "/configmaps_overrides.yaml") . | sha256sum }}
+        {{- end }}
+        {{- if .Values.jobs.annotations }}
+          {{- toYaml .Values.jobs.annotations | nindent 8 }}
+        {{- end }}
+    spec:
+      imagePullSecrets:
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
+      {{- end }}
+      {{- if $.Values.st2.packs.images -}}
+        {{- include "stackstorm-ha.packs-pullSecrets" . | nindent 6 }}
+      {{- end }}
+      initContainers:
+      {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "stackstorm-ha.packs-initContainers" . | nindent 6 }}
+      {{- if $.Values.jobs.preRegisterContentCommand }}
+      - name: st2-register-content-custom-init
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
+        command: {{- toYaml $.Values.jobs.preRegisterContentCommand | nindent 8 }}
+        volumeMounts:
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
+        - name: st2-pack-configs-vol
+          mountPath: /opt/stackstorm/configs/
+        {{- if .Values.st2.packs.images }}
+        - name: st2-packs-vol
+          mountPath: /opt/stackstorm/packs/
+        - name: st2-virtualenvs-vol
+          mountPath: /opt/stackstorm/virtualenvs/
+        {{- end }}
+      {{ end }}
+      containers:
+      - name: st2-register-content
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
+        command:
+          - st2-register-content
+          - --config-file=/etc/st2/st2.conf
+          - --config-file=/etc/st2/st2.docker.conf
+          - --config-file=/etc/st2/st2.user.conf
+          - --register-all
+          - --register-fail-on-failure
+        {{- if .Values.jobs.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.jobs | nindent 8 }}
+        {{- end }}
+        {{- if .Values.jobs.envFromSecrets }}
+        envFrom:
+        {{- range .Values.jobs.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
+        {{- end }}
+        volumeMounts:
+        {{- include "stackstorm-ha.overrides-config-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.packs-volume-mounts-for-register-job" . | nindent 8 }}
+        {{- include "stackstorm-ha.pack-configs-volume-mount" . | nindent 8 }}
+        # TODO: Find out default resource limits for this specific service (#5)
+        #resources:
+      volumes:
+        {{- include "stackstorm-ha.overrides-configs" . | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.packs-volumes" . | nindent 8 }}
+        {{- include "stackstorm-ha.pack-configs-volume" . | nindent 8 }}
+      restartPolicy: OnFailure
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.jobs.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.jobs.affinity }}
+      affinity: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.jobs.tolerations }}
+      tolerations: {{- toYaml . | nindent 8 }}
+    {{- end }}
+
+{{- end }}
+{{- range .Values.jobs.extra_hooks -}}
+  {{- $name := print "extra-helm-hook" (include "stackstorm-ha.hyphenPrefix" (required "You must name each entry in jobs.extra_hooks." .name)) }}
+  {{- if not ($.Values.jobs.skip | has $name) }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ $.Release.Name }}-job-{{ $name }}
+  labels: {{- include "stackstorm-ha.labels" (list $ $name) | nindent 4 }}
+  annotations:
+    helm.sh/hook: {{ required "Each entry in jobs.extra_hooks must include 'hook' (the helm.sh/hook value)" .hook }}
+    helm.sh/hook-delete-policy: before-hook-creation
+    helm.sh/hook-weight: {{ .hook_weight | default 10 | toString | quote }}
+  {{- if $.Values.jobs.annotations }}
+    {{- toYaml $.Values.jobs.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  template:
+    metadata:
+      name: job-{{ $name }}
+      labels: {{- include "stackstorm-ha.labels" (list $ $name) | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") $ | sha256sum }}
+        checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") $ | sha256sum }}
+        {{- if $.Values.st2.overrides }}
+        checksum/overrides: {{ include (print $.Template.BasePath "/configmaps_overrides.yaml") $ | sha256sum }}
+        {{- end }}
+        {{- if $.Values.jobs.annotations }}
+          {{- toYaml $.Values.jobs.annotations | nindent 8 }}
+        {{- end }}
+    spec:
+      imagePullSecrets:
+      {{- if $.Values.image.pullSecret }}
+      - name: {{ $.Values.image.pullSecret }}
+      {{- end }}
+      {{- if $.Values.st2.packs.images -}}
+        {{- include "stackstorm-ha.packs-pullSecrets" $ | nindent 6 }}
+      {{- end }}
+      initContainers:
+      {{- include "stackstorm-ha.init-containers-wait-for-db" $ | nindent 6 }}
+      {{- include "stackstorm-ha.packs-initContainers" $ | nindent 6 }}
+      - name: generate-st2client-config
+        image: '{{ template "stackstorm-ha.imageRepository" $ }}/st2actionrunner:{{ tpl ($.Values.jobs.image.tag | default ($.Values.st2actionrunner.image.tag | default $.Values.image.tag)) $ }}'
+        imagePullPolicy: {{ $.Values.image.pullPolicy }}
+        {{- with $.Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
+        envFrom:
+        - configMapRef:
+            name: {{ $.Release.Name }}-st2-urls
+        - secretRef:
+            name: {{ $.Release.Name }}-st2-auth
+        {{- range $.Values.jobs.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
         volumeMounts:
         - name: st2client-config-vol
           mountPath: /root/.st2/
@@ -242,159 +527,66 @@ spec:
           - |
             cat <<EOT > /root/.st2/config
             [credentials]
-            username = ${ST2_AUTH_USERNAME}
-            password = ${ST2_AUTH_PASSWORD}
+            {{- tpl $.Values.jobs.st2clientConfig $ | nindent 12 }}
             EOT
       containers:
-      - name: st2-key-load
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        command:
-          - st2
-          - key
-          - load
-          - /etc/st2/st2kv.yaml
+      - name: {{ $name }}
+        image: '{{ template "stackstorm-ha.imageRepository" $ }}/st2actionrunner:{{ tpl ($.Values.jobs.image.tag | default ($.Values.st2actionrunner.image.tag | default $.Values.image.tag)) $ }}'
+        imagePullPolicy: {{ $.Values.image.pullPolicy }}
+        {{- with $.Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- if $.Values.jobs.env }}
+        env: {{- include "stackstorm-ha.customEnv" $.Values.jobs | nindent 8 }}
+        {{- end }}
         envFrom:
         - configMapRef:
-            name: {{ .Release.Name }}-st2-urls
+            name: {{ $.Release.Name }}-st2-urls
+        {{- range $.Values.jobs.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
+        command:
+        {{- range (required "Each entry in jobs.extra_hooks must include the 'command' to run." .command) }}
+          {{- tpl . $ | list | toYaml | nindent 10 }}
+        {{- end }}
         volumeMounts:
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.docker.conf
-          subPath: st2.docker.conf
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.user.conf
-          subPath: st2.user.conf
         - name: st2client-config-vol
           mountPath: /root/.st2/
-        - name: st2-kv-vol
-          mountPath: /etc/st2/st2kv.yaml
-          subPath: st2kv.yaml
-        # TODO: Find out default resource limits for this specific service (#5)
-        #resources:
+        {{- include "stackstorm-ha.overrides-config-mounts" $ | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" $ | nindent 8 }}
+        {{- include "stackstorm-ha.packs-volume-mounts-for-register-job" $ | nindent 8 }}
+        {{- include "stackstorm-ha.pack-configs-volume-mount" $ | nindent 8 }}
+        {{- if .resources }}
+        resources: {{- toYaml .resources | nindent 10 }}
+        {{- end }}
       volumes:
-        - name: st2-config-vol
-          configMap:
-            name: {{ .Release.Name }}-st2-config
         - name: st2client-config-vol
           emptyDir:
             medium: Memory
-        - name: st2-kv-vol
-          secret:
-            secretName: {{ .Release.Name }}-st2-kv
+        {{- include "stackstorm-ha.overrides-configs" $ | nindent 8 }}
+        {{- include "stackstorm-ha.st2-config-volume" $ | nindent 8 }}
+        {{- include "stackstorm-ha.packs-volumes" $ | nindent 8 }}
+        {{- include "stackstorm-ha.pack-configs-volume" $ | nindent 8 }}
       restartPolicy: OnFailure
+    {{- if $.Values.dnsPolicy }}
+      dnsPolicy: {{ $.Values.dnsPolicy }}
+    {{- end }}
+    {{- with $.Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with $.Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with $.Values.jobs.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with $.Values.jobs.affinity }}
+      affinity: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with $.Values.jobs.tolerations }}
+      tolerations: {{- toYaml . | nindent 8 }}
+    {{- end }}
 
----
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: {{ .Release.Name }}-job-st2-register-content
-  labels:
-    app: st2-register-content
-    tier: backend
-    vendor: stackstorm
-    support: {{ template "supportMethod" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
-  annotations:
-    helm.sh/hook: post-install, post-upgrade, post-rollback
-    helm.sh/hook-delete-policy: before-hook-creation
-    helm.sh/hook-weight: "7"
-spec:
-  template:
-    metadata:
-      name: job-st2-register-content
-      labels:
-        app: st2-register-content
-        tier: backend
-        vendor: stackstorm
-        support: {{ template "supportMethod" . }}
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
-      annotations:
-        # TODO: Investigate/propose running Helm hook only on condition when ConfigMap or Secret has changed
-        checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
-        checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") . | sha256sum }}
-    spec:
-      imagePullSecrets:
-      {{- if .Values.enterprise.enabled }}
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
-      {{- if .Values.st2.packs.image.pullSecret }}
-      - name: {{ .Values.st2.packs.image.pullSecret }}
-      {{- end }}
-      {{- if .Values.st2.packs.image.repository }}
-      initContainers:
-      # Merge packs and virtualenvs from st2actionrunner with those from the st2.packs image
-      # Custom packs
-      - name: st2-custom-packs
-        image: "{{ .Values.st2.packs.image.repository }}/{{ .Values.st2.packs.image.name }}:{{ .Values.st2.packs.image.tag }}"
-        imagePullPolicy: {{ .Values.st2.packs.image.pullPolicy | quote }}
-        volumeMounts:
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs-shared
-        - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs-shared
-        command:
-          - 'sh'
-          - '-ec'
-          - |
-            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
-            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
-      # System packs
-      - name: st2-system-packs
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        volumeMounts:
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs-shared
-        command:
-          - 'sh'
-          - '-ec'
-          - |
-            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
-            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
-      {{ end }}
-      containers:
-      - name: st2-register-content
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        command:
-          - st2-register-content
-          - --config-file=/etc/st2/st2.conf
-          - --config-file=/etc/st2/st2.docker.conf
-          - --config-file=/etc/st2/st2.user.conf
-          - --register-all
-          - --register-fail-on-failure
-        volumeMounts:
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.docker.conf
-          subPath: st2.docker.conf
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.user.conf
-          subPath: st2.user.conf
-        - name: st2-pack-configs-vol
-          mountPath: /opt/stackstorm/configs/
-        {{- if .Values.st2.packs.image.repository }}
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs/
-        - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs/
-        {{- end }}
-        # TODO: Find out default resource limits for this specific service (#5)
-        #resources:
-      volumes:
-        - name: st2-config-vol
-          configMap:
-            name: {{ .Release.Name }}-st2-config
-        - name: st2-pack-configs-vol
-          configMap:
-            name: {{ .Release.Name }}-st2-pack-configs
-        {{- if .Values.st2.packs.image.repository }}
-        - name: st2-packs-vol
-          emptyDir: {}
-        - name: st2-virtualenvs-vol
-          emptyDir: {}
-        {{- end }}
-      restartPolicy: OnFailure
+  {{- end }}
+{{- end }}

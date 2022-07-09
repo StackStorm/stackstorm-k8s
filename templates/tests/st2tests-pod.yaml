@@ -2,21 +2,11 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: "{{ .Release.Name }}-st2tests"
-  labels:
-    app: st2tests
-    tier: tests
-    vendor: stackstorm
-    support: {{ template "supportMethod" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2tests") | nindent 4 }}
   annotations:
     "helm.sh/hook": test-success
+    "helm.sh/hook-delete-policy": hook-succeeded
 spec:
-  {{- if .Values.enterprise.enabled }}
-  imagePullSecrets:
-  - name: {{ .Release.Name }}-st2-license
-  {{- end }}
   initContainers:
   # Sidecar container to copy BATS framework to the main container
   - name: test-framework
@@ -32,26 +22,20 @@ spec:
   # Run the actual BATS tests
   containers:
   - name: st2tests
-    image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+    image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ .Chart.AppVersion }}'
     imagePullPolicy: {{ .Values.image.pullPolicy }}
     envFrom:
     - configMapRef:
         name: {{ .Release.Name }}-st2-urls
+    - secretRef:
+        name: {{ .Release.Name }}-st2-auth
     env:
     - name: BATS_HELPERS_DIR
       value: /tools/bats-helpers/
-    - name: ST2_AUTH_USERNAME
-      valueFrom:
-        secretKeyRef:
-          name: {{ .Release.Name }}-st2-auth
-          key: username
-    - name: ST2_AUTH_PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: {{ .Release.Name }}-st2-auth
-          key: password
     - name: ST2_VERSION
       value: "{{ .Chart.AppVersion }}"
+    - name: ST2_RBAC_ENABLED
+      value: "{{ .Values.st2.rbac.enabled }}"
     volumeMounts:
     - name: tools
       mountPath: /tools

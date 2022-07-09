@@ -1,5 +1,103 @@
 # Changelog
 
+## In Development
+* Temporary workaround for #311 to use previous bitnami index from: https://github.com/bitnami/charts/issues/10539 (#312 #318) (by @0xhaven)
+* Refactor label definitions to be more consistent by building labels and label selectors in partial helper templates. (#299) (by @cognifloyd)
+* Use the correct `apiVersion` for `Ingress` to add support for Kubernetes `v1.22`. (by @arms11)
+
+## v0.100.0
+* Switch st2 to `v3.7` as a new default stable version (#274)
+* Upgrade MongoDB `v4.0` -> `v4.4` as 4.0 has reached its EOL. (#304)
+* Migrate from `python 3.6` `Ubuntu Bionic` to `python 3.8` `Ubuntu Focal` as a base StackStorm OS (StackStorm/st2-dockerfiles#54)
+* Add support for use of overrides that are available in `v3.7` of st2 via helm charts. (#306)
+
+## v0.90.0
+* Advanced Feature: Make securityContext (on Deployments/Jobs) and podSecurityContext (on Pods) configurable. This allows dropping all capabilities, for example. You can override the securityContext for `st2actionrunner`, `st2sensorcontainer`, and `st2client` if your actions or sensors need, for example, additional capabilites that the rest of StackStorm does not need. (#271) (by @cognifloyd)
+* Prefix template helpers with chart name and format helper comments as template comments. (#272) (by @cognifloyd)
+* New feature: Add `extra_volumes` to all python-based st2 deployments. This can facilitate changing log levels by loading logging conf file(s) from a custom ConfigMap. (#276) (by @cognifloyd)
+* Initialize basic unittest infrastructure using `helm-unittest`. Added tests for labels, custom annotations, SecurityContext, pullSecrets, pullPolicy, Resources, nodeSelector, tolerations, affinity, dnsPolicy, dnsConfig, ServiceAccount attach, postStartScript, both sensor-modes, env, envFrom, st2.packs.images, and st2.packs.volumes. (#284, #288, #292)
+* Allow partitioning sensors using the hash_range strategy instead of one sensor per pod. (#218) (by @cognifloyd)
+* New feature to include possibility for external services in st2api, st2stream and st2auth, setting default value for this services as `ClusterIP` and `hostname: ""`. Also, added new entry for custom_annotations_test.yaml and created new unit test services_test.yaml. (by @sandesvitor)
+* Advanced Feature: Add extra Helm hook Jobs. This minimizes the boilerplate required to run stackstorm workflows at various helm hook stages: post-install, pre-upgrade, post-upgrade. (#265) (by @cognifloyd)
+
+## v0.80.0
+* Switch st2 to `v3.6` as a new default stable version (#274)
+* Explicitly differentiate sensor modes: `all-sensors-in-one-pod` vs `one-sensor-per-pod`. Exposes the mode in new `stackstorm/sensor-mode` annotation. (#222) (by @cognifloyd)
+* Allow adding custom env variables to any Deployment or Job. (#120) (by @AngryDeveloper)
+* Template the contents of st2.config and the values in st2chatops.env. This allows adding secrets defined elsewhere in values. (#249) (by @cognifloyd)
+* Set default/sample RBAC config files to "" (empty string) to prevent adding them. This is needed because they cannot be removed by overriding the roles/mappings values. (#247) (by @cognifloyd)
+* Make configuring `stackstorm/sensor-mode=all-sensors-in-one-pod` more obvious by using `st2.packs.sensors` only for `one-sensor-per-pod`. `all-sensors-in-one-pod` mode now only uses values from `st2sensorcontainer`. (#246) (by @cognifloyd)
+* Use "--convert" when loading keys into datastore (in key-load Job) so that `st2.keyvalue[].value` can be any basic JSON data type. (#253) (by @cognifloyd)
+* New feature: Add `extra_volumes` to `st2actionrunner`, `st2client`, `st2sensorcontainer`. This is useful for loading volumes to be used by actions or sensors. This might include secrets (like ssl certificates) and configuration (like system-wide ansible.cfg). (#254) (by @cognifloyd)
+* Some `helm upgrades` do not need to run all the jobs. An upgrade that only touches RBAC config, for example, does not need to run the register-content job. Use `--set 'jobs.skip={apikey_load,key_load,register_content}'` to skip the other jobs. (#255) (by @cognifloyd)
+* Refactor deployments/jobs to inject st2 username/password via `envFrom` instead of via `env`. (#257) (by @cognifloyd)
+* New feature: Add `envFromSecrets` to `st2actionrunner`, `st2client`, `st2sensorcontainer`, and jobs. This is useful for adding custom secrets to the environment. This complements the `extra_volumes` feature (loading secrets as files) to facilitate loading secrets that are not easily injected via the filesystem. (#259) (by @cognifloyd)
+* New feature to include `nodeSelector`, `affinity` and `tolerations` to `st2client`, allowing more flexibility to pod positioning. (#263) (by @sandesvitor)
+* Template `~/.st2/config`. This allows customizing the settings used by the `st2client` and jobs pods for using the st2 apis. (#262) (by @cognifloyd)
+* Fix indent for lifecycle postStart hook of `st2web` pod. (#268) (by @cognifloyd)
+* Advanced Feature: Allow `st2web` to serve HTTPS when the ssl certs are provided via `st2web.extra_volumes`. To enable this, add `ST2WEB_HTTPS: "1"` to `st2web.env` in your values file. (#264) (by @cognifloyd)
+* Custom annotations now apply to deployments and jobs, not just pods. (#270) (by @cognifloyd)
+* BREAKING CHANGE: Auto-generate `datastore_crypto_key` on install if not provided. This way all HA installs will have a datastore_crypto_key configured. This is only a breaking change for installations that do not want a `datastore_crypto_key`. To disable set `datastore_crypto_key` to `disable` instead of setting it to `""`, `null`, or leaving it unset. (#266) (by @cognifloyd)
+
+## v0.70.0
+* New feature: Shared packs volumes `st2.packs.volumes`. Allow using cluster-specific persistent volumes to store packs, virtualenvs, and (optionally) configs. This enables using `st2 pack install`. It even works with `st2packs` images in `st2.packs.images`. (#199) (by @cognifloyd)
+* Updated redis constant sentinel ID which will allow other sentinel peers to update to the new given IP in case of pod failure or worker node reboots. (#191) (by @manisha-tanwar)
+* Removed reference to st2-license pullSecrets, which was missed when removing enterprise flags (#192) (by @cognifloyd)
+* Add optional imagePullSecrets to ServiceAccount using `serviceAccount.pullSecret` from values.yaml. If pods do not have imagePullSecrets (eg without `image.pullSecret` in values.yaml), k8s populates them from the ServiceAccount. (#196 & #239) (by @cognifloyd)
+* Reformat some yaml strings so that single quotes wrap strings that include double quotes (#194) (by @cognifloyd)
+* st2chatops change: If `st2chatops.env.ST2_API_KEY` is defined, do not set `ST2_AUTH_USERNAME` or `ST2_AUTH_PASSWORD` env vars any more. (#197) (by @cognifloyd)
+* Add image.tag overrides for all deployments. (#200) (by @cognifloyd)
+* If your k8s cluster admin requires custom annotations (eg: to indicate mongo or rabbitmq usage), you can now add those to each set of pods. (#195) (by @cognifloyd)
+* BREAKING CHANGE: Move secrets.st2.* values into st2.* (#203) (by @cognifloyd)
+* Auto-generate password and ssh_key secrets. (#203) (by @cognifloyd)
+* Add optional hubot-scripts volume to st2chatops pod. To add this, define `st2chatops.hubotScriptsVolume`. (#207) (by @cognifloyd)
+* Add advanced pod placment (nodeSelector, affinity, tolerations) to specs for batch Jobs pods. (#193) (by @cognifloyd)
+* Allow adding dnsPolicy and/or dnsConfig to all pods. (#201) (by @cognifloyd)
+* Move st2-config-vol volume definition and list of st2-config-vol volumeMounts to helpers to reduce duplication (#198) (by @cognifloyd)
+* Fix permissions for /home/stanley/.ssh/stanley_rsa using the postStart lifecycle hook (#219) (by @cognifloyd)
+* Make system_user configurable when using custom st2actionrunner images that do not provide stanley (#220) (by @cognifloyd)
+* Allow providing scripts in values for use in lifecycle postStart hooks of all deployments. (#206) (by @cognifloyd)
+* Add preRegisterContentCommand in an initContainer for register-content job to run last-minute content customizations (#213) (by @cognifloyd)
+* Fix a bug when datastore cryto keys are not able to read by the rules engine. ``datastore_crypto_key`` volume is now mounted on the ``st2rulesengine`` pods (#223) (by @moti1992)
+* Minimize required sensor config by using default values from st2sensorcontainer for each sensor in st2.packs.sensors (#221) (by @cognifloyd)
+* Do not template rabbitmq secrets file unless rabbitmq subchart is enabled. (#242) (by @cognifloyd)
+* Automatically stringify st2chatop.env values if needed. (#241) (by @cognifloyd)
+
+## v0.60.0
+* Switch st2 version to `v3.5dev` as a new latest development version (#187)
+* Change st2packs definition to a list, to support multiple st2packs containers (#166) (by @moonrail)
+* Enabled RBAC/LDAP configuration for OSS version, removed enterprise flags (#182) (by @hnanchahal)
+* Fixed datastore_crypto_key secret name for rules engine (#188) (by @lordpengwin)
+
+## v0.52.0
+* Improve resource allocation and scheduling by adding resources requests cpu/memory values for st2 Pods (#179)
+* Avoid cluster restart loop situations by making st2 Pod initContainers to wait for DB/MQ connection (#178)
+* Add option to define config.js for st2web (#165) (by @moonrail)
+
+## v0.51.0
+* Added Redis with Sentinel to replace etcd as a coordination backend (#169)
+
+## v0.50.0
+* Drop Helm `v2` support and fully migrate to Helm `v3` (#163)
+* Switch dependencies from deprecated `helm/charts` to new Bitnami Subcharts (#163)
+
+## v0.41.0
+* Fix Helm 2 repository location to a new working URL https://charts.helm.sh/stable (#164) (by @manisha-tanwar)
+
+## v0.40.0
+* Switch st2 version to `v3.4dev` as a new latest development version (#157)
+* Disable Enterprise testing in CI (#157)
+* Change pullPolicy to "IfNotPresent", as Docker-Hub Ratelimits now (#159) (by @moonrail)
+* Update `rabbitmq-ha` 3rd party chart from `1.44.1` to `1.46.1` (#158) (by @moonrail)
+* Enable `rabbitmqErlangCookie` for `rabbitmq-ha` by default, to ensure cluster-redeployments do not fail (#158) (by @moonrail)
+* Add `forceBoot` for `rabbitmq-ha` by default, to ensure cluster-redeployments do not fail due to unclean exits (#158) (by @moonrail)
+* Add option to define pull secret for st2 images (#162) (by @moonrail)
+
+## v0.32.0
+* Fix a bug when datastore encrypted keys didn't work in scheduled rules. datastore_crypto_key is now shared with the ``st2scheduler`` pods (#148) (by @rahulshinde26)
+* Change NOTES.txt template for using ST2 CLI to include namespace argument in 'kubectl exec' command (#150) (by @rahulshinde26)
+* Move the apiVersion `extensions/v1beta1` to `networking.k8s.io/v1beta1` for ingress (#149) (by @jb-abbadie)
+
 ## v0.31.0
 * Fix chart compatibility with Helm versions >= `2.16.8` by downgrading `mongodb-replicaset` from `3.14.0` to `3.12.0` (#137) (by @AbhyudayaSharma)
 * Allow injection of datastore key in cluster (#115) (by @AngryDeveloper)

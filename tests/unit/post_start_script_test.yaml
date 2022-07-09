@@ -1,0 +1,270 @@
+---
+suite: postStart scripts
+templates:
+  # primary template files
+  - deployments.yaml
+  - configmaps_post-start-script.yaml
+
+  # included templates must also be listed
+  - configmaps_overrides.yaml
+  - configmaps_packs.yaml
+  - configmaps_rbac.yaml
+  - configmaps_st2-conf.yaml
+  - configmaps_st2web.yaml
+  - secrets_datastore_crypto_key.yaml
+  - secrets_ssh.yaml
+  - secrets_st2auth.yaml
+  - secrets_st2chatops.yaml
+
+tests:
+  - it: post-start script for st2actionrunner and st2client
+    template: configmaps_post-start-script.yaml
+    set:
+      st2:
+        system_user:
+          user: yelnats # stanley backwards for the test
+          # ssh_key_file should be /home/yelnats/.ssh/stanley_rsa
+    asserts:
+      - hasDocuments:
+          count: 2
+      - isKind:
+          of: ConfigMap
+      - isAPIVersion:
+          of: v1
+      - isNotEmpty:
+          path: data.[post-start.sh]
+      - equal:
+          path: data.[post-start.sh]
+          value: |
+            #!/bin/bash
+            mkdir -p /home/yelnats/.ssh
+            cp -L /home/yelnats/.ssh-key-vol/stanley_rsa /home/yelnats/.ssh/stanley_rsa
+            chown -R yelnats:yelnats /home/yelnats/.ssh
+            chmod 400 /home/yelnats/.ssh/stanley_rsa
+            chmod 500 /home/yelnats/.ssh
+
+  - it: custom post-start script
+    template: configmaps_post-start-script.yaml
+    set:
+      st2:
+        packs: { sensors: [] } # ensure only 1 sensor
+      st2web:
+        postStartScript: &custom_post_start_script echo hello world
+      st2auth:
+        postStartScript: *custom_post_start_script
+      st2api:
+        postStartScript: *custom_post_start_script
+      st2stream:
+        postStartScript: *custom_post_start_script
+      st2rulesengine:
+        postStartScript: *custom_post_start_script
+      st2timersengine:
+        postStartScript: *custom_post_start_script
+      st2workflowengine:
+        postStartScript: *custom_post_start_script
+      st2scheduler:
+        postStartScript: *custom_post_start_script
+      st2notifier:
+        postStartScript: *custom_post_start_script
+      st2actionrunner:
+        postStartScript: *custom_post_start_script
+      st2sensorcontainer:
+        postStartScript: *custom_post_start_script
+      st2garbagecollector:
+        postStartScript: *custom_post_start_script
+      st2client:
+        postStartScript: *custom_post_start_script
+      st2chatops:
+        enabled: true
+        postStartScript: *custom_post_start_script
+    asserts:
+      - hasDocuments:
+          count: 14
+      - isKind:
+          of: ConfigMap
+      - isAPIVersion:
+          of: v1
+      - isNotEmpty:
+          path: data.[post-start.sh]
+      - matchRegex:
+          path: data.[post-start.sh]
+          # (?m) = multi-line mode: ^ and $ match begin/end line in addition to begin/end text
+          # (?s) = let . match \n
+          # .*? = any character zero or more times, prefer fewer
+          pattern: '(?ms)^#!/bin/bash$.*?^echo hello world$'
+
+  - it: Deployments st2actionrunner and st2client have lifecycle.postStartScipt by default
+    template: deployments.yaml
+    set:
+      st2:
+        packs: { sensors: [] } # ensure only 1 sensor
+      st2chatops:
+        enabled: true
+    asserts:
+      - hasDocuments:
+          count: 14
+
+      # st2actionrunner and st2client do not have checksum annotations
+      # (even though they probably should)
+      - isNull: &assert_checksum
+          path: spec.template.metadata.annotations.[checksum/post-start-script]
+
+      # only st2actionrunner and st2client have default postStart scripts
+      - equal: &assert_lifecycle
+          path: spec.template.spec.containers[0].lifecycle.postStart
+          value:
+            exec:
+              command: ["/bin/bash", "/post-start.sh"]
+        documentIndex: 10
+      - equal: *assert_lifecycle
+        documentIndex: 12
+
+      - isNull: &assert_null_lifecycle
+          path: spec.template.spec.containers[0].lifecycle
+        documentIndex: 0
+      - isNull: *assert_null_lifecycle
+        documentIndex: 1
+      - isNull: *assert_null_lifecycle
+        documentIndex: 2
+      - isNull: *assert_null_lifecycle
+        documentIndex: 3
+      - isNull: *assert_null_lifecycle
+        documentIndex: 4
+      - isNull: *assert_null_lifecycle
+        documentIndex: 5
+      - isNull: *assert_null_lifecycle
+        documentIndex: 6
+      - isNull: *assert_null_lifecycle
+        documentIndex: 7
+      - isNull: *assert_null_lifecycle
+        documentIndex: 8
+      - isNull: *assert_null_lifecycle
+        documentIndex: 9
+      - isNull: *assert_null_lifecycle
+        documentIndex: 11
+      - isNull: *assert_null_lifecycle
+        documentIndex: 13
+
+      - contains: &assert_volume_mount
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: st2-post-start-script-vol
+            mountPath: /post-start.sh
+            subPath: post-start.sh
+        documentIndex: 10
+      - contains: *assert_volume_mount
+        documentIndex: 12
+
+      - notContains: *assert_volume_mount
+        documentIndex: 0
+      - notContains: *assert_volume_mount
+        documentIndex: 1
+      - notContains: *assert_volume_mount
+        documentIndex: 2
+      - notContains: *assert_volume_mount
+        documentIndex: 4
+      - notContains: *assert_volume_mount
+        documentIndex: 5
+      - notContains: *assert_volume_mount
+        documentIndex: 6
+      - notContains: *assert_volume_mount
+        documentIndex: 7
+      - notContains: *assert_volume_mount
+        documentIndex: 8
+      - notContains: *assert_volume_mount
+        documentIndex: 9
+      - notContains: *assert_volume_mount
+        documentIndex: 11
+
+      # st2web and st2chatops have no volumes (and can be null)
+      - isEmpty:
+          path: spec.template.spec.containers[0].volumeMounts
+        documentIndex: 3
+      - isEmpty:
+          path: spec.template.spec.containers[0].volumeMounts
+        documentIndex: 13
+
+      - contains: &assert_volume
+          path: spec.template.spec.volumes
+          content:
+            name: st2-post-start-script-vol
+            # we cannot easily validate the generated ConfigMap name
+            #configMap:
+            #  name: {{ .Release.Name }}-st2auth-post-start-script
+          any: true
+        documentIndex: 10
+      - contains: *assert_volume
+        documentIndex: 12
+
+      - notContains: *assert_volume
+        documentIndex: 0
+      - notContains: *assert_volume
+        documentIndex: 1
+      - notContains: *assert_volume
+        documentIndex: 2
+      - notContains: *assert_volume
+        documentIndex: 4
+      - notContains: *assert_volume
+        documentIndex: 5
+      - notContains: *assert_volume
+        documentIndex: 6
+      - notContains: *assert_volume
+        documentIndex: 7
+      - notContains: *assert_volume
+        documentIndex: 8
+      - notContains: *assert_volume
+        documentIndex: 9
+      - notContains: *assert_volume
+        documentIndex: 11
+
+      - isEmpty:
+          path: spec.template.spec.volumes
+        documentIndex: 3
+      - isEmpty:
+          path: spec.template.spec.volumes
+        documentIndex: 13
+
+  - it: Deployments accept custom lifecycle.postStartScipt
+    template: deployments.yaml
+    set:
+      st2:
+        packs: { sensors: [] } # ensure only 1 sensor
+      st2web:
+        postStartScript: *custom_post_start_script
+      st2auth:
+        postStartScript: *custom_post_start_script
+      st2api:
+        postStartScript: *custom_post_start_script
+      st2stream:
+        postStartScript: *custom_post_start_script
+      st2rulesengine:
+        postStartScript: *custom_post_start_script
+      st2timersengine:
+        postStartScript: *custom_post_start_script
+      st2workflowengine:
+        postStartScript: *custom_post_start_script
+      st2scheduler:
+        postStartScript: *custom_post_start_script
+      st2notifier:
+        postStartScript: *custom_post_start_script
+      st2actionrunner:
+        postStartScript: *custom_post_start_script
+      # st2.packs.sensors.postStartScript is not valid
+      st2sensorcontainer:
+        postStartScript: *custom_post_start_script
+      st2garbagecollector:
+        postStartScript: *custom_post_start_script
+      st2client:
+        postStartScript: *custom_post_start_script
+      st2chatops:
+        enabled: true
+        postStartScript: *custom_post_start_script
+    asserts:
+      - hasDocuments:
+          count: 14
+
+      - isNotEmpty: *assert_checksum
+      - equal: *assert_lifecycle
+      - contains: *assert_volume_mount
+      - contains: *assert_volume
+

@@ -1,4 +1,4 @@
-Congratulations! You have just deployed StackStorm {{ if .Values.enterprise.enabled }}Enterprise {{ end }}HA!
+Congratulations! You have just deployed StackStorm HA!
 
   ███████╗████████╗██████╗     ██╗  ██╗ █████╗      ██████╗ ██╗  ██╗
   ██╔════╝╚══██╔══╝╚════██╗    ██║  ██║██╔══██╗    ██╔═══██╗██║ ██╔╝
@@ -11,20 +11,20 @@ Congratulations! You have just deployed StackStorm {{ if .Values.enterprise.enab
 {{- if contains "LoadBalancer" .Values.st2web.service.type }}
 
 NOTE: It may take a few minutes for the LoadBalancer IP to be available.
-      Watch the status with "kubectl get service {{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }} -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'"
+      Watch the status with "kubectl get service {{ .Release.Name }}-st2web -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'"
 
-export ST2WEB_IP=$(kubectl get service {{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }} -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+export ST2WEB_IP=$(kubectl get service {{ .Release.Name }}-st2web -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
 echo https://${ST2WEB_IP}/
 
 {{- else if contains "ClusterIP" .Values.st2web.service.type }}
 
 echo http://127.0.0.1:8080
-kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }} 8080:80
+kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ .Release.Name }}-st2web 8080:80
 
 {{- else if contains "NodePort" .Values.st2web.service.type }}
 
 export ST2WEB_IP=$(minikube ip 2>/dev/null || kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
-export ST2WEB_PORT="$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }})"
+export ST2WEB_PORT="$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ .Release.Name }}-st2web)"
 echo http://${ST2WEB_IP}:${ST2WEB_PORT}/
 
 {{- end }}
@@ -39,18 +39,18 @@ Ingress is enabled. You may access following endpoints:
 {{- end }}
 {{- end }}
 
-2. Login with the following credentials:
-username: {{ .Values.secrets.st2.username }}
-password: {{ .Values.secrets.st2.password }}
+2. Get the password needed to login:
+kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.data.ST2_AUTH_PASSWORD}" secret {{ .Release.Name }}-st2-auth | base64 --decode
 
-3. Use st2 CLI:
+3. Login with this username and the password retrieved above:
+username: {{ .Values.st2.username }}
+
+4. Use st2 CLI:
 export ST2CLIENT=$(kubectl get --namespace {{ .Release.Namespace }} pod -l app=st2client,release={{ .Release.Name }} -o jsonpath="{.items[0].metadata.name}")
-kubectl exec -it ${ST2CLIENT} -- st2 --version
+kubectl exec -it ${ST2CLIENT} --namespace {{ .Release.Namespace }} -- st2 --version
 
 -----------------------------------------------------
 Thanks for trying StackStorm!
-{{- if .Values.enterprise.enabled }}
-Need help? Enterprise support: support@stackstorm.com
-{{- else }}
-Enterprise: https://stackstorm.com/#product
-{{- end }}
+Need help?
+* Forum: https://forum.stackstorm.com/
+* Slack: https://stackstorm.com/#community

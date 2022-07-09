@@ -1,0 +1,231 @@
+---
+suite: Environment Vars
+templates:
+  # primary template files
+  - deployments.yaml
+  - jobs.yaml
+
+  # included templates must also be listed
+  - configmaps_overrides.yaml
+  - configmaps_packs.yaml
+  - configmaps_rbac.yaml
+  - configmaps_st2-conf.yaml
+  - configmaps_st2-urls.yaml
+  - configmaps_st2web.yaml
+  - secrets_datastore_crypto_key.yaml
+  - secrets_ssh.yaml
+  - secrets_st2apikeys.yaml
+  - secrets_st2auth.yaml
+  - secrets_st2chatops.yaml
+
+tests:
+  - it: Deployments default to no env (except st2client)
+    template: deployments.yaml
+    set:
+      st2: { packs: { sensors: [] } } # ensure only 1 sensor
+      st2chatops:
+        enabled: true
+    asserts:
+      - hasDocuments:
+          count: 14
+      - equal:
+          path: spec.template.spec.containers[0].env
+          value:
+            - name: ST2CLIENT
+              value: "1"
+        documentIndex: 12
+      - isNull: &is_null_env
+          path: spec.template.spec.containers[0].env
+        documentIndex: 0
+      - isNull: *is_null_env
+        documentIndex: 1
+      - isNull: *is_null_env
+        documentIndex: 2
+      - isNull: *is_null_env
+        documentIndex: 3
+      - isNull: *is_null_env
+        documentIndex: 4
+      - isNull: *is_null_env
+        documentIndex: 5
+      - isNull: *is_null_env
+        documentIndex: 6
+      - isNull: *is_null_env
+        documentIndex: 7
+      - isNull: *is_null_env
+        documentIndex: 8
+      - isNull: *is_null_env
+        documentIndex: 9
+      - isNull: *is_null_env
+        documentIndex: 10
+      - isNull: *is_null_env
+        documentIndex: 11
+      - isNull: *is_null_env
+        documentIndex: 13
+
+  - it: Jobs default to no env
+    template: jobs.yaml
+    set:
+      st2:
+        rbac: { enabled: true } # enable rbac job
+      jobs:
+        extra_hooks: &extra_hooks_jobs
+          - name: upgrade-warning
+            hook: pre-upgrade, pre-rollback
+            hook_weight: -5
+            command: ["st2", "run", "--tail", "custom_pack.warn_about_upgrade"]
+    asserts:
+      - hasDocuments:
+          count: 5
+      - isNull: *is_null_env
+
+  - it: Deployments accept custom env
+    template: deployments.yaml
+    set:
+      st2auth:
+        env: &env
+          FOO: bar
+      st2api:
+        env: *env
+      st2stream:
+        env: *env
+      st2web:
+        env: *env
+      st2rulesengine:
+        env: *env
+      st2timersengine:
+        env: *env
+      st2workflowengine:
+        env: *env
+      st2scheduler:
+        env: *env
+      st2notifier:
+        env: *env
+      st2sensorcontainer:
+        env: *env
+      st2: { packs: { sensors: [] } } # ensure only 1 sensor
+      st2actionrunner:
+        env: *env
+      st2garbagecollector:
+        env: *env
+      st2client:
+        env: *env
+      st2chatops:
+        enabled: false
+    asserts:
+      - hasDocuments:
+          count: 13 # st2chatops env handled as secrets
+
+      - contains: &contains_env
+          path: spec.template.spec.containers[0].env
+          content:
+            name: FOO
+            value: bar
+
+  - it: Jobs accept custom env
+    template: jobs.yaml
+    set:
+      st2:
+        rbac: { enabled: true } # enable rbac job
+      jobs:
+        env: *env
+        extra_hooks: *extra_hooks_jobs
+    asserts:
+      - hasDocuments:
+          count: 5
+
+      - contains: *contains_env
+
+  - it: Deployments envFrom defaults include st2-urls configMap and st2chatops secretRef
+    template: deployments.yaml
+    set:
+      st2: { packs: { sensors: [] } } # ensure only 1 sensor
+      st2chatops:
+        enabled: true
+    release:
+      name: st2ha
+    asserts:
+      - hasDocuments:
+          count: 14
+      - contains: &contains_st2_urls
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            configMapRef:
+              name: st2ha-st2-urls
+      # this is how st2chatops.env loads vars
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            secretRef: # not a configMap
+              name: st2ha-st2chatops
+        documentIndex: 13
+
+  - it: Jobs envFrom defaults
+    template: jobs.yaml
+    set:
+      st2:
+        rbac: { enabled: true } # enable rbac job
+      jobs:
+        extra_hooks: *extra_hooks_jobs
+    release:
+      name: st2ha
+    asserts:
+      - hasDocuments:
+          count: 5
+
+      - contains: *contains_st2_urls
+        documentIndex: 1
+      - contains: *contains_st2_urls
+        documentIndex: 2
+
+      - isNull: &is_null_envFrom
+          path: spec.template.spec.containers[0].envFrom
+        documentIndex: 0
+      - isNull: *is_null_envFrom
+        documentIndex: 3
+
+  - it: Deployments support envFromSecrets (st2actionrunner, st2sensorcontainer, and st2client)
+    template: deployments.yaml
+    set:
+      st2: { packs: { sensors: [] } } # ensure only 1 sensor
+      st2actionrunner:
+        envFromSecrets: &envFromSecrets
+          - my-external-secret-1
+          - my-external-secret-2
+      st2sensorcontainer:
+        envFromSecrets: *envFromSecrets
+      st2client:
+        envFromSecrets: *envFromSecrets
+    asserts:
+      - contains: &contains_external_secret1
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            secretRef:
+              name: my-external-secret-1
+        documentIndex: 9
+      - contains: *contains_external_secret1
+        documentIndex: 10
+      - contains: *contains_external_secret1
+        documentIndex: 12
+
+      - contains: &contains_external_secret2
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            secretRef:
+              name: my-external-secret-2
+        documentIndex: 9
+      - contains: *contains_external_secret2
+        documentIndex: 10
+      - contains: *contains_external_secret2
+        documentIndex: 12
+
+  - it: Jobs support envFromSecrets
+    template: jobs.yaml
+    set:
+      st2:
+        rbac: { enabled: true } # enable rbac job
+      jobs:
+        envFromSecrets: *envFromSecrets
+        extra_hooks: *extra_hooks_jobs
+    asserts:
+      - contains: *contains_external_secret1
+      - contains: *contains_external_secret2

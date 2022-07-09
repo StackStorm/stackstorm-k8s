@@ -1,0 +1,69 @@
+---
+suite: DNS
+templates:
+  # primary template files
+  - deployments.yaml
+  - jobs.yaml
+
+  # included templates must also be listed
+  - configmaps_overrides.yaml
+  - configmaps_packs.yaml
+  - configmaps_rbac.yaml
+  - configmaps_st2-conf.yaml
+  - configmaps_st2-urls.yaml
+  - configmaps_st2web.yaml
+  - secrets_datastore_crypto_key.yaml
+  - secrets_ssh.yaml
+  - secrets_st2apikeys.yaml
+  - secrets_st2auth.yaml
+  - secrets_st2chatops.yaml
+
+tests:
+  - it: Deployments and Jobs default to no dnsPolicy or dnsConfig
+    templates:
+      - deployments.yaml
+      - jobs.yaml
+    set:
+      st2:
+        packs: { sensors: [] } # ensure only 1 sensor
+        rbac: { enabled: true } # enable rbac job
+      jobs:
+        extra_hooks: &jobs_extra_hooks
+          - name: upgrade-warning
+            hook: pre-upgrade, pre-rollback
+            hook_weight: -5
+            command: ["st2", "run", "--tail", "custom_pack.warn_about_upgrade"]
+    asserts:
+      - isNull:
+          path: spec.template.spec.dnsPolicy
+      - isNull:
+          path: spec.template.spec.dnsConfig
+
+  - it: Deployments and Jobs accept custom dnsPolicy or dnsConfig
+    templates:
+      - deployments.yaml
+      - jobs.yaml
+    set:
+      dnsPolicy: &dnsPolicy ClusterFirstWithHostNet
+      dnsConfig: &dnsConfig
+        nameservers:
+          - 1.2.3.4
+        searches:
+          - ns1.svc.cluster-domain.example
+          - my.dns.search.suffix
+        options:
+          - name: ndots
+            value: "2"
+          - name: edns0
+      st2:
+        packs: { sensors: [] } # ensure only 1 sensor
+        rbac: { enabled: true } # enable rbac job
+      jobs:
+        extra_hooks: *jobs_extra_hooks
+    asserts:
+      - equal:
+          path: spec.template.spec.dnsPolicy
+          value: *dnsPolicy
+      - equal:
+          path: spec.template.spec.dnsConfig
+          value: *dnsConfig

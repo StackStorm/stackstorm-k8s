@@ -2,23 +2,24 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: {{ .Release.Name }}-st2auth{{ template "enterpriseSuffix" . }}
+  name: {{ .Release.Name }}-st2auth
   annotations:
     description: StackStorm st2auth - all authentication is managed by this service.
-  labels:
-    app: st2auth
-    tier: backend
-    vendor: stackstorm
-    support: {{ template "supportMethod" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- if .Values.st2auth.service.hostname }}
+    external-dns.alpha.kubernetes.io/hostname: {{ .Values.st2auth.service.hostname | quote }}
+    {{- end }}
+    {{- if .Values.st2auth.service.annotations }}
+      {{- toYaml .Values.st2auth.service.annotations | nindent 4 }}
+    {{- end }}
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2auth") | nindent 4 }}
 spec:
-  selector:
-    app: st2auth
-    support: {{ template "supportMethod" . }}
-    release: {{ .Release.Name }}
-  type: ClusterIP
+  selector: {{- include "stackstorm-ha.selectorLabels" (list $ "st2auth") | nindent 4 }}
+  type: {{ .Values.st2auth.service.type }}
+  {{- if contains "ExternalName" .Values.st2auth.service.type }}
+  {{- if .Values.st2auth.service.hostname }}
+  externalName: {{ .Values.st2auth.service.hostname }}
+  {{- end }}
+  {{- end }}
   ports:
   - protocol: TCP
     port: 9100
@@ -27,23 +28,24 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: {{ .Release.Name }}-st2api{{ template "enterpriseSuffix" . }}
+  name: {{ .Release.Name }}-st2api
   annotations:
     description: StackStorm st2api - service hosts the REST API endpoints that serve requests from WebUI, CLI, ChatOps and other st2 services.
-  labels:
-    app: st2api
-    tier: backend
-    vendor: stackstorm
-    support: {{ template "supportMethod" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- if .Values.st2api.service.hostname }}
+    external-dns.alpha.kubernetes.io/hostname: {{ .Values.st2api.service.hostname | quote }}
+    {{- end }}
+    {{- if .Values.st2api.service.annotations }}
+      {{- toYaml .Values.st2api.service.annotations | nindent 4 }}
+    {{- end }}
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2api") | nindent 4 }}
 spec:
-  selector:
-    app: st2api
-    support: {{ template "supportMethod" . }}
-    release: {{ .Release.Name }}
-  type: ClusterIP
+  selector: {{- include "stackstorm-ha.selectorLabels" (list $ "st2api") | nindent 4 }}
+  type: {{ .Values.st2api.service.type }}
+  {{- if contains "ExternalName" .Values.st2api.service.type }}
+  {{- if .Values.st2api.service.hostname }}
+  externalName: {{ .Values.st2api.service.hostname }}
+  {{- end }}
+  {{- end }}
   ports:
   - protocol: TCP
     port: 9101
@@ -52,23 +54,24 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: {{ .Release.Name }}-st2stream{{ template "enterpriseSuffix" . }}
+  name: {{ .Release.Name }}-st2stream
   annotations:
     description: StackStorm st2stream - exposes a server-sent event stream, used by the clients like WebUI and ChatOps to receive update from the st2stream server.
-  labels:
-    app: st2stream
-    tier: backend
-    vendor: stackstorm
-    support: {{ template "supportMethod" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- if .Values.st2stream.service.hostname }}
+    external-dns.alpha.kubernetes.io/hostname: {{ .Values.st2stream.service.hostname | quote }}
+    {{- end }}
+    {{- if .Values.st2stream.service.annotations }}
+      {{- toYaml .Values.st2stream.service.annotations | nindent 4 }}
+    {{- end }}
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2stream") | nindent 4 }}
 spec:
-  selector:
-    app: st2stream
-    support: {{ template "supportMethod" . }}
-    release: {{ .Release.Name }}
-  type: ClusterIP
+  selector: {{- include "stackstorm-ha.selectorLabels" (list $ "st2stream") | nindent 4 }}
+  type: {{ .Values.st2stream.service.type }}
+  {{- if contains "ExternalName" .Values.st2stream.service.type }}
+  {{- if .Values.st2stream.service.hostname }}
+  externalName: {{ .Values.st2stream.service.hostname }}
+  {{- end }}
+  {{- end }}
   ports:
   - protocol: TCP
     port: 9102
@@ -77,28 +80,18 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: {{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }}
+  name: {{ .Release.Name }}-st2web
   annotations:
     description: StackStorm st2web, - an admin Web UI and main entry point for external API requests
     {{- if .Values.st2web.service.hostname }}
     external-dns.alpha.kubernetes.io/hostname: {{ .Values.st2web.service.hostname | quote }}
     {{- end }}
-{{- if .Values.st2web.service.annotations }}
-{{ toYaml .Values.st2web.service.annotations | indent 4 }}
-{{- end }}
-  labels:
-    app: st2web
-    tier: frontend
-    vendor: stackstorm
-    support: {{ template "supportMethod" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- if .Values.st2web.service.annotations }}
+      {{- toYaml .Values.st2web.service.annotations | nindent 4 }}
+    {{- end }}
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2web") | nindent 4 }}
 spec:
-  selector:
-    app: st2web
-    support: {{ template "supportMethod" . }}
-    release: {{ .Release.Name }}
+  selector: {{- include "stackstorm-ha.selectorLabels" (list $ "st2web") | nindent 4 }}
   type: {{ .Values.st2web.service.type }}
   {{- if contains "ExternalName" .Values.st2web.service.type }}
   {{- if .Values.st2web.service.hostname }}
@@ -107,29 +100,19 @@ spec:
   {{- end }}
   ports:
   - protocol: TCP
-    port: 80
+    port: {{ eq (get .Values.st2web.env "ST2WEB_HTTPS" | toString) "1" | ternary 443 80 }}
 
 {{ if .Values.st2chatops.enabled -}}
 ---
 kind: Service
 apiVersion: v1
 metadata:
-  name: {{ .Release.Name }}-st2chatops{{ template "enterpriseSuffix" . }}
+  name: {{ .Release.Name }}-st2chatops
   annotations:
     description: StackStorm st2chatops, - conversation-driven automation service exposed as hubot instance with predefined list of chat adapters
-  labels:
-    app: st2chatops
-    tier: backend
-    vendor: stackstorm
-    support: {{ template "supportMethod" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2chatops") | nindent 4 }}
 spec:
-  selector:
-    app: st2chatops
-    support: {{ template "supportMethod" . }}
-    release: {{ .Release.Name }}
+  selector: {{- include "stackstorm-ha.selectorLabels" (list $ "st2chatops") | nindent 4 }}
   type: ClusterIP
   ports:
   - protocol: TCP

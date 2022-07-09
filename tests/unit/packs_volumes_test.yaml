@@ -1,0 +1,1098 @@
+---
+suite: Packs Volumes
+templates:
+  # primary template files
+  - deployments.yaml
+  - jobs.yaml
+
+  # included templates must also be listed
+  - configmaps_overrides.yaml
+  - configmaps_packs.yaml
+  - configmaps_rbac.yaml
+  - configmaps_st2-conf.yaml
+  - configmaps_st2-urls.yaml
+  - configmaps_st2web.yaml
+  - secrets_datastore_crypto_key.yaml
+  - secrets_ssh.yaml
+  - secrets_st2apikeys.yaml
+  - secrets_st2auth.yaml
+  - secrets_st2chatops.yaml
+
+tests:
+  - it: Deployments without st2.packs.images or st2.packs.volumes
+    template: deployments.yaml
+    set:
+      st2:
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: [] # no extra packs to load
+          volumes:
+            enabled: false
+          configs: {} # has one core.yaml config file by default (dicts get merged)
+      st2chatops:
+        enabled: true
+    release:
+      name: st2ha
+    asserts:
+      - hasDocuments:
+          count: 14
+
+      - notContains: &packs_vol
+          path: spec.template.spec.volumes
+          content:
+            name: st2-packs-vol
+            emptyDir: {}
+
+      - notContains: &packs_vol_mnt
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: st2-packs-vol
+            mountPath: /opt/stackstorm/packs
+
+      - notContains: &venvs_vol
+          path: spec.template.spec.volumes
+          content:
+            name: st2-virtualenvs-vol
+            emptyDir: {}
+
+      - notContains: &venvs_vol_mnt
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: st2-virtualenvs-vol
+            mountPath: /opt/stackstorm/virtualenvs
+
+      - notContains: &pack_configs_vol # only contains if volumes.enabled
+          path: spec.template.spec.volumes
+          content:
+            name: st2-pack-configs-vol
+            configMap:
+              name: st2ha-st2-pack-configs
+        documentIndex: 1 # st2api
+      - notContains: *pack_configs_vol # only contains if volumes.enabled
+        documentIndex: 10 # st2actionrunner
+      - contains: *pack_configs_vol # always included
+        documentIndex: 12 # st2client
+
+      - notContains: *pack_configs_vol
+        documentIndex: 0
+      - notContains: *pack_configs_vol
+        documentIndex: 2
+      - notContains: *pack_configs_vol
+        documentIndex: 3
+      - notContains: *pack_configs_vol
+        documentIndex: 4
+      - notContains: *pack_configs_vol
+        documentIndex: 5
+      - notContains: *pack_configs_vol
+        documentIndex: 6
+      - notContains: *pack_configs_vol
+        documentIndex: 7
+      - notContains: *pack_configs_vol
+        documentIndex: 8
+      - notContains: *pack_configs_vol # never
+        documentIndex: 9 # st2sensorcontainer
+      - notContains: *pack_configs_vol
+        documentIndex: 11
+      - notContains: *pack_configs_vol
+        documentIndex: 13
+
+
+      - notContains: &pack_configs_vol_mnt # only contains if volumes.enabled
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: st2-pack-configs-vol
+            mountPath: /opt/stackstorm/configs/
+        documentIndex: 1 # st2api
+      - notContains: *pack_configs_vol_mnt # only contains if volumes.enabled
+        documentIndex: 10 # st2actionrunner
+      - contains: *pack_configs_vol_mnt # always
+        documentIndex: 12 # st2client
+
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 0
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 2
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 3
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 4
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 5
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 6
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 7
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 8
+      - notContains: *pack_configs_vol_mnt # never
+        documentIndex: 9 # st2sensorcontainer
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 11
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 13
+
+  - it: Jobs without st2.packs.images or st2.packs.volumes
+    template: jobs.yaml
+    set:
+      st2:
+        rbac: { enabled: true } # enable rbac job
+        packs:
+          images: [] # no extra packs to load
+          volumes:
+            enabled: false
+          configs: {} # has one core.yaml config file by default (dicts get merged)
+      jobs:
+        extra_hooks: &extra_hooks_jobs
+          - name: upgrade-warning
+            hook: pre-upgrade, pre-rollback
+            hook_weight: -5
+            command: ["st2", "run", "--tail", "custom_pack.warn_about_upgrade"]
+    release:
+      name: st2ha
+    asserts:
+      - hasDocuments:
+          count: 5
+
+      - notContains: *packs_vol
+      - notContains: *venvs_vol
+      - notContains: *packs_vol_mnt
+      - notContains: *venvs_vol_mnt
+
+      - contains: *pack_configs_vol
+        documentIndex: 3 # register_content
+      - contains: *pack_configs_vol_mnt
+        documentIndex: 3 # register_content
+
+      - notContains: *pack_configs_vol
+        documentIndex: 0
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 0
+
+      - notContains: *pack_configs_vol
+        documentIndex: 1
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 1
+
+      - notContains: *pack_configs_vol
+        documentIndex: 2
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 2
+
+  - it: Deployments with st2.packs.images but not st2.packs.volumes
+    template: deployments.yaml
+    set:
+      st2:
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: &st2_packs_images
+            - repository: index.docker.io/stackstorm
+              name: st2packs
+              tag: example
+          volumes:
+            enabled: false
+          configs: {} # has one core.yaml config file by default (dicts get merged)
+      st2chatops:
+        enabled: true
+    release:
+      name: st2ha
+    asserts:
+      - hasDocuments:
+          count: 14
+
+      - contains: *packs_vol
+        documentIndex: 1 # st2api
+      - contains: *packs_vol
+        documentIndex: 9 # st2sensorcontainer
+      - contains: *packs_vol
+        documentIndex: 10 # st2actionrunner
+      - contains: *packs_vol
+        documentIndex: 12 # st2client
+
+      - notContains: *packs_vol
+        documentIndex: 0
+      - notContains: *packs_vol
+        documentIndex: 2
+      - notContains: *packs_vol
+        documentIndex: 3
+      - notContains: *packs_vol
+        documentIndex: 4
+      - notContains: *packs_vol
+        documentIndex: 5
+      - notContains: *packs_vol
+        documentIndex: 6
+      - notContains: *packs_vol
+        documentIndex: 7
+      - notContains: *packs_vol
+        documentIndex: 8
+      - notContains: *packs_vol
+        documentIndex: 11
+      - notContains: *packs_vol
+        documentIndex: 13
+
+      - contains: *venvs_vol
+        documentIndex: 1 # st2api
+      - contains: *venvs_vol
+        documentIndex: 9 # st2sensorcontainer
+      - contains: *venvs_vol
+        documentIndex: 10 # st2actionrunner
+      - contains: *venvs_vol
+        documentIndex: 12 # st2client
+
+      - notContains: *venvs_vol
+        documentIndex: 0
+      - notContains: *venvs_vol
+        documentIndex: 2
+      - notContains: *venvs_vol
+        documentIndex: 3
+      - notContains: *venvs_vol
+        documentIndex: 4
+      - notContains: *venvs_vol
+        documentIndex: 5
+      - notContains: *venvs_vol
+        documentIndex: 6
+      - notContains: *venvs_vol
+        documentIndex: 7
+      - notContains: *venvs_vol
+        documentIndex: 8
+      - notContains: *venvs_vol
+        documentIndex: 11
+      - notContains: *venvs_vol
+        documentIndex: 13
+
+      - notContains: *pack_configs_vol # only contains if volumes.enabled
+        documentIndex: 1 # st2api
+      - notContains: *pack_configs_vol # only contains if volumes.enabled
+        documentIndex: 10 # st2actionrunner
+      - contains: *pack_configs_vol # always
+        documentIndex: 12 # st2client
+
+      - notContains: *pack_configs_vol
+        documentIndex: 0
+      - notContains: *pack_configs_vol
+        documentIndex: 2
+      - notContains: *pack_configs_vol
+        documentIndex: 3
+      - notContains: *pack_configs_vol
+        documentIndex: 4
+      - notContains: *pack_configs_vol
+        documentIndex: 5
+      - notContains: *pack_configs_vol
+        documentIndex: 6
+      - notContains: *pack_configs_vol
+        documentIndex: 7
+      - notContains: *pack_configs_vol
+        documentIndex: 8
+      - notContains: *pack_configs_vol # never
+        documentIndex: 9 # st2sensorcontainer
+      - notContains: *pack_configs_vol
+        documentIndex: 11
+      - notContains: *pack_configs_vol
+        documentIndex: 13
+
+      # readOnly
+      - contains: &packs_vol_mnt_ro
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: st2-packs-vol
+            mountPath: /opt/stackstorm/packs
+            readOnly: true
+        documentIndex: 1 # st2api
+      - contains: *packs_vol_mnt_ro
+        documentIndex: 9 # st2sensorcontainer
+      - contains: *packs_vol_mnt_ro
+        documentIndex: 10 # st2actionrunner
+      - contains: *packs_vol_mnt_ro
+        documentIndex: 12 # st2client
+
+      - notContains: *packs_vol_mnt
+        documentIndex: 0
+      - notContains: *packs_vol_mnt
+        documentIndex: 2
+      - notContains: *packs_vol_mnt
+        documentIndex: 3
+      - notContains: *packs_vol_mnt
+        documentIndex: 4
+      - notContains: *packs_vol_mnt
+        documentIndex: 5
+      - notContains: *packs_vol_mnt
+        documentIndex: 6
+      - notContains: *packs_vol_mnt
+        documentIndex: 7
+      - notContains: *packs_vol_mnt
+        documentIndex: 8
+      - notContains: *packs_vol_mnt
+        documentIndex: 11
+      - notContains: *packs_vol_mnt
+        documentIndex: 13
+
+      - contains: &venvs_vol_mnt_ro
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: st2-virtualenvs-vol
+            mountPath: /opt/stackstorm/virtualenvs
+            readOnly: true
+        documentIndex: 1 # st2api
+      - contains: *venvs_vol_mnt_ro
+        documentIndex: 9 # st2sensorcontainer
+      - contains: *venvs_vol_mnt_ro
+        documentIndex: 10 # st2actionrunner
+      - contains: *venvs_vol_mnt_ro
+        documentIndex: 12 # st2client
+
+      - notContains: *venvs_vol_mnt
+        documentIndex: 0
+      - notContains: *venvs_vol_mnt
+        documentIndex: 2
+      - notContains: *venvs_vol_mnt
+        documentIndex: 3
+      - notContains: *venvs_vol_mnt
+        documentIndex: 4
+      - notContains: *venvs_vol_mnt
+        documentIndex: 5
+      - notContains: *venvs_vol_mnt
+        documentIndex: 6
+      - notContains: *venvs_vol_mnt
+        documentIndex: 7
+      - notContains: *venvs_vol_mnt
+        documentIndex: 8
+      - notContains: *venvs_vol_mnt
+        documentIndex: 11
+      - notContains: *venvs_vol_mnt
+        documentIndex: 13
+
+      - notContains: *pack_configs_vol_mnt # only contains if volumes.enabled
+        documentIndex: 1 # st2api
+      - notContains: *pack_configs_vol_mnt # only contains if volumes.enabled
+        documentIndex: 10 # st2actionrunner
+      - contains: *pack_configs_vol_mnt # always
+        documentIndex: 12 # st2client
+
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 0
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 2
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 3
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 4
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 5
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 6
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 7
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 8
+      - notContains: *pack_configs_vol_mnt # never
+        documentIndex: 9 # st2sensorcontainer
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 11
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 13
+
+  - it: Jobs with st2.packs.images but not st2.packs.volumes
+    template: jobs.yaml
+    set:
+      st2:
+        rbac: { enabled: true } # enable rbac job
+        packs:
+          images: *st2_packs_images
+          volumes:
+            enabled: false
+          configs: {} # has one core.yaml config file by default (dicts get merged)
+      jobs:
+        extra_hooks: *extra_hooks_jobs
+    release:
+      name: st2ha
+    asserts:
+      - hasDocuments:
+          count: 5
+
+      - contains: *packs_vol
+        documentIndex: 3 # register_content
+      - contains: *venvs_vol
+        documentIndex: 3 # register_content
+      - contains: *pack_configs_vol
+        documentIndex: 3 # register_content
+      - contains: *packs_vol_mnt
+        documentIndex: 3 # register_content
+      - contains: *venvs_vol_mnt
+        documentIndex: 3 # register_content
+      - contains: *pack_configs_vol_mnt
+        documentIndex: 3 # register_content
+
+      - notContains: *packs_vol
+        documentIndex: 0
+      - notContains: *venvs_vol
+        documentIndex: 0
+      - notContains: *pack_configs_vol
+        documentIndex: 0
+      - notContains: *packs_vol_mnt
+        documentIndex: 0
+      - notContains: *venvs_vol_mnt
+        documentIndex: 0
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 0
+
+      - notContains: *packs_vol
+        documentIndex: 1
+      - notContains: *venvs_vol
+        documentIndex: 1
+      - notContains: *pack_configs_vol
+        documentIndex: 1
+      - notContains: *packs_vol_mnt
+        documentIndex: 1
+      - notContains: *venvs_vol_mnt
+        documentIndex: 1
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 1
+
+      - notContains: *packs_vol
+        documentIndex: 2
+      - notContains: *venvs_vol
+        documentIndex: 2
+      - notContains: *pack_configs_vol
+        documentIndex: 2
+      - notContains: *packs_vol_mnt
+        documentIndex: 2
+      - notContains: *venvs_vol_mnt
+        documentIndex: 2
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 2
+
+  - it: Deployments with st2.packs.images and st2.packs.volumes
+    template: deployments.yaml
+    set:
+      st2:
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: *st2_packs_images
+          volumes:
+            enabled: true
+            packs: &nfs_packs_volume
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/packs
+            virtualenvs: &nfs_venvs_volume
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/virtualenvs
+            configs: &nfs_pack_configs_volume
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/configs
+          configs: {} # has one core.yaml config file by default (dicts get merged)
+      st2chatops:
+        enabled: true
+    release:
+      name: st2ha
+    asserts:
+      - hasDocuments:
+          count: 14
+
+      - contains: &nfs_packs_vol
+          path: spec.template.spec.volumes
+          content:
+            name: st2-packs-vol
+            <<: *nfs_packs_volume
+        documentIndex: 1 # st2api
+      - contains: *nfs_packs_vol
+        documentIndex: 9 # st2sensorcontainer
+      - contains: *nfs_packs_vol
+        documentIndex: 10 # st2actionrunner
+      - contains: *nfs_packs_vol
+        documentIndex: 12 # st2client
+
+      - notContains: *nfs_packs_vol
+        documentIndex: 0
+      - notContains: *nfs_packs_vol
+        documentIndex: 2
+      - notContains: *nfs_packs_vol
+        documentIndex: 3
+      - notContains: *nfs_packs_vol
+        documentIndex: 4
+      - notContains: *nfs_packs_vol
+        documentIndex: 5
+      - notContains: *nfs_packs_vol
+        documentIndex: 6
+      - notContains: *nfs_packs_vol
+        documentIndex: 7
+      - notContains: *nfs_packs_vol
+        documentIndex: 8
+      - notContains: *nfs_packs_vol
+        documentIndex: 11
+      - notContains: *nfs_packs_vol
+        documentIndex: 13
+
+      - contains: &nfs_venvs_vol
+          path: spec.template.spec.volumes
+          content:
+            name: st2-virtualenvs-vol
+            <<: *nfs_venvs_volume
+        documentIndex: 1 # st2api
+      - contains: *nfs_venvs_vol
+        documentIndex: 9 # st2sensorcontainer
+      - contains: *nfs_venvs_vol
+        documentIndex: 10 # st2actionrunner
+      - contains: *nfs_venvs_vol
+        documentIndex: 12 # st2client
+
+      - notContains: *nfs_venvs_vol
+        documentIndex: 0
+      - notContains: *nfs_venvs_vol
+        documentIndex: 2
+      - notContains: *nfs_venvs_vol
+        documentIndex: 3
+      - notContains: *nfs_venvs_vol
+        documentIndex: 4
+      - notContains: *nfs_venvs_vol
+        documentIndex: 5
+      - notContains: *nfs_venvs_vol
+        documentIndex: 6
+      - notContains: *nfs_venvs_vol
+        documentIndex: 7
+      - notContains: *nfs_venvs_vol
+        documentIndex: 8
+      - notContains: *nfs_venvs_vol
+        documentIndex: 11
+      - notContains: *nfs_venvs_vol
+        documentIndex: 13
+
+      - contains: &nfs_pack_configs_vol # only contains if volumes.enabled
+          path: spec.template.spec.volumes
+          content:
+            name: st2-pack-configs-vol
+            <<: *nfs_pack_configs_volume
+        documentIndex: 1 # st2api
+      - contains: *nfs_pack_configs_vol # only contains if volumes.enabled
+        documentIndex: 10 # st2actionrunner
+      - contains: *nfs_pack_configs_vol # always
+        documentIndex: 12 # st2client
+
+      - notContains: *nfs_pack_configs_vol
+        documentIndex: 0
+      - notContains: *nfs_pack_configs_vol
+        documentIndex: 2
+      - notContains: *nfs_pack_configs_vol
+        documentIndex: 3
+      - notContains: *nfs_pack_configs_vol
+        documentIndex: 4
+      - notContains: *nfs_pack_configs_vol
+        documentIndex: 5
+      - notContains: *nfs_pack_configs_vol
+        documentIndex: 6
+      - notContains: *nfs_pack_configs_vol
+        documentIndex: 7
+      - notContains: *nfs_pack_configs_vol
+        documentIndex: 8
+      - notContains: *nfs_pack_configs_vol # never
+        documentIndex: 9 # st2sensorcontainer
+      - notContains: *nfs_pack_configs_vol
+        documentIndex: 11
+      - notContains: *nfs_pack_configs_vol
+        documentIndex: 13
+
+      # NOT readOnly
+      - contains: *packs_vol_mnt
+        documentIndex: 1 # st2api
+      - contains: *packs_vol_mnt
+        documentIndex: 9 # st2sensorcontainer
+      - contains: *packs_vol_mnt
+        documentIndex: 10 # st2actionrunner
+      - contains: *packs_vol_mnt
+        documentIndex: 12 # st2client
+
+      - notContains: *packs_vol_mnt
+        documentIndex: 0
+      - notContains: *packs_vol_mnt
+        documentIndex: 2
+      - notContains: *packs_vol_mnt
+        documentIndex: 3
+      - notContains: *packs_vol_mnt
+        documentIndex: 4
+      - notContains: *packs_vol_mnt
+        documentIndex: 5
+      - notContains: *packs_vol_mnt
+        documentIndex: 6
+      - notContains: *packs_vol_mnt
+        documentIndex: 7
+      - notContains: *packs_vol_mnt
+        documentIndex: 8
+      - notContains: *packs_vol_mnt
+        documentIndex: 11
+      - notContains: *packs_vol_mnt
+        documentIndex: 13
+
+      - contains: *venvs_vol_mnt
+        documentIndex: 1 # st2api
+      - contains: *venvs_vol_mnt
+        documentIndex: 9 # st2sensorcontainer
+      - contains: *venvs_vol_mnt
+        documentIndex: 10 # st2actionrunner
+      - contains: *venvs_vol_mnt
+        documentIndex: 12 # st2client
+
+      - notContains: *venvs_vol_mnt
+        documentIndex: 0
+      - notContains: *venvs_vol_mnt
+        documentIndex: 2
+      - notContains: *venvs_vol_mnt
+        documentIndex: 3
+      - notContains: *venvs_vol_mnt
+        documentIndex: 4
+      - notContains: *venvs_vol_mnt
+        documentIndex: 5
+      - notContains: *venvs_vol_mnt
+        documentIndex: 6
+      - notContains: *venvs_vol_mnt
+        documentIndex: 7
+      - notContains: *venvs_vol_mnt
+        documentIndex: 8
+      - notContains: *venvs_vol_mnt
+        documentIndex: 11
+      - notContains: *venvs_vol_mnt
+        documentIndex: 13
+
+      - contains: *pack_configs_vol_mnt # only contains if volumes.enabled
+        documentIndex: 1 # st2api
+      - contains: *pack_configs_vol_mnt # only contains if volumes.enabled
+        documentIndex: 10 # st2actionrunner
+      - contains: *pack_configs_vol_mnt # always
+        documentIndex: 12 # st2client
+
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 0
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 2
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 3
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 4
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 5
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 6
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 7
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 8
+      - notContains: *pack_configs_vol_mnt # never
+        documentIndex: 9 # st2sensorcontainer
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 11
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 13
+
+  - it: Jobs with st2.packs.images and st2.packs.volumes
+    template: jobs.yaml
+    set:
+      st2:
+        rbac: { enabled: true } # enable rbac job
+        packs:
+          images: *st2_packs_images
+          volumes:
+            enabled: true
+            packs: *nfs_packs_volume
+            virtualenvs: *nfs_venvs_volume
+            configs: *nfs_pack_configs_volume
+          configs: {} # has one core.yaml config file by default (dicts get merged)
+      jobs:
+        extra_hooks: *extra_hooks_jobs
+    release:
+      name: st2ha
+    asserts:
+      - hasDocuments:
+          count: 5
+
+      - contains: *nfs_packs_vol
+        documentIndex: 3 # register_content
+      - contains: *nfs_venvs_vol
+        documentIndex: 3 # register_content
+      - contains: *nfs_pack_configs_vol
+        documentIndex: 3 # register_content
+      - contains: *packs_vol_mnt
+        documentIndex: 3 # register_content
+      - contains: *venvs_vol_mnt
+        documentIndex: 3 # register_content
+      - contains: *pack_configs_vol_mnt
+        documentIndex: 3 # register_content
+
+      - notContains: *packs_vol
+        documentIndex: 0
+      - notContains: *venvs_vol
+        documentIndex: 0
+      - notContains: *pack_configs_vol
+        documentIndex: 0
+      - notContains: *packs_vol_mnt
+        documentIndex: 0
+      - notContains: *venvs_vol_mnt
+        documentIndex: 0
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 0
+
+      - notContains: *packs_vol
+        documentIndex: 1
+      - notContains: *venvs_vol
+        documentIndex: 1
+      - notContains: *pack_configs_vol
+        documentIndex: 1
+      - notContains: *packs_vol_mnt
+        documentIndex: 1
+      - notContains: *venvs_vol_mnt
+        documentIndex: 1
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 1
+
+      - notContains: *packs_vol
+        documentIndex: 2
+      - notContains: *venvs_vol
+        documentIndex: 2
+      - notContains: *pack_configs_vol
+        documentIndex: 2
+      - notContains: *packs_vol_mnt
+        documentIndex: 2
+      - notContains: *venvs_vol_mnt
+        documentIndex: 2
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 2
+
+  - it: Deployments without st2.packs.images and with st2.packs.volumes
+    template: deployments.yaml
+    set:
+      st2:
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: []
+          volumes:
+            enabled: true
+            packs: *nfs_packs_volume
+            virtualenvs: *nfs_venvs_volume
+            configs: *nfs_pack_configs_volume
+          configs: {} # has one core.yaml config file by default (dicts get merged)
+      st2chatops:
+        enabled: true
+    release:
+      name: st2ha
+    asserts:
+      - hasDocuments:
+          count: 14
+
+      - contains: *nfs_packs_vol
+        documentIndex: 1 # st2api
+      - contains: *nfs_packs_vol
+        documentIndex: 9 # st2sensorcontainer
+      - contains: *nfs_packs_vol
+        documentIndex: 10 # st2actionrunner
+      - contains: *nfs_packs_vol
+        documentIndex: 12 # st2client
+
+      - notContains: *nfs_packs_vol
+        documentIndex: 0
+      - notContains: *nfs_packs_vol
+        documentIndex: 2
+      - notContains: *nfs_packs_vol
+        documentIndex: 3
+      - notContains: *nfs_packs_vol
+        documentIndex: 4
+      - notContains: *nfs_packs_vol
+        documentIndex: 5
+      - notContains: *nfs_packs_vol
+        documentIndex: 6
+      - notContains: *nfs_packs_vol
+        documentIndex: 7
+      - notContains: *nfs_packs_vol
+        documentIndex: 8
+      - notContains: *nfs_packs_vol
+        documentIndex: 11
+      - notContains: *nfs_packs_vol
+        documentIndex: 13
+
+      - contains: *nfs_venvs_vol
+        documentIndex: 1 # st2api
+      - contains: *nfs_venvs_vol
+        documentIndex: 9 # st2sensorcontainer
+      - contains: *nfs_venvs_vol
+        documentIndex: 10 # st2actionrunner
+      - contains: *nfs_venvs_vol
+        documentIndex: 12 # st2client
+
+      - notContains: *nfs_venvs_vol
+        documentIndex: 0
+      - notContains: *nfs_venvs_vol
+        documentIndex: 2
+      - notContains: *nfs_venvs_vol
+        documentIndex: 3
+      - notContains: *nfs_venvs_vol
+        documentIndex: 4
+      - notContains: *nfs_venvs_vol
+        documentIndex: 5
+      - notContains: *nfs_venvs_vol
+        documentIndex: 6
+      - notContains: *nfs_venvs_vol
+        documentIndex: 7
+      - notContains: *nfs_venvs_vol
+        documentIndex: 8
+      - notContains: *nfs_venvs_vol
+        documentIndex: 11
+      - notContains: *nfs_venvs_vol
+        documentIndex: 13
+
+      - contains: *nfs_pack_configs_vol # only contains if volumes.enabled
+        documentIndex: 1 # st2api
+      - contains: *nfs_pack_configs_vol # only contains if volumes.enabled
+        documentIndex: 10 # st2actionrunner
+      - contains: *nfs_pack_configs_vol # always
+        documentIndex: 12 # st2client
+
+      - notContains: *nfs_pack_configs_vol
+        documentIndex: 0
+      - notContains: *nfs_pack_configs_vol
+        documentIndex: 2
+      - notContains: *nfs_pack_configs_vol
+        documentIndex: 3
+      - notContains: *nfs_pack_configs_vol
+        documentIndex: 4
+      - notContains: *nfs_pack_configs_vol
+        documentIndex: 5
+      - notContains: *nfs_pack_configs_vol
+        documentIndex: 6
+      - notContains: *nfs_pack_configs_vol
+        documentIndex: 7
+      - notContains: *nfs_pack_configs_vol
+        documentIndex: 8
+      - notContains: *nfs_pack_configs_vol # never
+        documentIndex: 9 # st2sensorcontainer
+      - notContains: *nfs_pack_configs_vol
+        documentIndex: 11
+      - notContains: *nfs_pack_configs_vol
+        documentIndex: 13
+
+      # NOT readOnly
+      - contains: *packs_vol_mnt
+        documentIndex: 1 # st2api
+      - contains: *packs_vol_mnt
+        documentIndex: 9 # st2sensorcontainer
+      - contains: *packs_vol_mnt
+        documentIndex: 10 # st2actionrunner
+      - contains: *packs_vol_mnt
+        documentIndex: 12 # st2client
+
+      - notContains: *packs_vol_mnt
+        documentIndex: 0
+      - notContains: *packs_vol_mnt
+        documentIndex: 2
+      - notContains: *packs_vol_mnt
+        documentIndex: 3
+      - notContains: *packs_vol_mnt
+        documentIndex: 4
+      - notContains: *packs_vol_mnt
+        documentIndex: 5
+      - notContains: *packs_vol_mnt
+        documentIndex: 6
+      - notContains: *packs_vol_mnt
+        documentIndex: 7
+      - notContains: *packs_vol_mnt
+        documentIndex: 8
+      - notContains: *packs_vol_mnt
+        documentIndex: 11
+      - notContains: *packs_vol_mnt
+        documentIndex: 13
+
+      - contains: *venvs_vol_mnt
+        documentIndex: 1 # st2api
+      - contains: *venvs_vol_mnt
+        documentIndex: 9 # st2sensorcontainer
+      - contains: *venvs_vol_mnt
+        documentIndex: 10 # st2actionrunner
+      - contains: *venvs_vol_mnt
+        documentIndex: 12 # st2client
+
+      - notContains: *venvs_vol_mnt
+        documentIndex: 0
+      - notContains: *venvs_vol_mnt
+        documentIndex: 2
+      - notContains: *venvs_vol_mnt
+        documentIndex: 3
+      - notContains: *venvs_vol_mnt
+        documentIndex: 4
+      - notContains: *venvs_vol_mnt
+        documentIndex: 5
+      - notContains: *venvs_vol_mnt
+        documentIndex: 6
+      - notContains: *venvs_vol_mnt
+        documentIndex: 7
+      - notContains: *venvs_vol_mnt
+        documentIndex: 8
+      - notContains: *venvs_vol_mnt
+        documentIndex: 11
+      - notContains: *venvs_vol_mnt
+        documentIndex: 13
+
+      - contains: *pack_configs_vol_mnt # only contains if volumes.enabled
+        documentIndex: 1 # st2api
+      - contains: *pack_configs_vol_mnt # only contains if volumes.enabled
+        documentIndex: 10 # st2actionrunner
+      - contains: *pack_configs_vol_mnt # always
+        documentIndex: 12 # st2client
+
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 0
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 2
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 3
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 4
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 5
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 6
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 7
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 8
+      - notContains: *pack_configs_vol_mnt # never
+        documentIndex: 9 # st2sensorcontainer
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 11
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 13
+
+  - it: Jobs without st2.packs.images and with st2.packs.volumes
+    template: jobs.yaml
+    set:
+      st2:
+        rbac: { enabled: true } # enable rbac job
+        packs:
+          images: []
+          volumes:
+            enabled: true
+            packs: *nfs_packs_volume
+            virtualenvs: *nfs_venvs_volume
+            configs: *nfs_pack_configs_volume
+          configs: {} # has one core.yaml config file by default (dicts get merged)
+      jobs:
+        extra_hooks: *extra_hooks_jobs
+    release:
+      name: st2ha
+    asserts:
+      - hasDocuments:
+          count: 5
+
+      - contains: *nfs_packs_vol
+        documentIndex: 3 # register_content
+      - contains: *nfs_venvs_vol
+        documentIndex: 3 # register_content
+      - contains: *nfs_pack_configs_vol
+        documentIndex: 3 # register_content
+      - contains: *packs_vol_mnt
+        documentIndex: 3 # register_content
+      - contains: *venvs_vol_mnt
+        documentIndex: 3 # register_content
+      - contains: *pack_configs_vol_mnt
+        documentIndex: 3 # register_content
+
+      - notContains: *packs_vol
+        documentIndex: 0
+      - notContains: *venvs_vol
+        documentIndex: 0
+      - notContains: *pack_configs_vol
+        documentIndex: 0
+      - notContains: *packs_vol_mnt
+        documentIndex: 0
+      - notContains: *venvs_vol_mnt
+        documentIndex: 0
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 0
+
+      - notContains: *packs_vol
+        documentIndex: 1
+      - notContains: *venvs_vol
+        documentIndex: 1
+      - notContains: *pack_configs_vol
+        documentIndex: 1
+      - notContains: *packs_vol_mnt
+        documentIndex: 1
+      - notContains: *venvs_vol_mnt
+        documentIndex: 1
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 1
+
+      - notContains: *packs_vol
+        documentIndex: 2
+      - notContains: *venvs_vol
+        documentIndex: 2
+      - notContains: *pack_configs_vol
+        documentIndex: 2
+      - notContains: *packs_vol_mnt
+        documentIndex: 2
+      - notContains: *venvs_vol_mnt
+        documentIndex: 2
+      - notContains: *pack_configs_vol_mnt
+        documentIndex: 2
+
+  - it: Deployments with st2.packs.volumes but missing volumes config
+    template: deployments.yaml
+    set:
+      st2:
+        rbac: { enabled: true } # enable rbac job
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: []
+          volumes:
+            enabled: true
+            packs: {} # required when enabled
+            virtualenvs: {} # required when enabled
+            configs: {} # optional
+          configs: {} # has one core.yaml config file by default (dicts get merged)
+      st2chatops:
+        enabled: true
+    release:
+      name: missing-volumes-release
+    asserts:
+      - failedTemplate:
+          errorMessage: &volumes_err "Volume definition(s) missing! When st2.packs.volumes.enabled, you must define volumes for both packs and virtualenvs."
+
+  - it: Deployments with st2.packs.volumes but missing packs volume config
+    template: deployments.yaml
+    set:
+      st2:
+        rbac: { enabled: true } # enable rbac job
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: []
+          volumes:
+            enabled: true
+            packs: *nfs_packs_volume # required when enabled
+            virtualenvs: {} # required when enabled
+            configs: {} # optional
+          configs: {} # has one core.yaml config file by default (dicts get merged)
+      st2chatops:
+        enabled: true
+    release:
+      name: missing-volumes-release
+    asserts:
+      - failedTemplate:
+          errorMessage: *volumes_err
+
+  - it: Deployments with st2.packs.volumes but missing virtualenvs volume config
+    template: deployments.yaml
+    set:
+      st2:
+        rbac: { enabled: true } # enable rbac job
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: []
+          volumes:
+            enabled: true
+            packs: {} # required when enabled
+            virtualenvs: *nfs_venvs_volume # required when enabled
+            configs: {} # optional
+          configs: {} # has one core.yaml config file by default (dicts get merged)
+      st2chatops:
+        enabled: true
+    release:
+      name: missing-volumes-release
+    asserts:
+      - failedTemplate:
+          errorMessage: *volumes_err

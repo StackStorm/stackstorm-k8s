@@ -7,9 +7,9 @@ load "${BATS_HELPERS_DIR}/bats-file/load.bash"
 @test 'st2 version deployed and python env are as expected' {
   run st2 --version
   assert_success
-  # st2 3.3dev (9ea417346), on Python 3.6.9
+  # st2 3.7dev (4aac99ba8), on Python 3.8.10
   assert_line --partial "st2 ${ST2_VERSION}"
-  assert_line --partial 'on Python 3.6.9'
+  assert_line --partial 'on Python 3.8.10'
 }
 
 @test 'ST2_AUTH_URL service endpoint is accessible and working' {
@@ -52,8 +52,48 @@ load "${BATS_HELPERS_DIR}/bats-file/load.bash"
   assert_line --partial 'succeeded: true'
 }
 
+@test 'stanley_rsa file has correct permissions and ownership' {
+  local ssh_dir="/home/stanley/.ssh"
+  local private_key="${ssh_dir}/stanley_rsa"
+  run st2 run core.local cmd="find ${ssh_dir} -printf '%p: %u %g %m\n'"
+  assert_success
+  assert_line --partial 'return_code: 0'
+  assert_line --partial "stderr: ''"
+  assert_line --partial "${ssh_dir}: stanley stanley 500"
+  assert_line --partial "${private_key}: stanley stanley 400"
+  assert_line --partial 'succeeded: true'
+}
+
 @test 'st2 chatops core rule is loaded' {
   run st2 rule list
   assert_success
   assert_line --partial 'chatops.notify'
+}
+
+@test 'st2 key/value operations are functional' {
+  run st2 key set foo bar
+  assert_success
+
+  run st2 key get foo
+  assert_success
+  assert_line --partial 'bar'
+
+  run st2 key delete foo
+  assert_line --partial '"foo" has been successfully deleted'
+  assert_success
+
+  run st2 key get foo
+  assert_line --partial '"foo" is not found'
+  assert_failure
+}
+
+@test 'RBAC is loaded and enabled' {
+  if [ $ST2_RBAC_ENABLED != "true" ]; then
+    skip "disabled in Helm values"
+  fi
+
+  run st2 whoami
+  assert_success
+  assert_output --regexp 'RBAC:\s+ - Enabled: True'
+  assert_line --partial 'Roles: system_admin'
 }

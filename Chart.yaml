@@ -1,28 +1,46 @@
-apiVersion: v1
-# Update StackStorm version here to rely on other Docker images tags
-appVersion: 3.3dev
+apiVersion: v2
+# StackStorm version which refers to Docker images tag
+appVersion: "3.7"
 name: stackstorm-ha
-version: 0.31.0
+version: 0.100.0
 description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA environment.
-home: https://stackstorm.com/#product
-icon: https://avatars1.githubusercontent.com/u/4969009
+home: https://stackstorm.com/
+icon: https://landscape.cncf.io/logos/stack-storm.svg
 source:
-  - https://github.com/stackstorm/stackstorm-ha
+  - https://github.com/stackstorm/stackstorm-k8s
 keywords:
   - st2
   - stackstorm
   - devops
+  - SRE
+  - automation
   - chatops
   - event-driven
   - auto-remediation
   - IFTTT
   - HA
 maintainers:
-  - name: Eugen C.
+  - name: Eugen Cusmaunsa
+    email: armab@stackstorm.com
     url: https://github.com/armab
-  - name: Warren Van Winckel
-    url: https://github.com/warrenvw
 details:
-  This Helm chart is a fully installable app that codifies StackStorm cluster optimized for HA and K8s environment.
-  By default FOSS community version of st2 will be installed. Enterprise version can be enabled as an option.
-  For configuration details check 'values.yaml'.
+  This Helm chart is a fully installable app that codifies StackStorm cluster deployment optimized for HA and K8s environment.
+  RabbitMQ-HA, MongoDB-HA clusters and Redis coordination backend st2 relies on will be deployed as 3rd party chart dependencies.
+  For configuration details please check default values.yaml and README.
+dependencies:
+  - name: rabbitmq
+    version: 8.0.2
+    repository: https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami
+    condition: rabbitmq.enabled
+  - name: mongodb
+    version: 10.0.1
+    repository: https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami
+    condition: mongodb.enabled
+  - name: external-dns
+    version: 4.0.0
+    repository: https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami
+    condition: external-dns.enabled
+  - name: redis
+    version: 12.3.2
+    repository: https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami
+    condition: redis.enabled

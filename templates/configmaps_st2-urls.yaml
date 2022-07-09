@@ -5,15 +5,8 @@ metadata:
   name: {{ .Release.Name }}-st2-urls
   annotations:
     description: StackStorm service URLs, used across entire st2 cluster
-  labels:
-    app: st2
-    tier: backend
-    vendor: stackstorm
-    support: {{ template "supportMethod" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2") | nindent 4 }}
 data:
-  ST2_AUTH_URL: http://{{ .Release.Name }}-st2auth{{ template "enterpriseSuffix" . }}:9100/
-  ST2_API_URL: http://{{ .Release.Name }}-st2api{{ template "enterpriseSuffix" . }}:9101/
-  ST2_STREAM_URL: http://{{ .Release.Name }}-st2stream{{ template "enterpriseSuffix" . }}:9102/
+  ST2_AUTH_URL: http://{{ .Release.Name }}-st2auth:9100/
+  ST2_API_URL: http://{{ .Release.Name }}-st2api:9101/
+  ST2_STREAM_URL: http://{{ .Release.Name }}-st2stream:9102/

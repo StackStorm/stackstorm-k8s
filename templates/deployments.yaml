@@ -1,59 +1,58 @@
+# Notify users about breaking change regarding packs, to not destroy current installations
+{{- if and .Values.st2.packs.image }}
+{{- fail "Value st2.packs.image was renamed to st2.packs.images and is now a list of images" }}
+{{- end }}
+{{- if .Values.st2.packs.volumes.enabled }}
+  {{- if not (and .Values.st2.packs.volumes.packs .Values.st2.packs.volumes.virtualenvs) }}
+{{- fail "Volume definition(s) missing! When st2.packs.volumes.enabled, you must define volumes for both packs and virtualenvs." }}
+  {{- end }}
+{{- end }}
+
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2auth{{ template "enterpriseSuffix" . }}
-  labels:
-    app: st2auth
-    tier: backend
-    vendor: stackstorm
-    support: {{ template "supportMethod" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  name: {{ .Release.Name }}-st2auth
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2auth") | nindent 4 }}
+  {{- if .Values.st2auth.annotations }}
+  annotations: {{- toYaml .Values.st2auth.annotations | nindent 4 }}
+  {{- end }}
 spec:
   selector:
-    matchLabels:
-      app: st2auth
-      support: {{ template "supportMethod" . }}
-      release: {{ .Release.Name }}
+    matchLabels: {{- include "stackstorm-ha.selectorLabels" (list $ "st2auth") | nindent 6 }}
   # https://docs.stackstorm.com/reference/ha.html#st2auth
   # Multiple st2auth processes can be behind a load balancer in an active-active configuration.
   replicas: {{ default 2 .Values.st2auth.replicas }}
   template:
     metadata:
-      labels:
-        app: st2auth
-        tier: backend
-        vendor: stackstorm
-        support: {{ template "supportMethod" . }}
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" (list $ "st2auth") | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/auth: {{ include (print $.Template.BasePath "/secrets_st2auth.yaml") . | sha256sum }}
+        {{- if .Values.st2auth.postStartScript }}
+        checksum/post-start-script: {{ .Values.st2auth.postStartScript | sha256sum }}
+        {{- end }}
+        {{- if .Values.st2auth.annotations }}
+          {{- toYaml .Values.st2auth.annotations | nindent 8 }}
+        {{- end }}
     spec:
-      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
       {{- end }}
-      # Sidecar container for generating .htpasswd with st2 username & password pair and sharing produced file with the main st2auth container
       initContainers:
+      {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
+      # Sidecar container for generating .htpasswd with st2 username & password pair and sharing produced file with the main st2auth container
       - name: generate-htpasswd
-        image: "{{ template "imageRepository" . }}/st2auth{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2auth:{{ tpl (.Values.st2auth.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        env:
-        - name: ST2_AUTH_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: username
-        - name: ST2_AUTH_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: password
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
+        envFrom:
+        - secretRef:
+            name: {{ .Release.Name }}-st2-auth
         volumeMounts:
         - name: htpasswd-vol
           mountPath: /tmp/st2
@@ -62,169 +61,170 @@ spec:
           - '-ec'
           - printf "${ST2_AUTH_USERNAME}:$(openssl passwd -apr1 "${ST2_AUTH_PASSWORD}")\n" > /tmp/st2/htpasswd
       containers:
-      - name: st2auth{{ template "enterpriseSuffix" . }}
-        image: "{{ template "imageRepository" . }}/st2auth{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+      - name: st2auth
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2auth:{{ tpl (.Values.st2auth.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         ports:
         - containerPort: 9100
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        {{- if .Values.st2auth.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2auth | nindent 8 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.docker.conf
-          subPath: st2.docker.conf
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.user.conf
-          subPath: st2.user.conf
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8  }}
         - name: htpasswd-vol
           mountPath: /etc/st2/htpasswd
           subPath: htpasswd
           readOnly: true
+        {{- range .Values.st2auth.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2auth.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'mount' definition in st2auth.extra_volumes" .mount | toYaml) $ | nindent 10 }}
+        {{- end }}
+        {{- if .Values.st2auth.postStartScript }}
+        - name: st2-post-start-script-vol
+          mountPath: /post-start.sh
+          subPath: post-start.sh
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "/post-start.sh"]
+        {{- end }}
         resources:
-{{ toYaml .Values.st2auth.resources | indent 10 }}
+          {{- toYaml .Values.st2auth.resources | nindent 10 }}
     {{- if .Values.st2auth.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        - name: st2-config-vol
-          configMap:
-            name: {{ .Release.Name }}-st2-config
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         - name: htpasswd-vol
           emptyDir:
             medium: Memory
+        {{- range .Values.st2auth.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2auth.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'volume' definition in st2auth.extra_volumes" .volume | toYaml) $ | nindent 10 }}
+        {{- end }}
+        {{- if .Values.st2auth.postStartScript }}
+        - name: st2-post-start-script-vol
+          configMap:
+            name: {{ .Release.Name }}-st2auth-post-start-script
+        {{- end }}
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
+    {{- end }}
     {{- with .Values.st2auth.nodeSelector }}
-      nodeSelector:
-{{ toYaml . | indent 8 }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2auth.affinity }}
-      affinity:
-{{ toYaml . | indent 8 }}
+      affinity: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2auth.tolerations }}
-      tolerations:
-{{ toYaml . | indent 8 }}
+      tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2api{{ template "enterpriseSuffix" . }}
-  labels:
-    app: st2api
-    tier: backend
-    vendor: stackstorm
-    support: {{ template "supportMethod" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  name: {{ .Release.Name }}-st2api
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2api") | nindent 4 }}
+  {{- if .Values.st2api.annotations }}
+  annotations: {{- toYaml .Values.st2api.annotations | nindent 4 }}
+  {{- end }}
 spec:
   selector:
-    matchLabels:
-      app: st2api
-      support: {{ template "supportMethod" . }}
-      release: {{ .Release.Name }}
+    matchLabels: {{- include "stackstorm-ha.selectorLabels" (list $ "st2api") | nindent 6 }}
   # https://docs.stackstorm.com/reference/ha.html#st2api
   # Multiple st2api process can be behind a load balancer in an active-active configuration.
   replicas: {{ default 2 .Values.st2api.replicas }}
   template:
     metadata:
-      labels:
-        app: st2api
-        tier: backend
-        vendor: stackstorm
-        support: {{ template "supportMethod" . }}
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" (list $ "st2api") | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+        {{- if .Values.st2api.postStartScript }}
+        checksum/post-start-script: {{ .Values.st2api.postStartScript | sha256sum }}
+        {{- end }}
+        {{- if .Values.st2api.annotations }}
+          {{- toYaml .Values.st2api.annotations | nindent 8 }}
+        {{- end }}
     spec:
       imagePullSecrets:
-      {{- if .Values.enterprise.enabled }}
-      - name: {{ .Release.Name }}-st2-license
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
       {{- end }}
-      {{- if .Values.st2.packs.image.pullSecret }}
-      - name: {{ .Values.st2.packs.image.pullSecret }}
+      {{- if .Values.st2.packs.images }}
+        {{- include "stackstorm-ha.packs-pullSecrets" . | nindent 6 }}
       {{- end }}
-      {{- if .Values.st2.packs.image.repository }}
       initContainers:
-      # Merge packs and virtualenvs from st2api with those from the st2.packs image
-      # Custom packs
-      - name: st2-custom-packs
-        image: "{{ .Values.st2.packs.image.repository }}/{{ .Values.st2.packs.image.name }}:{{ .Values.st2.packs.image.tag }}"
-        imagePullPolicy: {{ .Values.st2.packs.image.pullPolicy | quote }}
-        volumeMounts:
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs-shared
-        - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs-shared
-        command:
-          - 'sh'
-          - '-ec'
-          - |
-            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
-            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
-      # System packs
-      - name: st2-system-packs
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        volumeMounts:
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs-shared
-        - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs-shared
-        command:
-          - 'sh'
-          - '-ec'
-          - |
-            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
-            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
+      {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
+      {{- if and .Values.st2.packs.images (not .Values.st2.packs.volumes.enabled) }}
+        {{- include "stackstorm-ha.packs-initContainers" . | nindent 6 }}
       {{- end }}
       containers:
-      - name: st2api{{ template "enterpriseSuffix" . }}
-        image: "{{ template "imageRepository" . }}/st2api{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+      - name: st2api
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2api:{{ tpl (.Values.st2api.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         ports:
         - containerPort: 9101
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        {{- if .Values.st2api.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2api | nindent 8 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.docker.conf
-          subPath: st2.docker.conf
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.user.conf
-          subPath: st2.user.conf
-        {{- if .Values.secrets.st2.datastore_crypto_key }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
           readOnly: true
         {{- end }}
-        {{- if .Values.st2.packs.image.repository }}
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs
-          readOnly: true
-        - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs
-          readOnly: true
+        {{- include "stackstorm-ha.packs-volume-mounts" . | nindent 8 }}
+        {{- if .Values.st2.packs.volumes.enabled }}
+          {{- include "stackstorm-ha.pack-configs-volume-mount" . | nindent 8 }}
+        {{- end }}
+        {{- range .Values.st2api.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2api.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'mount' definition in st2api.extra_volumes" .mount | toYaml) $ | nindent 10 }}
+        {{- end }}
+        {{- if .Values.st2api.postStartScript }}
+        - name: st2-post-start-script-vol
+          mountPath: /post-start.sh
+          subPath: post-start.sh
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "/post-start.sh"]
         {{- end }}
         resources:
-{{ toYaml .Values.st2api.resources | indent 10 }}
+          {{- toYaml .Values.st2api.resources | nindent 10 }}
     {{- if .Values.st2api.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        {{- if .Values.secrets.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
             secretName: {{ .Release.Name }}-st2-datastore-crypto-key
@@ -232,155 +232,185 @@ spec:
             - key: datastore_crypto_key
               path: datastore_key.json
         {{- end }}
-        - name: st2-config-vol
-          configMap:
-            name: {{ .Release.Name }}-st2-config
-        {{- if .Values.st2.packs.image.repository }}
-        - name: st2-packs-vol
-          emptyDir: {}
-        - name: st2-virtualenvs-vol
-          emptyDir: {}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
+        {{- include "stackstorm-ha.packs-volumes" . | nindent 8 }}
+        {{- if .Values.st2.packs.volumes.enabled }}
+          {{- include "stackstorm-ha.pack-configs-volume" . | nindent 8 }}
         {{- end }}
+        {{- range .Values.st2api.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2api.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'volume' definition in st2api.extra_volumes" .volume | toYaml) $ | nindent 10 }}
+        {{- end }}
+        {{- if .Values.st2api.postStartScript }}
+        - name: st2-post-start-script-vol
+          configMap:
+            name: {{ .Release.Name }}-st2api-post-start-script
+        {{- end }}
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
+    {{- end }}
     {{- with .Values.st2api.nodeSelector }}
-      nodeSelector:
-{{ toYaml . | indent 8 }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2api.affinity }}
-      affinity:
-{{ toYaml . | indent 8 }}
+      affinity: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2api.tolerations }}
-      tolerations:
-{{ toYaml . | indent 8 }}
+      tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2stream{{ template "enterpriseSuffix" . }}
-  labels:
-    app: st2stream
-    tier: backend
-    vendor: stackstorm
-    support: {{ template "supportMethod" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  name: {{ .Release.Name }}-st2stream
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2stream") | nindent 4 }}
+  {{- if .Values.st2stream.annotations }}
+  annotations: {{- toYaml .Values.st2stream.annotations | nindent 4 }}
+  {{- end }}
 spec:
   selector:
-    matchLabels:
-      app: st2stream
-      support: {{ template "supportMethod" . }}
-      release: {{ .Release.Name }}
+    matchLabels: {{- include "stackstorm-ha.selectorLabels" (list $ "st2stream") | nindent 6 }}
   # https://docs.stackstorm.com/reference/ha.html#st2stream
   # Multiple st2stream process can be behind a load balancer in an active-active configuration.
   replicas: {{ default 2 .Values.st2stream.replicas }}
   template:
     metadata:
-      labels:
-        app: st2stream
-        tier: backend
-        vendor: stackstorm
-        support: {{ template "supportMethod" . }}
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" (list $ "st2stream") | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        {{- if .Values.st2stream.postStartScript }}
+        checksum/post-start-script: {{ .Values.st2stream.postStartScript | sha256sum }}
+        {{- end }}
+        {{- if .Values.st2stream.annotations }}
+          {{- toYaml .Values.st2stream.annotations | nindent 8 }}
+        {{- end }}
     spec:
-      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
       {{- end }}
+      initContainers:
+      {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
       containers:
-      - name: st2stream{{ template "enterpriseSuffix" . }}
-        image: "{{ template "imageRepository" . }}/st2stream{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+      - name: st2stream
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2stream:{{ tpl (.Values.st2stream.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         ports:
         - containerPort: 9102
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        {{- if .Values.st2stream.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2stream | nindent 8 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.docker.conf
-          subPath: st2.docker.conf
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.user.conf
-          subPath: st2.user.conf
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
+        {{- range .Values.st2stream.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2stream.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'mount' definition in st2stream.extra_volumes" .mount | toYaml) $ | nindent 10 }}
+        {{- end }}
+        {{- if .Values.st2stream.postStartScript }}
+        - name: st2-post-start-script-vol
+          mountPath: /post-start.sh
+          subPath: post-start.sh
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "/post-start.sh"]
+        {{- end }}
         resources:
-{{ toYaml .Values.st2stream.resources | indent 10 }}
+          {{- toYaml .Values.st2stream.resources | nindent 10 }}
     {{- if .Values.st2stream.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        - name: st2-config-vol
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
+        {{- range .Values.st2stream.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2stream.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'volume' definition in st2stream.extra_volumes" .volume | toYaml) $ | nindent 10 }}
+        {{- end }}
+        {{- if .Values.st2stream.postStartScript }}
+        - name: st2-post-start-script-vol
           configMap:
-            name: {{ .Release.Name }}-st2-config
+            name: {{ .Release.Name }}-st2stream-post-start-script
+        {{- end }}
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
+    {{- end }}
     {{- with .Values.st2stream.nodeSelector }}
-      nodeSelector:
-{{ toYaml . | indent 8 }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2stream.affinity }}
-      affinity:
-{{ toYaml . | indent 8 }}
+      affinity: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2stream.tolerations }}
-      tolerations:
-{{ toYaml . | indent 8 }}
+      tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }}
-  labels:
-    app: st2web
-    tier: frontend
-    vendor: stackstorm
-    support: {{ template "supportMethod" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  name: {{ .Release.Name }}-st2web
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2web") | nindent 4 }}
+  {{- if .Values.st2web.annotations }}
+  annotations: {{- toYaml .Values.st2web.annotations | nindent 4 }}
+  {{- end }}
 spec:
   selector:
-    matchLabels:
-      app: st2web
-      support: {{ template "supportMethod" . }}
-      release: {{ .Release.Name }}
+    matchLabels: {{- include "stackstorm-ha.selectorLabels" (list $ "st2web") | nindent 6 }}
   replicas: {{ default 2 .Values.st2web.replicas }}
   template:
     metadata:
-      labels:
-        app: st2web
-        tier: frontend
-        vendor: stackstorm
-        support: {{ template "supportMethod" . }}
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" (list $ "st2web") | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2web.yaml") . | sha256sum }}
+        {{- if .Values.st2web.postStartScript }}
+        checksum/post-start-script: {{ .Values.st2web.postStartScript | sha256sum }}
+        {{- end }}
+        {{- if .Values.st2web.annotations }}
+          {{- toYaml .Values.st2web.annotations | nindent 8 }}
+        {{- end }}
     spec:
-      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
       {{- end }}
       containers:
-      - name: st2web{{ template "enterpriseSuffix" . }}
-        image: "{{ template "imageRepository" . }}/st2web{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+      - name: st2web
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2web:{{ tpl (.Values.st2web.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with default .Values.securityContext .Values.st2web.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         ports:
-        - containerPort: 80
+        - containerPort: {{ eq (get .Values.st2web.env "ST2WEB_HTTPS" | toString) "1" | ternary 443 80 }}
         # Probe to check if app is running. Failure will lead to a pod restart.
         livenessProbe:
           httpGet:
-            scheme: HTTP
+            scheme: {{ eq (get .Values.st2web.env "ST2WEB_HTTPS" | toString) "1" | ternary "HTTPS" "HTTP" }}
             path: /
-            port: 80
+            port: {{ eq (get .Values.st2web.env "ST2WEB_HTTPS" | toString) "1" | ternary 443 80 }}
           initialDelaySeconds: 1
         # Probe to check if app is ready to serve traffic. Failure will lead to temp stop serving traffic.
         # TODO: Failing to add readinessProbe, since st2 requires authorization (401) and we don't have `/healthz` endpoints yet (https://github.com/StackStorm/st2/issues/4020)
@@ -393,267 +423,157 @@ spec:
 #            path: /api/
 #            port: 443
 #          initialDelaySeconds: 3
+        {{- if .Values.st2web.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2web | nindent 8 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
-            optional: true
+    {{- if or .Values.st2web.config .Values.st2web.extra_volumes .Values.st2web.postStartScript }}
+        volumeMounts:
+    {{- else }}
         volumeMounts: []
+    {{- end }}
+        {{- range .Values.st2web.extra_volumes }}
+          - name: {{ required "Each volume must have a 'name' in st2web.extra_volumes" .name }}
+            {{- tpl (required "Each volume must have a 'mount' definition in st2web.extra_volumes" .mount | toYaml) $ | nindent 12 }}
+        {{- end }}
+        {{- if .Values.st2web.config }}
+          - name: st2web-config-vol
+            mountPath: /opt/stackstorm/static/webui/config.js
+            subPath: st2web.config.js
+        {{- end }}
+        {{- if .Values.st2web.postStartScript }}
+          - name: st2-post-start-script-vol
+            mountPath: /post-start.sh
+            subPath: post-start.sh
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "/post-start.sh"]
+        {{- end }}
         resources:
-{{ toYaml .Values.st2web.resources | indent 10 }}
+          {{- toYaml .Values.st2web.resources | nindent 10 }}
     {{- if .Values.st2web.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
+    {{- if or .Values.st2web.config .Values.st2web.extra_volumes .Values.st2web.postStartScript }}
+      volumes:
+    {{- else }}
       volumes: []
+    {{- end }}
+        {{- range .Values.st2web.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2web.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'volume' definition in st2web.extra_volumes" .volume | toYaml) $ | nindent 10 }}
+        {{- end }}
+        {{- if .Values.st2web.config }}
+        - name: st2web-config-vol
+          configMap:
+            name: {{ .Release.Name }}-st2web-config
+        {{- end }}
+        {{- if .Values.st2web.postStartScript }}
+        - name: st2-post-start-script-vol
+          configMap:
+            name: {{ .Release.Name }}-st2web-post-start-script
+        {{- end }}
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with default .Values.podSecurityContext .Values.st2client.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
+    {{- end }}
     {{- with .Values.st2web.nodeSelector }}
-      nodeSelector:
-{{ toYaml . | indent 8 }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2web.affinity }}
-      affinity:
-{{ toYaml . | indent 8 }}
+      affinity: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2web.tolerations }}
-      tolerations:
-{{ toYaml . | indent 8 }}
+      tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2rulesengine{{ template "enterpriseSuffix" . }}
-  labels:
-    app: st2rulesengine
-    tier: backend
-    vendor: stackstorm
-    support: {{ template "supportMethod" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  name: {{ .Release.Name }}-st2rulesengine
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2rulesengine") | nindent 4 }}
+  {{- if .Values.st2rulesengine.annotations }}
+  annotations: {{- toYaml .Values.st2rulesengine.annotations | nindent 4 }}
+  {{- end }}
 spec:
   selector:
-    matchLabels:
-      app: st2rulesengine
-      support: {{ template "supportMethod" . }}
-      release: {{ .Release.Name }}
+    matchLabels: {{- include "stackstorm-ha.selectorLabels" (list $ "st2rulesengine") | nindent 6 }}
   # https://docs.stackstorm.com/reference/ha.html#st2rulesengine
   # Multiple st2rulesengine processes can run in active-active with only connections to MongoDB and RabbitMQ. All these will share the TriggerInstance load and naturally pick up more work if one or more of the processes becomes unavailable.
   replicas: {{ default 2 .Values.st2rulesengine.replicas }}
   template:
     metadata:
-      labels:
-        app: st2rulesengine
-        tier: backend
-        vendor: stackstorm
-        support: {{ template "supportMethod" . }}
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
-      annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
-    spec:
-      {{- if .Values.enterprise.enabled }}
-      imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
-      containers:
-      - name: st2rulesengine{{ template "enterpriseSuffix" . }}
-        image: "{{ template "imageRepository" . }}/st2rulesengine{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        # TODO: Add liveness/readiness probes (#3)
-        #livenessProbe:
-        #readinessProbe:
-        envFrom:
-        - configMapRef:
-            name: {{ .Release.Name }}-st2-urls
-        volumeMounts:
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.docker.conf
-          subPath: st2.docker.conf
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.user.conf
-          subPath: st2.user.conf
-        resources:
-{{ toYaml .Values.st2rulesengine.resources | indent 10 }}
-    {{- if .Values.st2rulesengine.serviceAccount.attach }}
-      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
-    {{- end }}
-      volumes:
-        - name: st2-config-vol
-          configMap:
-            name: {{ .Release.Name }}-st2-config
-        {{- if .Values.secrets.st2.datastore_crypto_key }}
-        - name: st2-encryption-key-vol
-          secret:
-            secretName: datastore_crypto_key
-            items:
-            - key: datastore_crypto_key
-              path: datastore_key.json
-        {{- end }}
-    {{- with .Values.st2rulesengine.nodeSelector }}
-      nodeSelector:
-{{ toYaml . | indent 8 }}
-    {{- end }}
-    {{- with .Values.st2rulesengine.affinity }}
-      affinity:
-{{ toYaml . | indent 8 }}
-    {{- end }}
-    {{- with .Values.st2rulesengine.tolerations }}
-      tolerations:
-{{ toYaml . | indent 8 }}
-    {{- end }}
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: {{ .Release.Name }}-st2timersengine{{ template "enterpriseSuffix" . }}
-  labels:
-    app: st2timersengine
-    tier: backend
-    vendor: stackstorm
-    support: {{ template "supportMethod" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
-spec:
-  selector:
-    matchLabels:
-      app: st2timersengine
-      support: {{ template "supportMethod" . }}
-      release: {{ .Release.Name }}
-  # https://docs.stackstorm.com/reference/ha.html#st2timersengine
-  # Only single replica is created as timersengine can't work in active-active mode at the moment and it relies on
-  # K8s failover/reschedule capabilities to address cases when the process fails.
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        app: st2timersengine
-        tier: backend
-        vendor: stackstorm
-        support: {{ template "supportMethod" . }}
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
-      annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
-    spec:
-      {{- if .Values.enterprise.enabled }}
-      imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
-      {{- end }}
-      containers:
-      - name: st2timersengine{{ template "enterpriseSuffix" . }}
-        image: "{{ template "imageRepository" . }}/st2timersengine{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        # TODO: Add liveness/readiness probes (#3)
-        #livenessProbe:
-        #readinessProbe:
-        envFrom:
-        - configMapRef:
-            name: {{ .Release.Name }}-st2-urls
-        volumeMounts:
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.docker.conf
-          subPath: st2.docker.conf
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.user.conf
-          subPath: st2.user.conf
-        resources:
-{{ toYaml .Values.st2timersengine.resources | indent 10 }}
-    {{- if .Values.st2timersengine.serviceAccount.attach }}
-      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
-    {{- end }}
-      volumes:
-        - name: st2-config-vol
-          configMap:
-            name: {{ .Release.Name }}-st2-config
-    {{- with .Values.st2timersengine.nodeSelector }}
-      nodeSelector:
-{{ toYaml . | indent 8 }}
-    {{- end }}
-    {{- with .Values.st2timersengine.affinity }}
-      affinity:
-{{ toYaml . | indent 8 }}
-    {{- end }}
-    {{- with .Values.st2timersengine.tolerations }}
-      tolerations:
-{{ toYaml . | indent 8 }}
-    {{- end }}
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: {{ .Release.Name }}-st2workflowengine{{ template "enterpriseSuffix" . }}
-  labels:
-    app: st2workflowengine
-    tier: backend
-    vendor: stackstorm
-    support: {{ template "supportMethod" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
-spec:
-  selector:
-    matchLabels:
-      app: st2workflowengine
-      support: {{ template "supportMethod" . }}
-      release: {{ .Release.Name }}
-  # https://docs.stackstorm.com/reference/ha.html#st2workflowengine
-  # Multiple st2workflowengine processes can run in active-active mode and will share the load and pick up more work if one or more of the processes become available.
-  replicas: {{ default 2 .Values.st2workflowengine.replicas }}
-  template:
-    metadata:
-      labels:
-        app: st2workflowengine
-        tier: backend
-        vendor: stackstorm
-        support: {{ template "supportMethod" . }}
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" (list $ "st2rulesengine") | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+        {{- if .Values.st2rulesengine.postStartScript }}
+        checksum/post-start-script: {{ .Values.st2rulesengine.postStartScript | sha256sum }}
+        {{- end }}
+        {{- if .Values.st2rulesengine.annotations }}
+          {{- toYaml .Values.st2rulesengine.annotations | nindent 8 }}
+        {{- end }}
     spec:
-      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
       {{- end }}
+      initContainers:
+      {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
       containers:
-      - name: st2workflowengine{{ template "enterpriseSuffix" . }}
-        image: "{{ template "imageRepository" . }}/st2workflowengine{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+      - name: st2rulesengine
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2rulesengine:{{ tpl (.Values.st2rulesengine.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        {{- if .Values.st2rulesengine.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2rulesengine | nindent 8 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.docker.conf
-          subPath: st2.docker.conf
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.user.conf
-          subPath: st2.user.conf
-        {{- if .Values.secrets.st2.datastore_crypto_key }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
           readOnly: true
         {{- end }}
+        {{- range .Values.st2rulesengine.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2rulesengine.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'mount' definition in st2rulesengine.extra_volumes" .mount | toYaml) $ | nindent 10 }}
+        {{- end }}
+        {{- if .Values.st2rulesengine.postStartScript }}
+        - name: st2-post-start-script-vol
+          mountPath: /post-start.sh
+          subPath: post-start.sh
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "/post-start.sh"]
+        {{- end }}
         resources:
-{{ toYaml .Values.st2workflowengine.resources | indent 10 }}
-    {{- if .Values.st2workflowengine.serviceAccount.attach }}
+          {{- toYaml .Values.st2rulesengine.resources | nindent 10 }}
+    {{- if .Values.st2rulesengine.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        - name: st2-config-vol
-          configMap:
-            name: {{ .Release.Name }}-st2-config
-        {{- if .Values.secrets.st2.datastore_crypto_key }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
             secretName: {{ .Release.Name }}-st2-datastore-crypto-key
@@ -661,308 +581,633 @@ spec:
             - key: datastore_crypto_key
               path: datastore_key.json
         {{- end }}
-    {{- with .Values.st2workflowengine.nodeSelector }}
-      nodeSelector:
-{{ toYaml . | indent 8 }}
+        {{- range .Values.st2rulesengine.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2rulesengine.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'volume' definition in st2rulesengine.extra_volumes" .volume | toYaml) $ | nindent 10 }}
+        {{- end }}
+        {{- if .Values.st2rulesengine.postStartScript }}
+        - name: st2-post-start-script-vol
+          configMap:
+            name: {{ .Release.Name }}-st2rulesengine-post-start-script
+        {{- end }}
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
     {{- end }}
-    {{- with .Values.st2workflowengine.affinity }}
-      affinity:
-{{ toYaml . | indent 8 }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with .Values.st2workflowengine.tolerations }}
-      tolerations:
-{{ toYaml . | indent 8 }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.st2rulesengine.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.st2rulesengine.affinity }}
+      affinity: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.st2rulesengine.tolerations }}
+      tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2scheduler{{ template "enterpriseSuffix" . }}
-  labels:
-    app: st2scheduler
-    tier: backend
-    vendor: stackstorm
-    support: {{ template "supportMethod" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  name: {{ .Release.Name }}-st2timersengine
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2timersengine") | nindent 4 }}
+  {{- if .Values.st2timersengine.annotations }}
+  annotations: {{- toYaml .Values.st2timersengine.annotations | nindent 4 }}
+  {{- end }}
 spec:
   selector:
-    matchLabels:
-      app: st2scheduler
-      support: {{ template "supportMethod" . }}
-      release: {{ .Release.Name }}
-  # https://docs.stackstorm.com/reference/ha.html#st2scheduler
-  replicas: {{ default 2 .Values.st2scheduler.replicas }}
+    matchLabels: {{- include "stackstorm-ha.selectorLabels" (list $ "st2timersengine") | nindent 6 }}
+  # https://docs.stackstorm.com/reference/ha.html#st2timersengine
+  # Only single replica is created as timersengine can't work in active-active mode at the moment and it relies on
+  # K8s failover/reschedule capabilities to address cases when the process fails.
+  replicas: 1
   template:
     metadata:
-      labels:
-        app: st2scheduler
-        tier: backend
-        vendor: stackstorm
-        support: {{ template "supportMethod" . }}
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" (list $ "st2timersengine") | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        {{- if .Values.st2timersengine.postStartScript }}
+        checksum/post-start-script: {{ .Values.st2timersengine.postStartScript | sha256sum }}
+        {{- end }}
+        {{- if .Values.st2timersengine.annotations }}
+          {{- toYaml .Values.st2timersengine.annotations | nindent 8 }}
+        {{- end }}
     spec:
-      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
       {{- end }}
+      initContainers:
+      {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
       containers:
-      - name: st2scheduler{{ template "enterpriseSuffix" . }}
-        image: "{{ template "imageRepository" . }}/st2scheduler{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+      - name: st2timersengine
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2timersengine:{{ tpl (.Values.st2timersengine.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        {{- if .Values.st2timersengine.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2timersengine | nindent 8 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.docker.conf
-          subPath: st2.docker.conf
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.user.conf
-          subPath: st2.user.conf
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
+        {{- range .Values.st2timersengine.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2timersengine.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'mount' definition in st2timersengine.extra_volumes" .mount | toYaml) $ | nindent 10 }}
+        {{- end }}
+        {{- if .Values.st2timersengine.postStartScript }}
+        - name: st2-post-start-script-vol
+          mountPath: /post-start.sh
+          subPath: post-start.sh
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "/post-start.sh"]
+        {{- end }}
         resources:
-{{ toYaml .Values.st2scheduler.resources | indent 10 }}
-    {{- if .Values.st2scheduler.serviceAccount.attach }}
+          {{- toYaml .Values.st2timersengine.resources | nindent 10 }}
+    {{- if .Values.st2timersengine.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        - name: st2-config-vol
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
+        {{- range .Values.st2timersengine.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2timersengine.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'volume' definition in st2timersengine.extra_volumes" .volume | toYaml) $ | nindent 10 }}
+        {{- end }}
+        {{- if .Values.st2timersengine.postStartScript }}
+        - name: st2-post-start-script-vol
           configMap:
-            name: {{ .Release.Name }}-st2-config
-    {{- with .Values.st2scheduler.nodeSelector }}
-      nodeSelector:
-{{ toYaml . | indent 8 }}
+            name: {{ .Release.Name }}-st2timersengine-post-start-script
+        {{- end }}
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
     {{- end }}
-    {{- with .Values.st2scheduler.affinity }}
-      affinity:
-{{ toYaml . | indent 8 }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with .Values.st2scheduler.tolerations }}
-      tolerations:
-{{ toYaml . | indent 8 }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.st2timersengine.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.st2timersengine.affinity }}
+      affinity: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.st2timersengine.tolerations }}
+      tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2notifier{{ template "enterpriseSuffix" . }}
-  labels:
-    app: st2notifier
-    tier: backend
-    vendor: stackstorm
-    support: {{ template "supportMethod" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  name: {{ .Release.Name }}-st2workflowengine
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2workflowengine") | nindent 4 }}
+  {{- if .Values.st2workflowengine.annotations }}
+  annotations: {{- toYaml .Values.st2workflowengine.annotations | nindent 4 }}
+  {{- end }}
 spec:
   selector:
-    matchLabels:
-      app: st2notifier
-      support: {{ template "supportMethod" . }}
-      release: {{ .Release.Name }}
+    matchLabels: {{- include "stackstorm-ha.selectorLabels" (list $ "st2workflowengine") | nindent 6 }}
+  # https://docs.stackstorm.com/reference/ha.html#st2workflowengine
+  # Multiple st2workflowengine processes can run in active-active mode and will share the load and pick up more work if one or more of the processes become available.
+  replicas: {{ default 2 .Values.st2workflowengine.replicas }}
+  template:
+    metadata:
+      labels: {{- include "stackstorm-ha.labels" (list $ "st2workflowengine") | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+        {{- if .Values.st2workflowengine.postStartScript }}
+        checksum/post-start-script: {{ .Values.st2workflowengine.postStartScript | sha256sum }}
+        {{- end }}
+        {{- if .Values.st2workflowengine.annotations }}
+          {{- toYaml .Values.st2workflowengine.annotations | nindent 8 }}
+        {{- end }}
+    spec:
+      imagePullSecrets:
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
+      {{- end }}
+      initContainers:
+      {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
+      containers:
+      - name: st2workflowengine
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2workflowengine:{{ tpl (.Values.st2workflowengine.image.tag | default .Values.image.tag) . }}'
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
+        # TODO: Add liveness/readiness probes (#3)
+        #livenessProbe:
+        #readinessProbe:
+        {{- if .Values.st2workflowengine.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2workflowengine | nindent 8 }}
+        {{- end }}
+        envFrom:
+        - configMapRef:
+            name: {{ .Release.Name }}-st2-urls
+        volumeMounts:
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
+        - name: st2-encryption-key-vol
+          mountPath: /etc/st2/keys
+          readOnly: true
+        {{- end }}
+        {{- range .Values.st2workflowengine.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2workflowengine.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'mount' definition in st2workflowengine.extra_volumes" .mount | toYaml) $ | nindent 10 }}
+        {{- end }}
+        {{- if .Values.st2workflowengine.postStartScript }}
+        - name: st2-post-start-script-vol
+          mountPath: /post-start.sh
+          subPath: post-start.sh
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "/post-start.sh"]
+        {{- end }}
+        resources:
+          {{- toYaml .Values.st2workflowengine.resources | nindent 10 }}
+    {{- if .Values.st2workflowengine.serviceAccount.attach }}
+      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
+    {{- end }}
+      volumes:
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
+        - name: st2-encryption-key-vol
+          secret:
+            secretName: {{ .Release.Name }}-st2-datastore-crypto-key
+            items:
+            - key: datastore_crypto_key
+              path: datastore_key.json
+        {{- end }}
+        {{- range .Values.st2workflowengine.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2workflowengine.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'volume' definition in st2workflowengine.extra_volumes" .volume | toYaml) $ | nindent 10 }}
+        {{- end }}
+        {{- if .Values.st2workflowengine.postStartScript }}
+        - name: st2-post-start-script-vol
+          configMap:
+            name: {{ .Release.Name }}-st2workflowengine-post-start-script
+        {{- end }}
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.st2workflowengine.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.st2workflowengine.affinity }}
+      affinity: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.st2workflowengine.tolerations }}
+      tolerations: {{- toYaml . | nindent 8 }}
+    {{- end }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-st2scheduler
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2scheduler") | nindent 4 }}
+  {{- if .Values.st2scheduler.annotations }}
+  annotations: {{- toYaml .Values.st2scheduler.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  selector:
+    matchLabels: {{- include "stackstorm-ha.selectorLabels" (list $ "st2scheduler") | nindent 6 }}
+  # https://docs.stackstorm.com/reference/ha.html#st2scheduler
+  replicas: {{ default 2 .Values.st2scheduler.replicas }}
+  template:
+    metadata:
+      labels: {{- include "stackstorm-ha.labels" (list $ "st2scheduler") | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+        {{- if .Values.st2scheduler.postStartScript }}
+        checksum/post-start-script: {{ .Values.st2scheduler.postStartScript | sha256sum }}
+        {{- end }}
+        {{- if .Values.st2scheduler.annotations }}
+          {{- toYaml .Values.st2scheduler.annotations | nindent 8 }}
+        {{- end }}
+    spec:
+      imagePullSecrets:
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
+      {{- end }}
+      initContainers:
+      {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
+      containers:
+      - name: st2scheduler
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2scheduler:{{ tpl (.Values.st2scheduler.image.tag | default .Values.image.tag) . }}'
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
+        # TODO: Add liveness/readiness probes (#3)
+        #livenessProbe:
+        #readinessProbe:
+        {{- if .Values.st2scheduler.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2scheduler | nindent 8 }}
+        {{- end }}
+        envFrom:
+        - configMapRef:
+            name: {{ .Release.Name }}-st2-urls
+        volumeMounts:
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
+        - name: st2-encryption-key-vol
+          mountPath: /etc/st2/keys
+          readOnly: true
+        {{- end }}
+        {{- range .Values.st2scheduler.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2scheduler.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'mount' definition in st2scheduler.extra_volumes" .mount | toYaml) $ | nindent 10 }}
+        {{- end }}
+        {{- if .Values.st2scheduler.postStartScript }}
+        - name: st2-post-start-script-vol
+          mountPath: /post-start.sh
+          subPath: post-start.sh
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "/post-start.sh"]
+        {{- end }}
+        resources:
+          {{- toYaml .Values.st2scheduler.resources | nindent 10 }}
+    {{- if .Values.st2scheduler.serviceAccount.attach }}
+      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
+    {{- end }}
+      volumes:
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
+        - name: st2-encryption-key-vol
+          secret:
+            secretName: {{ .Release.Name }}-st2-datastore-crypto-key
+            items:
+            - key: datastore_crypto_key
+              path: datastore_key.json
+        {{- end }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
+        {{- range .Values.st2scheduler.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2scheduler.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'volume' definition in st2scheduler.extra_volumes" .volume | toYaml) $ | nindent 10 }}
+        {{- end }}
+        {{- if .Values.st2scheduler.postStartScript }}
+        - name: st2-post-start-script-vol
+          configMap:
+            name: {{ .Release.Name }}-st2scheduler-post-start-script
+        {{- end }}
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.st2scheduler.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.st2scheduler.affinity }}
+      affinity: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.st2scheduler.tolerations }}
+      tolerations: {{- toYaml . | nindent 8 }}
+    {{- end }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-st2notifier
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2notifier") | nindent 4 }}
+  {{- if .Values.st2notifier.annotations }}
+  annotations: {{- toYaml .Values.st2notifier.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  selector:
+    matchLabels: {{- include "stackstorm-ha.selectorLabels" (list $ "st2notifier") | nindent 6 }}
   # https://docs.stackstorm.com/reference/ha.html#st2notifier
   # st2notifier runs in active-active mode and requires for that coordination backend like Redis or Zookeeper
   replicas: {{ default 2 .Values.st2notifier.replicas }}
   template:
     metadata:
-      labels:
-        app: st2notifier
-        tier: backend
-        vendor: stackstorm
-        support: {{ template "supportMethod" . }}
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" (list $ "st2notifier") | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        {{- if .Values.st2notifier.postStartScript }}
+        checksum/post-start-script: {{ .Values.st2notifier.postStartScript | sha256sum }}
+        {{- end }}
+        {{- if .Values.st2notifier.annotations }}
+          {{- toYaml .Values.st2notifier.annotations | nindent 8 }}
+        {{- end }}
     spec:
-      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
       {{- end }}
+      initContainers:
+      {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
       containers:
-      - name: st2notifier{{ template "enterpriseSuffix" . }}
-        image: "{{ template "imageRepository" . }}/st2notifier{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+      - name: st2notifier
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2notifier:{{ tpl (.Values.st2notifier.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        {{- if .Values.st2notifier.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2notifier | nindent 8 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.docker.conf
-          subPath: st2.docker.conf
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.user.conf
-          subPath: st2.user.conf
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
+        {{- range .Values.st2notifier.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2notifier.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'mount' definition in st2notifier.extra_volumes" .mount | toYaml) $ | nindent 10 }}
+        {{- end }}
+        {{- if .Values.st2notifier.postStartScript }}
+        - name: st2-post-start-script-vol
+          mountPath: /post-start.sh
+          subPath: post-start.sh
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "/post-start.sh"]
+        {{- end }}
         resources:
-{{ toYaml .Values.st2notifier.resources | indent 10 }}
+          {{- toYaml .Values.st2notifier.resources | nindent 10 }}
     {{- if .Values.st2notifier.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        - name: st2-config-vol
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
+        {{- range .Values.st2notifier.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2notifier.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'volume' definition in st2notifier.extra_volumes" .volume | toYaml) $ | nindent 10 }}
+        {{- end }}
+        {{- if .Values.st2notifier.postStartScript }}
+        - name: st2-post-start-script-vol
           configMap:
-            name: {{ .Release.Name }}-st2-config
+            name: {{ .Release.Name }}-st2notifier-post-start-script
+        {{- end }}
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
+    {{- end }}
     {{- with .Values.st2notifier.nodeSelector }}
-      nodeSelector:
-{{ toYaml . | indent 8 }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2notifier.affinity }}
-      affinity:
-{{ toYaml . | indent 8 }}
+      affinity: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2notifier.tolerations }}
-      tolerations:
-{{ toYaml . | indent 8 }}
+      tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 
-{{- range .Values.st2.packs.sensors }}
+{{- $sensor_deployments_count := max 1 ($.Values.st2sensorcontainer.deployments|int) | int }}
+{{- $one_sensor_per_pod := not ($.Values.st2.packs.sensors | empty) }}
+{{- $some_sensors_per_pod := gt $sensor_deployments_count 1 }}
+{{- if and $one_sensor_per_pod $some_sensors_per_pod }}
+  {{- fail "The sensor values are ambiguous. To use one-sensor-per-pod, use `st2.packs.sensors`. To use multiple-sensors-per-pod, use `st2sensorcontainer.deployments > 1`. Do not use both!" }}
+{{- end }}
+{{- range ($one_sensor_per_pod | ternary ($.Values.st2.packs.sensors) (until $sensor_deployments_count)) }}
+  {{- $sensor := omit $.Values.st2sensorcontainer "name" "ref" "deployments" "postStartScript" }}
+  {{- if $one_sensor_per_pod }}
+    {{/* . is an entry in st2.packs.sensors */}}
+    {{- range $key, $val := . }}
+      {{- $_ := set $sensor $key $val }}
+    {{- end }}
+  {{- else if $some_sensors_per_pod }}
+    {{/* . is an index number of deployments (starting from 0) */}}
+    {{- $max_hash := 4294967296 }}
+    {{- $sensor_range_size := div (add1 $max_hash) $sensor_deployments_count }}
+    {{- $sensor_range_start := mul . $sensor_range_size }}
+    {{- $sensor_range_end := add $sensor_range_start $sensor_range_size -1 }}
+    {{/* deal with integer math rounding errors by moving the last range_end to the max_hash */}}
+    {{- $sensor_range_end := eq (add1 .) $sensor_deployments_count | ternary $max_hash $sensor_range_end }}
+    {{- $_ := set $sensor "hash_ranges" (print $sensor_range_start ".." $sensor_range_end) }}
+    {{- $_ := set $sensor "name" (. | toString) }}
+  {{- end }}
+  {{- $name := print "st2sensorcontainer" (include "stackstorm-ha.hyphenPrefix" $sensor.name) }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ $.Release.Name }}-st2sensorcontainer{{ template "hyphenPrefix" .name }}{{ template "enterpriseSuffix" $ }}
-  labels:
-    app: st2sensorcontainer{{ template "hyphenPrefix" .name }}
-    tier: backend
-    vendor: stackstorm
-    support: {{ template "supportMethod" $ }}
-    chart: {{ $.Chart.Name }}-{{ $.Chart.Version }}
-    release: {{ $.Release.Name }}
-    heritage: {{ $.Release.Service }}
+  name: {{ $.Release.Name }}-{{ $name }}
+  labels: {{- include "stackstorm-ha.labels" (list $ $name) | nindent 4 }}
+  {{- if $sensor.annotations }}
+  annotations: {{- toYaml $sensor.annotations | nindent 4 }}
+  {{- end }}
 spec:
   selector:
-    matchLabels:
-      app: st2sensorcontainer{{ template "hyphenPrefix" .name }}
-      support: {{ template "supportMethod" $ }}
-      release: {{ $.Release.Name }}
+    matchLabels: {{- include "stackstorm-ha.selectorLabels" (list $ $name) | nindent 6 }}
   # https://docs.stackstorm.com/reference/ha.html#st2sensorcontainer
-  # It is possible to run st2sensorcontainer in HA mode by running one process on each compute instance. Each sensor node needs to be
-  # provided with proper partition information to share work with other sensor nodes so that the same sensor does not run on different nodes.
-  # See Partitioning Sensors for information on how to partition sensors.
+  # It is possible to run st2sensorcontainer(s) in one of these modes:
+  #   (1) run all sensors in one pod (1 deployment with 1 pod, the default); or
+  #   (2) run multiple sensors per pod (2+ deployments with 1 pod each) using hash range partitions; or
+  #   (3) run one sensor per pod using st2.packs.sensors.
+  # Each sensor node needs to be provided with proper partition information to share work with other sensor nodes
+  # so that the same sensor does not run on different nodes. See: https://docs.stackstorm.com/reference/sensor_partitioning.html
   replicas: 1
   template:
     metadata:
-      labels:
-        app: st2sensorcontainer{{ template "hyphenPrefix" .name }}
-        tier: backend
-        vendor: stackstorm
-        support: {{ template "supportMethod" $ }}
-        chart: {{ $.Chart.Name }}-{{ $.Chart.Version }}
-        release: {{ $.Release.Name }}
-        heritage: {{ $.Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" (list $ $name) | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") $ | sha256sum }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") $ | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") $ | sha256sum }}
-        {{- if .annotations }}
-{{ toYaml .annotations | indent 8 }}
+        {{- if $.Values.st2sensorcontainer.postStartScript }}
+        checksum/post-start-script: {{ $.Values.st2sensorcontainer.postStartScript | sha256sum }}
+        {{- end }}
+        {{- if $one_sensor_per_pod }}
+        stackstorm/sensor-mode: one-sensor-per-pod
+        {{- else if $some_sensors_per_pod }}
+        stackstorm/sensor-mode: multiple-sensors-per-pod
+        stackstorm/sensor-hash-ranges: {{ $sensor.hash_ranges | quote }}
+        {{- else }}
+        stackstorm/sensor-mode: all-sensors-in-one-pod
+        {{- end }}
+        {{- if $sensor.annotations }}
+          {{- toYaml $sensor.annotations | nindent 8 }}
         {{- end }}
     spec:
       imagePullSecrets:
-      {{- if $.Values.enterprise.enabled }}
-      - name: {{ $.Release.Name }}-st2-license
+      {{- if $.Values.image.pullSecret }}
+      - name: {{ $.Values.image.pullSecret }}
       {{- end }}
-      {{- if $.Values.st2.packs.image.pullSecret }}
-      - name: {{ $.Values.st2.packs.image.pullSecret }}
+      {{- if $.Values.st2.packs.images }}
+        {{- include "stackstorm-ha.packs-pullSecrets" $ | nindent 6 }}
       {{- end }}
-      {{- if $.Values.st2.packs.image.repository }}
       initContainers:
-      # Merge packs and virtualenvs from st2sensorcontainer with those from the st2.packs image
-      # Custom packs
-      - name: st2-custom-packs
-        image: "{{ $.Values.st2.packs.image.repository }}/{{ $.Values.st2.packs.image.name }}:{{ $.Values.st2.packs.image.tag }}"
-        imagePullPolicy: {{ $.Values.st2.packs.image.pullPolicy | quote }}
+      {{- if $some_sensors_per_pod }}
+      - name: {{ $name }}-init-config
+        image: busybox:1.28
         volumeMounts:
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs-shared
-        - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs-shared
+        - name: st2-sensor-config-vol
+          mountPath: /tmp/st2
         command:
           - 'sh'
           - '-ec'
           - |
-            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
-            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
-      # System packs
-      - name: st2-system-packs
-        image: "{{ template "imageRepository" $ }}/st2actionrunner{{ template "enterpriseSuffix" $ }}:{{ $.Chart.AppVersion }}"
-        imagePullPolicy: {{ $.Values.image.pullPolicy }}
-        volumeMounts:
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs-shared
-        command:
-          - 'sh'
-          - '-ec'
-          - |
-            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
-            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
+              cat <<EOT > /tmp/st2/st2.sensorcontainer.conf
+              [sensorcontainer]
+              sensor_node_name = {{ $name }}
+              partition_provider = name:hash, hash_ranges:{{ $sensor.hash_ranges }}
+              single_sensor_mode = False
+              EOT
+      {{- end }}
+      {{- include "stackstorm-ha.init-containers-wait-for-db" $ | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-mq" $ | nindent 6 }}
+      {{- if and $.Values.st2.packs.images (not $.Values.st2.packs.volumes.enabled) }}
+        {{- include "stackstorm-ha.packs-initContainers" $ | nindent 6 }}
       {{- end }}
       containers:
-      - name: st2sensorcontainer{{ template "hyphenPrefix" .name }}{{ template "enterpriseSuffix" $ }}
-        image: "{{ template "imageRepository" $ }}/st2sensorcontainer{{ template "enterpriseSuffix" $ }}:{{ $.Chart.AppVersion }}"
+      - name: {{ $name }}
+        image: '{{ template "stackstorm-ha.imageRepository" $ }}/st2sensorcontainer:{{ tpl ($sensor.image.tag | default $.Values.image.tag) $ }}'
         imagePullPolicy: {{ $.Values.image.pullPolicy }}
-        {{- with .readinessProbe }}
+        {{- with default $.Values.securityContext $sensor.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with $sensor.readinessProbe }}
         # Probe to check if app is running. Failure will lead to a pod restart.
         readinessProbe:
-{{ toYaml . | indent 10 }}
+          {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- with .livenessProbe }}
+        {{- with $sensor.livenessProbe }}
         livenessProbe:
-{{ toYaml . | indent 10 }}
+          {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- if .ref }}
+        {{- if or $one_sensor_per_pod $some_sensors_per_pod }}{{/* ie: when there is more than one pod of sensors */}}
         command:
           - /opt/stackstorm/st2/bin/st2sensorcontainer
           - --config-file=/etc/st2/st2.conf
           - --config-file=/etc/st2/st2.docker.conf
           - --config-file=/etc/st2/st2.user.conf
+          {{- if $one_sensor_per_pod }}{{/* only in st2.packs.sensors[] */}}
           - --single-sensor-mode
-          - --sensor-ref={{ .ref }}
+          - --sensor-ref={{ required "You must define `ref` for everything in st2.packs.sensors. This assigns each sensor to a pod." $sensor.ref }}
+          {{- else if $some_sensors_per_pod }}
+          # injected by {{ $name }}-init-config
+          - --config-file=/etc/st2/st2.sensorcontainer.conf
+          {{- end }}
+        {{- end }}
+        {{- if $sensor.env }}
+        env: {{- include "stackstorm-ha.customEnv" $sensor | nindent 8 }}
         {{- end }}
         envFrom:
         - configMapRef:
             name: {{ $.Release.Name }}-st2-urls
+        {{- range $sensor.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
         volumeMounts:
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.docker.conf
-          subPath: st2.docker.conf
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.user.conf
-          subPath: st2.user.conf
-        {{- if $.Values.st2.packs.image.repository }}
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs
-          readOnly: true
-        - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs
+        {{- include "stackstorm-ha.st2-config-volume-mounts" $ | nindent 8 }}
+        {{- include "stackstorm-ha.packs-volume-mounts" $ | nindent 8 }}
+        {{- if $some_sensors_per_pod }}
+        - name: st2-sensor-config-vol
+          mountPath: /etc/st2/st2.sensorcontainer.conf
+          subPath: st2.sensorcontainer.conf
           readOnly: true
         {{- end }}
-        {{- if $.Values.secrets.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" $.Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
           readOnly: true
         {{- end }}
+        {{- range $sensor.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in $sensor.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'mount' definition in $sensor.extra_volumes" .mount | toYaml) $ | nindent 10 }}
+        {{- end }}
+        {{- if $.Values.st2sensorcontainer.postStartScript }}
+        - name: st2-post-start-script-vol
+          mountPath: /post-start.sh
+          subPath: post-start.sh
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "/post-start.sh"]
+        {{- end }}
         resources:
-{{ toYaml .resources | indent 10 }}
-    {{- if .serviceAccount.attach }}
+          {{- toYaml $sensor.resources | nindent 10 }}
+    {{- if $sensor.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" $ }}
     {{- end }}
       volumes:
-        {{- if $.Values.secrets.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" $.Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
             secretName: {{ $.Release.Name }}-st2-datastore-crypto-key
@@ -970,26 +1215,39 @@ spec:
             - key: datastore_crypto_key
               path: datastore_key.json
         {{- end }}
-        - name: st2-config-vol
-          configMap:
-            name: {{ $.Release.Name }}-st2-config
-        {{- if $.Values.st2.packs.image.repository }}
-        - name: st2-packs-vol
-          emptyDir: {}
-        - name: st2-virtualenvs-vol
-          emptyDir: {}
+        {{- include "stackstorm-ha.st2-config-volume" $ | nindent 8 }}
+        {{- include "stackstorm-ha.packs-volumes" $ | nindent 8 }}
+        {{- if $some_sensors_per_pod }}
+        - name: st2-sensor-config-vol
+          emptyDir: # This is for a tiny file
+            medium: Memory
         {{- end }}
-    {{- with .nodeSelector }}
-      nodeSelector:
-{{ toYaml . | indent 8 }}
+        {{- range $sensor.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in $sensor.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'volume' definition in $sensor.extra_volumes" .volume | toYaml) $ | nindent 10 }}
+        {{- end }}
+        {{- if $.Values.st2sensorcontainer.postStartScript }}
+        - name: st2-post-start-script-vol
+          configMap:
+            name: {{ $.Release.Name }}-st2sensorcontainer-post-start-script
+        {{- end }}
+    {{- if $.Values.dnsPolicy }}
+      dnsPolicy: {{ $.Values.dnsPolicy }}
     {{- end }}
-    {{- with .affinity }}
-      affinity:
-{{ toYaml . | indent 8 }}
+    {{- with $.Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with .tolerations }}
-      tolerations:
-{{ toYaml . | indent 8 }}
+    {{- with default $.Values.podSecurityContext $sensor.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with $sensor.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with $sensor.affinity }}
+      affinity: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with $sensor.tolerations }}
+      tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 {{- end }}
 
@@ -997,129 +1255,103 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2actionrunner{{ template "enterpriseSuffix" . }}
-  labels:
-    app: st2actionrunner
-    tier: backend
-    vendor: stackstorm
-    support: {{ template "supportMethod" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  name: {{ .Release.Name }}-st2actionrunner
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2actionrunner") | nindent 4 }}
+  {{- if .Values.st2actionrunner.annotations }}
+  annotations: {{- toYaml .Values.st2actionrunner.annotations | nindent 4 }}
+  {{- end }}
 spec:
   selector:
-    matchLabels:
-      app: st2actionrunner
-      support: {{ template "supportMethod" . }}
-      release: {{ .Release.Name }}
+    matchLabels: {{- include "stackstorm-ha.selectorLabels" (list $ "st2actionrunner") | nindent 6 }}
   # https://docs.stackstorm.com/reference/ha.html#st2actionrunner
   # Multiple st2actionrunner processes can run in active-active with only connections to MongoDB and RabbitMQ. Work gets naturally
   # distributed across runners via RabbitMQ. Adding more st2actionrunner processes increases the ability of StackStorm to execute actions.
   replicas: {{ default 5 .Values.st2actionrunner.replicas }}
   template:
     metadata:
-      labels:
-        app: st2actionrunner
-        tier: backend
-        vendor: stackstorm
-        support: {{ template "supportMethod" . }}
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" (list $ "st2actionrunner") | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/ssh: {{ include (print $.Template.BasePath "/secrets_ssh.yaml") . | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+        {{- if .Values.st2actionrunner.postStartScript }}
+        checksum/post-start-script: {{ .Values.st2actionrunner.postStartScript | sha256sum }}
+        {{- end }}
         {{- if .Values.st2actionrunner.annotations }}
-{{ toYaml .Values.st2actionrunner.annotations | indent 8 }}
+          {{- toYaml .Values.st2actionrunner.annotations | nindent 8 }}
         {{- end }}
     spec:
       {{- if .Values.st2actionrunner.hostAliases }}
       hostAliases:
-{{ toYaml .Values.st2actionrunner.hostAliases | indent 8 }}
+        {{- toYaml .Values.st2actionrunner.hostAliases | nindent 8 }}
       {{- end }}
       imagePullSecrets:
-      {{- if .Values.enterprise.enabled }}
-      - name: {{ .Release.Name }}-st2-license
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
       {{- end }}
-      {{- if .Values.st2.packs.image.pullSecret }}
-      - name: {{ .Values.st2.packs.image.pullSecret }}
+      {{- if .Values.st2.packs.images }}
+        {{- include "stackstorm-ha.packs-pullSecrets" . | nindent 6 }}
       {{- end }}
       {{- if .Values.st2actionrunner.image.pullSecret }}
       - name: {{ .Values.st2actionrunner.image.pullSecret }}
       {{- end }}
-      {{- if .Values.st2.packs.image.repository }}
       initContainers:
-      # Merge packs and virtualenvs from st2actionrunner with those from the st2.packs image
-      # Custom packs
-      - name: st2-custom-packs
-        image: "{{ .Values.st2.packs.image.repository }}/{{ .Values.st2.packs.image.name }}:{{ .Values.st2.packs.image.tag }}"
-        imagePullPolicy: {{ .Values.st2.packs.image.pullPolicy | quote }}
-        volumeMounts:
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs-shared
-        - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs-shared
-        command:
-          - 'sh'
-          - '-ec'
-          - |
-            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
-            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
-      # System packs
-      - name: st2-system-packs
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        volumeMounts:
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs-shared
-        command:
-          - 'sh'
-          - '-ec'
-          - |
-            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
-            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
+      {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
+      {{- if and .Values.st2.packs.images (not .Values.st2.packs.volumes.enabled) }}
+        {{- include "stackstorm-ha.packs-initContainers" . | nindent 6 }}
       {{- end }}
       containers:
-      - name: st2actionrunner{{ template "enterpriseSuffix" . }}
-        image: "{{ template "st2actionrunnerImageRepository" . }}/{{ .Values.st2actionrunner.image.name | default "st2actionrunner" }}{{ template "enterpriseSuffix" . }}:{{ .Values.st2actionrunner.image.tag | default .Chart.AppVersion }}"
+      - name: st2actionrunner
+        image: '{{ template "st2actionrunnerImageRepository" . }}/{{ .Values.st2actionrunner.image.name | default "st2actionrunner" }}:{{ tpl (.Values.st2actionrunner.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.st2actionrunner.image.imagePullPolicy | default .Values.image.pullPolicy }}
+        {{- with default .Values.securityContext .Values.st2actionrunner.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        {{- if .Values.st2actionrunner.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2actionrunner | nindent 8 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
+        {{- range .Values.st2actionrunner.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
         volumeMounts:
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.docker.conf
-          subPath: st2.docker.conf
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.user.conf
-          subPath: st2.user.conf
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         - name: st2-ssh-key-vol
-          mountPath: /home/stanley/.ssh/
-          readOnly: true
-        {{- if .Values.secrets.st2.datastore_crypto_key }}
+          mountPath: {{ tpl .Values.st2.system_user.ssh_key_file . | dir | dir }}/.ssh-key-vol/
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
           readOnly: true
         {{- end }}
-        {{- if .Values.st2.packs.image.repository }}
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs
-          readOnly: true
-        - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs
-          readOnly: true
+        {{- include "stackstorm-ha.packs-volume-mounts" . | nindent 8 }}
+        {{- if .Values.st2.packs.volumes.enabled }}
+          {{- include "stackstorm-ha.pack-configs-volume-mount" . | nindent 8 }}
         {{- end }}
+        {{- range .Values.st2actionrunner.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2actionrunner.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'mount' definition in st2actionrunner.extra_volumes" .mount | toYaml) $ | nindent 10 }}
+        {{- end }}
+        - name: st2-post-start-script-vol
+          mountPath: /post-start.sh
+          subPath: post-start.sh
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "/post-start.sh"]
         resources:
-{{ toYaml .Values.st2actionrunner.resources | indent 10 }}
+          {{- toYaml .Values.st2actionrunner.resources | nindent 10 }}
     {{- if .Values.st2actionrunner.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        {{- if .Values.secrets.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
             secretName: {{ .Release.Name }}-st2-datastore-crypto-key
@@ -1127,211 +1359,205 @@ spec:
             - key: datastore_crypto_key
               path: datastore_key.json
         {{- end }}
-        - name: st2-config-vol
-          configMap:
-            name: {{ .Release.Name }}-st2-config
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         - name: st2-ssh-key-vol
           secret:
             secretName: {{ .Release.Name }}-st2-ssh
             items:
             - key: private_key
-              path: stanley_rsa
+              path: {{ tpl .Values.st2.system_user.ssh_key_file . | base }}
               # 0400 file permission
               mode: 256
-        {{- if .Values.st2.packs.image.repository }}
-        - name: st2-packs-vol
-          emptyDir: {}
-        - name: st2-virtualenvs-vol
-          emptyDir: {}
+        {{- include "stackstorm-ha.packs-volumes" . | nindent 8 }}
+        {{- if .Values.st2.packs.volumes.enabled }}
+          {{- include "stackstorm-ha.pack-configs-volume" . | nindent 8 }}
         {{- end }}
+        {{- range .Values.st2actionrunner.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2actionrunner.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'volume' definition in st2actionrunner.extra_volumes" .volume | toYaml) $ | nindent 10 }}
+        {{- end }}
+        - name: st2-post-start-script-vol
+          configMap:
+            name: {{ .Release.Name }}-st2actionrunner-post-start-script
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with default .Values.podSecurityContext .Values.st2actionrunner.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
+    {{- end }}
     {{- with .Values.st2actionrunner.nodeSelector }}
-      nodeSelector:
-{{ toYaml . | indent 8 }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2actionrunner.affinity }}
-      affinity:
-{{ toYaml . | indent 8 }}
+      affinity: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2actionrunner.tolerations }}
-      tolerations:
-{{ toYaml . | indent 8 }}
+      tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2garbagecollector{{ template "enterpriseSuffix" . }}
-  labels:
-    app: st2garbagecollector
-    tier: backend
-    vendor: stackstorm
-    support: {{ template "supportMethod" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  name: {{ .Release.Name }}-st2garbagecollector
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2garbagecollector") | nindent 4 }}
+  {{- if .Values.st2garbagecollector.annotations }}
+  annotations: {{- toYaml .Values.st2garbagecollector.annotations | nindent 4 }}
+  {{- end }}
 spec:
   selector:
-    matchLabels:
-      app: st2garbagecollector
-      support: {{ template "supportMethod" . }}
-      release: {{ .Release.Name }}
+    matchLabels: {{- include "stackstorm-ha.selectorLabels" (list $ "st2garbagecollector") | nindent 6 }}
   # https://docs.stackstorm.com/reference/ha.html#st2garbagecollector
   # Having 1 st2garbagecollector unique replica is enough for periodic task like st2 history garbage collection
   replicas: {{ default 1 .Values.st2garbagecollector.replicas }}
   template:
     metadata:
-      labels:
-        app: st2garbagecollector
-        tier: backend
-        vendor: stackstorm
-        support: {{ template "supportMethod" . }}
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" (list $ "st2garbagecollector") | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        {{- if .Values.st2garbagecollector.postStartScript }}
+        checksum/post-start-script: {{ .Values.st2garbagecollector.postStartScript | sha256sum }}
+        {{- end }}
+        {{- if .Values.st2garbagecollector.annotations }}
+          {{- toYaml .Values.st2garbagecollector.annotations | nindent 8 }}
+        {{- end }}
     spec:
-      {{- if .Values.enterprise.enabled }}
       imagePullSecrets:
-      - name: {{ .Release.Name }}-st2-license
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
       {{- end }}
+      initContainers:
+      {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
+      {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
       containers:
-      - name: st2garbagecollector{{ template "enterpriseSuffix" . }}
-        image: "{{ template "imageRepository" . }}/st2garbagecollector{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+      - name: st2garbagecollector
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2garbagecollector:{{ tpl (.Values.st2garbagecollector.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        {{- if .Values.st2garbagecollector.env }}
+        env: {{- include "stackstorm-ha.customEnv" .Values.st2garbagecollector | nindent 8 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.docker.conf
-          subPath: st2.docker.conf
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.user.conf
-          subPath: st2.user.conf
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
+        {{- range .Values.st2garbagecollector.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2garbagecollector.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'mount' definition in st2garbagecollector.extra_volumes" .mount | toYaml) $ | nindent 10 }}
+        {{- end }}
+        {{- if .Values.st2garbagecollector.postStartScript }}
+        - name: st2-post-start-script-vol
+          mountPath: /post-start.sh
+          subPath: post-start.sh
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "/post-start.sh"]
+        {{- end }}
         resources:
-{{ toYaml .Values.st2garbagecollector.resources | indent 10 }}
+          {{- toYaml .Values.st2garbagecollector.resources | nindent 10 }}
     {{- if .Values.st2garbagecollector.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
-        - name: st2-config-vol
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
+        {{- range .Values.st2garbagecollector.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2garbagecollector.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'volume' definition in st2garbagecollector.extra_volumes" .volume | toYaml) $ | nindent 10 }}
+        {{- end }}
+        {{- if .Values.st2garbagecollector.postStartScript }}
+        - name: st2-post-start-script-vol
           configMap:
-            name: {{ .Release.Name }}-st2-config
+            name: {{ .Release.Name }}-st2garbagecollector-post-start-script
+        {{- end }}
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
+    {{- end }}
     {{- with .Values.st2garbagecollector.nodeSelector }}
-      nodeSelector:
-{{ toYaml . | indent 8 }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2garbagecollector.affinity }}
-      affinity:
-{{ toYaml . | indent 8 }}
+      affinity: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2garbagecollector.tolerations }}
-      tolerations:
-{{ toYaml . | indent 8 }}
+      tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2client{{ template "enterpriseSuffix" . }}
-  labels:
-    app: st2client
-    tier: backend
-    vendor: stackstorm
-    support: {{ template "supportMethod" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  name: {{ .Release.Name }}-st2client
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2client") | nindent 4 }}
+  {{- if .Values.st2client.annotations }}
+  annotations: {{- toYaml .Values.st2client.annotations | nindent 4 }}
+  {{- end }}
 spec:
   selector:
-    matchLabels:
-      app: st2client
-      support: {{ template "supportMethod" . }}
-      release: {{ .Release.Name }}
+    matchLabels: {{- include "stackstorm-ha.selectorLabels" (list $ "st2client") | nindent 6 }}
   replicas: 1
   template:
     metadata:
-      labels:
-        app: st2client
-        tier: backend
-        vendor: stackstorm
-        support: {{ template "supportMethod" . }}
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" (list $ "st2client") | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
-        {{- if .Values.enterprise.enabled }}
         checksum/rbac: {{ include (print $.Template.BasePath "/configmaps_rbac.yaml") . | sha256sum }}
-        {{- end }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") . | sha256sum }}
         checksum/auth: {{ include (print $.Template.BasePath "/secrets_st2auth.yaml") . | sha256sum }}
         checksum/ssh: {{ include (print $.Template.BasePath "/secrets_ssh.yaml") . | sha256sum }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+        {{- if .Values.st2.overrides }}
+        checksum/overrides: {{ include (print $.Template.BasePath "/configmaps_overrides.yaml") . | sha256sum }}
+        {{- end }}
+        {{- if .Values.st2client.postStartScript }}
+        checksum/post-start-script: {{ .Values.st2client.postStartScript | sha256sum }}
+        {{- end }}
+        {{- if .Values.st2client.annotations }}
+          {{- toYaml .Values.st2client.annotations | nindent 8 }}
+        {{- end }}
     spec:
       imagePullSecrets:
-      {{- if .Values.enterprise.enabled }}
-      - name: {{ .Release.Name }}-st2-license
+      {{- if .Values.st2.packs.images }}
+        {{- include "stackstorm-ha.packs-pullSecrets" . | nindent 6 }}
       {{- end }}
-      {{- if .Values.st2.packs.image.pullSecret }}
-      - name: {{ .Values.st2.packs.image.pullSecret }}
+      {{- if .Values.image.pullSecret }}
+      - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
-      {{- if .Values.st2.packs.image.repository }}
-      # Merge packs and virtualenvs from st2actionrunner with those from the st2.packs image
-      # Custom packs
-      - name: st2-custom-packs
-        image: "{{ .Values.st2.packs.image.repository }}/{{ .Values.st2.packs.image.name }}:{{ .Values.st2.packs.image.tag }}"
-        imagePullPolicy: {{ .Values.st2.packs.image.pullPolicy | quote }}
-        volumeMounts:
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs-shared
-        - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs-shared
-        command:
-          - 'sh'
-          - '-ec'
-          - |
-            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
-            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
-      # System packs
-      - name: st2-system-packs
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        volumeMounts:
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs-shared
-        command:
-          - 'sh'
-          - '-ec'
-          - |
-            /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
-            /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
+      {{- if and .Values.st2.packs.images (not .Values.st2.packs.volumes.enabled) }}
+        {{- include "stackstorm-ha.packs-initContainers" . | nindent 6 }}
       {{- end }}
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       - name: generate-st2client-config
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2client.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
-        env:
-        - name: ST2_AUTH_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: username
-        - name: ST2_AUTH_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: password
+        - secretRef:
+            name: {{ .Release.Name }}-st2-auth
+        {{- range .Values.st2client.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
         volumeMounts:
         - name: st2client-config-vol
           mountPath: /root/.st2/
@@ -1341,28 +1567,29 @@ spec:
           - '-ec'
           - |
             cat <<EOT > /root/.st2/config
-            [credentials]
-            username = ${ST2_AUTH_USERNAME}
-            password = ${ST2_AUTH_PASSWORD}
+            {{- tpl .Values.st2client.st2clientConfig . | nindent 12 }}
             EOT
       containers:
-      - name: st2client{{ template "enterpriseSuffix" . }}
-        image: "{{ template "imageRepository" . }}/st2actionrunner{{ template "enterpriseSuffix" . }}:{{ .Chart.AppVersion }}"
+      - name: st2client
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2client.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with default .Values.securityContext .Values.st2actionrunner.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         env:
         - name: ST2CLIENT
           value: "1"
+        {{- include "stackstorm-ha.customEnv" .Values.st2client | nindent 8 }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
+        {{- range .Values.st2client.envFromSecrets }}
+        - secretRef:
+            name: {{ . }}
+        {{- end }}
         volumeMounts:
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.docker.conf
-          subPath: st2.docker.conf
-        - name: st2-config-vol
-          mountPath: /etc/st2/st2.user.conf
-          subPath: st2.user.conf
-        {{- if .Values.enterprise.enabled }}
+        {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
+        {{- if .Values.st2.rbac.enabled }}
         - name: st2-rbac-roles-vol
           mountPath: /opt/stackstorm/rbac/roles/
         - name: st2-rbac-assignments-vol
@@ -1370,36 +1597,39 @@ spec:
         - name: st2-rbac-mappings-vol
           mountPath: /opt/stackstorm/rbac/mappings/
         {{- end }}
-        - name: st2-pack-configs-vol
-          mountPath: /opt/stackstorm/configs/
+        {{- include "stackstorm-ha.overrides-config-mounts" . | nindent 8 }}
         - name: st2client-config-vol
           mountPath: /root/.st2/
         - name: st2-ssh-key-vol
-          mountPath: /home/stanley/.ssh/
-          readOnly: true
-        {{- if .Values.secrets.st2.datastore_crypto_key }}
+          mountPath: {{ tpl .Values.st2.system_user.ssh_key_file . | dir | dir }}/.ssh-key-vol/
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           mountPath: /etc/st2/keys
           readOnly: true
         {{- end }}
-        {{- if .Values.st2.packs.image.repository }}
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs
-          readOnly: true
-        - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs
-          readOnly: true
+        {{- include "stackstorm-ha.packs-volume-mounts" . | nindent 8 }}
+        {{- include "stackstorm-ha.pack-configs-volume-mount" . | nindent 8 }}
+        {{- range .Values.st2client.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2client.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'mount' definition in st2client.extra_volumes" .mount | toYaml) $ | nindent 10 }}
         {{- end }}
+        - name: st2-post-start-script-vol
+          mountPath: /post-start.sh
+          subPath: post-start.sh
         command:
           - 'bash'
           - '-ec'
           - 'while true; do sleep 999; done'
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "/post-start.sh"]
         resources:
           requests:
             memory: "5Mi"
             cpu: "5m"
       volumes:
-        {{- if .Values.secrets.st2.datastore_crypto_key }}
+        {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
             secretName: {{ .Release.Name }}-st2-datastore-crypto-key
@@ -1407,10 +1637,8 @@ spec:
             - key: datastore_crypto_key
               path: datastore_key.json
         {{- end }}
-        - name: st2-config-vol
-          configMap:
-            name: {{ .Release.Name }}-st2-config
-        {{- if .Values.enterprise.enabled }}
+        {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
+        {{- if .Values.st2.rbac.enabled }}
         - name: st2-rbac-roles-vol
           configMap:
             name: {{ .Release.Name }}-st2-rbac-roles
@@ -1421,9 +1649,7 @@ spec:
           configMap:
             name: {{ .Release.Name }}-st2-rbac-mappings
         {{- end }}
-        - name: st2-pack-configs-vol
-          configMap:
-            name: {{ .Release.Name }}-st2-pack-configs
+        {{- include "stackstorm-ha.overrides-configs" . | nindent 8 }}
         - name: st2client-config-vol
           emptyDir:
             medium: Memory
@@ -1432,69 +1658,82 @@ spec:
             secretName: {{ .Release.Name }}-st2-ssh
             items:
             - key: private_key
-              path: stanley_rsa
+              path: {{ tpl .Values.st2.system_user.ssh_key_file . | base }}
               # 0400 file permission
               mode: 256
-        {{- if .Values.st2.packs.image.repository }}
-        - name: st2-packs-vol
-          emptyDir: {}
-        - name: st2-virtualenvs-vol
-          emptyDir: {}
+        {{- include "stackstorm-ha.packs-volumes" . | nindent 8 }}
+        {{- include "stackstorm-ha.pack-configs-volume" . | nindent 8 }}
+        {{- range .Values.st2client.extra_volumes }}
+        - name: {{ required "Each volume must have a 'name' in st2client.extra_volumes" .name }}
+          {{- tpl (required "Each volume must have a 'volume' definition in st2client.extra_volumes" .volume | toYaml) $ | nindent 10 }}
         {{- end }}
+        - name: st2-post-start-script-vol
+          configMap:
+            name: {{ .Release.Name }}-st2client-post-start-script
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with default .Values.podSecurityContext .Values.st2client.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.st2client.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.st2client.affinity }}
+      affinity: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.st2client.tolerations }}
+      tolerations: {{- toYaml . | nindent 8 }}
+    {{- end }}
 
 {{ if .Values.st2chatops.enabled -}}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-st2chatops{{ template "enterpriseSuffix" . }}
-  labels:
-    app: st2chatops
-    tier: backend
-    vendor: stackstorm
-    support: {{ template "supportMethod" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  name: {{ .Release.Name }}-st2chatops
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2chatops") | nindent 4 }}
+  {{- if .Values.st2chatops.annotations }}
+  annotations: {{- toYaml .Values.st2chatops.annotations | nindent 4 }}
+  {{- end }}
 spec:
   selector:
-    matchLabels:
-      app: st2chatops
-      support: {{ template "supportMethod" . }}
-      release: {{ .Release.Name }}
+    matchLabels: {{- include "stackstorm-ha.selectorLabels" (list $ "st2chatops") | nindent 6 }}
   # As hubot can't be HA scaled properly, we deploy only single replica of st2chatops
   replicas: 1
   template:
     metadata:
-      labels:
-        app: st2chatops
-        tier: backend
-        vendor: stackstorm
-        support: {{ template "supportMethod" . }}
-        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-        release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
+      labels: {{- include "stackstorm-ha.labels" (list $ "st2chatops") | nindent 8 }}
       annotations:
         checksum/chatops: {{ include (print $.Template.BasePath "/secrets_st2chatops.yaml") . | sha256sum }}
+        {{- if .Values.st2chatops.postStartScript }}
+        checksum/post-start-script: {{ .Values.st2chatops.postStartScript | sha256sum }}
+        {{- end }}
+        {{- if .Values.st2chatops.annotations }}
+          {{- toYaml .Values.st2chatops.annotations | nindent 8 }}
+        {{- end }}
     spec:
+      {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
+      - name: {{ .Values.image.pullSecret }}
+      {{- end }}
       containers:
-      - name: st2chatops{{ template "enterpriseSuffix" . }}
-        image: "{{ .Values.st2chatops.image.repository | default "stackstorm" }}/{{ .Values.st2chatops.image.name | default "st2chatops" }}:{{ tpl (.Values.st2chatops.image.tag | default .Chart.AppVersion) . }}"
+      - name: st2chatops
+        image: '{{ .Values.st2chatops.image.repository | default "stackstorm" }}/{{ .Values.st2chatops.image.name | default "st2chatops" }}:{{ tpl (.Values.st2chatops.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.st2chatops.image.pullPolicy | default .Values.image.pullPolicy }}
-        env:
-        - name: ST2_AUTH_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: username
-        - name: ST2_AUTH_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-st2-auth
-              key: password
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
+        {{- if not (hasKey .Values.st2chatops.env "ST2_API_KEY") }}
+        - secretRef:
+            name: {{ .Release.Name }}-st2-auth
+        {{- end }}
         - secretRef:
             name: {{ .Release.Name }}-st2chatops
         ports:
@@ -1510,21 +1749,55 @@ spec:
             port: 8081
           initialDelaySeconds: 10
           periodSeconds: 30
-        resources:
-{{ toYaml .Values.st2chatops.resources | indent 10 }}
+        resources: {{- toYaml .Values.st2chatops.resources | nindent 10 }}
+    {{- if or .Values.st2chatops.hubotScriptsVolume .Values.st2chatops.postStartScript }}
+        volumeMounts:
+        {{- if .Values.st2chatops.hubotScriptsVolume }}
+        - name: st2-chatops-hubot-scripts-vol
+          mountPath: /opt/stackstorm/chatops/scripts
+        {{- end }}
+        {{- if .Values.st2chatops.postStartScript }}
+        - name: st2-post-start-script-vol
+          mountPath: /post-start.sh
+          subPath: post-start.sh
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/bash", "/post-start.sh"]
+        {{- end }}
+      volumes:
+      {{- if .Values.st2chatops.hubotScriptsVolume }}
+        - name: st2-chatops-hubot-scripts-vol
+          {{- toYaml .Values.st2chatops.hubotScriptsVolume | nindent 10 }}
+      {{- end }}
+      {{- if .Values.st2chatops.postStartScript }}
+        - name: st2-post-start-script-vol
+          configMap:
+            name: {{ .Release.Name }}-st2chatops-post-start-script
+      {{- end }}
+    {{- else }}
+        volumeMounts: []
+      volumes: []
+    {{- end }}
     {{- if .Values.st2chatops.serviceAccount.attach }}
-        serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
+      serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
+    {{- end }}
+    {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+    {{- end }}
+    {{- with .Values.dnsConfig }}
+      dnsConfig: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2chatops.nodeSelector }}
-      nodeSelector:
-{{ toYaml . | indent 8 }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2chatops.affinity }}
-      affinity:
-{{ toYaml . | indent 8 }}
+      affinity: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2chatops.tolerations }}
-      tolerations:
-{{ toYaml . | indent 8 }}
+      tolerations: {{- toYaml . | nindent 8 }}
     {{- end }}
 {{- end }}

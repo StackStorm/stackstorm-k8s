@@ -1,0 +1,129 @@
+---
+suite: Resources
+templates:
+  # primary template files
+  - deployments.yaml
+
+  # No jobs resources yet
+
+  # included templates must also be listed
+  - configmaps_overrides.yaml
+  - configmaps_packs.yaml
+  - configmaps_rbac.yaml
+  - configmaps_st2-conf.yaml
+  - configmaps_st2web.yaml
+  - secrets_datastore_crypto_key.yaml
+  - secrets_ssh.yaml
+  - secrets_st2auth.yaml
+  - secrets_st2chatops.yaml
+
+tests:
+  - it: Deployments have default resources
+    template: deployments.yaml
+    set:
+      st2:
+        packs: { sensors: [] } # ensure only 1 sensor
+      st2chatops:
+        enabled: true
+    asserts:
+      - hasDocuments:
+          count: 14
+
+      # only st2web defines limits for now
+      - isNotEmpty:
+          path: spec.template.spec.containers[0].resources.limits.memory
+        documentIndex: 3
+
+      - isNotEmpty:
+          path: spec.template.spec.containers[0].resources.requests.memory
+      - isNotEmpty:
+          path: spec.template.spec.containers[0].resources.requests.cpu
+
+  - it: Deployments accept custom resources (except st2client)
+    template: deployments.yaml
+    set:
+      st2:
+        packs: { sensors: [] } # ensure only 1 sensor
+      st2web:
+        resources:
+          # bogus numbers just for the test
+          requests: &custom_resources_requests
+            memory:  "333Mi"
+            cpu:  "77m"
+          limits:
+            memory: "999Mi"
+      st2auth:
+        resources: &custom_resources
+          requests: *custom_resources_requests
+      st2api:
+        resources: *custom_resources
+      st2stream:
+        resources: *custom_resources
+      st2rulesengine:
+        resources: *custom_resources
+      st2timersengine:
+        resources: *custom_resources
+      st2workflowengine:
+        resources: *custom_resources
+      st2scheduler:
+        resources: *custom_resources
+      st2notifier:
+        resources: *custom_resources
+      st2actionrunner:
+        resources: *custom_resources
+      st2sensorcontainer:
+        resources: *custom_resources
+      st2garbagecollector:
+        resources: *custom_resources
+      st2chatops:
+        enabled: true
+        resources: *custom_resources
+    asserts:
+      - hasDocuments:
+          count: 14
+
+      # only st2web defines limits for now
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits.memory
+          value: "999Mi"
+        documentIndex: 3
+
+      # st2client hard codes resources.requests
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests
+          value:
+            memory: "5Mi"
+            cpu: "5m"
+        documentIndex: 12
+
+      # all but st2client means documentIndexes 0-11,13
+      - equal: &assert_custom_requests
+          path: spec.template.spec.containers[0].resources.requests
+          value: *custom_resources_requests
+        documentIndex: 0
+      - equal: *assert_custom_requests
+        documentIndex: 1
+      - equal: *assert_custom_requests
+        documentIndex: 2
+      - equal: *assert_custom_requests
+        documentIndex: 3
+      - equal: *assert_custom_requests
+        documentIndex: 4
+      - equal: *assert_custom_requests
+        documentIndex: 5
+      - equal: *assert_custom_requests
+        documentIndex: 6
+      - equal: *assert_custom_requests
+        documentIndex: 7
+      - equal: *assert_custom_requests
+        documentIndex: 8
+      - equal: *assert_custom_requests
+        documentIndex: 9
+      - equal: *assert_custom_requests
+        documentIndex: 10
+      - equal: *assert_custom_requests
+        documentIndex: 11
+      - equal: *assert_custom_requests
+        documentIndex: 13
+
+  # Jobs do not have default resources defined yet.

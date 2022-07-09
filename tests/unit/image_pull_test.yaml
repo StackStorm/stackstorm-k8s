@@ -1,0 +1,128 @@
+---
+suite: Image Pull
+templates:
+  # primary template files
+  - deployments.yaml
+  - jobs.yaml
+  - service-account.yaml
+
+  # included templates must also be listed
+  - configmaps_overrides.yaml
+  - configmaps_packs.yaml
+  - configmaps_rbac.yaml
+  - configmaps_st2-conf.yaml
+  - configmaps_st2-urls.yaml
+  - configmaps_st2web.yaml
+  - secrets_datastore_crypto_key.yaml
+  - secrets_ssh.yaml
+  - secrets_st2apikeys.yaml
+  - secrets_st2auth.yaml
+  - secrets_st2chatops.yaml
+
+# relevant values:
+#   imagePullPolicy
+#     image.pullPolicy
+#     serviceAccount.pullPolicy
+#     st2.packs.images[].pullPolicy
+#   imagePullSecreets
+#     image.pullSecret
+#     serviceAccount.pullSecret
+#     st2.packs.images[].pullSecret
+
+tests:
+  - it: Deployments and Jobs use default pullPolicy and pullSecret
+    templates:
+      - deployments.yaml
+        # st2auth, st2api,
+        # st2stream, st2web,
+        # st2rulesengine, st2timersengine,
+        # st2workflowengine, st2scheduler,
+        # st2notifier, (1) st2sensorcontainer,
+        # st2actionrunner, st2garbagecollector,
+        # st2client, st2chatops
+      - jobs.yaml
+        # job-st2-apply-rbac-defintions
+        # job-st2-apikey-load
+        # job-st2-key-load
+        # job-st2-register-content
+        # extra_hooks job
+    set:
+      # image.pullPolicy defaults to IfNotPresent
+      # image.pullSecret defaults to None
+      serviceAccount:
+        create: true
+        # show that this does not affect pod specs
+        pullSecret: service-account-pull-secret
+      st2:
+        rbac: { enabled: true } # enable rbac job
+        packs: { sensors: [] } # ensure only 1 sensor
+      st2chatops:
+        enabled: true
+      jobs:
+        extra_hooks: &jobs_extra_hooks
+          - name: upgrade-warning
+            hook: pre-upgrade, pre-rollback
+            hook_weight: -5
+            command: ["st2", "run", "--tail", "custom_pack.warn_about_upgrade"]
+    asserts:
+      - isNull:
+          path: spec.template.spec.imagePullSecrets
+      - equal:
+          path: spec.template.spec.containers[0].imagePullPolicy
+          value: IfNotPresent
+      # path can only select one element, not all initContainers (if present).
+      #- equal:
+      #    path: 'spec.template.spec.initContainers[].imagePullPolicy'
+      #    value: IfNotPresent
+
+  - it: Deployments and Jobs use custom pullPolicy and pullSecret
+    templates:
+      - deployments.yaml
+      - jobs.yaml
+    set:
+      image:
+        pullPolicy: Always
+        pullSecret: custom-pull-secret
+      serviceAccount:
+        create: true
+        # show that this does not affect pod specs
+        pullSecret: service-account-pull-secret
+      st2:
+        rbac: { enabled: true } # enable rbac job
+        packs: { sensors: [] } # ensure only 1 sensor
+      st2chatops:
+        enabled: true
+      jobs:
+        extra_hooks: *jobs_extra_hooks
+    asserts:
+      - equal:
+          path: spec.template.spec.imagePullSecrets[0].name
+          value: custom-pull-secret
+      - equal:
+          path: spec.template.spec.containers[0].imagePullPolicy
+          value: Always
+      # path can only select one element, not all initContainers (if present).
+      #- equal:
+      #    path: 'spec.template.spec.initContainers[].imagePullPolicy'
+      #    value: Always
+
+  - it: ServiceAccount has no imagePullSecret by default
+    template: service-account.yaml
+    set:
+      serviceAccount:
+        create: true
+    asserts:
+      - isNull:
+          path: imagePullSecrets
+
+  - it: ServiceAccount accepts custom imagePullSecret
+    template: service-account.yaml
+    set:
+      serviceAccount:
+        create: true
+        # show that this does not affect pod specs
+        pullSecret: service-account-pull-secret
+    asserts:
+      - equal:
+          path: imagePullSecrets[0].name
+          value: service-account-pull-secret

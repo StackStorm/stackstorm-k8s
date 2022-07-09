@@ -1,0 +1,183 @@
+---
+suite: Ingress
+templates:
+  # primary template files
+  - ingress.yaml
+
+tests:
+  - it: Ingress not present if disabled
+    set:
+      ingress:
+        enabled: false 
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: Ingress is present when enabled without hosts (older k8s)
+    capabilities: &cap_older
+      majorVersion: 1
+      minorVersion: 18
+      apiVersions:
+        - networking.k8s.io/v1beta1
+    set:
+      ingress:
+        enabled: true
+        hosts: []
+        tls: []
+      st2web:
+        service:
+          hostname: &st2web_hostname hostname.domain.tld
+    release:
+      name: st2ha
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: kind
+          value: Ingress
+      # no ingress.hosts, so only st2web.hostname
+      - equal: &st2web_rules_host
+          path: spec.rules[0].host
+          value: *st2web_hostname
+      - contains:
+          path: spec.rules[0].http.paths
+          count: 1
+          content:
+            path: "/"
+            backend:
+              serviceName: st2ha-st2web
+              servicePort: 80
+      - isNull:
+          path: spec.rules[0].http.paths[0].pathType
+
+  - it: Ingress is present when enabled without hosts (newer k8s)
+    capabilities: &cap_newer
+      majorVersion: 1
+      minorVersion: 19
+      apiVersions:
+        - networking.k8s.io/v1 # introduced in 1.19, stable in 1.22
+        - networking.k8s.io/v1beta1
+    set:
+      ingress:
+        enabled: true
+        hosts: []
+        tls: []
+      st2web:
+        service:
+          hostname: *st2web_hostname
+    release:
+      name: st2ha
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: kind
+          value: Ingress
+      # no ingress.hosts, so only st2web.hostname
+      - equal: *st2web_rules_host
+      - contains:
+          path: spec.rules[0].http.paths
+          count: 1
+          content:
+            path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: st2ha-st2web
+                port:
+                  number: 80
+
+  - it: Ingress is present when enabled with hosts (older k8s)
+    capabilities: *cap_older
+    set:
+      ingress:
+        enabled: true
+        hosts: &hosts
+          - host: *st2web_hostname
+            paths:
+              - serviceName: st2ha-st2web
+                servicePort: 80
+              - path: /fancy-sensor
+                serviceName: fancy-sensor
+                servicePort: 8080
+        tls: []
+      st2web:
+        service:
+          hostname: *st2web_hostname
+    release:
+      name: st2ha
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: kind
+          value: Ingress
+      # no ingress.hosts, so only st2web.hostname
+      - equal: *st2web_rules_host
+      - equal: &host_path_is_root_glob
+          path: spec.rules[0].http.paths[0].path
+          value: "/*"
+      - isNull:
+          path: spec.rules[0].http.paths[0].pathType
+      - equal:
+          path: spec.rules[0].http.paths[0].backend
+          value:
+            serviceName: st2ha-st2web
+            servicePort: 80
+
+      - equal:
+          path: spec.rules[0].http.paths[1].path
+          value: "/fancy-sensor"
+      - isNull:
+          path: spec.rules[0].http.paths[1].pathType
+      - equal:
+          path: spec.rules[0].http.paths[1].backend
+          value:
+            serviceName: fancy-sensor
+            servicePort: 8080
+
+  - it: Ingress is present when enabled with hosts (newer k8s)
+    capabilities: *cap_newer
+    set:
+      ingress:
+        enabled: true
+        hosts: *hosts
+        tls: []
+      st2web:
+        service:
+          hostname: *st2web_hostname
+    release:
+      name: st2ha
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: kind
+          value: Ingress
+      # no ingress.hosts, so only st2web.hostname
+      - equal: *st2web_rules_host
+      - equal: *host_path_is_root_glob
+      - equal:
+          path: spec.rules[0].http.paths[0].pathType
+          value: Prefix
+      - equal:
+          path: spec.rules[0].http.paths[0].backend
+          value:
+            service:
+              name: st2ha-st2web
+              port:
+                number: 80
+
+      - equal:
+          path: spec.rules[0].http.paths[1].path
+          value: "/fancy-sensor"
+      - equal:
+          path: spec.rules[0].http.paths[1].pathType
+          value: Prefix
+      - equal:
+          path: spec.rules[0].http.paths[1].backend
+          value:
+            service:
+              name: fancy-sensor
+              port:
+                number: 8080

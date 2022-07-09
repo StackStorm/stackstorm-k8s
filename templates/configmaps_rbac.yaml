@@ -1,4 +1,4 @@
-{{ if .Values.enterprise.enabled }}
+{{- if .Values.st2.rbac.enabled }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -6,16 +6,15 @@ metadata:
   name: {{ .Release.Name }}-st2-rbac-roles
   annotations:
     description: Custom StackStorm RBAC roles, shipped in '/opt/stackstorm/rbac/roles/'
-  labels:
-    app: st2
-    tier: backend
-    vendor: stackstorm
-    support: enterprise
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2") | nindent 4 }}
 data:
-{{ toYaml .Values.enterprise.rbac.roles | indent 2 }}
+{{- range $filename, $contents := .Values.st2.rbac.roles }}
+  {{/* to support removing default files, skip files with empty contents */}}
+  {{- if $contents }}
+  {{ $filename }}: |
+    {{- $contents | nindent 4 }}
+  {{- end }}
+{{- end }}
 
 ---
 apiVersion: v1
@@ -24,16 +23,15 @@ metadata:
   name: {{ .Release.Name }}-st2-rbac-assignments
   annotations:
     description: Custom StackStorm RBAC role assignments, shipped in '/opt/stackstorm/rbac/assignments/'
-  labels:
-    app: st2
-    tier: backend
-    vendor: stackstorm
-    support: enterprise
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2") | nindent 4 }}
 data:
-{{ toYaml .Values.enterprise.rbac.assignments | indent 2 }}
+{{- range $filename, $contents := .Values.st2.rbac.assignments }}
+  {{/* to support removing default files, skip files with empty contents */}}
+  {{- if $contents }}
+  {{ $filename }}: |
+    {{- $contents | nindent 4 }}
+  {{- end }}
+{{- end }}
 
 ---
 apiVersion: v1
@@ -42,18 +40,11 @@ metadata:
   name: {{ .Release.Name }}-st2-rbac-mappings
   annotations:
     description: StackStorm RBAC LDAP groups-to-roles mapping rules, shipped in '/opt/stackstorm/rbac/mappings/'
-  labels:
-    app: st2
-    tier: backend
-    vendor: stackstorm
-    support: enterprise
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2") | nindent 4 }}
 data:
-{{- if .Values.enterprise.rbac.mappings }}
-{{ toYaml .Values.enterprise.rbac.mappings | indent 2 }}
+{{- if .Values.st2.rbac.mappings }}
+{{ toYaml .Values.st2.rbac.mappings | indent 2 }}
 {{ else }}
   {}
 {{ end }}
-{{ end }}
+{{- end }}

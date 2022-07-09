@@ -1,23 +1,20 @@
 {{- if .Values.ingress.enabled }}
 ---
-apiVersion: extensions/v1beta1
+{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1" }}
+apiVersion: networking.k8s.io/v1
+{{- else }}
+apiVersion: networking.k8s.io/v1beta1
+{{- end }}
 kind: Ingress
 metadata:
-  name: {{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }}-ingress
-  labels:
-    app: ingress
-    tier: frontend
-    vendor: stackstorm
-    support: {{ template "supportMethod" . }}
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    release: "{{ .Release.Name }}"
-    heritage: "{{ .Release.Service }}"
+  name: {{ .Release.Name }}-st2web-ingress
+  labels: {{- include "stackstorm-ha.labels" (list $ "ingress") | nindent 4 }}
   annotations:
     {{- if .Values.ingress.tls }}
     ingress.kubernetes.io/secure-backends: "true"
     {{- end }}
-    {{- range $key, $value := .Values.ingress.annotations }}
-    {{ $key }}: {{ $value | quote }}
+    {{- if .Values.ingress.annotations }}
+      {{- toYaml .Values.ingress.annotations | nindent 4 }}
     {{- end }}
 spec:
   rules:
@@ -27,9 +24,18 @@ spec:
       paths:
       {{- range .paths }}
         - path: {{ default "/*" .path }}
+          {{- if $.Capabilities.APIVersions.Has "networking.k8s.io/v1" }}
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ .serviceName }}
+              port:
+                number: {{ .servicePort }}
+          {{- else }}
           backend:
             serviceName: {{ .serviceName }}
             servicePort: {{ .servicePort }}
+          {{- end }}
       {{- end }}
   {{- else }}
     {{- if required "Missing context '.Values.st2web.service.hostname'!" .Values.st2web.service.hostname }}
@@ -38,12 +44,21 @@ spec:
     http:
       paths:
         - path: "/"
+          {{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1" }}
+          pathType: Prefix
           backend:
-            serviceName: {{ .Release.Name }}-st2web{{ template "enterpriseSuffix" . }}
+            service:
+              name: {{ .Release.Name }}-st2web
+              port:
+                number: 80
+          {{- else }}
+          backend:
+            serviceName: {{ .Release.Name }}-st2web
             servicePort: 80
+          {{- end }}
   {{- end }}
   {{- if .Values.ingress.tls }}
   tls:
-{{ toYaml .Values.ingress.tls | indent 4 }}
+    {{- toYaml .Values.ingress.tls | nindent 4 }}
   {{- end -}}
 {{- end }}
