@@ -12,11 +12,13 @@ tests:
     asserts:
       - hasDocuments:
           count: 0
-  
+
   - it: Ingress is present when enabled without hosts (older k8s)
-    capabilities:
+    capabilities: &cap_older
       majorVersion: 1
       minorVersion: 18
+      apiVersions:
+        - networking.k8s.io/v1beta1
     set:
       ingress:
         enabled: true
@@ -24,7 +26,7 @@ tests:
         tls: []
       st2web:
         service:
-          hostname: &st2web_hostname some-host-name
+          hostname: &st2web_hostname hostname.domain.tld
     release:
       name: st2ha
     asserts:
@@ -49,10 +51,12 @@ tests:
           path: spec.rules[0].http.paths[0].pathType
 
   - it: Ingress is present when enabled without hosts (newer k8s)
-    capabilities:
-      # introduced in 1.19, stable in 1.22
+    capabilities: &cap_newer
       majorVersion: 1
       minorVersion: 19
+      apiVersions:
+        - networking.k8s.io/v1 # introduced in 1.19, stable in 1.22
+        - networking.k8s.io/v1beta1
     set:
       ingress:
         enabled: true
@@ -60,7 +64,7 @@ tests:
         tls: []
       st2web:
         service:
-          hostname: some-host-name
+          hostname: *st2web_hostname
     release:
       name: st2ha
     asserts:
@@ -84,14 +88,12 @@ tests:
                   number: 80
 
   - it: Ingress is present when enabled with hosts (older k8s)
-    capabilities:
-      majorVersion: 1
-      minorVersion: 18
+    capabilities: *cap_older
     set:
       ingress:
         enabled: true
         hosts: &hosts
-          - host: hostname.domain.tld
+          - host: *st2web_hostname
             paths:
               - serviceName: st2ha-st2web
                 servicePort: 80
@@ -135,10 +137,7 @@ tests:
             servicePort: 8080
 
   - it: Ingress is present when enabled with hosts (newer k8s)
-    capabilities:
-      # introduced in 1.19, stable in 1.22
-      majorVersion: 1
-      minorVersion: 19
+    capabilities: *cap_newer
     set:
       ingress:
         enabled: true
@@ -146,7 +145,7 @@ tests:
         tls: []
       st2web:
         service:
-          hostname: some-host-name
+          hostname: *st2web_hostname
     release:
       name: st2ha
     asserts:
@@ -160,7 +159,7 @@ tests:
       - equal: *host_path_is_root_glob
       - equal:
           path: spec.rules[0].http.paths[0].pathType
-          value: Preix
+          value: Prefix
       - equal:
           path: spec.rules[0].http.paths[0].backend
           value:
@@ -174,7 +173,7 @@ tests:
           value: "/fancy-sensor"
       - equal:
           path: spec.rules[0].http.paths[1].pathType
-          value: Preix
+          value: Prefix
       - equal:
           path: spec.rules[0].http.paths[1].backend
           value:
