@@ -37,19 +37,16 @@ tests:
       - equal: &st2web_rules_host
           path: spec.rules[0].host
           value: *st2web_hostname
-      - contains: &one_host_path
+      - contains:
           path: spec.rules[0].http.paths
           count: 1
-      - equal: &host_path_is_root
-          path: spec.rules[0].http.paths[0].path
-          value: "/"
+          content:
+            path: "/"
+            backend:
+              serviceName: st2ha-st2web
+              servicePort: 80
       - isNull:
           path: spec.rules[0].http.paths[0].pathType
-      - equal:
-          path: spec.rules[0].http.paths[0].backend
-          value:
-            serviceName: st2ha-st2web
-            servicePort: 80
 
   - it: Ingress is present when enabled without hosts (newer k8s)
     capabilities:
@@ -74,18 +71,17 @@ tests:
           value: Ingress
       # no ingress.hosts, so only st2web.hostname
       - equal: *st2web_rules_host
-      - contains: *one_host_path
-      - equal: *host_path_is_root
-      - equal:
-          path: spec.rules[0].http.paths[0].pathType
-          value: Preix
-      - equal:
-          path: spec.rules[0].http.paths[0].backend
-          value:
-            service:
-              name: st2ha-st2web
-              port:
-                number: 80
+      - contains:
+          path: spec.rules[0].http.paths
+          count: 1
+          content:
+            path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: st2ha-st2web
+                port:
+                  number: 80
 
   - it: Ingress is present when enabled with hosts (older k8s)
     capabilities:
@@ -116,9 +112,6 @@ tests:
           value: Ingress
       # no ingress.hosts, so only st2web.hostname
       - equal: *st2web_rules_host
-      - contains: &two_host_paths
-          path: spec.rules[0].http.paths
-          count: 2
       - equal: &host_path_is_root_glob
           path: spec.rules[0].http.paths[0].path
           value: "/*"
@@ -164,7 +157,6 @@ tests:
           value: Ingress
       # no ingress.hosts, so only st2web.hostname
       - equal: *st2web_rules_host
-      - contains: *two_host_paths
       - equal: *host_path_is_root_glob
       - equal:
           path: spec.rules[0].http.paths[0].pathType
