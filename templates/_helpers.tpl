@@ -47,19 +47,6 @@ stackstorm
 {{- end -}}
 {{- end -}}
 
-# Generate Docker image repository for st2actionrunner: Private 'docker.stackstorm.com' for Enterprise vs Public Docker Hub 'stackstorm' for FOSS version
-{{- define "st2actionrunnerImageRepository" -}}
-{{- if required "Missing context '.Values.enterprise.enabled'!" .Values.enterprise.enabled -}}
-docker.stackstorm.com
-{{- else if .Values.image.repository -}}
-{{ .Values.image.repository }}
-{{- else if .Values.st2actionrunner.image.repository -}}
-{{ .Values.st2actionrunner.image.repository }}
-{{- else -}}
-stackstorm
-{{- end -}}
-{{- end -}}
-
 {{/*
 Create the name of the stackstorm-ha service account to use
 */}}

@@ -1303,7 +1303,9 @@ spec:
       {{- end }}
       containers:
       - name: st2actionrunner
-        image: '{{ template "st2actionrunnerImageRepository" . }}/{{ .Values.st2actionrunner.image.name | default "st2actionrunner" }}:{{ tpl (.Values.st2actionrunner.image.tag | default .Values.image.tag) . }}'
+        {{- with .Values.st2actionrunner }}
+        image: '{{ .image.respository | default (template "stackstorm-ha.imageRepository" $) }}/{{ .image.name | default "st2actionrunner" }}:{{ tpl (.image.tag | default $.Values.image.tag) . }}'
+        {{- end }}
         imagePullPolicy: {{ .Values.st2actionrunner.image.imagePullPolicy | default .Values.image.pullPolicy }}
         {{- with default .Values.securityContext .Values.st2actionrunner.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
