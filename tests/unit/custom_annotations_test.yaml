@@ -9,6 +9,7 @@ templates:
   - services.yaml
 
   # included templates must also be listed
+  - configmaps_overrides.yaml
   - configmaps_packs.yaml
   - configmaps_rbac.yaml
   - configmaps_st2-conf.yaml

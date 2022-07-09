@@ -1,6 +1,14 @@
 # Changelog
 
 ## In Development
+* Temporary workaround for #311 to use previous bitnami index from: https://github.com/bitnami/charts/issues/10539 (#312 #318) (by @0xhaven)
+* Refactor label definitions to be more consistent by building labels and label selectors in partial helper templates. (#299) (by @cognifloyd)
+
+## v0.100.0
+* Switch st2 to `v3.7` as a new default stable version (#274)
+* Upgrade MongoDB `v4.0` -> `v4.4` as 4.0 has reached its EOL. (#304)
+* Migrate from `python 3.6` `Ubuntu Bionic` to `python 3.8` `Ubuntu Focal` as a base StackStorm OS (StackStorm/st2-dockerfiles#54)
+* Add support for use of overrides that are available in `v3.7` of st2 via helm charts. (#306)
 
 ## v0.90.0
 * Advanced Feature: Make securityContext (on Deployments/Jobs) and podSecurityContext (on Pods) configurable. This allows dropping all capabilities, for example. You can override the securityContext for `st2actionrunner`, `st2sensorcontainer`, and `st2client` if your actions or sensors need, for example, additional capabilites that the rest of StackStorm does not need. (#271) (by @cognifloyd)

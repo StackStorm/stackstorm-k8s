@@ -1,8 +1,8 @@
 apiVersion: v2
 # StackStorm version which refers to Docker images tag
-appVersion: "3.6"
+appVersion: "3.7"
 name: stackstorm-ha
-version: 0.90.0
+version: 0.100.0
 description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA environment.
 home: https://stackstorm.com/
 icon: https://landscape.cncf.io/logos/stack-storm.svg
@@ -30,17 +30,17 @@ details:
 dependencies:
   - name: rabbitmq
     version: 8.0.2
-    repository: https://charts.bitnami.com/bitnami
+    repository: https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami
     condition: rabbitmq.enabled
   - name: mongodb
     version: 10.0.1
-    repository: https://charts.bitnami.com/bitnami
+    repository: https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami
     condition: mongodb.enabled
   - name: external-dns
     version: 4.0.0
-    repository: https://charts.bitnami.com/bitnami
+    repository: https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami
     condition: external-dns.enabled
   - name: redis
     version: 12.3.2
-    repository: https://charts.bitnami.com/bitnami
+    repository: https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami
     condition: redis.enabled

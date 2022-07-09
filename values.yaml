@@ -67,6 +67,22 @@ st2:
   config: |
     [api]
     allow_origin = '*'
+  
+  #Override Definitions can be added here.
+  #https://docs.stackstorm.com/latest/packs.html#overriding-pack-defaults
+  overrides: {}
+  #  overrides:
+  #    _global.yaml: |
+  #      ---
+  #      rules:
+  #        defaults:
+  #          enabled: true
+  #    packA.yaml: |
+  #      ---
+  #      rules:
+  #        rule.name:
+  #          enabled: false
+
 
   # This mirrors the [system_user] section of st2.conf, but makes the values available for helm templating.
   # If you change the user, you must provide a customized st2actionrunner image that includes your user.
@@ -933,8 +949,8 @@ mongodb:
   # Specify your external [database] connection parameters under st2.config
   enabled: true
   image:
-    # StackStorm currently supports maximum MongoDB v4.0
-    tag: "4.0"
+    # StackStorm currently supports maximum MongoDB v4.4
+    tag: "4.4"
   # MongoDB architecture. Allowed values: standalone or replicaset
   architecture: replicaset
   # Name of the replica set

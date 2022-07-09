@@ -6,6 +6,37 @@ Expand the name of the chart.
 {{- end -}}
 
 {{/*
+Common labels
+Usage: "{{ include "stackstorm-ha.labels" (list $ "st2servicename") }}"
+*/}}
+{{- define "stackstorm-ha.labels" -}}
+{{- $root := index . 0 }}
+{{- $name := index . 1 }}
+{{ include "stackstorm-ha.selectorLabels" . }}
+{{- if list "st2web" "ingress" | has $name }}
+tier: frontend
+{{- else if eq $name "st2tests" }}
+tier: tests
+{{- else }}
+tier: backend
+{{- end }}
+vendor: stackstorm
+chart: {{ $root.Chart.Name }}-{{ $root.Chart.Version }}
+heritage: {{ $root.Release.Service }}
+{{- end -}}
+
+{{/*
+Selector labels
+Usage: "{{ include "stackstorm-ha.selectorLabels" (list $ "st2servicename") }}"
+*/}}
+{{- define "stackstorm-ha.selectorLabels" -}}
+{{- $root := index . 0 }}
+{{- $name := index . 1 }}
+app: {{ $name }}
+release: {{ $root.Release.Name }}
+{{- end -}}
+
+{{/*
 Generate Docker image repository: Public Docker Hub 'stackstorm' for FOSS version
 */}}
 {{- define "stackstorm-ha.imageRepository" -}}
@@ -207,6 +238,23 @@ define this here as well to simplify comparison with packs-volume-mounts
   mountPath: /opt/stackstorm/packs
 - name: st2-virtualenvs-vol
   mountPath: /opt/stackstorm/virtualenvs
+  {{- end }}
+{{- end -}}
+
+#Inserted for override ability to happen via helm charts
+
+{{- define "stackstorm-ha.overrides-config-mounts" -}}
+  {{- if .Values.st2.overrides }}
+- name: st2-overrides-vol
+  mountPath: /opt/stackstorm/overrides
+  {{- end }}
+{{- end -}}
+
+{{- define "stackstorm-ha.overrides-configs" -}}
+  {{- if .Values.st2.overrides }}
+- name: st2-overrides-vol
+  configMap:
+    name: {{ .Release.Name }}-st2-overrides-configs
   {{- end }}
 {{- end -}}
 
