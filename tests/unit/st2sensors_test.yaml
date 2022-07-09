@@ -62,11 +62,14 @@ tests:
           value: all-sensors-in-one-pod
         documentIndex: *first_sensor_doc
 
-      - isNull:
+      - notContains: &singleSensorMode
           path: spec.template.spec.containers[0].command
-      #- notContains:
-      #    path: spec.template.spec.containers[0].command
-      #    content: '--single-sensor-mode'
+          content: '--single-sensor-mode'
+        documentIndex: *first_sensor_doc
+
+      - notContains: &sensorConf
+          path: spec.template.spec.containers[0].command
+          content: '--config-file=/etc/st2/st2.sensorcontainer.conf'
         documentIndex: *first_sensor_doc
 
   - it: stackstorm/sensor-mode = one-sensor-per-pod
@@ -183,9 +186,7 @@ tests:
       - equal: *oneSensorAnnotation
         documentIndex: *third_sensor_doc
 
-      - contains: &singleSensorMode
-          path: spec.template.spec.containers[0].command
-          content: '--single-sensor-mode'
+      - contains: *singleSensorMode
         documentIndex: *first_sensor_doc
       - contains: *singleSensorMode
         documentIndex: *second_sensor_doc
@@ -346,18 +347,14 @@ tests:
       - equal: *multiSensorAnnotation
         documentIndex: *third_sensor_doc
 
-      - notContains: &notSingleSensorMode
-          path: spec.template.spec.containers[0].command
-          content: '--single-sensor-mode'
+      - notContains: *singleSensorMode
         documentIndex: *first_sensor_doc
-      - notContains: *notSingleSensorMode
+      - notContains: *singleSensorMode
         documentIndex: *second_sensor_doc
-      - notContains: *notSingleSensorMode
+      - notContains: *singleSensorMode
         documentIndex: *third_sensor_doc
 
-      - contains: &sensorConf
-          path: spec.template.spec.containers[0].command
-          content: '--config-file=/etc/st2/st2.sensorcontainer.conf'
+      - contains: *sensorConf
         documentIndex: *first_sensor_doc
       - contains: *sensorConf
         documentIndex: *second_sensor_doc
