@@ -24,10 +24,12 @@ templates:
 #     image.pullPolicy
 #     serviceAccount.pullPolicy
 #     st2.packs.images[].pullPolicy
-#   imagePullSecreets
+#     st2actionrunner.image.pullPolicy
+#   imagePullSecrets
 #     image.pullSecret
 #     serviceAccount.pullSecret
 #     st2.packs.images[].pullSecret
+#     st2actionrunner.image.pullSecret
 
 tests:
   - it: Deployments and Jobs use default pullPolicy and pullSecret
@@ -80,9 +82,9 @@ tests:
       - deployments.yaml
       - jobs.yaml
     set:
-      image:
-        pullPolicy: Always
-        pullSecret: custom-pull-secret
+      image: &globalCustomImage
+        pullPolicy: &globalCustomImagePullPolicy Always
+        pullSecret: &globalCustomImagePullSecret custom-pull-secret
       serviceAccount:
         create: true
         # show that this does not affect pod specs
@@ -95,16 +97,104 @@ tests:
       jobs:
         extra_hooks: *jobs_extra_hooks
     asserts:
-      - equal:
+      - equal: &eq_custom_pull_secret
           path: spec.template.spec.imagePullSecrets[0].name
-          value: custom-pull-secret
-      - equal:
+          value: *globalCustomImagePullSecret
+      - equal: &eq_custom_pull_policy
           path: spec.template.spec.containers[0].imagePullPolicy
-          value: Always
+          value: *globalCustomImagePullPolicy
       # path can only select one element, not all initContainers (if present).
       #- equal:
       #    path: 'spec.template.spec.initContainers[].imagePullPolicy'
-      #    value: Always
+      #    value: *globalCustomImagePullPolicy
+
+  # this is only for st2actionrunner for now
+  - it: Deployments use custom Deployment-specific pullPolicy and pullSecret
+    templates:
+      - deployments.yaml
+    set:
+      image: *globalCustomImage
+      st2actionrunner:
+        image:
+          pullPolicy: Never
+          pullSecret: custom-st2actionrunner-pull-secret
+      st2:
+        packs: { sensors: [] } # ensure only 1 sensor
+      st2chatops:
+        enabled: true
+    asserts:
+      - hasDocuments:
+          count: 14
+
+      - equal: *eq_custom_pull_secret
+        documentIndex: 0
+      - equal: *eq_custom_pull_secret
+        documentIndex: 1 # st2api
+      - equal: *eq_custom_pull_secret
+        documentIndex: 2
+      - equal: *eq_custom_pull_secret
+        documentIndex: 3
+      - equal: *eq_custom_pull_secret
+        documentIndex: 4
+      - equal: *eq_custom_pull_secret
+        documentIndex: 5
+      - equal: *eq_custom_pull_secret
+        documentIndex: 6
+      - equal: *eq_custom_pull_secret
+        documentIndex: 7
+      - equal: *eq_custom_pull_secret
+        documentIndex: 8
+      - equal: *eq_custom_pull_secret
+        documentIndex: 9 # st2sensorcontainer
+      - equal: *eq_custom_pull_secret
+        documentIndex: 10 # st2actionrunner
+      - contains:
+          path: spec.template.spec.imagePullSecrets
+          content:
+            name: custom-st2actionrunner-pull-secret
+        documentIndex: 10 # st2actionrunner
+      - equal: *eq_custom_pull_secret
+        documentIndex: 11
+      - equal: *eq_custom_pull_secret
+        documentIndex: 12 # st2client
+      - equal: *eq_custom_pull_secret
+        documentIndex: 13
+
+      - equal:
+          path: spec.template.spec.containers[0].imagePullPolicy
+          value: Never
+        documentIndex: 10 # st2actionrunner
+      - equal: *eq_custom_pull_policy
+        documentIndex: 0
+      - equal: *eq_custom_pull_policy
+        documentIndex: 1 # st2api
+      - equal: *eq_custom_pull_policy
+        documentIndex: 2
+      - equal: *eq_custom_pull_policy
+        documentIndex: 3
+      - equal: *eq_custom_pull_policy
+        documentIndex: 4
+      - equal: *eq_custom_pull_policy
+        documentIndex: 5
+      - equal: *eq_custom_pull_policy
+        documentIndex: 6
+      - equal: *eq_custom_pull_policy
+        documentIndex: 7
+      - equal: *eq_custom_pull_policy
+        documentIndex: 8
+      - equal: *eq_custom_pull_policy
+        documentIndex: 9 # st2sensorcontainer
+      - equal: *eq_custom_pull_policy
+        documentIndex: 11
+      - equal: *eq_custom_pull_policy
+        documentIndex: 12 # st2client
+      - equal: *eq_custom_pull_policy
+        documentIndex: 13
+
+      # path can only select one element, not all initContainers (if present).
+      #- equal:
+      #    path: 'spec.template.spec.initContainers[].imagePullPolicy'
+      #    value: *globalCustomImagePullPolicy
 
   - it: ServiceAccount has no imagePullSecret by default
     template: service-account.yaml

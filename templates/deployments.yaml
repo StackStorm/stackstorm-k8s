@@ -1304,9 +1304,9 @@ spec:
       containers:
       - name: st2actionrunner
         {{- with .Values.st2actionrunner }}
-        image: '{{ .image.respository | default (include "stackstorm-ha.imageRepository" $) }}/{{ .image.name | default "st2actionrunner" }}:{{ tpl (.image.tag | default $.Values.image.tag) $ }}'
+        image: '{{ .image.repository | default (include "stackstorm-ha.imageRepository" $) }}/{{ .image.name | default "st2actionrunner" }}:{{ tpl (.image.tag | default $.Values.image.tag) $ }}'
         {{- end }}
-        imagePullPolicy: {{ .Values.st2actionrunner.image.imagePullPolicy | default .Values.image.pullPolicy }}
+        imagePullPolicy: {{ .Values.st2actionrunner.image.pullPolicy | default .Values.image.pullPolicy }}
         {{- with default .Values.securityContext .Values.st2actionrunner.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
         {{- end }}
@@ -1724,7 +1724,9 @@ spec:
       {{- end }}
       containers:
       - name: st2chatops
-        image: '{{ .Values.st2chatops.image.repository | default "stackstorm" }}/{{ .Values.st2chatops.image.name | default "st2chatops" }}:{{ tpl (.Values.st2chatops.image.tag | default .Values.image.tag) . }}'
+        {{- with .Values.st2chatops }}
+        image: '{{ .image.repository | default (include "stackstorm-ha.imageRepository" $) }}/{{ .image.name | default "st2chatops" }}:{{ tpl (.image.tag | default $.Values.image.tag) $ }}'
+        {{- end }}
         imagePullPolicy: {{ .Values.st2chatops.image.pullPolicy | default .Values.image.pullPolicy }}
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
