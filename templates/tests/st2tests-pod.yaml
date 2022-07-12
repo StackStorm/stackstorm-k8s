@@ -6,6 +6,9 @@ metadata:
   annotations:
     "helm.sh/hook": test-success
     "helm.sh/hook-delete-policy": hook-succeeded
+    {{- if .Values.st2tests.annotations }}
+      {{- toYaml .Values.st2tests.annotations | nindent 4 }}
+    {{- end }}
 spec:
   initContainers:
   # Sidecar container to copy BATS framework to the main container
@@ -59,6 +62,8 @@ spec:
     command:
       - /tools/bats/bin/bats
       - /tests/st2tests.sh
+    resources:
+      {{- toYaml .Values.st2tests.resources | nindent 6 }}
   volumes:
     - name: tools
       emptyDir: {}

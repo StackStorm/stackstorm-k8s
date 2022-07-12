@@ -135,6 +135,11 @@ st2:
     # The choice of storage solution is cluster-dependent (it changes besed on where the cluster is hosted
     # and which storage solutions are available in your cluster).
     #
+    # WARNING: These volumes must use ReadWriteMany (RWX) access mode so StackStorm
+    # can dynamically install packs from any of the st2actionrunner pods and have those
+    # file changes available in all of the other StackStorm pods.
+    # see: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes
+    #
     # To use this, set enabled to true, and add cluster-specific volume definitions for at least packs and virtualenvs below.
     # Please consult the documentation for your cluster's storage solution.
     # Some generic examples are listed under st2.packs.volumes.packs below.
@@ -962,6 +967,24 @@ jobs:
     #     - run
     #     - --tail
     #     - custom_pack.warn_about_upgrade
+
+# st2tests has settings used for temporary chart hook resources
+# defined by this chart. Eg: a pod that validates packs.volumes
+st2tests:
+  annotations: {}
+  resources: {}
+  # Additional advanced settings to control pod/deployment placement
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  # override the default .podSecurityContext here
+  podSecurityContext: {}
+  # mount extra volumes on the st2tests pod(s) (primarily useful to test
+  # extra_volumes used for any of the other deployments)
+  ## Note that Helm templating is supported in 'mount' and 'volume'
+  extra_volumes: []
+    # see examples under st2actionrunner.extra_volumes
+
 ##
 ## MongoDB HA configuration (3rd party chart dependency)
 ##

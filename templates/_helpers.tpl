@@ -222,6 +222,7 @@ consolidate pack-configs-volumes definitions
 {{- define "stackstorm-ha.pack-configs-volume-mount" -}}
 - name: st2-pack-configs-vol
   mountPath: /opt/stackstorm/configs/
+  readOnly: false
   {{- if and .Values.st2.packs.volumes.enabled .Values.st2.packs.volumes.configs .Values.st2.packs.configs }}
 - name: st2-pack-configs-from-helm-vol
   mountPath: /opt/stackstorm/configs-helm/
@@ -248,8 +249,10 @@ For custom st2packs-Container reduce duplicity by defining it here once
   {{- if .Values.st2.packs.volumes.enabled }}
 - name: st2-packs-vol
   mountPath: /opt/stackstorm/packs
+  readOnly: false
 - name: st2-virtualenvs-vol
   mountPath: /opt/stackstorm/virtualenvs
+  readOnly: false
   {{- else if .Values.st2.packs.images }}
 - name: st2-packs-vol
   mountPath: /opt/stackstorm/packs
@@ -266,8 +269,10 @@ define this here as well to simplify comparison with packs-volume-mounts
   {{- if or .Values.st2.packs.images .Values.st2.packs.volumes.enabled }}
 - name: st2-packs-vol
   mountPath: /opt/stackstorm/packs
+  readOnly: false
 - name: st2-virtualenvs-vol
   mountPath: /opt/stackstorm/virtualenvs
+  readOnly: false
   {{- end }}
 {{- end -}}
 
