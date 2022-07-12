@@ -394,15 +394,10 @@ spec:
         {{- end }}
         command: {{- toYaml $.Values.jobs.preRegisterContentCommand | nindent 8 }}
         volumeMounts:
+        {{- include "stackstorm-ha.overrides-config-mounts" . | nindent 8 }}
         {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
-        - name: st2-pack-configs-vol
-          mountPath: /opt/stackstorm/configs/
-        {{- if .Values.st2.packs.images }}
-        - name: st2-packs-vol
-          mountPath: /opt/stackstorm/packs/
-        - name: st2-virtualenvs-vol
-          mountPath: /opt/stackstorm/virtualenvs/
-        {{- end }}
+        {{- include "stackstorm-ha.pack-configs-volume-mount" . | nindent 8 }}
+        {{- include "stackstorm-ha.packs-volume-mounts-for-register-job" . | nindent 8 }}
       {{ end }}
       containers:
       - name: st2-register-content

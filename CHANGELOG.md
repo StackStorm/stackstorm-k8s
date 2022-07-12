@@ -3,7 +3,8 @@
 ## In Development
 * Temporary workaround for #311 to use previous bitnami index from: https://github.com/bitnami/charts/issues/10539 (#312 #318) (by @0xhaven)
 * Refactor label definitions to be more consistent by building labels and label selectors in partial helper templates. (#299) (by @cognifloyd)
-* Use the correct `apiVersion` for `Ingress` to add support for Kubernetes `v1.22`. (by @arms11)
+* Use the correct `apiVersion` for `Ingress` to add support for Kubernetes `v1.22`. (#301) (by @arms11)
+* Fix mounts for `jobs.preRegisterContentCommand` container to use the same mounts as the primary register-content container. (#322) (by @cognifloyd)
 
 ## v0.100.0
 * Switch st2 to `v3.7` as a new default stable version (#274)
