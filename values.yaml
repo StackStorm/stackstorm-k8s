@@ -7,10 +7,10 @@
 image:
   # Image pull policy
   pullPolicy: IfNotPresent
-  # st2 image repository. Set this to override the default ("stackstorm")
-  # docker image repository ("docker.stackstorm.com"). Applies to all st2 containers except
-  # st2chatops and st2packs (which have their own override). This also does not impact
-  # dependencies such as mongo or redis, which have their own helm chart settings.
+  # st2 image repository. Set this to override the default ("stackstorm").
+  # Applies to all st2 containers except st2packs (which has its own setting).
+  # This also does not impact dependencies such as mongo or redis, which have
+  # their own helm chart settings.
   repository: ""
   # st2 image tag - defaults to AppVersion.
   # Note that Helm templating is supported in this block!
@@ -631,10 +631,16 @@ st2actionrunner:
     requests:
       memory: "200Mi"
       cpu: "75m"
-  # Override default image settings (for now, only tag can be overridden)
+  # Override default image settings
   image: {}
+    # Uncomment the following block to use your own at2actionrunner docker image
+    #repository: your-remote-docker-registry.io
+    #name: st2actionrunner
     ## Note that Helm templating is supported in this block!
     #tag: "{{ .Values.image.tag }}"
+    #pullPolicy: Always
+    # Optional name of the imagePullSecret if your custom action runner image is hosted by a private Docker registry behind the auth
+    #pullSecret: st2actionrunner-auth
   annotations: {}
   # Additional advanced settings to control pod/deployment placement
   nodeSelector: {}

@@ -1,0 +1,560 @@
+---
+suite: Image
+templates:
+  # primary template files
+  - deployments.yaml
+  - jobs.yaml
+
+  # included templates must also be listed
+  - configmaps_overrides.yaml
+  - configmaps_packs.yaml
+  - configmaps_rbac.yaml
+  - configmaps_st2-conf.yaml
+  - configmaps_st2-urls.yaml
+  - configmaps_st2web.yaml
+  - secrets_datastore_crypto_key.yaml
+  - secrets_ssh.yaml
+  - secrets_st2apikeys.yaml
+  - secrets_st2auth.yaml
+  - secrets_st2chatops.yaml
+
+# relevant values:
+#   repository
+#     image.repository
+#     st2.packs.images[].repository
+#     st2actionrunner.image.repository
+#     st2chatops.image.repository
+#   image name
+#     st2.packs.images[].name
+#     st2actionrunner.image.name
+#     st2chatops.image.name
+#   image tag
+#     st2.packs.images[].tag
+#     st2.packs.sensors[].tag
+#     st2*.image.tag
+#
+# TODO: test initContainers that use st2.packs.images
+#       (there is no good way to select initContainers)
+
+tests:
+  - it: Deployments use default image
+    templates:
+      - deployments.yaml
+        # st2auth, st2api,
+        # st2stream, st2web,
+        # st2rulesengine, st2timersengine,
+        # st2workflowengine, st2scheduler,
+        # st2notifier, (1) st2sensorcontainer,
+        # st2actionrunner, st2garbagecollector,
+        # st2client, st2chatops
+    set: &set_defaults
+      # relevant image defaults:
+      #image:
+      #  repository: stackstorm
+      #  tag: "{{ .Chart.AppVersion }}"
+      st2:
+        rbac: { enabled: true } # enable rbac job
+        packs:
+          sensors: [] # ensure only 1 sensor
+          # st2.packs.sensors[].image.tag tested in st2sensors_test
+          images: [] # no extra packs to load
+          # st2.packs.images only used in initContainers
+      st2chatops:
+        enabled: true
+      jobs:
+        extra_hooks: &jobs_extra_hooks
+          - name: upgrade-warning
+            hook: pre-upgrade, pre-rollback
+            hook_weight: -5
+            command: ["st2", "run", "--tail", "custom_pack.warn_about_upgrade"]
+    release:
+      name: st2ha
+    chart:
+      appVersion: 3.9.999
+    asserts:
+      - hasDocuments:
+          count: 14
+
+      # default repository and tag
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "^stackstorm/.*:3.9.999$"
+
+      # default image name
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "/st2auth:"
+        documentIndex: 0
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "/st2api:"
+        documentIndex: 1
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "/st2stream:"
+        documentIndex: 2
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "/st2web:"
+        documentIndex: 3
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "/st2rulesengine:"
+        documentIndex: 4
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "/st2timersengine:"
+        documentIndex: 5
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "/st2workflowengine:"
+        documentIndex: 6
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "/st2scheduler:"
+        documentIndex: 7
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "/st2notifier:"
+        documentIndex: 8
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "/st2sensorcontainer:"
+        documentIndex: 9
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "/st2actionrunner:"
+        documentIndex: 10 # st2actionrunner
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "/st2garbagecollector:"
+        documentIndex: 11
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "/st2actionrunner:"
+        documentIndex: 12 # st2client
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "/st2chatops:"
+        documentIndex: 13
+
+  - it: Jobs use default image
+    templates:
+      - jobs.yaml
+        # job-st2-apply-rbac-defintions
+        # job-st2-apikey-load
+        # job-st2-key-load
+        # job-st2-register-content
+        # extra_hooks job
+    set: *set_defaults
+    release:
+      name: st2ha
+    chart:
+      appVersion: 3.9.999
+    asserts:
+      - hasDocuments:
+          count: 5
+
+      # default repository and tag
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "stackstorm/st2actionrunner:3.9.999"
+
+  - it: Deployments can use custom image (global)
+    templates:
+      - deployments.yaml
+    set: &set_global_custom_image
+      image: &globalCustomImage
+        repository: registry.example.com/stackstorm
+        tag: "{{ .Chart.AppVersion }}-custom-tag"
+      st2:
+        rbac: { enabled: true } # enable rbac job
+        packs:
+          sensors: [] # ensure only 1 sensor
+          # st2.packs.sensors[].image.tag tested in st2sensors_test
+          images: [] # no extra packs to load
+          # st2.packs.images only used in initContainers
+      st2chatops:
+        enabled: true
+      jobs:
+        extra_hooks: *jobs_extra_hooks
+    release:
+      name: st2ha
+    chart:
+      appVersion: 3.9.999
+    asserts:
+      - hasDocuments:
+          count: 14
+
+      # image repository and tag
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "^registry.example.com/stackstorm/.*:3.9.999-custom-tag$"
+
+      # image name
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "/st2auth:"
+        documentIndex: 0
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "/st2api:"
+        documentIndex: 1
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "/st2stream:"
+        documentIndex: 2
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "/st2web:"
+        documentIndex: 3
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "/st2rulesengine:"
+        documentIndex: 4
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "/st2timersengine:"
+        documentIndex: 5
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "/st2workflowengine:"
+        documentIndex: 6
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "/st2scheduler:"
+        documentIndex: 7
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "/st2notifier:"
+        documentIndex: 8
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "/st2sensorcontainer:"
+        documentIndex: 9
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "/st2actionrunner:"
+        documentIndex: 10 # st2actionrunner
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "/st2garbagecollector:"
+        documentIndex: 11
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "/st2actionrunner:"
+        documentIndex: 12 # st2client
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "/st2chatops:"
+        documentIndex: 13
+
+  - it: Jobs can use custom image (global)
+    templates:
+      - jobs.yaml
+    set: *set_global_custom_image
+    release:
+      name: st2ha
+    chart:
+      appVersion: 3.9.999
+    asserts:
+      - hasDocuments:
+          count: 5
+
+      # image repository/name:tag
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "registry.example.com/stackstorm/st2actionrunner:3.9.999-custom-tag"
+
+  - it: Deployments can use custom image (default with overrides)
+    templates:
+      - deployments.yaml
+    set: &set_custom_overrides
+      #image: # using global defaults
+      st2:
+        rbac: { enabled: true } # enable rbac job
+        packs:
+          sensors: [] # ensure only 1 sensor
+          # st2.packs.sensors[].image.tag tested in st2sensors_test
+          images: [] # no extra packs to load
+          # st2.packs.images only used in initContainers
+      st2web:
+        image:
+          tag: "{{ .Chart.AppVersion }}-custom-web"
+      st2auth:
+        image:
+          tag: "{{ .Chart.AppVersion }}-custom-auth"
+      st2api:
+        image:
+          tag: "{{ .Chart.AppVersion }}-custom-api"
+      st2stream:
+        image:
+          tag: "{{ .Chart.AppVersion }}-custom-stream"
+      st2rulesengine:
+        image:
+          tag: "{{ .Chart.AppVersion }}-custom-rules"
+      st2timersengine:
+        image:
+          tag: "{{ .Chart.AppVersion }}-custom-timers"
+      st2workflowengine:
+        image:
+          tag: "{{ .Chart.AppVersion }}-custom-workflow"
+      st2scheduler:
+        image:
+          tag: "{{ .Chart.AppVersion }}-custom-scheduler"
+      st2notifier:
+        image:
+          tag: "{{ .Chart.AppVersion }}-custom-notifier"
+      st2actionrunner:
+        image:
+          repository: docker.example.com/st2
+          name: actionrunner
+          tag: "{{ .Chart.AppVersion }}-custom-actions"
+      st2sensorcontainer:
+        image:
+          tag: "{{ .Chart.AppVersion }}-custom-sensors"
+      st2client:
+        image:
+          tag: "{{ .Chart.AppVersion }}-custom-client"
+      st2garbagecollector:
+        image:
+          tag: "{{ .Chart.AppVersion }}-custom-gc"
+      st2chatops:
+        enabled: true
+        image:
+          repository: docker.example.io/st2
+          name: chatops
+          tag: "{{ .Chart.AppVersion }}-custom-chatops"
+
+      jobs:
+        extra_hooks: *jobs_extra_hooks
+        image:
+          tag: "{{ .Chart.AppVersion }}-custom-jobs"
+    release:
+      name: st2ha
+    chart:
+      appVersion: 3.9.999
+    asserts:
+      - hasDocuments:
+          count: 14
+
+      # image repository/name:tag
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "stackstorm/st2auth:3.9.999-custom-auth"
+        documentIndex: 0
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "stackstorm/st2api:3.9.999-custom-api"
+        documentIndex: 1
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "stackstorm/st2stream:3.9.999-custom-stream"
+        documentIndex: 2
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "stackstorm/st2web:3.9.999-custom-web"
+        documentIndex: 3
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "stackstorm/st2rulesengine:3.9.999-custom-rules"
+        documentIndex: 4
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "stackstorm/st2timersengine:3.9.999-custom-timers"
+        documentIndex: 5
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "stackstorm/st2workflowengine:3.9.999-custom-workflow"
+        documentIndex: 6
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "stackstorm/st2scheduler:3.9.999-custom-scheduler"
+        documentIndex: 7
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "stackstorm/st2notifier:3.9.999-custom-notifier"
+        documentIndex: 8
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "stackstorm/st2sensorcontainer:3.9.999-custom-sensors"
+        documentIndex: 9
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "docker.example.com/st2/actionrunner:3.9.999-custom-actions"
+        documentIndex: 10 # st2actionrunner
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "stackstorm/st2garbagecollector:3.9.999-custom-gc"
+        documentIndex: 11
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "stackstorm/st2actionrunner:3.9.999-custom-client"
+        documentIndex: 12 # st2client
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "docker.example.io/st2/chatops:3.9.999-custom-chatops"
+        documentIndex: 13
+
+  - it: Jobs can use custom image (default with overrides)
+    templates:
+      - jobs.yaml
+    set: *set_custom_overrides
+    release:
+      name: st2ha
+    chart:
+      appVersion: 3.9.999
+    asserts:
+      - hasDocuments:
+          count: 5
+
+      # image repository/name:tag
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "stackstorm/st2actionrunner:3.9.999-custom-jobs"
+
+  - it: Deployments can use custom image (custom global with overrides)
+    templates:
+      - deployments.yaml
+    set: &set_custom_global_with_overrides
+      image: *globalCustomImage
+      st2:
+        rbac: { enabled: true } # enable rbac job
+        packs:
+          sensors: [] # ensure only 1 sensor
+          # st2.packs.sensors[].image.tag tested in st2sensors_test
+          images: [] # no extra packs to load
+          # st2.packs.images only used in initContainers
+      st2web:
+        image:
+          tag: "{{ .Chart.AppVersion }}-custom-web"
+      st2auth:
+        image:
+          tag: "{{ .Chart.AppVersion }}-custom-auth"
+      st2api:
+        image:
+          tag: "{{ .Chart.AppVersion }}-custom-api"
+      st2stream:
+        image:
+          tag: "{{ .Chart.AppVersion }}-custom-stream"
+      st2rulesengine:
+        image:
+          tag: "{{ .Chart.AppVersion }}-custom-rules"
+      st2timersengine:
+        image:
+          tag: "{{ .Chart.AppVersion }}-custom-timers"
+      st2workflowengine:
+        image:
+          tag: "{{ .Chart.AppVersion }}-custom-workflow"
+      st2scheduler:
+        image:
+          tag: "{{ .Chart.AppVersion }}-custom-scheduler"
+      st2notifier:
+        image:
+          tag: "{{ .Chart.AppVersion }}-custom-notifier"
+      st2actionrunner:
+        image:
+          repository: docker.example.com/st2
+          name: actionrunner
+          tag: "{{ .Chart.AppVersion }}-custom-actions"
+      st2sensorcontainer:
+        image:
+          tag: "{{ .Chart.AppVersion }}-custom-sensors"
+      st2client:
+        image:
+          tag: "{{ .Chart.AppVersion }}-custom-client"
+      st2garbagecollector:
+        image:
+          tag: "{{ .Chart.AppVersion }}-custom-gc"
+      st2chatops:
+        enabled: true
+        image:
+          repository: docker.example.io/st2
+          name: chatops
+          tag: "{{ .Chart.AppVersion }}-custom-chatops"
+      jobs:
+        extra_hooks: *jobs_extra_hooks
+        image:
+          tag: "{{ .Chart.AppVersion }}-custom-jobs"
+    release:
+      name: st2ha
+    chart:
+      appVersion: 3.9.999
+    asserts:
+      - hasDocuments:
+          count: 14
+
+      # image repository/name:tag
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "registry.example.com/stackstorm/st2auth:3.9.999-custom-auth"
+        documentIndex: 0
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "registry.example.com/stackstorm/st2api:3.9.999-custom-api"
+        documentIndex: 1
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "registry.example.com/stackstorm/st2stream:3.9.999-custom-stream"
+        documentIndex: 2
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "registry.example.com/stackstorm/st2web:3.9.999-custom-web"
+        documentIndex: 3
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "registry.example.com/stackstorm/st2rulesengine:3.9.999-custom-rules"
+        documentIndex: 4
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "registry.example.com/stackstorm/st2timersengine:3.9.999-custom-timers"
+        documentIndex: 5
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "registry.example.com/stackstorm/st2workflowengine:3.9.999-custom-workflow"
+        documentIndex: 6
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "registry.example.com/stackstorm/st2scheduler:3.9.999-custom-scheduler"
+        documentIndex: 7
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "registry.example.com/stackstorm/st2notifier:3.9.999-custom-notifier"
+        documentIndex: 8
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "registry.example.com/stackstorm/st2sensorcontainer:3.9.999-custom-sensors"
+        documentIndex: 9
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "docker.example.com/st2/actionrunner:3.9.999-custom-actions"
+        documentIndex: 10 # st2actionrunner
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "registry.example.com/stackstorm/st2garbagecollector:3.9.999-custom-gc"
+        documentIndex: 11
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "registry.example.com/stackstorm/st2actionrunner:3.9.999-custom-client"
+        documentIndex: 12 # st2client
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "docker.example.io/st2/chatops:3.9.999-custom-chatops"
+        documentIndex: 13
+
+  - it: Jobs can use custom image (custom global with overrides)
+    templates:
+      - jobs.yaml
+    set: *set_custom_global_with_overrides
+    release:
+      name: st2ha
+    chart:
+      appVersion: 3.9.999
+    asserts:
+      - hasDocuments:
+          count: 5
+
+      # image repository/name:tag
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "registry.example.com/stackstorm/st2actionrunner:3.9.999-custom-jobs"
