@@ -5,6 +5,7 @@
 * Refactor label definitions to be more consistent by building labels and label selectors in partial helper templates. (#299) (by @cognifloyd)
 * Use the correct `apiVersion` for `Ingress` to add support for Kubernetes `v1.22`. (#301) (by @arms11)
 * Fix mounts for `jobs.preRegisterContentCommand` container to use the same mounts as the primary register-content container. (#322) (by @cognifloyd)
+* Add support for providing custom st2actionrunner-specific docker repository, image name, pull policy, and pull secret via `values.yaml`. (#141) (by @Sheshagiri)
 
 ## v0.100.0
 * Switch st2 to `v3.7` as a new default stable version (#274)
