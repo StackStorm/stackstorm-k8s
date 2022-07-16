@@ -304,7 +304,7 @@ Merge packs and virtualenvs from st2 with those from st2packs images
   securityContext: {{- toYaml . | nindent 8 }}
   {{- end }}
   {{- end }}
-  {{- if and $.Values.st2.packs.configs $.Values.st2.packs.volumes.enabled }}
+  {{- if and $.Values.st2.packs.configs $.Values.st2.packs.volumes.enabled $.Values.st2.packs.volumes.configs }}
 # Pack configs defined in helm values
 - name: st2-pack-configs-from-helm
   image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2actionrunner.image.tag | default .Values.image.tag) . }}'
