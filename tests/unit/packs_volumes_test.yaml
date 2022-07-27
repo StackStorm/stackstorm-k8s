@@ -48,6 +48,7 @@ tests:
           content:
             name: st2-packs-vol
             mountPath: /opt/stackstorm/packs
+            readOnly: false
 
       - notContains: &venvs_vol
           path: spec.template.spec.volumes
@@ -60,6 +61,7 @@ tests:
           content:
             name: st2-virtualenvs-vol
             mountPath: /opt/stackstorm/virtualenvs
+            readOnly: false
 
       - notContains: &pack_configs_vol # only contains if volumes.enabled
           path: spec.template.spec.volumes
@@ -102,6 +104,7 @@ tests:
           content:
             name: st2-pack-configs-vol
             mountPath: /opt/stackstorm/configs/
+            readOnly: false
         documentIndex: 1 # st2api
       - notContains: *pack_configs_vol_mnt # only contains if volumes.enabled
         documentIndex: 10 # st2actionrunner
