@@ -318,7 +318,7 @@ tests:
           value: *pod_security_context_override
 
       # container
-      - notEqual: *global_container0_security_context_assert
+      - notEqual:
           path: spec.containers[0].securityContext
           value: *global_security_context
       - equal:
