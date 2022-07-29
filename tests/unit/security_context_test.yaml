@@ -310,12 +310,24 @@ tests:
           count: 1
 
       # pod
-      - notEqual: *global_pod_security_context_assert
-      - equal: *override_pod_security_context_assert
+      - notEqual:
+          path: spec.securityContext
+          value: *global_pod_security_context
+      - equal:
+          path: spec.securityContext
+          value: *pod_security_context_override
 
       # container
       - notEqual: *global_container0_security_context_assert
-      - equal: *override_container0_security_context_assert
+          path: spec.containers[0].securityContext
+          value: *global_security_context
+      - equal:
+          path: spec.containers[0].securityContext
+          value: *security_context_override
       # path can only select one element, not all initContainers (if present).
-      #- notEqual: *global_initcontainers_security_context_assert
-      #- equal: *override_initcontainers_security_context_assert
+      #- notEqual:
+      #    path: spec.initContainers[].securityContext
+      #    value: *global_security_context
+      #- equal:
+      #    path: spec.initContainers[].securityContext
+      #    value: *security_context_override
