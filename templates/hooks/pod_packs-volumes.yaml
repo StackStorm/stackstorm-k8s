@@ -82,7 +82,7 @@ spec:
   {{- with $.Values.dnsConfig }}
   dnsConfig: {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- with default $.Values.podSecurityContext $.Values.st2tests.podSecurityContext }}
+  {{- with $.Values.podSecurityContext }}
   securityContext: {{- toYaml . | nindent 4 }}
   {{- end }}
   {{- with $.Values.st2tests.nodeSelector }}

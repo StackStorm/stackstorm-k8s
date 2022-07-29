@@ -977,8 +977,6 @@ st2tests:
   nodeSelector: {}
   tolerations: []
   affinity: {}
-  # override the default .podSecurityContext here
-  podSecurityContext: {}
   # mount extra volumes on the st2tests pod(s) (primarily useful to test
   # extra_volumes used for any of the other deployments)
   ## Note that Helm templating is supported in 'mount' and 'volume'
