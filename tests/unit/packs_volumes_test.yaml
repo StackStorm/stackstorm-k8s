@@ -4,6 +4,7 @@ templates:
   # primary template files
   - deployments.yaml
   - jobs.yaml
+  - hooks/pod_packs-volumes.yaml
 
   # included templates must also be listed
   - configmaps_overrides.yaml
@@ -180,6 +181,22 @@ tests:
         documentIndex: 2
       - notContains: *pack_configs_vol_mnt
         documentIndex: 2
+
+  - it: Hook without st2.packs.images or st2.packs.volumes
+    template: hooks/pod_packs-volumes.yaml
+    set:
+      st2:
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: [] # no extra packs to load
+          volumes:
+            enabled: false
+          configs: {} # has one core.yaml config file by default (dicts get merged)
+    release:
+      name: st2ha
+    asserts:
+      - hasDocuments:
+          count: 0
 
   - it: Deployments with st2.packs.images but not st2.packs.volumes
     template: deployments.yaml
@@ -462,6 +479,22 @@ tests:
         documentIndex: 2
       - notContains: *pack_configs_vol_mnt
         documentIndex: 2
+
+  - it: Hook with st2.packs.images but not st2.packs.volumes
+    template: hooks/pod_packs-volumes.yaml
+    set:
+      st2:
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: *st2_packs_images
+          volumes:
+            enabled: false
+          configs: {} # has one core.yaml config file by default (dicts get merged)
+    release:
+      name: st2ha
+    asserts:
+      - hasDocuments:
+          count: 0
 
   - it: Deployments with st2.packs.images and st2.packs.volumes
     template: deployments.yaml
@@ -759,6 +792,25 @@ tests:
       - notContains: *pack_configs_vol_mnt
         documentIndex: 2
 
+  - it: Hook with st2.packs.images and st2.packs.volumes
+    template: hooks/pod_packs-volumes.yaml
+    set:
+      st2:
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: *st2_packs_images
+          volumes:
+            enabled: true
+            packs: *nfs_packs_volume
+            virtualenvs: *nfs_venvs_volume
+            configs: *nfs_pack_configs_volume
+          configs: {} # has one core.yaml config file by default (dicts get merged)
+    release:
+      name: st2ha
+    asserts:
+      - hasDocuments:
+          count: 1
+
   - it: Deployments without st2.packs.images and with st2.packs.volumes
     template: deployments.yaml
     set:
@@ -1033,6 +1085,25 @@ tests:
         documentIndex: 2
       - notContains: *pack_configs_vol_mnt
         documentIndex: 2
+
+  - it: Hook without st2.packs.images and with st2.packs.volumes
+    template: hooks/pod_packs-volumes.yaml
+    set:
+      st2:
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: []
+          volumes:
+            enabled: true
+            packs: *nfs_packs_volume
+            virtualenvs: *nfs_venvs_volume
+            configs: *nfs_pack_configs_volume
+          configs: {} # has one core.yaml config file by default (dicts get merged)
+    release:
+      name: st2ha
+    asserts:
+      - hasDocuments:
+          count: 1
 
   - it: Deployments with st2.packs.volumes but missing volumes config
     template: deployments.yaml
