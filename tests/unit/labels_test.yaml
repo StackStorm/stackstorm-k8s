@@ -368,7 +368,7 @@ tests:
       - equal: *metadata_labels_chart
       - equal: *metadata_labels_managed_by
 
-  - it: Hook has required labels
+  - it: Hook Pod has required labels
     template: hooks/pod_packs-volumes.yaml
     set:
       st2:
@@ -393,9 +393,13 @@ tests:
     asserts:
       - hasDocuments:
           count: 1
-      - equal: *metadata_labels_app_eq_st2
+      - equal:
+          path: metadata.labels.app
+          value: st2tests
       - equal: *metadata_labels_instance
-      - equal: *metadata_labels_component_backend
+      - equal:
+          path: metadata.labels.tier
+          value: tests
       - equal: *metadata_labels_part_of
       - equal: *metadata_labels_app_version
       - equal: *metadata_labels_chart
