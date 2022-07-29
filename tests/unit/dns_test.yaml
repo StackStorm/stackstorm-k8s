@@ -40,6 +40,34 @@ tests:
       - isNull:
           path: spec.template.spec.dnsConfig
 
+  - it: Hook Pod defaults to no dnsPolicy or dnsConfig
+    template: hooks/pod_packs-volumes.yaml
+    set:
+      st2:
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: []
+          volumes: &volumes_enabled
+            enabled: true
+            packs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/packs
+            virtualenvs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/virtualenvs
+            configs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/configs
+          configs: {} # has one core.yaml config file by default (dicts get merged)
+    asserts:
+      - isNull:
+          path: spec.dnsPolicy
+      - isNull:
+          path: spec.dnsConfig
+
   - it: Deployments and Jobs accept custom dnsPolicy or dnsConfig
     templates:
       - deployments.yaml
@@ -69,7 +97,7 @@ tests:
           path: spec.template.spec.dnsConfig
           value: *dnsConfig
 
-  - it: Hook with st2.packs.volumes
+  - it: Hook Pod accepts custom dnsPolicy or dnsConfig
     template: hooks/pod_packs-volumes.yaml
     set:
       dnsPolicy: *dnsPolicy
@@ -78,28 +106,15 @@ tests:
         packs:
           sensors: [] # ensure only 1 sensor
           images: []
-          volumes:
-            enabled: true
-            packs:
-              nfs:
-                server: "10.12.34.56"
-                path: /var/nfsshare/packs
-            virtualenvs:
-              nfs:
-                server: "10.12.34.56"
-                path: /var/nfsshare/virtualenvs
-            configs:
-              nfs:
-                server: "10.12.34.56"
-                path: /var/nfsshare/configs
+          volumes: *volumes_enabled
           configs: {} # has one core.yaml config file by default (dicts get merged)
     asserts:
       - hasDocuments:
           count: 1
 
       - equal:
-          path: spec.template.spec.dnsPolicy
+          path: spec.dnsPolicy
           value: *dnsPolicy
       - equal:
-          path: spec.template.spec.dnsConfig
+          path: spec.dnsConfig
           value: *dnsConfig
