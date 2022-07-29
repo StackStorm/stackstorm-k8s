@@ -216,6 +216,7 @@ tests:
           sensors: [] # ensure only 1 sensor
           images: []
           volumes: *volumes_enabled
+      st2tests:
         nodeSelector: *custom_nodeSelector
         tolerations: *custom_tolerations
         affinity: *custom_affinity
