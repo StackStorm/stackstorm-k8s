@@ -4,6 +4,7 @@ templates:
   - deployments.yaml
   - jobs.yaml
   - services.yaml
+  - hooks/pod_packs-volumes.yaml
 
   - configmaps_overrides.yaml
   - configmaps_packs.yaml
@@ -359,6 +360,39 @@ tests:
     asserts:
       - hasDocuments:
           count: 14
+      - equal: *metadata_labels_app_eq_st2
+      - equal: *metadata_labels_instance
+      - equal: *metadata_labels_component_backend
+      - equal: *metadata_labels_part_of
+      - equal: *metadata_labels_app_version
+      - equal: *metadata_labels_chart
+      - equal: *metadata_labels_managed_by
+
+  - it: Hook has required labels
+    template: hooks/pod_packs-volumes.yaml
+    set:
+      st2:
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: [] # no extra packs to load
+          volumes:
+            enabled: true
+            packs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/packs
+            virtualenvs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/virtualenvs
+            configs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/configs
+          configs: {} # has one core.yaml config file by default (dicts get merged)
+    asserts:
+      - hasDocuments:
+          count: 1
       - equal: *metadata_labels_app_eq_st2
       - equal: *metadata_labels_instance
       - equal: *metadata_labels_component_backend

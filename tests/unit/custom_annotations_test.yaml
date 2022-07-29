@@ -7,6 +7,7 @@ templates:
   - jobs.yaml
   - service-account.yaml
   - services.yaml
+  - hooks/pod_packs-volumes.yaml
 
   # included templates must also be listed
   - configmaps_overrides.yaml
@@ -186,4 +187,43 @@ tests:
           value: bar
       - equal:
           path: spec.template.metadata.annotations.answer
+          value: "42"
+
+  - it: Hook with st2.packs.volumes
+    template: hooks/pod_packs-volumes.yaml
+    set:
+      st2:
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: []
+          volumes:
+            enabled: true
+            packs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/packs
+            virtualenvs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/virtualenvs
+            configs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/configs
+          configs: {} # has one core.yaml config file by default (dicts get merged)
+      st2tests:
+        annotations:
+          foo: bar
+          answer: "42"
+    asserts:
+      - hasDocuments:
+          count: 1
+
+      - isNotNull:
+          path: metadata.annotations
+      - equal:
+          path: metadata.annotations.foo
+          value: bar
+      - equal:
+          path: metadata.annotations.answer
           value: "42"

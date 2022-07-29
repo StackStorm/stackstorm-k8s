@@ -4,6 +4,7 @@ templates:
   # primary template files
   - deployments.yaml
   - jobs.yaml
+  - hooks/pod_packs-volumes.yaml
 
   # included templates must also be listed
   - configmaps_overrides.yaml
@@ -53,6 +54,37 @@ tests:
           path: spec.template.spec.tolerations
       - isNull:
           path: spec.template.spec.affinity
+
+  - it: Hook Pod has no default placement
+    template: hooks/pod_packs-volumes.yaml
+    set:
+      st2:
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: []
+          volumes: &volumes_enabled
+            enabled: true
+            packs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/packs
+            virtualenvs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/virtualenvs
+            configs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/configs
+          configs: {} # has one core.yaml config file by default (dicts get merged)
+    asserts:
+      - isNull:
+          path: spec.nodeSelector
+      - isNull:
+          path: spec.tolerations
+      - isNull:
+          path: spec.affinity
+
 
   - it: Deployments and Jobs accept custom placement
     templates:
@@ -174,4 +206,26 @@ tests:
           value: *custom_tolerations
       - equal:
           path: spec.template.spec.affinity
+          value: *custom_affinity
+
+  - it: Hook Pod accepts custom placement
+    template: hooks/pod_packs-volumes.yaml
+    set:
+      st2:
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: []
+          volumes: *volumes_enabled
+        nodeSelector: *custom_nodeSelector
+        tolerations: *custom_tolerations
+        affinity: *custom_affinity
+    asserts:
+      - equal:
+          path: spec.nodeSelector
+          value: *custom_nodeSelector
+      - equal:
+          path: spec.tolerations
+          value: *custom_tolerations
+      - equal:
+          path: spec.affinity
           value: *custom_affinity

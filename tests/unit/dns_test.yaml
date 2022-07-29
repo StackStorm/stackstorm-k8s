@@ -4,6 +4,7 @@ templates:
   # primary template files
   - deployments.yaml
   - jobs.yaml
+  - hooks/pod_packs-volumes.yaml
 
   # included templates must also be listed
   - configmaps_overrides.yaml
@@ -61,6 +62,41 @@ tests:
       jobs:
         extra_hooks: *jobs_extra_hooks
     asserts:
+      - equal:
+          path: spec.template.spec.dnsPolicy
+          value: *dnsPolicy
+      - equal:
+          path: spec.template.spec.dnsConfig
+          value: *dnsConfig
+
+  - it: Hook with st2.packs.volumes
+    template: hooks/pod_packs-volumes.yaml
+    set:
+      dnsPolicy: *dnsPolicy
+      dnsConfig: *dnsConfig
+      st2:
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: []
+          volumes:
+            enabled: true
+            packs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/packs
+            virtualenvs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/virtualenvs
+            configs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/configs
+          configs: {} # has one core.yaml config file by default (dicts get merged)
+    asserts:
+      - hasDocuments:
+          count: 1
+
       - equal:
           path: spec.template.spec.dnsPolicy
           value: *dnsPolicy

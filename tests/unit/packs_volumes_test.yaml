@@ -811,6 +811,13 @@ tests:
       - hasDocuments:
           count: 1
 
+      - contains: *nfs_packs_vol
+      - contains: *nfs_venvs_vol
+      - contains: *nfs_pack_configs_vol
+      - contains: *packs_vol_mnt
+      - contains: *venvs_vol_mnt
+      - contains: *pack_configs_vol_mnt
+
   - it: Deployments without st2.packs.images and with st2.packs.volumes
     template: deployments.yaml
     set:
@@ -1104,6 +1111,13 @@ tests:
     asserts:
       - hasDocuments:
           count: 1
+
+      - contains: *nfs_packs_vol
+      - contains: *nfs_venvs_vol
+      - contains: *nfs_pack_configs_vol
+      - contains: *packs_vol_mnt
+      - contains: *venvs_vol_mnt
+      - contains: *pack_configs_vol_mnt
 
   - it: Deployments with st2.packs.volumes but missing volumes config
     template: deployments.yaml

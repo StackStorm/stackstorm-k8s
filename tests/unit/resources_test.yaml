@@ -3,6 +3,7 @@ suite: Resources
 templates:
   # primary template files
   - deployments.yaml
+  - hooks/pod_packs-volumes.yaml
 
   # No jobs resources yet
 
@@ -38,6 +39,37 @@ tests:
           path: spec.template.spec.containers[0].resources.requests.memory
       - isNotEmpty:
           path: spec.template.spec.containers[0].resources.requests.cpu
+
+  - it: Hook Pod has default resources
+    template: hooks/pod_packs-volumes.yaml
+    set:
+      st2:
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: []
+          volumes: &volumes_enabled
+            enabled: true
+            packs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/packs
+            virtualenvs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/virtualenvs
+            configs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/configs
+          configs: {} # has one core.yaml config file by default (dicts get merged)
+    asserts:
+      - hasDocuments:
+          count: 1
+
+      - isNull:
+          path: spec.containers[0].resources.limits
+      - isNull:
+          path: spec.containers[0].resources.requests
 
   - it: Deployments accept custom resources (except st2client)
     template: deployments.yaml
@@ -127,3 +159,20 @@ tests:
         documentIndex: 13
 
   # Jobs do not have default resources defined yet.
+
+  - it: Hook Pod accepts custom resources (except st2client)
+    template: hooks/pod_packs-volumes.yaml
+    set:
+      st2:
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: []
+          volumes: *volumes_enabled
+          configs: {} # has one core.yaml config file by default (dicts get merged)
+      st2tests:
+        resources: *custom_resources
+    asserts:
+      - hasDocuments:
+          count: 1
+
+      - equal: *assert_custom_requests
