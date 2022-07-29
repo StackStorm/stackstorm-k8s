@@ -175,4 +175,6 @@ tests:
       - hasDocuments:
           count: 1
 
-      - equal: *assert_custom_requests
+      - equal:
+          path: spec.containers[0].resources.requests
+          value: *custom_resources_requests
