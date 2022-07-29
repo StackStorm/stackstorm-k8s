@@ -811,12 +811,39 @@ tests:
       - hasDocuments:
           count: 1
 
-      - contains: *nfs_packs_vol
-      - contains: *nfs_venvs_vol
-      - contains: *nfs_pack_configs_vol
-      - contains: *packs_vol_mnt
-      - contains: *venvs_vol_mnt
-      - contains: *pack_configs_vol_mnt
+      - contains: &pod_nfs_packs_vol
+          path: spec.volumes
+          content:
+            name: st2-packs-vol
+            <<: *nfs_packs_volume
+      - contains: &pod_nfs_venvs_vol
+          path: spec.volumes
+          content:
+            name: st2-virtualenvs-vol
+            <<: *nfs_venvs_volume
+      - contains: &pod_nfs_pack_configs_vol
+          path: spec.volumes
+          content:
+            name: st2-pack-configs-vol
+            <<: *nfs_pack_configs_volume
+      - contains: &pod_packs_vol_mnt
+          path: spec.containers[0].volumeMounts
+          content:
+            name: st2-packs-vol
+            mountPath: /opt/stackstorm/packs
+            readOnly: false
+      - contains: &pod_venvs_vol_mnt
+          path: spec.containers[0].volumeMounts
+          content:
+            name: st2-virtualenvs-vol
+            mountPath: /opt/stackstorm/virtualenvs
+            readOnly: false
+      - contains: &pod_pack_configs_vol_mnt
+          path: spec.containers[0].volumeMounts
+          content:
+            name: st2-pack-configs-vol
+            mountPath: /opt/stackstorm/configs/
+            readOnly: false
 
   - it: Deployments without st2.packs.images and with st2.packs.volumes
     template: deployments.yaml
@@ -1112,12 +1139,12 @@ tests:
       - hasDocuments:
           count: 1
 
-      - contains: *nfs_packs_vol
-      - contains: *nfs_venvs_vol
-      - contains: *nfs_pack_configs_vol
-      - contains: *packs_vol_mnt
-      - contains: *venvs_vol_mnt
-      - contains: *pack_configs_vol_mnt
+      - contains: *pod_nfs_packs_vol
+      - contains: *pod_nfs_venvs_vol
+      - contains: *pod_nfs_pack_configs_vol
+      - contains: *pod_packs_vol_mnt
+      - contains: *pod_venvs_vol_mnt
+      - contains: *pod_pack_configs_vol_mnt
 
   - it: Deployments with st2.packs.volumes but missing volumes config
     template: deployments.yaml
