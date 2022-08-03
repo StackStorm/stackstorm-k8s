@@ -1052,7 +1052,7 @@ redis:
   # https://github.com/bitnami/charts/tree/master/bitnami/redis#master-slave-with-sentinel
   sentinel:
     enabled: true
-    # DO NOT SET sentinel.usePassword, the tooz driver under the hood cannot connect to a password protected sentinel
+    # DO NOT SET sentinel.usePassword, the tooz driver cannot connect to a password protected sentinel
     # however it can connect to a password protected redis that is being managed by sentinel
     # usePassword: false
     # Enable or disable static sentinel IDs for each replicas
