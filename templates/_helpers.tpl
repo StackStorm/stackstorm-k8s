@@ -114,6 +114,13 @@ Generate list of nodes for Redis with Sentinel connection string, based on numbe
 {{- end -}}
 {{- end -}}
 
+{{- define "stackstorm-ha.redis-password" -}}
+{{- if not .Values.redis.sentinel.enabled }}
+{{- fail "value for redis.sentinel.enabled MUST be true" }}
+{{- end }}
+{{- if not (empty .Values.redis.password)}}:{{ .Values.redis.password }}@{{- end }}
+{{- end -}}
+
 {{/*
 Reduce duplication of the st2.*.conf volume details
 */}}
