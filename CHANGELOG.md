@@ -7,6 +7,7 @@
 * Fix mounts for `jobs.preRegisterContentCommand` container to use the same mounts as the primary register-content container. (#322) (by @cognifloyd)
 * Add support for providing custom st2actionrunner-specific docker repository, image name, pull policy, and pull secret via `values.yaml`. (#141) (by @Sheshagiri)
 * Fix bug that hung an init container when `st2.packs.volumes.enabled` without `st2.packs.volumes.configs`. (#324) (by @rebrowning)
+* Fix bug that would not set the appropriate redis connection string when using `redis.password` and `redis.usePassword` (#325) (by @rebrowning)
 
 ## v0.100.0
 * Switch st2 to `v3.7` as a new default stable version (#274)
