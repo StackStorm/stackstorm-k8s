@@ -214,6 +214,24 @@ tests:
           path: metadata.labels.heritage
           value: Helm
 
+  - it: ServiceAccount accepts custom labels
+    template: service-account.yaml
+    set:
+      serviceAccount:
+        create: true
+        serviceAccountLabels:
+          foo: bar
+          answer: "42"
+    asserts:
+      - isNotNull:
+          path: metadata.labels
+      - equal:
+          path: metadata.labels.foo
+          value: bar
+      - equal:
+          path: metadata.labels.answer
+          value: "42"
+
   - it: st2web Ingress has required labels
     template: ingress.yaml
     set:
