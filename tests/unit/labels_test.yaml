@@ -219,10 +219,10 @@ tests:
     set:
       serviceAccount:
         create: true
-        serviceAccountLabels: &labels
+        serviceAccountLabels:
           foo: bar
           answer: "42"
-    asserts: &labels_asserts
+    asserts:
       - isNotNull:
           path: metadata.labels
       - equal:
