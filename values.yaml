@@ -84,7 +84,7 @@ st2:
   #          enabled: false
 
 
-  # Custom StackStorm config (st2.secret.conf) which will be created from the key 'st2.secret.conf' within this secret.
+  # Custom StackStorm config (st2.secrets.conf) which will be created from the key 'st2.secrets.conf' within this secret.
   # If this is defined, '--config-file=/etc/st2/st2.secrets.conf' will be added to the end of the command line arguments 
   # for all pods, superseding all other configuration values.
   # This secret must be populated outside of this chart.
