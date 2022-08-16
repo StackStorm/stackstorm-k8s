@@ -17,7 +17,7 @@ data:
     ssh_key_file = {{ tpl .Values.st2.system_user.ssh_key_file . }}
     {{- if index .Values "redis" "enabled" }}
     [coordination]
-    url = redis://{{ template "stackstorm-ha.redis-nodes" $ }}
+    url = redis://{{ template "stackstorm-ha.redis-password" $ }}{{ template "stackstorm-ha.redis-nodes" $ }}
     {{- end }}
     {{- if index .Values "rabbitmq" "enabled" }}
     [messaging]

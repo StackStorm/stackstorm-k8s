@@ -32,6 +32,9 @@ serviceAccount:
   serviceAccountAnnotations: {}
   # Used to override service account name
   serviceAccountName:
+  # Used to define any custom labels required
+  #serviceAccountLabels: {}
+
   # Fallback image pull secret.
   # If a pod does not have pull secrets, k8s will use the service account's pull secrets.
   # See: https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/#serviceaccount-admission-controller
@@ -67,7 +70,7 @@ st2:
   config: |
     [api]
     allow_origin = '*'
-  
+
   #Override Definitions can be added here.
   #https://docs.stackstorm.com/latest/packs.html#overriding-pack-defaults
   overrides: {}
@@ -1058,10 +1061,15 @@ redis:
   # https://github.com/bitnami/charts/tree/master/bitnami/redis#master-slave-with-sentinel
   sentinel:
     enabled: true
+    # DO NOT SET sentinel.usePassword, the tooz driver cannot connect to a password protected sentinel
+    # however it can connect to a password protected redis that is being managed by sentinel
+    # usePassword: false
     # Enable or disable static sentinel IDs for each replicas
     # If disabled each sentinel will generate a random id at startup
     # If enabled, each replicas will have a constant ID on each start-up
     staticID: true
+  # if redis.usePassword is true, you can set the password here
+  # password: mysupersecretpassword
   networkPolicy:
     enabled: false
   usePassword: false
