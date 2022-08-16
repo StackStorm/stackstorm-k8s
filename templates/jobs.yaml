@@ -39,9 +39,7 @@ spec:
         command:
           - st2-apply-rbac-definitions
           - --verbose
-          - --config-file=/etc/st2/st2.conf
-          - --config-file=/etc/st2/st2.docker.conf
-          - --config-file=/etc/st2/st2.user.conf
+          {{- include "stackstorm-ha.st2-config-file-parameters" . | nindent 10 }}
         {{- if .Values.jobs.env }}
         env: {{- include "stackstorm-ha.customEnv" .Values.jobs | nindent 8 }}
         {{- end }}
@@ -408,9 +406,7 @@ spec:
         {{- end }}
         command:
           - st2-register-content
-          - --config-file=/etc/st2/st2.conf
-          - --config-file=/etc/st2/st2.docker.conf
-          - --config-file=/etc/st2/st2.user.conf
+          {{- include "stackstorm-ha.st2-config-file-parameters" . | nindent 10 }}
           - --register-all
           - --register-fail-on-failure
         {{- if .Values.jobs.env }}

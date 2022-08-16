@@ -1,0 +1,664 @@
+---
+suite: Config files
+templates:
+  # primary template files
+  - deployments.yaml
+  - jobs.yaml
+
+  # included templates must also be listed
+  - configmaps_overrides.yaml
+  - configmaps_packs.yaml
+  - configmaps_rbac.yaml
+  - configmaps_st2-conf.yaml
+  - configmaps_st2-urls.yaml
+  - configmaps_st2web.yaml
+  - secrets_datastore_crypto_key.yaml
+  - secrets_ssh.yaml
+  - secrets_st2apikeys.yaml
+  - secrets_st2auth.yaml
+  - secrets_st2chatops.yaml
+
+tests:
+  - it: Jobs include st2.conf files by default
+    template: jobs.yaml
+    set:
+      st2:
+        rbac: { enabled: true } # enable rbac job
+      jobs:
+        # The extra_hooks job will NOT need the command arguments, but it does need the volumes.
+        extra_hooks: &extra_hooks_jobs
+          - name: upgrade-warning
+            hook: pre-upgrade, pre-rollback
+            hook_weight: -5
+            command: ["st2", "run", "--tail", "custom_pack.warn_about_upgrade"]
+    release:
+      name: st2ha
+    asserts:
+      - hasDocuments:
+          count: 5
+
+      - contains: &st2conf_cli
+          path: spec.template.spec.containers[0].command
+          content: '--config-file=/etc/st2/st2.conf'
+        documentIndex: 0 # apply-rbac-definitions job
+      - contains: *st2conf_cli
+        documentIndex: 3 # register-content
+
+      - contains: &st2dockerconf_cli
+          path: spec.template.spec.containers[0].command
+          content: '--config-file=/etc/st2/st2.docker.conf'
+        documentIndex: 0
+      - contains: *st2dockerconf_cli
+        documentIndex: 3
+
+      - contains: &st2userconf_cli
+          path: spec.template.spec.containers[0].command
+          content: '--config-file=/etc/st2/st2.user.conf'
+        documentIndex: 0
+      - contains: *st2userconf_cli
+        documentIndex: 3
+
+      - notContains: &st2secretsconf_cli
+          path: spec.template.spec.containers[0].command
+          content: '--config-file=/etc/st2/st2.secrets.conf'
+        documentIndex: 0
+      - notContains: *st2secretsconf_cli
+        documentIndex: 3
+
+      - contains: &st2conf_vol
+          path: spec.template.spec.volumes
+          content:
+            name: st2-config-vol
+            configMap:
+              name: st2ha-st2-config
+        documentIndex: 0 # apply-rbac-definitions job
+      # TODO: st2-key-load currently has the volume+mounts, but does it need it?
+      #- contains: *st2conf_vol
+      #  documentIndex: 2 # st2-key-load
+      - contains: *st2conf_vol
+        documentIndex: 3 # register-content
+      - contains: *st2conf_vol
+        documentIndex: 4 # extra_hooks
+
+      # st2.docker.conf included in st2conf_vol
+      - contains: &st2conf_vol_docker_mnt
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: st2-config-vol
+            mountPath: /etc/st2/st2.docker.conf
+            subPath: st2.docker.conf
+        documentIndex: 0
+      #- contains: *st2conf_vol_docker_mnt
+      #  documentIndex: 2
+      - contains: *st2conf_vol_docker_mnt
+        documentIndex: 3
+      - contains: *st2conf_vol_docker_mnt
+        documentIndex: 4
+
+      # st2.user.conf included in st2conf_vol
+      - contains: &st2conf_vol_user_mnt
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: st2-config-vol
+            mountPath: /etc/st2/st2.user.conf
+            subPath: st2.user.conf
+        documentIndex: 0
+      #- contains: *st2conf_vol_user_mnt
+      #  documentIndex: 2
+      - contains: *st2conf_vol_user_mnt
+        documentIndex: 3
+      - contains: *st2conf_vol_user_mnt
+        documentIndex: 4
+
+      - notContains: &st2secretsconf_vol
+          path: spec.template.spec.volumes
+          content:
+            name: st2-config-secrets-vol
+            secret:
+              secretName: stackstorm-config-secret
+        documentIndex: 0
+      #- notContains: *st2secretsconf_vol
+      #  documentIndex: 2
+      - notContains: *st2secretsconf_vol
+        documentIndex: 3
+      - notContains: *st2secretsconf_vol
+        documentIndex: 4
+
+      - notContains: &st2secretsconf_vol_mnt
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: st2-config-secrets-vol
+            mountPath: /etc/st2/st2.secrets.conf
+            subPath: st2.secrets.conf
+        documentIndex: 0
+      #- notContains: *st2secretsconf_vol_mnt
+      #  documentIndex: 2
+      - notContains: *st2secretsconf_vol_mnt
+        documentIndex: 3
+      - notContains: *st2secretsconf_vol_mnt
+        documentIndex: 4
+
+  - it: Deployments include st2.conf files by default
+    template: deployments.yaml
+    set:
+      st2:
+        packs: { sensors: [] } # ensure only 1 sensor
+      st2chatops:
+        enabled: false
+    release:
+      name: st2ha
+    asserts:
+      - hasDocuments:
+          count: 13
+
+      # all deployments except for st2web (index 3) and st2client (index 12)
+      - contains: *st2conf_cli
+        documentIndex: 0
+      - contains: *st2conf_cli
+        documentIndex: 1
+      - contains: *st2conf_cli
+        documentIndex: 2
+      - contains: *st2conf_cli
+        documentIndex: 4
+      - contains: *st2conf_cli
+        documentIndex: 5
+      - contains: *st2conf_cli
+        documentIndex: 6
+      - contains: *st2conf_cli
+        documentIndex: 7
+      - contains: *st2conf_cli
+        documentIndex: 8
+      - contains: *st2conf_cli
+        documentIndex: 9
+      - contains: *st2conf_cli
+        documentIndex: 10
+      - contains: *st2conf_cli
+        documentIndex: 11
+
+      - contains: *st2dockerconf_cli
+        documentIndex: 0
+      - contains: *st2dockerconf_cli
+        documentIndex: 1
+      - contains: *st2dockerconf_cli
+        documentIndex: 2
+      - contains: *st2dockerconf_cli
+        documentIndex: 4
+      - contains: *st2dockerconf_cli
+        documentIndex: 5
+      - contains: *st2dockerconf_cli
+        documentIndex: 6
+      - contains: *st2dockerconf_cli
+        documentIndex: 7
+      - contains: *st2dockerconf_cli
+        documentIndex: 8
+      - contains: *st2dockerconf_cli
+        documentIndex: 9
+      - contains: *st2dockerconf_cli
+        documentIndex: 10
+      - contains: *st2dockerconf_cli
+        documentIndex: 11
+
+      - contains: *st2userconf_cli
+        documentIndex: 0
+      - contains: *st2userconf_cli
+        documentIndex: 1
+      - contains: *st2userconf_cli
+        documentIndex: 2
+      - contains: *st2userconf_cli
+        documentIndex: 4
+      - contains: *st2userconf_cli
+        documentIndex: 5
+      - contains: *st2userconf_cli
+        documentIndex: 6
+      - contains: *st2userconf_cli
+        documentIndex: 7
+      - contains: *st2userconf_cli
+        documentIndex: 8
+      - contains: *st2userconf_cli
+        documentIndex: 9
+      - contains: *st2userconf_cli
+        documentIndex: 10
+      - contains: *st2userconf_cli
+        documentIndex: 11
+
+      - notContains: *st2secretsconf_cli
+        documentIndex: 0
+      - notContains: *st2secretsconf_cli
+        documentIndex: 1
+      - notContains: *st2secretsconf_cli
+        documentIndex: 2
+      - notContains: *st2secretsconf_cli
+        documentIndex: 4
+      - notContains: *st2secretsconf_cli
+        documentIndex: 5
+      - notContains: *st2secretsconf_cli
+        documentIndex: 6
+      - notContains: *st2secretsconf_cli
+        documentIndex: 7
+      - notContains: *st2secretsconf_cli
+        documentIndex: 8
+      - notContains: *st2secretsconf_cli
+        documentIndex: 9
+      - notContains: *st2secretsconf_cli
+        documentIndex: 10
+      - notContains: *st2secretsconf_cli
+        documentIndex: 11
+
+      - contains: *st2conf_vol
+        documentIndex: 0
+      - contains: *st2conf_vol
+        documentIndex: 1
+      - contains: *st2conf_vol
+        documentIndex: 2
+      - contains: *st2conf_vol
+        documentIndex: 4
+      - contains: *st2conf_vol
+        documentIndex: 5
+      - contains: *st2conf_vol
+        documentIndex: 6
+      - contains: *st2conf_vol
+        documentIndex: 7
+      - contains: *st2conf_vol
+        documentIndex: 8
+      - contains: *st2conf_vol
+        documentIndex: 9
+      - contains: *st2conf_vol
+        documentIndex: 10
+      - contains: *st2conf_vol
+        documentIndex: 11
+
+      - contains: *st2conf_vol_docker_mnt
+        documentIndex: 0
+      - contains: *st2conf_vol_docker_mnt
+        documentIndex: 1
+      - contains: *st2conf_vol_docker_mnt
+        documentIndex: 2
+      - contains: *st2conf_vol_docker_mnt
+        documentIndex: 4
+      - contains: *st2conf_vol_docker_mnt
+        documentIndex: 5
+      - contains: *st2conf_vol_docker_mnt
+        documentIndex: 6
+      - contains: *st2conf_vol_docker_mnt
+        documentIndex: 7
+      - contains: *st2conf_vol_docker_mnt
+        documentIndex: 8
+      - contains: *st2conf_vol_docker_mnt
+        documentIndex: 9
+      - contains: *st2conf_vol_docker_mnt
+        documentIndex: 10
+      - contains: *st2conf_vol_docker_mnt
+        documentIndex: 11
+
+      - contains: *st2conf_vol_user_mnt
+        documentIndex: 0
+      - contains: *st2conf_vol_user_mnt
+        documentIndex: 1
+      - contains: *st2conf_vol_user_mnt
+        documentIndex: 2
+      - contains: *st2conf_vol_user_mnt
+        documentIndex: 4
+      - contains: *st2conf_vol_user_mnt
+        documentIndex: 5
+      - contains: *st2conf_vol_user_mnt
+        documentIndex: 6
+      - contains: *st2conf_vol_user_mnt
+        documentIndex: 7
+      - contains: *st2conf_vol_user_mnt
+        documentIndex: 8
+      - contains: *st2conf_vol_user_mnt
+        documentIndex: 9
+      - contains: *st2conf_vol_user_mnt
+        documentIndex: 10
+      - contains: *st2conf_vol_user_mnt
+        documentIndex: 11
+
+      - notContains: *st2secretsconf_vol
+        documentIndex: 0
+      - notContains: *st2secretsconf_vol
+        documentIndex: 1
+      - notContains: *st2secretsconf_vol
+        documentIndex: 2
+      - notContains: *st2secretsconf_vol
+        documentIndex: 4
+      - notContains: *st2secretsconf_vol
+        documentIndex: 5
+      - notContains: *st2secretsconf_vol
+        documentIndex: 6
+      - notContains: *st2secretsconf_vol
+        documentIndex: 7
+      - notContains: *st2secretsconf_vol
+        documentIndex: 8
+      - notContains: *st2secretsconf_vol
+        documentIndex: 9
+      - notContains: *st2secretsconf_vol
+        documentIndex: 10
+      - notContains: *st2secretsconf_vol
+        documentIndex: 11
+
+      - notContains: *st2secretsconf_vol_mnt
+        documentIndex: 0
+      - notContains: *st2secretsconf_vol_mnt
+        documentIndex: 1
+      - notContains: *st2secretsconf_vol_mnt
+        documentIndex: 2
+      - notContains: *st2secretsconf_vol_mnt
+        documentIndex: 4
+      - notContains: *st2secretsconf_vol_mnt
+        documentIndex: 5
+      - notContains: *st2secretsconf_vol_mnt
+        documentIndex: 6
+      - notContains: *st2secretsconf_vol_mnt
+        documentIndex: 7
+      - notContains: *st2secretsconf_vol_mnt
+        documentIndex: 8
+      - notContains: *st2secretsconf_vol_mnt
+        documentIndex: 9
+      - notContains: *st2secretsconf_vol_mnt
+        documentIndex: 10
+      - notContains: *st2secretsconf_vol_mnt
+        documentIndex: 11
+
+  - it: Jobs include st2.conf files with st2.existingConfigSecret
+    template: jobs.yaml
+    set:
+      st2:
+        rbac: { enabled: true } # enable rbac job
+        existingConfigSecret: stackstorm-config-secret
+      jobs:
+        # The extra_hooks job will NOT need the command arguments, but it does need the volumes.
+        extra_hooks: *extra_hooks_jobs
+    release:
+      name: st2ha
+    asserts:
+      - hasDocuments:
+          count: 5
+
+      - contains: *st2secretsconf_cli
+        documentIndex: 0
+      - contains: *st2secretsconf_cli
+        documentIndex: 3
+
+      # also make sure that the other conf files are still present
+      - contains: *st2conf_cli
+        documentIndex: 0
+      - contains: *st2conf_cli
+        documentIndex: 3
+
+      - contains: *st2dockerconf_cli
+        documentIndex: 0
+      - contains: *st2dockerconf_cli
+        documentIndex: 3
+
+      - contains: *st2userconf_cli
+        documentIndex: 0
+      - contains: *st2userconf_cli
+        documentIndex: 3
+
+      - contains: *st2conf_vol
+        documentIndex: 0
+      #- contains: *st2conf_vol
+      #  documentIndex: 2
+      - contains: *st2conf_vol
+        documentIndex: 3
+      - contains: *st2conf_vol
+        documentIndex: 4
+
+      - contains: *st2conf_vol_docker_mnt
+        documentIndex: 0
+      #- contains: *st2conf_vol_docker_mnt
+      #  documentIndex: 2
+      - contains: *st2conf_vol_docker_mnt
+        documentIndex: 3
+      - contains: *st2conf_vol_docker_mnt
+        documentIndex: 4
+
+      - contains: *st2conf_vol_user_mnt
+        documentIndex: 0
+      #- contains: *st2conf_vol_user_mnt
+      #  documentIndex: 2
+      - contains: *st2conf_vol_user_mnt
+        documentIndex: 3
+      - contains: *st2conf_vol_user_mnt
+        documentIndex: 4
+
+      - contains: *st2secretsconf_vol
+        documentIndex: 0
+      #- contains: *st2secretsconf_vol
+      #  documentIndex: 2
+      - contains: *st2secretsconf_vol
+        documentIndex: 3
+      - contains: *st2secretsconf_vol
+        documentIndex: 4
+
+      - contains: *st2secretsconf_vol_mnt
+        documentIndex: 0
+      #- contains: *st2secretsconf_vol_mnt
+      #  documentIndex: 2
+      - contains: *st2secretsconf_vol_mnt
+        documentIndex: 3
+      - contains: *st2secretsconf_vol_mnt
+        documentIndex: 4
+
+  - it: Deployments include st2.conf files with st2.existingConfigSecret
+    template: deployments.yaml
+    set:
+      st2:
+        packs: { sensors: [] } # ensure only 1 sensor
+        existingConfigSecret: stackstorm-config-secret
+      st2chatops:
+        enabled: false
+    release:
+      name: st2ha
+    asserts:
+      - hasDocuments:
+          count: 13
+
+      # all deployments except for st2web (index 3) and st2client (index 12)
+      - contains: *st2secretsconf_cli
+        documentIndex: 0
+      - contains: *st2secretsconf_cli
+        documentIndex: 1
+      - contains: *st2secretsconf_cli
+        documentIndex: 2
+      - contains: *st2secretsconf_cli
+        documentIndex: 4
+      - contains: *st2secretsconf_cli
+        documentIndex: 5
+      - contains: *st2secretsconf_cli
+        documentIndex: 6
+      - contains: *st2secretsconf_cli
+        documentIndex: 7
+      - contains: *st2secretsconf_cli
+        documentIndex: 8
+      - contains: *st2secretsconf_cli
+        documentIndex: 9
+      - contains: *st2secretsconf_cli
+        documentIndex: 10
+      - contains: *st2secretsconf_cli
+        documentIndex: 11
+
+      - contains: *st2secretsconf_vol
+        documentIndex: 0
+      - contains: *st2secretsconf_vol
+        documentIndex: 1
+      - contains: *st2secretsconf_vol
+        documentIndex: 2
+      - contains: *st2secretsconf_vol
+        documentIndex: 4
+      - contains: *st2secretsconf_vol
+        documentIndex: 5
+      - contains: *st2secretsconf_vol
+        documentIndex: 6
+      - contains: *st2secretsconf_vol
+        documentIndex: 7
+      - contains: *st2secretsconf_vol
+        documentIndex: 8
+      - contains: *st2secretsconf_vol
+        documentIndex: 9
+      - contains: *st2secretsconf_vol
+        documentIndex: 10
+      - contains: *st2secretsconf_vol
+        documentIndex: 11
+
+      - contains: *st2secretsconf_vol_mnt
+        documentIndex: 0
+      - contains: *st2secretsconf_vol_mnt
+        documentIndex: 1
+      - contains: *st2secretsconf_vol_mnt
+        documentIndex: 2
+      - contains: *st2secretsconf_vol_mnt
+        documentIndex: 4
+      - contains: *st2secretsconf_vol_mnt
+        documentIndex: 5
+      - contains: *st2secretsconf_vol_mnt
+        documentIndex: 6
+      - contains: *st2secretsconf_vol_mnt
+        documentIndex: 7
+      - contains: *st2secretsconf_vol_mnt
+        documentIndex: 8
+      - contains: *st2secretsconf_vol_mnt
+        documentIndex: 9
+      - contains: *st2secretsconf_vol_mnt
+        documentIndex: 10
+      - contains: *st2secretsconf_vol_mnt
+        documentIndex: 11
+
+      # also make sure that the other conf files are still present
+      - contains: *st2conf_cli
+        documentIndex: 0
+      - contains: *st2conf_cli
+        documentIndex: 1
+      - contains: *st2conf_cli
+        documentIndex: 2
+      - contains: *st2conf_cli
+        documentIndex: 4
+      - contains: *st2conf_cli
+        documentIndex: 5
+      - contains: *st2conf_cli
+        documentIndex: 6
+      - contains: *st2conf_cli
+        documentIndex: 7
+      - contains: *st2conf_cli
+        documentIndex: 8
+      - contains: *st2conf_cli
+        documentIndex: 9
+      - contains: *st2conf_cli
+        documentIndex: 10
+      - contains: *st2conf_cli
+        documentIndex: 11
+
+      - contains: *st2dockerconf_cli
+        documentIndex: 0
+      - contains: *st2dockerconf_cli
+        documentIndex: 1
+      - contains: *st2dockerconf_cli
+        documentIndex: 2
+      - contains: *st2dockerconf_cli
+        documentIndex: 4
+      - contains: *st2dockerconf_cli
+        documentIndex: 5
+      - contains: *st2dockerconf_cli
+        documentIndex: 6
+      - contains: *st2dockerconf_cli
+        documentIndex: 7
+      - contains: *st2dockerconf_cli
+        documentIndex: 8
+      - contains: *st2dockerconf_cli
+        documentIndex: 9
+      - contains: *st2dockerconf_cli
+        documentIndex: 10
+      - contains: *st2dockerconf_cli
+        documentIndex: 11
+
+      - contains: *st2userconf_cli
+        documentIndex: 0
+      - contains: *st2userconf_cli
+        documentIndex: 1
+      - contains: *st2userconf_cli
+        documentIndex: 2
+      - contains: *st2userconf_cli
+        documentIndex: 4
+      - contains: *st2userconf_cli
+        documentIndex: 5
+      - contains: *st2userconf_cli
+        documentIndex: 6
+      - contains: *st2userconf_cli
+        documentIndex: 7
+      - contains: *st2userconf_cli
+        documentIndex: 8
+      - contains: *st2userconf_cli
+        documentIndex: 9
+      - contains: *st2userconf_cli
+        documentIndex: 10
+      - contains: *st2userconf_cli
+        documentIndex: 11
+
+      - contains: *st2conf_vol
+        documentIndex: 0
+      - contains: *st2conf_vol
+        documentIndex: 1
+      - contains: *st2conf_vol
+        documentIndex: 2
+      - contains: *st2conf_vol
+        documentIndex: 4
+      - contains: *st2conf_vol
+        documentIndex: 5
+      - contains: *st2conf_vol
+        documentIndex: 6
+      - contains: *st2conf_vol
+        documentIndex: 7
+      - contains: *st2conf_vol
+        documentIndex: 8
+      - contains: *st2conf_vol
+        documentIndex: 9
+      - contains: *st2conf_vol
+        documentIndex: 10
+      - contains: *st2conf_vol
+        documentIndex: 11
+
+      - contains: *st2conf_vol_docker_mnt
+        documentIndex: 0
+      - contains: *st2conf_vol_docker_mnt
+        documentIndex: 1
+      - contains: *st2conf_vol_docker_mnt
+        documentIndex: 2
+      - contains: *st2conf_vol_docker_mnt
+        documentIndex: 4
+      - contains: *st2conf_vol_docker_mnt
+        documentIndex: 5
+      - contains: *st2conf_vol_docker_mnt
+        documentIndex: 6
+      - contains: *st2conf_vol_docker_mnt
+        documentIndex: 7
+      - contains: *st2conf_vol_docker_mnt
+        documentIndex: 8
+      - contains: *st2conf_vol_docker_mnt
+        documentIndex: 9
+      - contains: *st2conf_vol_docker_mnt
+        documentIndex: 10
+      - contains: *st2conf_vol_docker_mnt
+        documentIndex: 11
+
+      - contains: *st2conf_vol_user_mnt
+        documentIndex: 0
+      - contains: *st2conf_vol_user_mnt
+        documentIndex: 1
+      - contains: *st2conf_vol_user_mnt
+        documentIndex: 2
+      - contains: *st2conf_vol_user_mnt
+        documentIndex: 4
+      - contains: *st2conf_vol_user_mnt
+        documentIndex: 5
+      - contains: *st2conf_vol_user_mnt
+        documentIndex: 6
+      - contains: *st2conf_vol_user_mnt
+        documentIndex: 7
+      - contains: *st2conf_vol_user_mnt
+        documentIndex: 8
+      - contains: *st2conf_vol_user_mnt
+        documentIndex: 9
+      - contains: *st2conf_vol_user_mnt
+        documentIndex: 10
+      - contains: *st2conf_vol_user_mnt
+        documentIndex: 11

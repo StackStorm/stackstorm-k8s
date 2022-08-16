@@ -131,11 +131,31 @@ Reduce duplication of the st2.*.conf volume details
 - name: st2-config-vol
   mountPath: /etc/st2/st2.user.conf
   subPath: st2.user.conf
+{{- if $.Values.st2.existingConfigSecret }}
+- name: st2-config-secrets-vol
+  mountPath: /etc/st2/st2.secrets.conf
+  subPath: st2.secrets.conf
+{{- end }}
 {{- end -}}
 {{- define "stackstorm-ha.st2-config-volume" -}}
 - name: st2-config-vol
   configMap:
     name: {{ $.Release.Name }}-st2-config
+{{- if $.Values.st2.existingConfigSecret }}
+- name: st2-config-secrets-vol
+  secret:
+    secretName: {{ $.Values.st2.existingConfigSecret }}
+{{- end }}
+{{- end -}}
+
+# Override CMD CLI parameters passed to the startup of all pods to add support for /etc/st2/st2.secrets.conf
+{{- define "stackstorm-ha.st2-config-file-parameters" -}}
+- --config-file=/etc/st2/st2.conf
+- --config-file=/etc/st2/st2.docker.conf
+- --config-file=/etc/st2/st2.user.conf
+{{- if $.Values.st2.existingConfigSecret }}
+- --config-file=/etc/st2/st2.secrets.conf
+{{- end }}
 {{- end -}}
 
 {{- define "stackstorm-ha.init-containers-wait-for-db" -}}

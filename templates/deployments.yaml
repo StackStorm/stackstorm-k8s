@@ -72,6 +72,9 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        command:
+          - /opt/stackstorm/st2/bin/st2auth
+          {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2auth.env }}
         env: {{- include "stackstorm-ha.customEnv" .Values.st2auth | nindent 8 }}
         {{- end }}
@@ -188,6 +191,9 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        command:
+          - /opt/stackstorm/st2/bin/st2api
+          {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2api.env }}
         env: {{- include "stackstorm-ha.customEnv" .Values.st2api | nindent 8 }}
         {{- end }}
@@ -311,6 +317,9 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        command:
+          - /opt/stackstorm/st2/bin/st2stream
+          {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2stream.env }}
         env: {{- include "stackstorm-ha.customEnv" .Values.st2stream | nindent 8 }}
         {{- end }}
@@ -540,6 +549,9 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        command:
+          - /opt/stackstorm/st2/bin/st2rulesengine
+          {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2rulesengine.env }}
         env: {{- include "stackstorm-ha.customEnv" .Values.st2rulesengine | nindent 8 }}
         {{- end }}
@@ -654,6 +666,9 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        command:
+          - /opt/stackstorm/st2/bin/st2timersengine
+          {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2timersengine.env }}
         env: {{- include "stackstorm-ha.customEnv" .Values.st2timersengine | nindent 8 }}
         {{- end }}
@@ -755,6 +770,9 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        command:
+          - /opt/stackstorm/st2/bin/st2workflowengine
+          {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2workflowengine.env }}
         env: {{- include "stackstorm-ha.customEnv" .Values.st2workflowengine | nindent 8 }}
         {{- end }}
@@ -868,6 +886,9 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        command:
+          - /opt/stackstorm/st2/bin/st2scheduler
+          {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2scheduler.env }}
         env: {{- include "stackstorm-ha.customEnv" .Values.st2scheduler | nindent 8 }}
         {{- end }}
@@ -981,6 +1002,9 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        command:
+          - /opt/stackstorm/st2/bin/st2notifier
+          {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2notifier.env }}
         env: {{- include "stackstorm-ha.customEnv" .Values.st2notifier | nindent 8 }}
         {{- end }}
@@ -1150,12 +1174,9 @@ spec:
         livenessProbe:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- if or $one_sensor_per_pod $some_sensors_per_pod }}{{/* ie: when there is more than one pod of sensors */}}
         command:
           - /opt/stackstorm/st2/bin/st2sensorcontainer
-          - --config-file=/etc/st2/st2.conf
-          - --config-file=/etc/st2/st2.docker.conf
-          - --config-file=/etc/st2/st2.user.conf
+          {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
           {{- if $one_sensor_per_pod }}{{/* only in st2.packs.sensors[] */}}
           - --single-sensor-mode
           - --sensor-ref={{ required "You must define `ref` for everything in st2.packs.sensors. This assigns each sensor to a pod." $sensor.ref }}
@@ -1163,7 +1184,6 @@ spec:
           # injected by {{ $name }}-init-config
           - --config-file=/etc/st2/st2.sensorcontainer.conf
           {{- end }}
-        {{- end }}
         {{- if $sensor.env }}
         env: {{- include "stackstorm-ha.customEnv" $sensor | nindent 8 }}
         {{- end }}
@@ -1313,6 +1333,9 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        command:
+          - /opt/stackstorm/st2/bin/st2actionrunner
+          {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2actionrunner.env }}
         env: {{- include "stackstorm-ha.customEnv" .Values.st2actionrunner | nindent 8 }}
         {{- end }}
@@ -1444,6 +1467,9 @@ spec:
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
+        command:
+          - /opt/stackstorm/st2/bin/st2garbagecollector
+          {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2garbagecollector.env }}
         env: {{- include "stackstorm-ha.customEnv" .Values.st2garbagecollector | nindent 8 }}
         {{- end }}
