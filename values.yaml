@@ -258,6 +258,7 @@ st2:
       #  description: "Automatically grant admin role to all stormers group members."
       #  roles:
       #    - "admin"
+    # Also need to set sync_remote_groups = True in st2.config for automatic role assignment based on the remote user membership in the LDAP group
 
 ##
 ## Default SecurityContext for pods and containers.
