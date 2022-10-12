@@ -58,7 +58,7 @@ spec:
           mountPath: /opt/stackstorm/rbac/assignments/
         - name: st2-rbac-mappings-vol
           mountPath: /opt/stackstorm/rbac/mappings/
-        {{- range .Values.jobs.extra_volumes }}
+        {{- range $.Values.jobs.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in jobs.extra_volumes" .name }}
           {{- tpl (required "Each volume must have a 'mount' definition in jobs.extra_volumes" .mount | toYaml) $ | nindent 10 }}
         {{- end }}
@@ -75,7 +75,7 @@ spec:
         - name: st2-rbac-mappings-vol
           configMap:
             name: {{ .Release.Name }}-st2-rbac-mappings
-        {{- range .Values.jobs.extra_volumes }}
+        {{- range $.Values.jobs.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in jobs.extra_volumes" .name }}
           {{- tpl (required "Each volume must have a 'volume' definition in jobs.extra_volumes" .volume | toYaml) $ | nindent 10 }}
         {{- end }}
@@ -200,7 +200,7 @@ spec:
         - name: st2-apikeys-vol
           mountPath: /etc/st2/apikeys.yaml
           subPath: apikeys.yaml
-        {{- range .Values.jobs.extra_volumes }}
+        {{- range $.Values.jobs.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in jobs.extra_volumes" .name }}
           {{- tpl (required "Each volume must have a 'mount' definition in jobs.extra_volumes" .mount | toYaml) $ | nindent 10 }}
         {{- end }}
@@ -213,7 +213,7 @@ spec:
         - name: st2-apikeys-vol
           secret:
             secretName: {{ .Release.Name }}-st2-apikeys
-        {{- range .Values.jobs.extra_volumes }}
+        {{- range $.Values.jobs.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in jobs.extra_volumes" .name }}
           {{- tpl (required "Each volume must have a 'volume' definition in jobs.extra_volumes" .volume | toYaml) $ | nindent 10 }}
         {{- end }}
@@ -328,7 +328,7 @@ spec:
         - name: st2-kv-vol
           mountPath: /etc/st2/st2kv.yaml
           subPath: st2kv.yaml
-        {{- range .Values.jobs.extra_volumes }}
+        {{- range $.Values.jobs.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in jobs.extra_volumes" .name }}
           {{- tpl (required "Each volume must have a 'mount' definition in jobs.extra_volumes" .mount | toYaml) $ | nindent 10 }}
         {{- end }}
@@ -342,7 +342,7 @@ spec:
         - name: st2-kv-vol
           secret:
             secretName: {{ .Release.Name }}-st2-kv
-        {{- range .Values.jobs.extra_volumes }}
+        {{- range $.Values.jobs.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in jobs.extra_volumes" .name }}
           {{- tpl (required "Each volume must have a 'volume' definition in jobs.extra_volumes" .volume | toYaml) $ | nindent 10 }}
         {{- end }}
@@ -448,7 +448,7 @@ spec:
         {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- include "stackstorm-ha.packs-volume-mounts-for-register-job" . | nindent 8 }}
         {{- include "stackstorm-ha.pack-configs-volume-mount" . | nindent 8 }}
-        {{- range .Values.jobs.extra_volumes }}
+        {{- range $.Values.jobs.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in jobs.extra_volumes" .name }}
           {{- tpl (required "Each volume must have a 'mount' definition in jobs.extra_volumes" .mount | toYaml) $ | nindent 10 }}
         {{- end }}
@@ -459,7 +459,7 @@ spec:
         {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         {{- include "stackstorm-ha.packs-volumes" . | nindent 8 }}
         {{- include "stackstorm-ha.pack-configs-volume" . | nindent 8 }}
-        {{- range .Values.jobs.extra_volumes }}
+        {{- range $.Values.jobs.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in jobs.extra_volumes" .name }}
           {{- tpl (required "Each volume must have a 'volume' definition in jobs.extra_volumes" .volume | toYaml) $ | nindent 10 }}
         {{- end }}
@@ -580,7 +580,7 @@ spec:
         {{- include "stackstorm-ha.st2-config-volume-mounts" $ | nindent 8 }}
         {{- include "stackstorm-ha.packs-volume-mounts-for-register-job" $ | nindent 8 }}
         {{- include "stackstorm-ha.pack-configs-volume-mount" $ | nindent 8 }}
-        {{- range .Values.jobs.extra_volumes }}
+        {{- range $.Values.jobs.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in jobs.extra_volumes" .name }}
           {{- tpl (required "Each volume must have a 'mount' definition in jobs.extra_volumes" .mount | toYaml) $ | nindent 10 }}
         {{- end }}
@@ -595,7 +595,7 @@ spec:
         {{- include "stackstorm-ha.st2-config-volume" $ | nindent 8 }}
         {{- include "stackstorm-ha.packs-volumes" $ | nindent 8 }}
         {{- include "stackstorm-ha.pack-configs-volume" $ | nindent 8 }}
-        {{- range .Values.jobs.extra_volumes }}
+        {{- range $.Values.jobs.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in jobs.extra_volumes" .name }}
           {{- tpl (required "Each volume must have a 'volume' definition in jobs.extra_volumes" .volume | toYaml) $ | nindent 10 }}
         {{- end }}
