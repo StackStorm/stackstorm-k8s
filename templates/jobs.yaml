@@ -164,10 +164,6 @@ spec:
         volumeMounts:
         - name: st2client-config-vol
           mountPath: /root/.st2/
-        {{- range .Values.jobs.extra_volumes }}
-        - name: {{ required "Each volume must have a 'name' in jobs.extra_volumes" .name }}
-          {{- tpl (required "Each volume must have a 'mount' definition in jobs.extra_volumes" .mount | toYaml) $ | nindent 10 }}
-        {{- end }}
         # `st2 login` doesn't exit on failure correctly, use old methods instead. See bug: https://github.com/StackStorm/st2/issues/4338
         command:
           - 'sh'
@@ -294,10 +290,6 @@ spec:
         volumeMounts:
         - name: st2client-config-vol
           mountPath: /root/.st2/
-        {{- range .Values.jobs.extra_volumes }}
-        - name: {{ required "Each volume must have a 'name' in jobs.extra_volumes" .name }}
-          {{- tpl (required "Each volume must have a 'mount' definition in jobs.extra_volumes" .mount | toYaml) $ | nindent 10 }}
-        {{- end }}
         # `st2 login` doesn't exit on failure correctly, use old methods instead. See bug: https://github.com/StackStorm/st2/issues/4338
         command:
           - 'sh'
@@ -352,7 +344,7 @@ spec:
             secretName: {{ .Release.Name }}-st2-kv
         {{- range .Values.jobs.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in jobs.extra_volumes" .name }}
-          {{- tpl (required "Each volume must have a 'mount' definition in jobs.extra_volumes" .mount | toYaml) $ | nindent 10 }}
+          {{- tpl (required "Each volume must have a 'volume' definition in jobs.extra_volumes" .volume | toYaml) $ | nindent 10 }}
         {{- end }}
       restartPolicy: OnFailure
     {{- if .Values.dnsPolicy }}
@@ -428,10 +420,6 @@ spec:
         {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- include "stackstorm-ha.pack-configs-volume-mount" . | nindent 8 }}
         {{- include "stackstorm-ha.packs-volume-mounts-for-register-job" . | nindent 8 }}
-        {{- range .Values.jobs.extra_volumes }}
-        - name: {{ required "Each volume must have a 'name' in jobs.extra_volumes" .name }}
-          {{- tpl (required "Each volume must have a 'mount' definition in jobs.extra_volumes" .mount | toYaml) $ | nindent 10 }}
-        {{- end }}
       {{ end }}
       containers:
       - name: st2-register-content
@@ -473,7 +461,7 @@ spec:
         {{- include "stackstorm-ha.pack-configs-volume" . | nindent 8 }}
         {{- range .Values.jobs.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in jobs.extra_volumes" .name }}
-          {{- tpl (required "Each volume must have a 'mount' definition in jobs.extra_volumes" .mount | toYaml) $ | nindent 10 }}
+          {{- tpl (required "Each volume must have a 'volume' definition in jobs.extra_volumes" .volume | toYaml) $ | nindent 10 }}
         {{- end }}
       restartPolicy: OnFailure
     {{- if .Values.dnsPolicy }}
@@ -555,10 +543,6 @@ spec:
         volumeMounts:
         - name: st2client-config-vol
           mountPath: /root/.st2/
-        {{- range .Values.jobs.extra_volumes }}
-        - name: {{ required "Each volume must have a 'name' in jobs.extra_volumes" .name }}
-          {{- tpl (required "Each volume must have a 'mount' definition in jobs.extra_volumes" .mount | toYaml) $ | nindent 10 }}
-        {{- end }}
         # `st2 login` doesn't exit on failure correctly, use old methods instead. See bug: https://github.com/StackStorm/st2/issues/4338
         command:
           - 'sh'
@@ -613,7 +597,7 @@ spec:
         {{- include "stackstorm-ha.pack-configs-volume" $ | nindent 8 }}
         {{- range .Values.jobs.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in jobs.extra_volumes" .name }}
-          {{- tpl (required "Each volume must have a 'mount' definition in jobs.extra_volumes" .mount | toYaml) $ | nindent 10 }}
+          {{- tpl (required "Each volume must have a 'volume' definition in jobs.extra_volumes" .volume | toYaml) $ | nindent 10 }}
         {{- end }}
       restartPolicy: OnFailure
     {{- if $.Values.dnsPolicy }}
