@@ -1,5 +1,5 @@
 ---
-suite: Custom Annotations
+suite: Extra Volumes
 templates:
   - jobs.yaml
 

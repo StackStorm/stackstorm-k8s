@@ -919,7 +919,7 @@ jobs:
   # HTTP_PROXY: http://proxy:1234
   ## These named secrets (managed outside this chart) will be added to envFrom.
   envFromSecrets: []
-  # mount extra volumes on the st2web pod(s) (primarily useful for k8s-provisioned secrets)
+  # mount extra volumes on the jobs pods (primarily useful for k8s-provisioned secrets)
   ## Note that Helm templating is supported in 'mount' and 'volume'
   extra_volumes: []
     # see examples under st2actionrunner.extra_volumes
