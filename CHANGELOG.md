@@ -10,6 +10,7 @@
 * Add ability to create custom labels for service account.(#327)(by @SuganJoe)
 * Fix bug that would not set the appropriate redis connection string when using `redis.password` and `redis.usePassword` (#325) (by @rebrowning)
 * New Feature: Add `existingConfigSecret`.  If this is defined, the `st2.secrets.conf` key within this secret will be written as /etc/st2/st2.secrets.conf and added to the end of the command line arguments of all pods. (#289) (by @eric-al/@ericreeves)
+* New Feature: Add `extra_volumes` to all python-based st2 jobs. (#333) (by @bmarick)
 
 ## v0.100.0
 * Switch st2 to `v3.7` as a new default stable version (#274)
