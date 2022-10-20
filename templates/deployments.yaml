@@ -76,6 +76,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         command:
+          {{- include "stackstorm-ha.st2-entrypoint" $ | nindent 10 }}
           - /opt/stackstorm/st2/bin/st2auth
           {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2auth.env }}
@@ -203,6 +204,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         command:
+          {{- include "stackstorm-ha.st2-entrypoint" $ | nindent 10 }}
           - /opt/stackstorm/st2/bin/st2api
           {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2api.env }}
@@ -335,6 +337,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         command:
+          {{- include "stackstorm-ha.st2-entrypoint" $ | nindent 10 }}
           - /opt/stackstorm/st2/bin/st2stream
           {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2stream.env }}
@@ -580,6 +583,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         command:
+          {{- include "stackstorm-ha.st2-entrypoint" $ | nindent 10 }}
           - /opt/stackstorm/st2/bin/st2rulesengine
           {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2rulesengine.env }}
@@ -697,6 +701,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         command:
+          {{- include "stackstorm-ha.st2-entrypoint" $ | nindent 10 }}
           - /opt/stackstorm/st2/bin/st2timersengine
           {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2timersengine.env }}
@@ -804,6 +809,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         command:
+          {{- include "stackstorm-ha.st2-entrypoint" $ | nindent 10 }}
           - /opt/stackstorm/st2/bin/st2workflowengine
           {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2workflowengine.env }}
@@ -922,6 +928,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         command:
+          {{- include "stackstorm-ha.st2-entrypoint" $ | nindent 10 }}
           - /opt/stackstorm/st2/bin/st2scheduler
           {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2scheduler.env }}
@@ -1038,6 +1045,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         command:
+          {{- include "stackstorm-ha.st2-entrypoint" $ | nindent 10 }}
           - /opt/stackstorm/st2/bin/st2notifier
           {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2notifier.env }}
@@ -1213,6 +1221,7 @@ spec:
           {{- toYaml . | nindent 10 }}
         {{- end }}
         command:
+          {{- include "stackstorm-ha.st2-entrypoint" $ | nindent 10 }}
           - /opt/stackstorm/st2/bin/st2sensorcontainer
           {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
           {{- if $one_sensor_per_pod }}{{/* only in st2.packs.sensors[] */}}
@@ -1375,6 +1384,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         command:
+          {{- include "stackstorm-ha.st2-entrypoint" $ | nindent 10 }}
           - /opt/stackstorm/st2/bin/st2actionrunner
           {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2actionrunner.env }}
@@ -1509,6 +1519,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         command:
+          {{- include "stackstorm-ha.st2-entrypoint" $ | nindent 10 }}
           - /opt/stackstorm/st2/bin/st2garbagecollector
           {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2garbagecollector.env }}
@@ -1690,6 +1701,7 @@ spec:
           mountPath: /post-start.sh
           subPath: post-start.sh
         command:
+          {{- include "stackstorm-ha.st2-entrypoint" $ | nindent 10 }}
           - 'bash'
           - '-ec'
           - 'while true; do sleep 999; done'
