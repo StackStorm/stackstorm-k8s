@@ -1,6 +1,7 @@
 # Changelog
 
 ## In Development
+* Set `st2client` resources by `values.yaml`. (#337) (by @mamercad)
 * Temporary workaround for #311 to use previous bitnami index from: https://github.com/bitnami/charts/issues/10539 (#312 #318) (by @0xhaven)
 * Refactor label definitions to be more consistent by building labels and label selectors in partial helper templates. (#299) (by @cognifloyd)
 * Use the correct `apiVersion` for `Ingress` to add support for Kubernetes `v1.22`. (#301) (by @arms11)
