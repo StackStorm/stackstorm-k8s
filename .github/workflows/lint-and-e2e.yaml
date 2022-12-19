@@ -1,4 +1,4 @@
-name: helm
+name: Lint & E2E Tests (Experimental)
 
 on:
   pull_request:
