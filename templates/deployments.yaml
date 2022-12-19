@@ -1653,9 +1653,7 @@ spec:
             exec:
               command: ["/bin/bash", "/post-start.sh"]
         resources:
-          requests:
-            memory: "5Mi"
-            cpu: "5m"
+          {{- toYaml .Values.st2client.resources | nindent 10 }}
       volumes:
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
