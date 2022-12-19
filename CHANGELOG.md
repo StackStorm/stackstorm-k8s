@@ -1,7 +1,7 @@
 # Changelog
 
 ## In Development
-* Switch to `bats-core` for the e2e tests.
+* Switch to the official `bats` Docker image for e2e tests. (#338)
 * Temporary workaround for #311 to use previous bitnami index from: https://github.com/bitnami/charts/issues/10539 (#312 #318) (by @0xhaven)
 * Refactor label definitions to be more consistent by building labels and label selectors in partial helper templates. (#299) (by @cognifloyd)
 * Use the correct `apiVersion` for `Ingress` to add support for Kubernetes `v1.22`. (#301) (by @arms11)
