@@ -9,13 +9,28 @@ metadata:
 spec:
   initContainers:
   # Sidecar container to copy BATS framework to the main container
-  - name: test-framework
-    image: dduportal/bats:latest
+  - name: bats-core
+    image: bats/bats:1.8.2
     command:
-      - 'bash'
-      - '-ec'
+      - bash
+      - -ec
       - |
-        cp -R /opt/bats/ ${BATS_HELPERS_DIR} /tools/
+        cp -R /opt/bats /tools/
+    volumeMounts:
+      - name: tools
+        mountPath: /tools
+  - name: bats-addons
+    image: alpine/git:2.36.3
+    command:
+      - ash
+      - -ec
+      - |
+        git clone --config advice.detachedHead=false --depth 1 --branch v0.3.0 \
+          https://github.com/ztombol/bats-assert /tools/bats-assert
+        git clone --config advice.detachedHead=false --depth 1 --branch v0.2.0 \
+          https://github.com/ztombol/bats-file /tools/bats-file
+        git clone --config advice.detachedHead=false --depth 1 --branch v0.3.0 \
+          https://github.com/ztombol/bats-support /tools/bats-support
     volumeMounts:
       - name: tools
         mountPath: /tools
@@ -31,7 +46,7 @@ spec:
         name: {{ .Release.Name }}-st2-auth
     env:
     - name: BATS_HELPERS_DIR
-      value: /tools/bats-helpers/
+      value: /tools
     - name: ST2_VERSION
       value: "{{ .Chart.AppVersion }}"
     - name: ST2_RBAC_ENABLED
@@ -42,7 +57,7 @@ spec:
     - name: tests
       mountPath: /tests
     command:
-      - /tools/bats/libexec/bats
+      - /tools/bats/bin/bats
       - /tests/st2tests.sh
   volumes:
     - name: tools
