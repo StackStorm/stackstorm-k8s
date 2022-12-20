@@ -289,6 +289,7 @@ ingress:
   # - secretName: chart-example-tls
   #   hosts:
   #     - chart-example.test
+  # ingressClassName: nginx-ingress
 
 ##
 ## NOTE: there used to be a secrets.st2 section here. These values have moved into st2.* above. Please update your values.
