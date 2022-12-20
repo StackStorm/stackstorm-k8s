@@ -1,6 +1,10 @@
 # Changelog
 
 ## In Development
+* Add support for providing `ingressClassName`. (#336) (by @mamercad)
+* Add an experimental GitHu/K3s Lint and End-to-End testing workflow. (#243) (by @mamercad)
+* Set `st2client` resources by `values.yaml`. (#337) (by @mamercad)
+* Switch to the official `bats` Docker image for e2e tests. (#338)
 * Temporary workaround for #311 to use previous bitnami index from: https://github.com/bitnami/charts/issues/10539 (#312 #318) (by @0xhaven)
 * Refactor label definitions to be more consistent by building labels and label selectors in partial helper templates. (#299) (by @cognifloyd)
 * Use the correct `apiVersion` for `Ingress` to add support for Kubernetes `v1.22`. (#301) (by @arms11)
@@ -10,6 +14,7 @@
 * Add ability to create custom labels for service account.(#327)(by @SuganJoe)
 * Fix bug that would not set the appropriate redis connection string when using `redis.password` and `redis.usePassword` (#325) (by @rebrowning)
 * New Feature: Add `existingConfigSecret`.  If this is defined, the `st2.secrets.conf` key within this secret will be written as /etc/st2/st2.secrets.conf and added to the end of the command line arguments of all pods. (#289) (by @eric-al/@ericreeves)
+* New Feature: Add `extra_volumes` to all python-based st2 jobs. (#333) (by @bmarick)
 
 ## v0.100.0
 * Switch st2 to `v3.7` as a new default stable version (#274)

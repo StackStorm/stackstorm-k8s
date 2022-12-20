@@ -88,7 +88,7 @@ st2:
 
 
   # Custom StackStorm config (st2.secrets.conf) which will be created from the key 'st2.secrets.conf' within this secret.
-  # If this is defined, '--config-file=/etc/st2/st2.secrets.conf' will be added to the end of the command line arguments 
+  # If this is defined, '--config-file=/etc/st2/st2.secrets.conf' will be added to the end of the command line arguments
   # for all pods, superseding all other configuration values.
   # This secret must be populated outside of this chart.
   # existingConfigSecret: stackstorm-config-secret
@@ -289,6 +289,7 @@ ingress:
   # - secretName: chart-example-tls
   #   hosts:
   #     - chart-example.test
+  # ingressClassName: nginx-ingress
 
 ##
 ## NOTE: there used to be a secrets.st2 section here. These values have moved into st2.* above. Please update your values.
@@ -797,6 +798,10 @@ st2client:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  resources:
+    requests:
+      memory: "5Mi"
+      cpu: "5m"
 
 # https://docs.stackstorm.com/reference/ha.html#st2garbagecollector
 # Optional service that cleans up old executions and other operations data based on setup configurations.
@@ -919,6 +924,10 @@ jobs:
   # HTTP_PROXY: http://proxy:1234
   ## These named secrets (managed outside this chart) will be added to envFrom.
   envFromSecrets: []
+  # mount extra volumes on the jobs pods (primarily useful for k8s-provisioned secrets)
+  ## Note that Helm templating is supported in 'mount' and 'volume'
+  extra_volumes: []
+    # see examples under st2actionrunner.extra_volumes
   #
   # Advanced controls to skip creating jobs.
   # This is useful in targeted upgrades with `--set`. Do not set this in values files.

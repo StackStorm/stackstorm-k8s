@@ -1,0 +1,47 @@
+---
+suite: Extra Volumes
+templates:
+  - jobs.yaml
+
+  # included templates must also be listed
+  - configmaps_overrides.yaml
+  - configmaps_packs.yaml
+  - configmaps_rbac.yaml
+  - configmaps_st2-conf.yaml
+  - configmaps_st2-urls.yaml
+  - configmaps_st2web.yaml
+  - secrets_datastore_crypto_key.yaml
+  - secrets_ssh.yaml
+  - secrets_st2apikeys.yaml
+  - secrets_st2auth.yaml
+  - secrets_st2chatops.yaml
+
+tests:
+  - it: Jobs add extra_volumes
+    template: jobs.yaml
+    set:
+      jobs:
+        extra_volumes:
+          - name: custom-config-map-volume
+            mount:
+              mountPath: /config/config.yml
+              subPath: config.yml
+            volume:
+              configMap:
+                name: customConfig
+    asserts:
+      - hasDocuments:
+          count: 3
+      # job volumeMounts
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: custom-config-map-volume
+          count: 1
+          any: true
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: custom-config-map-volume
+          count: 1
+          any: true
