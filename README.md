@@ -1,5 +1,6 @@
 # `stackstorm-ha` Helm Chart
 [![Build Status](https://circleci.com/gh/StackStorm/stackstorm-k8s/tree/master.svg?style=shield)](https://circleci.com/gh/StackStorm/stackstorm-k8s)
+[![Build Status (Experimental)](https://github.com/StackStorm/stackstorm-k8s/actions/workflows/lint-and-e2e.yaml/badge.svg)](https://github.com/StackStorm/stackstorm-k8s/actions/workflows/lint-and-e2e.yaml)
 [![Artifact HUB](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/stackstorm-ha)](https://artifacthub.io/packages/helm/stackstorm/stackstorm-ha)
 
 K8s Helm Chart for running StackStorm cluster in HA mode.

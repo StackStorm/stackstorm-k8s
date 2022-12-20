@@ -2,6 +2,8 @@
 
 ## In Development
 * Add support for providing `ingressClassName`. (#336) (by @mamercad)
+* Add an experimental GitHu/K3s Lint and End-to-End testing workflow. (#243) (by @mamercad)
+* Set `st2client` resources by `values.yaml`. (#337) (by @mamercad)
 * Switch to the official `bats` Docker image for e2e tests. (#338)
 * Temporary workaround for #311 to use previous bitnami index from: https://github.com/bitnami/charts/issues/10539 (#312 #318) (by @0xhaven)
 * Refactor label definitions to be more consistent by building labels and label selectors in partial helper templates. (#299) (by @cognifloyd)

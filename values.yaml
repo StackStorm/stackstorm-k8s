@@ -798,6 +798,10 @@ st2client:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  resources:
+    requests:
+      memory: "5Mi"
+      cpu: "5m"
 
 # https://docs.stackstorm.com/reference/ha.html#st2garbagecollector
 # Optional service that cleans up old executions and other operations data based on setup configurations.
