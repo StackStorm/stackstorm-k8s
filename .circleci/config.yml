@@ -10,45 +10,8 @@ orbs:
   minikube: ccpgames/minikube@0.0.1
 
 jobs:
-  # Run Helm Lint checks
-  helm-lint:
-    working_directory: ~/stackstorm-ha
-    docker:
-      - image: lachlanevenson/k8s-helm:v3.5.3
-    steps:
-      - checkout
-      - run:
-          name: Prepare Helm
-          command: |
-            set -x
-            helm dependency update
-      - run:
-          name: Helm Lint Check
-          command: helm lint
-      - run:
-          name: Helm template
-          command: |
-            mkdir -p community
-            helm template --output-dir community .
-      - persist_to_workspace:
-          root: ~/stackstorm-ha/
-          paths:
-            - community
-
-  # Run Kubernetes lint checks
-  k8s-lint:
-    docker:
-      - image: garethr/kubeval
-    steps:
-      - attach_workspace:
-          at: .
-      - run:
-          name: K8s Kubeval Lint Check
-          command: kubeval $(find . -type f)
-          working_directory: community/stackstorm-ha/templates/
-
   # Spin up minikube K8s cluster and run Helm chart & e2e tests on it
-  helm-e2e:
+  "E2E Tests / minikube":
     # 'large' 4 vCPUs & 15GB RAM CircleCI machine executor
     # required to deploy heavy 'stackstorm-ha' Helm release with RabbitMQ, MongoDB, Redis clusters and 25+ st2 Pods.
     # https://circleci.com/docs/2.0/configuration-reference/#machine-executor-linux
@@ -101,25 +64,11 @@ workflows:
   version: 2
   helm:
     jobs:
-      - helm-lint
-      - k8s-lint:
-          requires:
-            - helm-lint
-      - helm-e2e:
-          requires:
-            - helm-lint
-            - k8s-lint
+      - "E2E Tests / minikube"
   # Run periodic nightly Helm tests to ensure there are no regressions
   helm-nightly:
     jobs:
-      - helm-lint
-      - k8s-lint:
-          requires:
-            - helm-lint
-      - helm-e2e:
-          requires:
-            - helm-lint
-            - k8s-lint
+      - "E2E Tests / minikube"
     triggers:
       - schedule:
           cron: "0 1 * * *"

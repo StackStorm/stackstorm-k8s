@@ -1,4 +1,4 @@
-name: Lint & E2E Tests (Experimental)
+name: Lint
 
 on:
   pull_request:
@@ -61,55 +61,3 @@ jobs:
         uses: instrumenta/kubeval-action@master
         with:
           files: community
-
-  helm-e2e:
-    needs: [k8s-lint]
-    runs-on: ubuntu-22.04
-    # NOTE: Just a thought in case the timeouts fail; might not be
-    # necessary, but might not hurt either, would vary based on the
-    # size of the testing matrix, too.
-    timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      max-parallel: 1
-      matrix:
-        # TODO: Document which versions we support and cover them.
-        k3s-channel:
-          - "v1.25.4+k3s1"
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v3
-
-      - name: Set up K3s
-        id: k3s
-        uses: jupyterhub/action-k3s-helm@v3
-        with:
-          k3s-channel: ${{ matrix.k3s-channel }}
-
-      - name: Update stackstorm-ha chart dependencies
-        run: |
-          set -x
-          helm dependency update
-
-      - name: Helm install
-        run: |
-          helm install --timeout 10m0s --debug --wait \
-            --name-template stackstorm-ha .
-
-      - name: Helm test
-        run: |
-          helm test stackstorm-ha
-
-      - name: Helm upgrade with RBAC enabled
-        run: |
-          helm upgrade --set st2.rbac.enabled=true \
-            --timeout 5m0s --debug --wait stackstorm-ha .
-
-      - name: Helm test
-        run: |
-          helm test stackstorm-ha
-
-      - name: Show all Kubernetes resources
-        if: ${{ always() }}
-        run: |
-          kubectl get all
