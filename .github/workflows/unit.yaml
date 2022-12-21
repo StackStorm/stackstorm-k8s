@@ -15,8 +15,8 @@ on:
 jobs:
   helm-unittest:
     runs-on: ubuntu-22.04
-    #    strategy:
-    #      matrix:
+    # strategy:
+    #   matrix:
     # Relevant tools installed by default on ubuntu 20.04:
     #   - helm 3.8.0
     #   - jq 1.6
