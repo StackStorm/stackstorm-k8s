@@ -1,0 +1,63 @@
+name: Lint
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+  push:
+    branches:
+      - master
+  schedule:
+    - cron: "0 1 * * *"
+  workflow_dispatch:
+
+jobs:
+  helm-lint:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Update stackstorm-ha chart dependencies
+        run: |
+          set -x
+          helm dependency update
+
+      - name: Helm lint
+        run: |
+          helm lint
+
+      - name: Cache community
+        id: cache-community
+        uses: actions/cache@v3
+        with:
+          path: community
+          key: ${{ runner.os }}-community-${{ hashFiles('conf/**', 'templates/**', 'Chart.yaml', 'values.yaml') }}
+
+      - name: Helm template
+        if: steps.cache-community.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          helm template --output-dir community .
+
+  k8s-lint:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    needs: [helm-lint]
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Cache community
+        id: cache-community
+        uses: actions/cache@v3
+        with:
+          path: community
+          key: ${{ runner.os }}-community-${{ hashFiles('conf/**', 'templates/**', 'Chart.yaml', 'values.yaml') }}
+
+      - name: Kubernetes kubeval lint
+        uses: instrumenta/kubeval-action@master
+        with:
+          files: community

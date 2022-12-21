@@ -1,4 +1,4 @@
-name: Lint & E2E Tests (Experimental)
+name: E2E Tests
 
 on:
   pull_request:
@@ -13,57 +13,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  helm-lint:
-    runs-on: ubuntu-22.04
-    timeout-minutes: 10
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v3
-
-      - name: Update stackstorm-ha chart dependencies
-        run: |
-          set -x
-          helm dependency update
-
-      - name: Helm lint
-        run: |
-          helm lint
-
-      - name: Cache community
-        id: cache-community
-        uses: actions/cache@v3
-        with:
-          path: community
-          key: ${{ runner.os }}-community-${{ hashFiles('conf/**', 'templates/**', 'Chart.yaml', 'values.yaml') }}
-
-      - name: Helm template
-        if: steps.cache-community.outputs.cache-hit != 'true'
-        shell: bash
-        run: |
-          helm template --output-dir community .
-
-  k8s-lint:
-    runs-on: ubuntu-22.04
-    timeout-minutes: 10
-    needs: [helm-lint]
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v3
-
-      - name: Cache community
-        id: cache-community
-        uses: actions/cache@v3
-        with:
-          path: community
-          key: ${{ runner.os }}-community-${{ hashFiles('conf/**', 'templates/**', 'Chart.yaml', 'values.yaml') }}
-
-      - name: Kubernetes kubeval lint
-        uses: instrumenta/kubeval-action@master
-        with:
-          files: community
-
-  helm-e2e:
-    needs: [k8s-lint]
+  k3s:
+    name: "k3s (experimental)"
     runs-on: ubuntu-22.04
     # NOTE: Just a thought in case the timeouts fail; might not be
     # necessary, but might not hurt either, would vary based on the
@@ -74,6 +25,7 @@ jobs:
       max-parallel: 1
       matrix:
         # TODO: Document which versions we support and cover them.
+        # https://github.com/StackStorm/stackstorm-k8s/issues/342
         k3s-channel:
           - "v1.25.4+k3s1"
     steps:
