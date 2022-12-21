@@ -3,14 +3,14 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: {{ $.Release.Name }}-st2tests-packs-volumes-validation
-  labels: {{- include "stackstorm-ha.labels" (list $ "st2tests") | nindent 4 }}
+  name: {{ $.Release.Name }}-st2canary-packs-volumes-validation
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2canary") | nindent 4 }}
   annotations:
     "helm.sh/hook": pre-install,pre-upgrade,pre-rollback
     "helm.sh/hook-weight": -5 # fairly high priority
     "helm.sh/hook-delete-policy": hook-succeeded
-    {{- if $.Values.st2tests.annotations }}
-      {{- toYaml $.Values.st2tests.annotations | nindent 4 }}
+    {{- if $.Values.st2canary.annotations }}
+      {{- toYaml $.Values.st2canary.annotations | nindent 4 }}
     {{- end }}
 spec:
   imagePullSecrets:
@@ -19,7 +19,7 @@ spec:
     {{- end }}
   initContainers: []
   containers:
-    - name: st2tests-packs-volumes-validation
+    - name: st2canary-packs-volumes-validation
       image: '{{ template "stackstorm-ha.imageRepository" $ }}/st2actionrunner:{{ tpl $.Values.image.tag $ }}'
       #image: busybox:1.28
       imagePullPolicy: {{ $.Values.image.pullPolicy }}
@@ -40,7 +40,7 @@ spec:
           echo Testing write permissions for packs volumes.
           echo If this passes, the pod will automatically be deleted.
           echo If this fails, inspect the pod for errors in kubernetes,
-          echo and then delete this st2tests pod manually.
+          echo and then delete this st2canary pod manually.
           echo
           echo Testing write permissions on packs volume...
           touch /opt/stackstorm/packs/.write-test
@@ -64,7 +64,7 @@ spec:
           mountPath: /opt/stackstorm/configs/
           readOnly: false
       resources:
-        {{- toYaml $.Values.st2tests.resources | nindent 8 }}
+        {{- toYaml $.Values.st2canary.resources | nindent 8 }}
   volumes:
     {{- include "stackstorm-ha.packs-volumes" $ | nindent 4 }}
     {{- if $.Values.st2.packs.volumes.configs }}
@@ -72,9 +72,9 @@ spec:
     - name: st2-pack-configs-vol
       {{- toYaml $.Values.st2.packs.volumes.configs | nindent 6 }}
     {{- end }}
-    {{- range $.Values.st2tests.extra_volumes }}
-    - name: {{ required "Each volume must have a 'name' in st2tests.extra_volumes" .name }}
-      {{- tpl (required "Each volume must have a 'volume' definition in st2tests.extra_volumes" .volume | toYaml) $ | nindent 6 }}
+    {{- range $.Values.st2canary.extra_volumes }}
+    - name: {{ required "Each volume must have a 'name' in st2canary.extra_volumes" .name }}
+      {{- tpl (required "Each volume must have a 'volume' definition in st2canary.extra_volumes" .volume | toYaml) $ | nindent 6 }}
     {{- end }}
   {{- if $.Values.dnsPolicy }}
   dnsPolicy: {{ $.Values.dnsPolicy }}
@@ -85,13 +85,13 @@ spec:
   {{- with $.Values.podSecurityContext }}
   securityContext: {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- with $.Values.st2tests.nodeSelector }}
+  {{- with $.Values.st2canary.nodeSelector }}
   nodeSelector: {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- with $.Values.st2tests.affinity }}
+  {{- with $.Values.st2canary.affinity }}
   affinity: {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- with $.Values.st2tests.tolerations }}
+  {{- with $.Values.st2canary.tolerations }}
   tolerations: {{- toYaml . | nindent 4 }}
   {{- end }}
 {{- end }}

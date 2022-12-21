@@ -395,7 +395,7 @@ tests:
           count: 1
       - equal:
           path: metadata.labels.app
-          value: st2tests
+          value: st2canary
       - equal: *metadata_labels_instance
       - equal:
           path: metadata.labels.tier

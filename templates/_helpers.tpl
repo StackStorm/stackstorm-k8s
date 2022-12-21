@@ -17,7 +17,7 @@ Usage: "{{ include "stackstorm-ha.labels" (list $ "st2servicename") }}"
 {{ include "stackstorm-ha.selectorLabels" . }}
 {{- if list "st2web" "ingress" | has $name }}
 app.kubernetes.io/component: frontend
-{{- else if eq $name "st2tests" }}
+{{- else if list "st2canary" "st2tests" | has $name }}
 app.kubernetes.io/component: tests
 {{- else }}
 app.kubernetes.io/component: backend

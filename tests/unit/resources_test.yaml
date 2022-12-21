@@ -160,7 +160,7 @@ tests:
 
   # Jobs do not have default resources defined yet.
 
-  - it: Hook Pod accepts custom resources (except st2client)
+  - it: Hook Pod accepts custom resources
     template: hooks/pod_packs-volumes.yaml
     set:
       st2:
@@ -169,7 +169,7 @@ tests:
           images: []
           volumes: *volumes_enabled
           configs: {} # has one core.yaml config file by default (dicts get merged)
-      st2tests:
+      st2canary:
         resources: *custom_resources
     asserts:
       - hasDocuments:
