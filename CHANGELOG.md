@@ -1,6 +1,7 @@
 # Changelog
 
 ## In Development
+* Reorganizing and renaming the CI workflows and jobs. (#344) (by @mamercad)
 * Add support for providing `ingressClassName`. (#336) (by @mamercad)
 * Add an experimental GitHu/K3s Lint and End-to-End testing workflow. (#243) (by @mamercad)
 * Set `st2client` resources by `values.yaml`. (#337) (by @mamercad)
