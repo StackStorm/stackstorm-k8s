@@ -1,6 +1,7 @@
 # Changelog
 
 ## In Development
+* Cover the three most recent Kubernetes versions. (#342) (by @mamercad)
 * Update the GitHub badges. (#345) (by @mamercad)
 * Reorganizing and renaming the CI workflows and jobs. (#344) (by @mamercad)
 * Add support for providing `ingressClassName`. (#336) (by @mamercad)

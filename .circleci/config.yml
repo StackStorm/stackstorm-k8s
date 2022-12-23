@@ -12,6 +12,9 @@ orbs:
 jobs:
   # Spin up minikube K8s cluster and run Helm chart & e2e tests on it
   e2e-minikube:
+    parameters:
+      minikube-version:
+        type: string
     # 'large' 4 vCPUs & 15GB RAM CircleCI machine executor
     # required to deploy heavy 'stackstorm-ha' Helm release with RabbitMQ, MongoDB, Redis clusters and 25+ st2 Pods.
     # https://circleci.com/docs/2.0/configuration-reference/#machine-executor-linux
@@ -24,7 +27,7 @@ jobs:
       - kubernetes/install
       - minikube/minikube-install:
           # https://github.com/kubernetes/minikube/releases
-          version: v1.15.1
+          version: << parameters.minikube-version >>
       - run:
           name: Install dependencies
           command: |
@@ -64,11 +67,23 @@ workflows:
   version: 2
   e2e:
     jobs:
-      - e2e-minikube
+      - e2e-minikube:
+          matrix:
+            parameters:
+              minikube-version: # https://github.com/kubernetes/minikube/releases
+                - v1.22.0
+                - v1.21.0
+                - v1.20.0
   # Run periodic nightly Helm tests to ensure there are no regressions
   e2e-nightly:
     jobs:
-      - e2e-minikube
+      - e2e-minikube:
+          matrix:
+            parameters:
+              minikube-version: # https://github.com/kubernetes/minikube/releases
+                - v1.22.0
+                - v1.21.0
+                - v1.20.0
     triggers:
       - schedule:
           cron: "0 1 * * *"
