@@ -11,7 +11,7 @@ orbs:
 
 jobs:
   # Spin up minikube K8s cluster and run Helm chart & e2e tests on it
-  e2e-minikube:
+  e2e-k8s:
     parameters:
       kubernetes-version:
         type: string
@@ -39,7 +39,7 @@ jobs:
           command: helm dependency update
       - run:
           name: Helm install stackstorm-ha chart
-          command: helm install --timeout 5m0s --debug --wait --name-template stackstorm-ha .
+          command: helm install --timeout 10m0s --debug --wait --name-template stackstorm-ha .
       - run:
           name: Helm test
           command: helm test stackstorm-ha
