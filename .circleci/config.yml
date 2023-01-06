@@ -15,6 +15,8 @@ jobs:
     parameters:
       minikube-version:
         type: string
+      kubernetes-version:
+        type: string
     # 'large' 4 vCPUs & 15GB RAM CircleCI machine executor
     # required to deploy heavy 'stackstorm-ha' Helm release with RabbitMQ, MongoDB, Redis clusters and 25+ st2 Pods.
     # https://circleci.com/docs/2.0/configuration-reference/#machine-executor-linux
@@ -33,7 +35,7 @@ jobs:
           command: curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
       - run:
           name: Create new K8s cluster
-          command: minikube start --vm-driver=docker --memory 8192 --cpus 4
+          command: minikube start --vm-driver=docker --memory 8192 --cpus 4 --kubernetes-version=<< parameters.kubernetes-version >>
       - run:
           name: Update stackstorm-ha chart dependencies
           command: helm dependency update
@@ -62,9 +64,11 @@ workflows:
           matrix:
             parameters:
               minikube-version: # https://github.com/kubernetes/minikube/releases
-                - v1.28.0
-                - v1.27.1
-                - v1.26.1
+                - "v1.28.0"
+              kubernetes-version: # https://kubernetes.io/releases
+                - "v1.26.0"
+                - "v1.25.5"
+                - "v1.24.9"
   # Run periodic nightly Helm tests to ensure there are no regressions
   e2e-nightly:
     jobs:
@@ -72,9 +76,11 @@ workflows:
           matrix:
             parameters:
               minikube-version: # https://github.com/kubernetes/minikube/releases
-                - v1.28.0
-                - v1.27.1
-                - v1.26.1
+                - "v1.28.0"
+              kubernetes-version: # https://kubernetes.io/releases
+                - "v1.26.0"
+                - "v1.25.5"
+                - "v1.24.9"
     triggers:
       - schedule:
           cron: "0 1 * * *"
