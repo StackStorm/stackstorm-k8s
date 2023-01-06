@@ -26,8 +26,9 @@ jobs:
       matrix:
         # TODO: Document which versions we support and cover them.
         # https://github.com/StackStorm/stackstorm-k8s/issues/342
+        # https://github.com/k3s-io/k3s/releases
         k3s-channel:
-          - "v1.25.4+k3s1"
+          - "v1.26.0+k3s1"
     steps:
       - name: Checkout source
         uses: actions/checkout@v3
@@ -55,7 +56,7 @@ jobs:
       - name: Helm upgrade with RBAC enabled
         run: |
           helm upgrade --set st2.rbac.enabled=true \
-            --timeout 5m0s --debug --wait stackstorm-ha .
+            --timeout 10m0s --debug --wait stackstorm-ha .
 
       - name: Helm test
         run: |

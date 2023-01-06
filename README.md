@@ -13,7 +13,7 @@ RabbitMQ HA, MongoDB HA Replicaset and Redis cluster that st2 replies on for MQ,
 It's more than welcome to fine-tune each component settings to fit specific availability/scalability demands.
 
 ## Requirements
-* [Kubernetes](https://kubernetes.io/docs/setup/pick-right-solution/) cluster
+* [Supported](https://kubernetes.io/releases/) [Kubernetes](https://kubernetes.io/docs/setup/) cluster
 * [Helm](https://docs.helm.sh/using_helm/#install-helm) `v3.5` or greater
 
 ## Usage
