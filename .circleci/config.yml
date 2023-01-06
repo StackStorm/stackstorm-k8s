@@ -72,7 +72,7 @@ jobs:
           name: Create new K8s cluster
           command: sudo -E minikube start --vm-driver=none --container-runtime=docker
           environment:
-            CHANGE_MINIKUBE_NONE_USER: true
+            CHANGE_MINIKUBE_NONE_USER: "true"
       - run:
           name: Update stackstorm-ha chart dependencies
           command: helm dependency update
