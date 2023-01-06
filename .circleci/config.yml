@@ -39,6 +39,28 @@ jobs:
           name: Install Helm v3
           command: curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
       - run:
+          name: Set up cri-dockerd
+          command: |
+            # https://github.com/Mirantis/cri-dockerd#build-and-install
+            sudo -i
+            # Run these commands as root
+            ###Install GO###
+            wget https://storage.googleapis.com/golang/getgo/installer_linux
+            chmod +x ./installer_linux
+            ./installer_linux
+            source ~/.bash_profile
+
+            cd cri-dockerd
+            mkdir bin
+            go build -o bin/cri-dockerd
+            mkdir -p /usr/local/bin
+            install -o root -g root -m 0755 bin/cri-dockerd /usr/local/bin/cri-dockerd
+            cp -a packaging/systemd/* /etc/systemd/system
+            sed -i -e 's,/usr/bin/cri-dockerd,/usr/local/bin/cri-dockerd,' /etc/systemd/system/cri-docker.service
+            systemctl daemon-reload
+            systemctl enable cri-docker.service
+            systemctl enable --now cri-docker.socket
+      - run:
           name: Create new K8s cluster
           command: sudo -E minikube start --vm-driver=none --container-runtime=docker
           environment:
