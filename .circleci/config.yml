@@ -18,7 +18,7 @@ jobs:
     resource_class: large
     machine:
       # Available images https://circleci.com/docs/2.0/configuration-reference/#available-machine-images
-      image: ubuntu-2204:2022.04.1
+      image: ubuntu-2204:2022.10.2
     steps:
       - checkout
       - kubernetes/install
@@ -26,23 +26,11 @@ jobs:
           # https://github.com/kubernetes/minikube/releases
           version: v1.28.0
       - run:
-          name: Install dependencies
-          command: |
-            sudo apt update || true
-            # K8s 1.18 requires conntrack
-            # See: https://github.com/kubernetes/minikube/issues/7179
-            sudo apt install -y conntrack
-      - run:
           name: Install Helm v3
           command: curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
       - run:
           name: Create new K8s cluster
-          command: |
-            ls -alps /home/circleci/
-            echo $KUBECONFIG
-            minikube start --vm-driver=docker
-          #environment:
-            #CHANGE_MINIKUBE_NONE_USER: true
+          command: minikube start --vm-driver=docker --memory 8192 --cpus 4
       - run:
           name: Update stackstorm-ha chart dependencies
           command: helm dependency update
