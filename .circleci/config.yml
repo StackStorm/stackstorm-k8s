@@ -63,10 +63,9 @@ jobs:
             systemctl enable --now cri-docker.socket
 
             # https://github.com/kubernetes-sigs/cri-tools/blob/master/docs/crictl.md
-            VERSION="v1.24.1"
-            wget https://github.com/kubernetes-sigs/cri-tools/releases/download/$VERSION/crictl-$VERSION-linux-amd64.tar.gz
-            sudo tar zxvf crictl-$VERSION-linux-amd64.tar.gz -C /usr/local/bin
-            rm -f crictl-$VERSION-linux-amd64.tar.gz
+            wget https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.24.1/crictl-v1.24.1-linux-amd64.tar.gz
+            sudo tar zxvf crictl-v1.24.1-linux-amd64.tar.gz -C /usr/local/bin
+            rm -f crictl-v1.14.1-linux-amd64.tar.gz
             """
       - run:
           name: Create new K8s cluster
