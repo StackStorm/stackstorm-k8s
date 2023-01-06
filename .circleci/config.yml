@@ -45,6 +45,7 @@ jobs:
             # Run these commands as root
             ###Install GO###
             sudo bash -c """
+            cd /tmp
             wget https://storage.googleapis.com/golang/getgo/installer_linux
             chmod +x ./installer_linux
             ./installer_linux
