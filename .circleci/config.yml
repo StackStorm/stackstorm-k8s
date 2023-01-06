@@ -39,7 +39,7 @@ jobs:
           name: Install Helm v3
           command: curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
       - run:
-          name: Set up cri-dockerd
+          name: Set up cri-dockerd and crictl
           command: |
             # https://github.com/Mirantis/cri-dockerd#build-and-install
             # Run these commands as root
@@ -61,6 +61,12 @@ jobs:
             systemctl daemon-reload
             systemctl enable cri-docker.service
             systemctl enable --now cri-docker.socket
+
+            # https://github.com/kubernetes-sigs/cri-tools/blob/master/docs/crictl.md
+            VERSION="v1.24.1"
+            wget https://github.com/kubernetes-sigs/cri-tools/releases/download/$VERSION/crictl-$VERSION-linux-amd64.tar.gz
+            sudo tar zxvf crictl-$VERSION-linux-amd64.tar.gz -C /usr/local/bin
+            rm -f crictl-$VERSION-linux-amd64.tar.gz
             """
       - run:
           name: Create new K8s cluster
