@@ -50,6 +50,7 @@ jobs:
             ./installer_linux
             source ~/.bash_profile
 
+            git clone https://github.com/Mirantis/cri-dockerd.git
             cd cri-dockerd
             mkdir bin
             go build -o bin/cri-dockerd
