@@ -24,7 +24,7 @@ jobs:
       - kubernetes/install
       - minikube/minikube-install:
           # https://github.com/kubernetes/minikube/releases
-          version: v1.15.1
+          version: v1.28.0
       - run:
           name: Install dependencies
           command: |
