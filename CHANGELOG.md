@@ -1,6 +1,7 @@
 # Changelog
 
 ## In Development
+* Switch st2 to `v3.8` as a new default stable version (#347)
 * Cover the three most recent Kubernetes versions in Minikube and the single most recent in K3s. (#342) (by @mamercad)
 * Update the GitHub badges. (#345) (by @mamercad)
 * Reorganizing and renaming the CI workflows and jobs. (#344) (by @mamercad)
