@@ -3,7 +3,7 @@ version: 2.1
 # Add additional CircleCI Orbs dependencies
 orbs:
   # https://circleci.com/orbs/registry/orb/circleci/kubernetes
-  kubernetes: circleci/kubernetes@0.11.0
+  kubernetes: circleci/kubernetes@1.3.1
   # https://circleci.com/orbs/registry/orb/circleci/helm
   helm: circleci/helm@1.1.1
   # https://circleci.com/orbs/registry/orb/ccpgames/minikube
@@ -40,7 +40,7 @@ jobs:
           command: curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
       - run:
           name: Create new K8s cluster
-          command: sudo -E minikube start --vm-driver=none
+          command: sudo -E minikube start --vm-driver=docker --container-runtime=docker
           environment:
             CHANGE_MINIKUBE_NONE_USER: true
       - run:
@@ -71,9 +71,7 @@ workflows:
           matrix:
             parameters:
               minikube-version: # https://github.com/kubernetes/minikube/releases
-                - v1.22.0
-                - v1.21.0
-                - v1.20.0
+                - v1.28.0
   # Run periodic nightly Helm tests to ensure there are no regressions
   e2e-nightly:
     jobs:
@@ -81,9 +79,7 @@ workflows:
           matrix:
             parameters:
               minikube-version: # https://github.com/kubernetes/minikube/releases
-                - v1.22.0
-                - v1.21.0
-                - v1.20.0
+                - v1.28.0
     triggers:
       - schedule:
           cron: "0 1 * * *"
