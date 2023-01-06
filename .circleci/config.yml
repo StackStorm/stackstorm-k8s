@@ -37,7 +37,7 @@ jobs:
           command: curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
       - run:
           name: Create new K8s cluster
-          command: minikube start --vm-driver=docker
+          command: sudo -E minikube start --force --vm-driver=docker
           environment:
             CHANGE_MINIKUBE_NONE_USER: true
       - run:
