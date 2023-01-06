@@ -13,8 +13,6 @@ jobs:
   # Spin up minikube K8s cluster and run Helm chart & e2e tests on it
   e2e-minikube:
     parameters:
-      minikube-version:
-        type: string
       kubernetes-version:
         type: string
     # 'large' 4 vCPUs & 15GB RAM CircleCI machine executor
@@ -29,7 +27,7 @@ jobs:
       - kubernetes/install
       - minikube/minikube-install:
           # https://github.com/kubernetes/minikube/releases
-          version: << parameters.minikube-version >>
+          version: v1.28.0
       - run:
           name: Install Helm v3
           command: curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
@@ -41,7 +39,7 @@ jobs:
           command: helm dependency update
       - run:
           name: Helm install stackstorm-ha chart
-          command: helm install --timeout 10m0s --debug --wait --name-template stackstorm-ha .
+          command: helm install --timeout 5m0s --debug --wait --name-template stackstorm-ha .
       - run:
           name: Helm test
           command: helm test stackstorm-ha
@@ -60,24 +58,22 @@ workflows:
   version: 2
   e2e:
     jobs:
-      - e2e-minikube:
+      - e2e-k8s:
           matrix:
             parameters:
-              minikube-version: # https://github.com/kubernetes/minikube/releases
-                - "v1.28.0"
-              kubernetes-version: # https://kubernetes.io/releases
+              # https://kubernetes.io/releases
+              kubernetes-version:
                 - "v1.26.0"
                 - "v1.25.5"
                 - "v1.24.9"
   # Run periodic nightly Helm tests to ensure there are no regressions
   e2e-nightly:
     jobs:
-      - e2e-minikube:
+      - e2e-k8s:
           matrix:
             parameters:
-              minikube-version: # https://github.com/kubernetes/minikube/releases
-                - "v1.28.0"
-              kubernetes-version: # https://kubernetes.io/releases
+              # https://kubernetes.io/releases
+              kubernetes-version:
                 - "v1.26.0"
                 - "v1.25.5"
                 - "v1.24.9"
