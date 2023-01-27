@@ -1,6 +1,7 @@
 # Changelog
 
 ## In Development
+* BREAKING: Use the standardized labels recommended in the Helm docs. You can use `migrations/standardize-labels.sh` to prepare an existing cluster before running `helm update`. (#351) (by @cognifloyd)
 * Switch st2 to `v3.8` as a new default stable version (#347)
 * Cover the three most recent Kubernetes versions in Minikube and the single most recent in K3s. (#342) (by @mamercad)
 * Update the GitHub badges. (#345) (by @mamercad)
