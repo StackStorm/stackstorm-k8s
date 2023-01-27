@@ -47,8 +47,10 @@ done
 klabel_app_name ConfigMap st2
 klabel_app_name Secret st2
 klabel_app_name Secret st2chatops
+
 klabel_app_name Secret ${CHART_NAME} # for ServiceAccount
 klabel_app_name ServiceAccount ${CHART_NAME}
+
 klabel_app_name Ingress ingress
 
 for app in st2actionrunner st2api st2auth st2chatops st2client st2garbagecollector st2notifier st2rulesengine st2scheduler st2stream st2timersengine st2web st2workflowengine; do
@@ -65,3 +67,6 @@ for app in st2 st2-apply-rbac-definitions st2-register-content; do
 	klabel_app_name Job ${app}
 	klabel_app_name Pod ${app}
 done
+
+klabel_app_name ConfigMap st2tests
+klabel_app_name Pod st2tests
