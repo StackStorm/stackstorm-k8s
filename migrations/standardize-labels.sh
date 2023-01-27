@@ -40,9 +40,24 @@ function klabel_app_name() {
 		"app.kubernetes.io/name=${app}"
 }
 
+function k_get_app_names() {
+	kind=${1}
+	app=${2}
+	kubectl get "${kind}" \
+		-n "${NAMESPACE}" \
+		-l "vendor=stackstorm" \
+		-l "release=${RELEASE_NAME}" \
+	| jq -r '.items[] | select(.metadata.name | test("'"${app}"'")).metadata.labels.app'
+}
+
+echo "Adding label app.kubernetes.io/instance=${RELEASE_NAME} (which will replace release=${RELEASE_NAME}) ..."
+
 for kind in ConfigMap Secret Ingress Service ServiceAccount Deployment ReplicaSet Pod Job; do
 	klabel_app_instance ${kind}
 done
+
+echo
+echo "Adding label app.kubernetes.io/name=<app> (which will replace app=<app>) ..."
 
 klabel_app_name ConfigMap st2
 klabel_app_name Secret st2
@@ -53,17 +68,46 @@ klabel_app_name ServiceAccount ${CHART_NAME}
 
 klabel_app_name Ingress ingress
 
-for app in st2actionrunner st2api st2auth st2chatops st2client st2garbagecollector st2notifier st2rulesengine st2scheduler st2stream st2timersengine st2web st2workflowengine; do
+deployment_apps=(
+	st2actionrunner
+	st2api
+	st2auth
+	st2chatops
+	st2client
+	st2garbagecollector
+	st2notifier
+	st2rulesengine
+	st2scheduler
+	$(k_get_app_names Deployment st2sensorcontainer)
+	st2stream
+	st2timersengine
+	st2web
+	st2workflowengine
+)
+for app in "${deployment_apps[@]}"; do
 	klabel_app_name Deployment ${app}
 	klabel_app_name ReplicaSet ${app}
 	klabel_app_name Pod ${app}
 done
 
-for app in st2api st2auth st2chatops st2stream st2web; do
+service_apps=(
+	st2api
+	st2auth
+	st2chatops
+	st2stream
+	st2web
+)
+for app in "${service_apps[@]}"; do
 	klabel_app_name Service ${app}
 done
 
-for app in st2 st2-apply-rbac-definitions st2-register-content; do
+job_apps=(
+	st2
+	st2-apply-rbac-definitions
+	st2-register-content
+	$(k_get_app_names Job extra-helm-hook)
+)
+for app in "${job_apps[@]}"; do
 	klabel_app_name Job ${app}
 	klabel_app_name Pod ${app}
 done
