@@ -47,6 +47,7 @@ function k_get_app_names() {
 		-n "${NAMESPACE}" \
 		-l "vendor=stackstorm" \
 		-l "release=${RELEASE_NAME}" \
+		-o json \
 	| jq -r '.items[] | select(.metadata.name | test("'"${app}"'")).metadata.labels.app'
 }
 
