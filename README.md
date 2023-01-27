@@ -63,7 +63,7 @@ A helper container to switch into and run st2 CLI commands against the deployed 
 All resources like credentials, configs, RBAC, packs, keys and secrets are shared with this container.
 ```
 # obtain st2client pod name
-ST2CLIENT=$(kubectl get pod -l app=st2client -o jsonpath="{.items[0].metadata.name}")
+ST2CLIENT=$(kubectl get pod -l app.kubernetes.io/name=st2client -o jsonpath="{.items[0].metadata.name}")
 
 # run a single st2 client command
 kubectl exec -it ${ST2CLIENT} -- st2 --version
@@ -320,12 +320,12 @@ This mirrors the how pack registration works. Make sure to review any upgrade no
 ## Tips & Tricks
 Grab all logs for entire StackStorm cluster with dependent services in Helm release:
 ```
-kubectl logs -l release=<release-name>
+kubectl logs -l app.kubernetes.io/instance=<release-name>
 ```
 
 Grab all logs only for stackstorm backend services, excluding st2web and DB/MQ/redis:
 ```
-kubectl logs -l release=<release-name>,tier=backend
+kubectl logs -l app.kubernetes.io/instance=<release-name>,app.kubernetes.io/component=backend
 ```
 
 ## Running jobs before/after install, upgrade, or rollback
