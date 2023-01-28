@@ -63,10 +63,7 @@ echo "Adding label app.kubernetes.io/name=<app> (which will replace app=<app>) .
 klabel_app_name ConfigMap st2
 klabel_app_name Secret st2
 klabel_app_name Secret st2chatops
-
-klabel_app_name Secret ${CHART_NAME} # for ServiceAccount
 klabel_app_name ServiceAccount ${CHART_NAME}
-
 klabel_app_name Ingress ingress
 
 deployment_apps=(
