@@ -86,6 +86,7 @@ deployment_apps=(
 	st2workflowengine
 )
 for app in "${deployment_apps[@]}"; do
+	echo "Deployment app=${app} ..."
 	klabel_app_name Deployment ${app}
 	klabel_app_name ReplicaSet ${app}
 	klabel_app_name Pod ${app}
@@ -99,6 +100,7 @@ service_apps=(
 	st2web
 )
 for app in "${service_apps[@]}"; do
+	echo "Service app=${app} ..."
 	klabel_app_name Service ${app}
 done
 
@@ -109,6 +111,7 @@ job_apps=(
 	$(k_get_app_names Job extra-helm-hook)
 )
 for app in "${job_apps[@]}"; do
+	echo "Job app=${app} ..."
 	klabel_app_name Job ${app}
 	klabel_app_name Pod ${app}
 done
