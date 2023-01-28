@@ -1,7 +1,7 @@
 # Changelog
 
 ## In Development
-* BREAKING: Use the standardized labels recommended in the Helm docs. You can use `migrations/standardize-labels.sh` to prepare an existing cluster before running `helm update`. (#351) (by @cognifloyd)
+* BREAKING: Use the standardized labels recommended in the Helm docs. You can use `migrations/v1.0/standardize-labels.sh` to prepare an existing cluster before running `helm update`. (#351) (by @cognifloyd)
 
 ## v0.110.0
 * Switch st2 to `v3.8` as a new default stable version (#347)
