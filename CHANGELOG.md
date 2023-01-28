@@ -2,12 +2,14 @@
 
 ## In Development
 * BREAKING: Use the standardized labels recommended in the Helm docs. You can use `migrations/standardize-labels.sh` to prepare an existing cluster before running `helm update`. (#351) (by @cognifloyd)
+
+## v0.110.0
 * Switch st2 to `v3.8` as a new default stable version (#347)
 * Cover the three most recent Kubernetes versions in Minikube and the single most recent in K3s. (#342) (by @mamercad)
 * Update the GitHub badges. (#345) (by @mamercad)
 * Reorganizing and renaming the CI workflows and jobs. (#344) (by @mamercad)
 * Add support for providing `ingressClassName`. (#336) (by @mamercad)
-* Add an experimental GitHu/K3s Lint and End-to-End testing workflow. (#243) (by @mamercad)
+* Add an experimental GitHub/K3s Lint and End-to-End testing workflow. (#243) (by @mamercad)
 * Set `st2client` resources by `values.yaml`. (#337) (by @mamercad)
 * Switch to the official `bats` Docker image for e2e tests. (#338)
 * Temporary workaround for #311 to use previous bitnami index from: https://github.com/bitnami/charts/issues/10539 (#312 #318) (by @0xhaven)
