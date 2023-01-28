@@ -46,7 +46,7 @@ kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.data.ST2_AUTH_PA
 username: {{ .Values.st2.username }}
 
 4. Use st2 CLI:
-export ST2CLIENT=$(kubectl get --namespace {{ .Release.Namespace }} pod -l app=st2client,release={{ .Release.Name }} -o jsonpath="{.items[0].metadata.name}")
+export ST2CLIENT=$(kubectl get --namespace {{ .Release.Namespace }} pod -l app.kubernetes.io/name=st2client,app.kubernetes.io/instance={{ .Release.Name }} -o jsonpath="{.items[0].metadata.name}")
 kubectl exec -it ${ST2CLIENT} --namespace {{ .Release.Namespace }} -- st2 --version
 
 -----------------------------------------------------

@@ -27,12 +27,14 @@ templates:
 
 release:
   name: some-release-name
-chart:
+chart: &chart # workaround for bug where top-level appVersion does not take affect
   version: 1.0.999
+  appVersion: &appVersion "3.999"
 
 tests:
   - it: Deployments+Pods have requried labels
     template: deployments.yaml
+    chart: *chart
     set:
       st2: { packs: { sensors: [] } } # ensure only 1 sensor
       st2chatops:
@@ -49,55 +51,66 @@ tests:
           # st2client, st2chatops
 
       # each of these should be the same, but there is no test for that:
-      #   metdata.labels.app
-      #   spec.selector.matchLabels.app
-      #   spec.template.metadata.labels.app
+      #   metdata.labels.[app.kubernetes.io/name]
+      #   spec.selector.matchLabels.[app.kubernetes.io/name]
+      #   spec.template.metadata.labels.[app.kubernetes.io/name]
       # So, we use isNotNull instead.
       # see: https://github.com/quintush/helm-unittest/issues/122
-      - isNotNull: { path: metadata.labels.app }
-      - isNotNull: { path: spec.selector.matchLabels.app }
-      - isNotNull: { path: spec.template.metadata.labels.app }
+      - isNotNull:
+          path: metadata.labels.[app.kubernetes.io/name]
+      - isNotNull:
+          path: spec.selector.matchLabels.[app.kubernetes.io/name]
+      - isNotNull:
+          path: spec.template.metadata.labels.[app.kubernetes.io/name]
 
       - equal:
-          path: metadata.labels.release
+          path: metadata.labels.[app.kubernetes.io/instance]
           value: some-release-name
       - equal:
-          path: spec.selector.matchLabels.release
+          path: spec.selector.matchLabels.[app.kubernetes.io/instance]
           value: some-release-name
       - equal:
-          path: spec.template.metadata.labels.release
+          path: spec.template.metadata.labels.[app.kubernetes.io/instance]
           value: some-release-name
 
       - matchRegex:
-          path: metadata.labels.tier
+          path: metadata.labels.[app.kubernetes.io/component]
           pattern: ^(backend|frontend)$
       - matchRegex:
-          path: spec.template.metadata.labels.tier
+          path: spec.template.metadata.labels.[app.kubernetes.io/component]
           pattern: ^(backend|frontend)$
 
       - equal:
-          path: metadata.labels.vendor
+          path: metadata.labels.[app.kubernetes.io/part-of]
           value: stackstorm
       - equal:
-          path: spec.template.metadata.labels.vendor
+          path: spec.template.metadata.labels.[app.kubernetes.io/part-of]
           value: stackstorm
 
       - equal:
-          path: metadata.labels.chart
+          path: metadata.labels.[app.kubernetes.io/version]
+          value: *appVersion
+      - equal:
+          path: spec.template.metadata.labels.[app.kubernetes.io/version]
+          value: *appVersion
+
+      - equal:
+          path: metadata.labels.[helm.sh/chart]
           value: stackstorm-ha-1.0.999
       - equal:
-          path: spec.template.metadata.labels.chart
+          path: spec.template.metadata.labels.[helm.sh/chart]
           value: stackstorm-ha-1.0.999
 
       - equal:
-          path: metadata.labels.heritage
+          path: metadata.labels.[app.kubernetes.io/managed-by]
           value: Helm
       - equal:
-          path: spec.template.metadata.labels.heritage
+          path: spec.template.metadata.labels.[app.kubernetes.io/managed-by]
           value: Helm
 
   - it: Jobs+Pods have requried labels
     template: jobs.yaml
+    chart: *chart
     set:
       st2:
         rbac:
@@ -120,48 +133,58 @@ tests:
       # unlike deployments, jobs should not have selector.matchLabels
 
       # like deployments each of these should be the same:
-      #   metdata.labels.app
-      #   spec.template.metadata.labels.app
-      - isNotNull: { path: metadata.labels.app }
-      - isNotNull: { path: spec.template.metadata.labels.app }
+      #   metdata.labels.[app.kubernetes.io/name]
+      #   spec.template.metadata.labels.[app.kubernetes.io/name]
+      - isNotNull:
+          path: metadata.labels.[app.kubernetes.io/name]
+      - isNotNull:
+          path: spec.template.metadata.labels.[app.kubernetes.io/name]
 
       - equal:
-          path: metadata.labels.release
+          path: metadata.labels.[app.kubernetes.io/instance]
           value: some-release-name
       - equal:
-          path: spec.template.metadata.labels.release
+          path: spec.template.metadata.labels.[app.kubernetes.io/instance]
           value: some-release-name
 
       - matchRegex:
-          path: metadata.labels.tier
+          path: metadata.labels.[app.kubernetes.io/component]
           pattern: ^(backend|frontend)$
       - matchRegex:
-          path: spec.template.metadata.labels.tier
+          path: spec.template.metadata.labels.[app.kubernetes.io/component]
           pattern: ^(backend|frontend)$
 
       - equal:
-          path: metadata.labels.vendor
+          path: metadata.labels.[app.kubernetes.io/part-of]
           value: stackstorm
       - equal:
-          path: spec.template.metadata.labels.vendor
+          path: spec.template.metadata.labels.[app.kubernetes.io/part-of]
           value: stackstorm
 
       - equal:
-          path: metadata.labels.chart
+          path: metadata.labels.[app.kubernetes.io/version]
+          value: *appVersion
+      - equal:
+          path: spec.template.metadata.labels.[app.kubernetes.io/version]
+          value: *appVersion
+
+      - equal:
+          path: metadata.labels.[helm.sh/chart]
           value: stackstorm-ha-1.0.999
       - equal:
-          path: spec.template.metadata.labels.chart
+          path: spec.template.metadata.labels.[helm.sh/chart]
           value: stackstorm-ha-1.0.999
 
       - equal:
-          path: metadata.labels.heritage
+          path: metadata.labels.[app.kubernetes.io/managed-by]
           value: Helm
       - equal:
-          path: spec.template.metadata.labels.heritage
+          path: spec.template.metadata.labels.[app.kubernetes.io/managed-by]
           value: Helm
 
   - it: Services have required labels
     template: services.yaml
+    chart: *chart
     set:
       st2chatops:
         enabled: true
@@ -170,25 +193,30 @@ tests:
           count: 5
           # st2auth, st2api, st2stream, st2web, st2chatops
 
-      - isNotNull: { path: metadata.labels.app }
+      - isNotNull:
+          path: metadata.labels.[app.kubernetes.io/name]
       - equal:
-          path: metadata.labels.release
+          path: metadata.labels.[app.kubernetes.io/instance]
           value: some-release-name
       - matchRegex:
-          path: metadata.labels.tier
+          path: metadata.labels.[app.kubernetes.io/component]
           pattern: ^(backend|frontend)$
       - equal:
-          path: metadata.labels.vendor
+          path: metadata.labels.[app.kubernetes.io/part-of]
           value: stackstorm
       - equal:
-          path: metadata.labels.chart
+          path: metadata.labels.[app.kubernetes.io/version]
+          value: *appVersion
+      - equal:
+          path: metadata.labels.[helm.sh/chart]
           value: stackstorm-ha-1.0.999
       - equal:
-          path: metadata.labels.heritage
+          path: metadata.labels.[app.kubernetes.io/managed-by]
           value: Helm
 
   - it: ServiceAccount has required labels
     template: service-account.yaml
+    chart: *chart
     set:
       serviceAccount:
         create: true
@@ -196,22 +224,25 @@ tests:
       - hasDocuments:
           count: 1
       - equal:
-          path: metadata.labels.app
+          path: metadata.labels.[app.kubernetes.io/name]
           value: stackstorm-ha
       - equal:
-          path: metadata.labels.release
+          path: metadata.labels.[app.kubernetes.io/instance]
           value: some-release-name
       - equal:
-          path: metadata.labels.tier
+          path: metadata.labels.[app.kubernetes.io/component]
           value: backend
       - equal:
-          path: metadata.labels.vendor
+          path: metadata.labels.[app.kubernetes.io/part-of]
           value: stackstorm
       - equal:
-          path: metadata.labels.chart
+          path: metadata.labels.[app.kubernetes.io/version]
+          value: *appVersion
+      - equal:
+          path: metadata.labels.[helm.sh/chart]
           value: stackstorm-ha-1.0.999
       - equal:
-          path: metadata.labels.heritage
+          path: metadata.labels.[app.kubernetes.io/managed-by]
           value: Helm
 
   - it: ServiceAccount accepts custom labels
@@ -234,6 +265,7 @@ tests:
 
   - it: st2web Ingress has required labels
     template: ingress.yaml
+    chart: *chart
     set:
       st2web:
         service:
@@ -244,22 +276,25 @@ tests:
       - hasDocuments:
           count: 1
       - equal:
-          path: metadata.labels.app
+          path: metadata.labels.[app.kubernetes.io/name]
           value: ingress
       - equal:
-          path: metadata.labels.release
+          path: metadata.labels.[app.kubernetes.io/instance]
           value: some-release-name
       - equal:
-          path: metadata.labels.tier
+          path: metadata.labels.[app.kubernetes.io/component]
           value: frontend
       - equal:
-          path: metadata.labels.vendor
+          path: metadata.labels.[app.kubernetes.io/part-of]
           value: stackstorm
       - equal:
-          path: metadata.labels.chart
+          path: metadata.labels.[app.kubernetes.io/version]
+          value: *appVersion
+      - equal:
+          path: metadata.labels.[helm.sh/chart]
           value: stackstorm-ha-1.0.999
       - equal:
-          path: metadata.labels.heritage
+          path: metadata.labels.[app.kubernetes.io/managed-by]
           value: Helm
 
   - it: ConfigMaps and Secrets have required labels
@@ -274,6 +309,7 @@ tests:
       - secrets_st2apikeys.yaml
       - secrets_st2auth.yaml
       - secrets_st2kv.yaml
+    chart: *chart
     set:
       rabbitmq: # for secrets_rabbitmq.yaml
         enabled: true
@@ -281,27 +317,31 @@ tests:
       - hasDocuments:
           count: 1
       - equal:
-          path: metadata.labels.app
+          path: metadata.labels.[app.kubernetes.io/name]
           value: st2
       - equal:
-          path: metadata.labels.release
+          path: metadata.labels.[app.kubernetes.io/instance]
           value: some-release-name
       - equal:
-          path: metadata.labels.tier
+          path: metadata.labels.[app.kubernetes.io/component]
           value: backend
       - equal:
-          path: metadata.labels.vendor
+          path: metadata.labels.[app.kubernetes.io/part-of]
           value: stackstorm
       - equal:
-          path: metadata.labels.chart
+          path: metadata.labels.[app.kubernetes.io/version]
+          value: *appVersion
+      - equal:
+          path: metadata.labels.[helm.sh/chart]
           value: stackstorm-ha-1.0.999
       - equal:
-          path: metadata.labels.heritage
+          path: metadata.labels.[app.kubernetes.io/managed-by]
           value: Helm
 
   - it: RBAC ConfigMaps have required labels
     templates:
       - configmaps_rbac.yaml
+    chart: *chart
     set:
       st2:
         rbac:
@@ -310,27 +350,31 @@ tests:
       - hasDocuments:
           count: 3
       - equal:
-          path: metadata.labels.app
+          path: metadata.labels.[app.kubernetes.io/name]
           value: st2
       - equal:
-          path: metadata.labels.release
+          path: metadata.labels.[app.kubernetes.io/instance]
           value: some-release-name
       - equal:
-          path: metadata.labels.tier
+          path: metadata.labels.[app.kubernetes.io/component]
           value: backend
       - equal:
-          path: metadata.labels.vendor
+          path: metadata.labels.[app.kubernetes.io/part-of]
           value: stackstorm
       - equal:
-          path: metadata.labels.chart
+          path: metadata.labels.[app.kubernetes.io/version]
+          value: *appVersion
+      - equal:
+          path: metadata.labels.[helm.sh/chart]
           value: stackstorm-ha-1.0.999
       - equal:
-          path: metadata.labels.heritage
+          path: metadata.labels.[app.kubernetes.io/managed-by]
           value: Helm
 
   - it: st2chatops Secret has required labels
     templates:
       - secrets_st2chatops.yaml
+    chart: *chart
     set:
       st2chatops:
         enabled: true
@@ -338,28 +382,32 @@ tests:
       - hasDocuments:
           count: 1
       - equal:
-          path: metadata.labels.app
+          path: metadata.labels.[app.kubernetes.io/name]
           value: st2chatops
       - equal:
-          path: metadata.labels.release
+          path: metadata.labels.[app.kubernetes.io/instance]
           value: some-release-name
       - equal:
-          path: metadata.labels.tier
+          path: metadata.labels.[app.kubernetes.io/component]
           value: backend
       - equal:
-          path: metadata.labels.vendor
+          path: metadata.labels.[app.kubernetes.io/part-of]
           value: stackstorm
       - equal:
-          path: metadata.labels.chart
+          path: metadata.labels.[app.kubernetes.io/version]
+          value: *appVersion
+      - equal:
+          path: metadata.labels.[helm.sh/chart]
           value: stackstorm-ha-1.0.999
       - equal:
-          path: metadata.labels.heritage
+          path: metadata.labels.[app.kubernetes.io/managed-by]
           value: Helm
 
   - it: st2web ConfigMap has required labels
     templates:
       #- configmaps_post-start-scripts.yaml # needs postStartScript for each service
       - configmaps_st2web.yaml
+    chart: *chart
     set:
       st2web:
         config: |
@@ -371,27 +419,31 @@ tests:
       - hasDocuments:
           count: 1
       - equal:
-          path: metadata.labels.app
+          path: metadata.labels.[app.kubernetes.io/name]
           value: st2 # should this be st2web?
       - equal:
-          path: metadata.labels.release
+          path: metadata.labels.[app.kubernetes.io/instance]
           value: some-release-name
       - equal:
-          path: metadata.labels.tier
+          path: metadata.labels.[app.kubernetes.io/component]
           value: backend # should this be frontend?
       - equal:
-          path: metadata.labels.vendor
+          path: metadata.labels.[app.kubernetes.io/part-of]
           value: stackstorm
       - equal:
-          path: metadata.labels.chart
+          path: metadata.labels.[app.kubernetes.io/version]
+          value: *appVersion
+      - equal:
+          path: metadata.labels.[helm.sh/chart]
           value: stackstorm-ha-1.0.999
       - equal:
-          path: metadata.labels.heritage
+          path: metadata.labels.[app.kubernetes.io/managed-by]
           value: Helm
 
   - it: post-start-script ConfigMaps have required labels
     templates:
       - configmaps_post-start-script.yaml
+    chart: *chart
     set:
       st2auth: &postStartScript
         postStartScript: |
@@ -413,20 +465,23 @@ tests:
       - hasDocuments:
           count: 14
       - equal:
-          path: metadata.labels.app
+          path: metadata.labels.[app.kubernetes.io/name]
           value: st2
       - equal:
-          path: metadata.labels.release
+          path: metadata.labels.[app.kubernetes.io/instance]
           value: some-release-name
       - equal:
-          path: metadata.labels.tier
+          path: metadata.labels.[app.kubernetes.io/component]
           value: backend
       - equal:
-          path: metadata.labels.vendor
+          path: metadata.labels.[app.kubernetes.io/part-of]
           value: stackstorm
       - equal:
-          path: metadata.labels.chart
+          path: metadata.labels.[app.kubernetes.io/version]
+          value: *appVersion
+      - equal:
+          path: metadata.labels.[helm.sh/chart]
           value: stackstorm-ha-1.0.999
       - equal:
-          path: metadata.labels.heritage
+          path: metadata.labels.[app.kubernetes.io/managed-by]
           value: Helm

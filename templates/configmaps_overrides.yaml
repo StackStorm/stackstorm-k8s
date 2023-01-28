@@ -6,13 +6,7 @@ metadata:
   name: {{ .Release.Name }}-st2-overrides-configs
   annotations:
     description: StackStorm override configs defined in helm values, shipped in (or copied to) '/opt/stackstorm/overrides'
-  labels:
-    app: st2
-    tier: backend
-    vendor: stackstorm
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2") | nindent 4 }}
 data:
 {{ toYaml .Values.st2.overrides | indent 2 }}
 {{- end }}
