@@ -1,6 +1,7 @@
 # Changelog
 
 ## In Development
+* Drop support for `networking.k8s.io/v1beta1` which was removed in kubernetes v1.22 (EOL 2022-10-28) (#353) (by @cognifloyd)
 * Switch st2 to `v3.8` as a new default stable version (#347)
 * Cover the three most recent Kubernetes versions in Minikube and the single most recent in K3s. (#342) (by @mamercad)
 * Update the GitHub badges. (#345) (by @mamercad)
