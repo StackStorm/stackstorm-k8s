@@ -542,7 +542,11 @@ spec:
 
             function __handle_error__(){
               cat <<- 'FAIL'
-              ERROR: The volumes defined in st2.packs.volumes must use ReadWriteMany (RWX) access mode
+              ERROR: One or more volumes in st2.packs.volumes (from helm values) does not meet
+              StackStorm's shared volumes requirements!
+              see: https://github.com/StackStorm/stackstorm-k8s#method-2-shared-volumes
+
+              HINT: The volumes defined in st2.packs.volumes must use ReadWriteMany (RWX) access mode
               so StackStorm can dynamically install packs from any of the st2actionrunner pods
               and have those file changes available in all of the other StackStorm pods.
               see: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes
