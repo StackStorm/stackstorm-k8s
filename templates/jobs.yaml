@@ -529,7 +529,9 @@ spec:
         #   ephemeral volumes could also work, ... but that config is even deeper.
         command:
           - 'sh'
-          - '-ec'
+          # -e => exit on failure
+          # -E => trap ERR is inherited in subfunctions
+          - '-eEc'
           - |
             cat << 'INTRO'
             Testing write permissions for packs volumes.
@@ -537,6 +539,16 @@ spec:
             If this fails, inspect the pod for errors in kubernetes,
             and then delete this st2canary pod manually.
             INTRO
+
+            function __handle_error__(){
+              cat <<- 'FAIL'
+              ERROR: The volumes defined in st2.packs.volumes must use ReadWriteMany (RWX) access mode
+              so StackStorm can dynamically install packs from any of the st2actionrunner pods
+              and have those file changes available in all of the other StackStorm pods.
+              see: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes
+              FAIL
+            }
+            trap __handle_error__ ERR
 
             for volume in packs virtualenvs {{ if $.Values.st2.packs.volumes.configs }}configs{{ end }}; do
               echo Testing write permissions on ${volume} volume...
