@@ -516,7 +516,6 @@ spec:
       containers:
       - name: st2canary-for-writable-packs-volumes
         image: '{{ template "stackstorm-ha.imageRepository" $ }}/st2actionrunner:{{ tpl $.Values.image.tag $ }}'
-        #image: busybox:1.28
         imagePullPolicy: {{ $.Values.image.pullPolicy }}
         {{- with $.Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -532,25 +531,19 @@ spec:
           - 'sh'
           - '-ec'
           - |
-            echo Testing write permissions for packs volumes.
-            echo If this passes, the pod will automatically be deleted.
-            echo If this fails, inspect the pod for errors in kubernetes,
-            echo and then delete this st2canary pod manually.
-            echo
-            echo Testing write permissions on packs volume...
-            touch /opt/stackstorm/packs/.write-test
-            rm /opt/stackstorm/packs/.write-test
-            echo
-            echo Testing write permissions on virtualenvs volume...
-            touch /opt/stackstorm/virtualenvs/.write-test
-            rm /opt/stackstorm/virtualenvs/.write-test
-            echo
-            {{- if $.Values.st2.packs.volumes.configs }}
-            echo Testing write permissions on configs volume...
-            touch /opt/stackstorm/configs/.write-test
-            rm /opt/stackstorm/configs/.write-test
-            echo
-            {{- end }}
+            cat << 'INTRO'
+            Testing write permissions for packs volumes.
+            If this passes, the pod will automatically be deleted.
+            If this fails, inspect the pod for errors in kubernetes,
+            and then delete this st2canary pod manually.
+            INTRO
+
+            for volume in packs virtualenvs {{ if $.Values.st2.packs.volumes.configs }}configs{{ end }}; do
+              echo Testing write permissions on ${volume} volume...
+              touch /opt/stackstorm/${volume}/.write-test
+              rm /opt/stackstorm/${volume}/.write-test
+              echo
+            done
             echo DONE
         volumeMounts:
         {{- include "stackstorm-ha.packs-volume-mounts" $ | nindent 8 }}
