@@ -12,9 +12,11 @@ templates:
   - configmaps_packs.yaml
   - configmaps_rbac.yaml
   - configmaps_st2-conf.yaml
+  - configmaps_st2-urls.yaml
   - configmaps_st2web.yaml
   - secrets_datastore_crypto_key.yaml
   - secrets_ssh.yaml
+  - secrets_st2apikeys.yaml
   - secrets_st2auth.yaml
   - secrets_st2chatops.yaml
 
