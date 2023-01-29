@@ -4,7 +4,6 @@ templates:
   # primary template files
   - deployments.yaml
   - jobs.yaml
-  - hooks/pod_packs-volumes.yaml
 
   # included templates must also be listed
   - configmaps_overrides.yaml
@@ -143,7 +142,7 @@ tests:
         packs:
           images: [] # no extra packs to load
           volumes:
-            enabled: false
+            enabled: false # no st2canary job
           configs: {} # has one core.yaml config file by default (dicts get merged)
       jobs:
         extra_hooks: &extra_hooks_jobs
@@ -181,22 +180,6 @@ tests:
         documentIndex: 2
       - notContains: *pack_configs_vol_mnt
         documentIndex: 2
-
-  - it: Hook without st2.packs.images or st2.packs.volumes
-    template: hooks/pod_packs-volumes.yaml
-    set:
-      st2:
-        packs:
-          sensors: [] # ensure only 1 sensor
-          images: [] # no extra packs to load
-          volumes:
-            enabled: false
-          configs: {} # has one core.yaml config file by default (dicts get merged)
-    release:
-      name: st2ha
-    asserts:
-      - hasDocuments:
-          count: 0
 
   - it: Deployments with st2.packs.images but not st2.packs.volumes
     template: deployments.yaml
@@ -418,7 +401,7 @@ tests:
         packs:
           images: *st2_packs_images
           volumes:
-            enabled: false
+            enabled: false # no st2canary job
           configs: {} # has one core.yaml config file by default (dicts get merged)
       jobs:
         extra_hooks: *extra_hooks_jobs
@@ -479,22 +462,6 @@ tests:
         documentIndex: 2
       - notContains: *pack_configs_vol_mnt
         documentIndex: 2
-
-  - it: Hook with st2.packs.images but not st2.packs.volumes
-    template: hooks/pod_packs-volumes.yaml
-    set:
-      st2:
-        packs:
-          sensors: [] # ensure only 1 sensor
-          images: *st2_packs_images
-          volumes:
-            enabled: false
-          configs: {} # has one core.yaml config file by default (dicts get merged)
-    release:
-      name: st2ha
-    asserts:
-      - hasDocuments:
-          count: 0
 
   - it: Deployments with st2.packs.images and st2.packs.volumes
     template: deployments.yaml
@@ -727,7 +694,7 @@ tests:
         packs:
           images: *st2_packs_images
           volumes:
-            enabled: true
+            enabled: true # include st2canary job
             packs: *nfs_packs_volume
             virtualenvs: *nfs_venvs_volume
             configs: *nfs_pack_configs_volume
@@ -738,7 +705,7 @@ tests:
       name: st2ha
     asserts:
       - hasDocuments:
-          count: 5
+          count: 6
 
       - contains: *nfs_packs_vol
         documentIndex: 3 # register_content
@@ -753,6 +720,19 @@ tests:
       - contains: *pack_configs_vol_mnt
         documentIndex: 3 # register_content
 
+      - contains: *nfs_packs_vol
+        documentIndex: 4 # st2canary
+      - contains: *nfs_venvs_vol
+        documentIndex: 4 # st2canary
+      - contains: *nfs_pack_configs_vol
+        documentIndex: 4 # st2canary
+      - contains: *packs_vol_mnt
+        documentIndex: 4 # st2canary
+      - contains: *venvs_vol_mnt
+        documentIndex: 4 # st2canary
+      - contains: *pack_configs_vol_mnt
+        documentIndex: 4 # st2canary
+
       - notContains: *packs_vol
         documentIndex: 0
       - notContains: *venvs_vol
@@ -791,59 +771,6 @@ tests:
         documentIndex: 2
       - notContains: *pack_configs_vol_mnt
         documentIndex: 2
-
-  - it: Hook with st2.packs.images and st2.packs.volumes
-    template: hooks/pod_packs-volumes.yaml
-    set:
-      st2:
-        packs:
-          sensors: [] # ensure only 1 sensor
-          images: *st2_packs_images
-          volumes:
-            enabled: true
-            packs: *nfs_packs_volume
-            virtualenvs: *nfs_venvs_volume
-            configs: *nfs_pack_configs_volume
-          configs: {} # has one core.yaml config file by default (dicts get merged)
-    release:
-      name: st2ha
-    asserts:
-      - hasDocuments:
-          count: 1
-
-      - contains: &pod_nfs_packs_vol
-          path: spec.volumes
-          content:
-            name: st2-packs-vol
-            <<: *nfs_packs_volume
-      - contains: &pod_nfs_venvs_vol
-          path: spec.volumes
-          content:
-            name: st2-virtualenvs-vol
-            <<: *nfs_venvs_volume
-      - contains: &pod_nfs_pack_configs_vol
-          path: spec.volumes
-          content:
-            name: st2-pack-configs-vol
-            <<: *nfs_pack_configs_volume
-      - contains: &pod_packs_vol_mnt
-          path: spec.containers[0].volumeMounts
-          content:
-            name: st2-packs-vol
-            mountPath: /opt/stackstorm/packs
-            readOnly: false
-      - contains: &pod_venvs_vol_mnt
-          path: spec.containers[0].volumeMounts
-          content:
-            name: st2-virtualenvs-vol
-            mountPath: /opt/stackstorm/virtualenvs
-            readOnly: false
-      - contains: &pod_pack_configs_vol_mnt
-          path: spec.containers[0].volumeMounts
-          content:
-            name: st2-pack-configs-vol
-            mountPath: /opt/stackstorm/configs/
-            readOnly: false
 
   - it: Deployments without st2.packs.images and with st2.packs.volumes
     template: deployments.yaml
@@ -1055,7 +982,7 @@ tests:
         packs:
           images: []
           volumes:
-            enabled: true
+            enabled: true # enable st2canary job
             packs: *nfs_packs_volume
             virtualenvs: *nfs_venvs_volume
             configs: *nfs_pack_configs_volume
@@ -1066,7 +993,7 @@ tests:
       name: st2ha
     asserts:
       - hasDocuments:
-          count: 5
+          count: 6
 
       - contains: *nfs_packs_vol
         documentIndex: 3 # register_content
@@ -1081,6 +1008,19 @@ tests:
       - contains: *pack_configs_vol_mnt
         documentIndex: 3 # register_content
 
+      - contains: *nfs_packs_vol
+        documentIndex: 4 # st2canary
+      - contains: *nfs_venvs_vol
+        documentIndex: 4 # st2canary
+      - contains: *nfs_pack_configs_vol
+        documentIndex: 4 # st2canary
+      - contains: *packs_vol_mnt
+        documentIndex: 4 # st2canary
+      - contains: *venvs_vol_mnt
+        documentIndex: 4 # st2canary
+      - contains: *pack_configs_vol_mnt
+        documentIndex: 4 # st2canary
+
       - notContains: *packs_vol
         documentIndex: 0
       - notContains: *venvs_vol
@@ -1119,32 +1059,6 @@ tests:
         documentIndex: 2
       - notContains: *pack_configs_vol_mnt
         documentIndex: 2
-
-  - it: Hook without st2.packs.images and with st2.packs.volumes
-    template: hooks/pod_packs-volumes.yaml
-    set:
-      st2:
-        packs:
-          sensors: [] # ensure only 1 sensor
-          images: []
-          volumes:
-            enabled: true
-            packs: *nfs_packs_volume
-            virtualenvs: *nfs_venvs_volume
-            configs: *nfs_pack_configs_volume
-          configs: {} # has one core.yaml config file by default (dicts get merged)
-    release:
-      name: st2ha
-    asserts:
-      - hasDocuments:
-          count: 1
-
-      - contains: *pod_nfs_packs_vol
-      - contains: *pod_nfs_venvs_vol
-      - contains: *pod_nfs_pack_configs_vol
-      - contains: *pod_packs_vol_mnt
-      - contains: *pod_venvs_vol_mnt
-      - contains: *pod_pack_configs_vol_mnt
 
   - it: Deployments with st2.packs.volumes but missing volumes config
     template: deployments.yaml

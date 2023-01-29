@@ -4,7 +4,6 @@ templates:
   # primary template files
   - deployments.yaml
   - jobs.yaml
-  - hooks/pod_packs-volumes.yaml
 
   # included templates must also be listed
   - configmaps_overrides.yaml
@@ -35,30 +34,10 @@ tests:
         # job-st2-apikey-load
         # job-st2-key-load
         # job-st2-register-content
+        # job-st2canary-for-writable-packs-volumes
     set:
       st2:
         rbac: { enabled: true } # enable rbac job
-        packs: { sensors: [] } # ensure only 1 sensor
-      st2chatops:
-        enabled: true
-      jobs:
-        extra_hooks: &jobs_extra_hooks
-          - name: upgrade-warning
-            hook: pre-upgrade, pre-rollback
-            hook_weight: -5
-            command: ["st2", "run", "--tail", "custom_pack.warn_about_upgrade"]
-    asserts:
-      - isNull:
-          path: spec.template.spec.nodeSelector
-      - isNull:
-          path: spec.template.spec.tolerations
-      - isNull:
-          path: spec.template.spec.affinity
-
-  - it: Hook Pod has no default placement
-    template: hooks/pod_packs-volumes.yaml
-    set:
-      st2:
         packs:
           sensors: [] # ensure only 1 sensor
           images: []
@@ -77,14 +56,21 @@ tests:
                 server: "10.12.34.56"
                 path: /var/nfsshare/configs
           configs: {} # has one core.yaml config file by default (dicts get merged)
+      st2chatops:
+        enabled: true
+      jobs:
+        extra_hooks: &jobs_extra_hooks
+          - name: upgrade-warning
+            hook: pre-upgrade, pre-rollback
+            hook_weight: -5
+            command: ["st2", "run", "--tail", "custom_pack.warn_about_upgrade"]
     asserts:
       - isNull:
-          path: spec.nodeSelector
+          path: spec.template.spec.nodeSelector
       - isNull:
-          path: spec.tolerations
+          path: spec.template.spec.tolerations
       - isNull:
-          path: spec.affinity
-
+          path: spec.template.spec.affinity
 
   - it: Deployments and Jobs accept custom placement
     templates:
@@ -101,10 +87,14 @@ tests:
         # job-st2-apikey-load
         # job-st2-key-load
         # job-st2-register-content
+        # job-st2canary-for-writable-packs-volumes
     set:
       st2:
         rbac: { enabled: true } # enable rbac job
-        packs: { sensors: [] } # ensure only 1 sensor
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: []
+          volumes: *volumes_enabled
       st2web:
         # these examples come from the k8s docs
         nodeSelector: &custom_nodeSelector
@@ -197,6 +187,10 @@ tests:
         tolerations: *custom_tolerations
         affinity: *custom_affinity
         extra_hooks: *jobs_extra_hooks
+      st2canary:
+        nodeSelector: *custom_nodeSelector
+        tolerations: *custom_tolerations
+        affinity: *custom_affinity
     asserts:
       - equal:
           path: spec.template.spec.nodeSelector
@@ -206,27 +200,4 @@ tests:
           value: *custom_tolerations
       - equal:
           path: spec.template.spec.affinity
-          value: *custom_affinity
-
-  - it: Hook Pod accepts custom placement
-    template: hooks/pod_packs-volumes.yaml
-    set:
-      st2:
-        packs:
-          sensors: [] # ensure only 1 sensor
-          images: []
-          volumes: *volumes_enabled
-      st2canary:
-        nodeSelector: *custom_nodeSelector
-        tolerations: *custom_tolerations
-        affinity: *custom_affinity
-    asserts:
-      - equal:
-          path: spec.nodeSelector
-          value: *custom_nodeSelector
-      - equal:
-          path: spec.tolerations
-          value: *custom_tolerations
-      - equal:
-          path: spec.affinity
           value: *custom_affinity

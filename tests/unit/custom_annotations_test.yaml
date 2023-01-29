@@ -7,7 +7,6 @@ templates:
   - jobs.yaml
   - service-account.yaml
   - services.yaml
-  - hooks/pod_packs-volumes.yaml
 
   # included templates must also be listed
   - configmaps_overrides.yaml
@@ -151,48 +150,6 @@ tests:
       st2:
         rbac:
           enabled: true # enable rbac job
-      jobs:
-        annotations:
-          foo: bar
-          answer: "42"
-        extra_hooks:
-          - name: upgrade-warning
-            hook: pre-upgrade, pre-rollback
-            hook_weight: -5
-            command: ["st2", "run", "--tail", "custom_pack.warn_about_upgrade"]
-    asserts:
-      - hasDocuments:
-          count: 5
-          # job-st2-apply-rbac-defintions
-          # job-st2-apikey-load
-          # job-st2-key-load
-          # job-st2-register-content
-          # extra_hooks job
-
-      # job annotations
-      - isNotNull:
-          path: metadata.annotations
-      - equal:
-          path: metadata.annotations.foo
-          value: bar
-      - equal:
-          path: metadata.annotations.answer
-          value: "42"
-
-      # pod annotations
-      - isNotNull:
-          path: spec.template.metadata.annotations
-      - equal:
-          path: spec.template.metadata.annotations.foo
-          value: bar
-      - equal:
-          path: spec.template.metadata.annotations.answer
-          value: "42"
-
-  - it: Hook with st2.packs.volumes
-    template: hooks/pod_packs-volumes.yaml
-    set:
-      st2:
         packs:
           sensors: [] # ensure only 1 sensor
           images: []
@@ -215,10 +172,26 @@ tests:
         annotations:
           foo: bar
           answer: "42"
+      jobs:
+        annotations:
+          foo: bar
+          answer: "42"
+        extra_hooks:
+          - name: upgrade-warning
+            hook: pre-upgrade, pre-rollback
+            hook_weight: -5
+            command: ["st2", "run", "--tail", "custom_pack.warn_about_upgrade"]
     asserts:
       - hasDocuments:
-          count: 1
+          count: 6
+          # job-st2-apply-rbac-defintions
+          # job-st2-apikey-load
+          # job-st2-key-load
+          # job-st2-register-content
+          # job-st2canary-for-writable-packs-volumes
+          # extra_hooks job
 
+      # job annotations
       - isNotNull:
           path: metadata.annotations
       - equal:
@@ -226,4 +199,14 @@ tests:
           value: bar
       - equal:
           path: metadata.annotations.answer
+          value: "42"
+
+      # pod annotations
+      - isNotNull:
+          path: spec.template.metadata.annotations
+      - equal:
+          path: spec.template.metadata.annotations.foo
+          value: bar
+      - equal:
+          path: spec.template.metadata.annotations.answer
           value: "42"

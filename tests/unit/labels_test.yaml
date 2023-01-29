@@ -4,7 +4,6 @@ templates:
   - deployments.yaml
   - jobs.yaml
   - services.yaml
-  - hooks/pod_packs-volumes.yaml
 
   - configmaps_overrides.yaml
   - configmaps_packs.yaml
@@ -116,6 +115,24 @@ tests:
       st2:
         rbac:
           enabled: true # enable rbac job
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: [] # no extra packs to load
+          volumes:
+            enabled: true
+            packs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/packs
+            virtualenvs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/virtualenvs
+            configs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/configs
+          configs: {} # has one core.yaml config file by default (dicts get merged)
       jobs:
         extra_hooks:
           - name: upgrade-warning
@@ -124,11 +141,12 @@ tests:
             command: ["st2", "run", "--tail", "custom_pack.warn_about_upgrade"]
     asserts:
       - hasDocuments:
-          count: 5
+          count: 6
           # job-st2-apply-rbac-defintions
           # job-st2-apikey-load
           # job-st2-key-load
           # job-st2-register-content
+          # job-st2canary-for-writable-packs-volumes
           # extra_hooks job
 
       # unlike deployments, jobs should not have selector.matchLabels
@@ -144,8 +162,12 @@ tests:
       - equal: *metadata_labels_instance
       - equal: *spec_template_metadata_labels_instance
 
-      - matchRegex: *regex_metadata_labels_component_backend_or_frontend
-      - matchRegex: *regex_spec_template_metadata_labels_component_backend_or_frontend
+      - matchRegex:
+          path: metadata.labels.[app.kubernetes.io/component]
+          pattern: ^(backend|tests)$
+      - matchRegex:
+          path: spec.template.metadata.labels.[app.kubernetes.io/component]
+          pattern: ^(backend|tests)$
 
       - equal: *metadata_labels_part_of
       - equal: *spec_template_metadata_labels_part_of
@@ -363,43 +385,6 @@ tests:
       - equal: *metadata_labels_app_eq_st2
       - equal: *metadata_labels_instance
       - equal: *metadata_labels_component_backend
-      - equal: *metadata_labels_part_of
-      - equal: *metadata_labels_app_version
-      - equal: *metadata_labels_chart
-      - equal: *metadata_labels_managed_by
-
-  - it: Hook Pod has required labels
-    template: hooks/pod_packs-volumes.yaml
-    set:
-      st2:
-        packs:
-          sensors: [] # ensure only 1 sensor
-          images: [] # no extra packs to load
-          volumes:
-            enabled: true
-            packs:
-              nfs:
-                server: "10.12.34.56"
-                path: /var/nfsshare/packs
-            virtualenvs:
-              nfs:
-                server: "10.12.34.56"
-                path: /var/nfsshare/virtualenvs
-            configs:
-              nfs:
-                server: "10.12.34.56"
-                path: /var/nfsshare/configs
-          configs: {} # has one core.yaml config file by default (dicts get merged)
-    asserts:
-      - hasDocuments:
-          count: 1
-      - equal:
-          path: metadata.labels.app
-          value: st2canary
-      - equal: *metadata_labels_instance
-      - equal:
-          path: metadata.labels.tier
-          value: tests
       - equal: *metadata_labels_part_of
       - equal: *metadata_labels_app_version
       - equal: *metadata_labels_chart

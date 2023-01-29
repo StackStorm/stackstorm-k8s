@@ -4,7 +4,6 @@ templates:
   # primary template files
   - deployments.yaml
   - jobs.yaml
-  - hooks/pod_packs-volumes.yaml
 
   # included templates must also be listed
   - configmaps_overrides.yaml
@@ -26,29 +25,11 @@ tests:
       - jobs.yaml
     set:
       st2:
-        packs: { sensors: [] } # ensure only 1 sensor
-        rbac: { enabled: true } # enable rbac job
-      jobs:
-        extra_hooks: &jobs_extra_hooks
-          - name: upgrade-warning
-            hook: pre-upgrade, pre-rollback
-            hook_weight: -5
-            command: ["st2", "run", "--tail", "custom_pack.warn_about_upgrade"]
-    asserts:
-      - isNull:
-          path: spec.template.spec.dnsPolicy
-      - isNull:
-          path: spec.template.spec.dnsConfig
-
-  - it: Hook Pod defaults to no dnsPolicy or dnsConfig
-    template: hooks/pod_packs-volumes.yaml
-    set:
-      st2:
         packs:
           sensors: [] # ensure only 1 sensor
           images: []
           volumes: &volumes_enabled
-            enabled: true
+            enabled: true # for st2canary volumes job
             packs:
               nfs:
                 server: "10.12.34.56"
@@ -62,11 +43,18 @@ tests:
                 server: "10.12.34.56"
                 path: /var/nfsshare/configs
           configs: {} # has one core.yaml config file by default (dicts get merged)
+        rbac: { enabled: true } # enable rbac job
+      jobs:
+        extra_hooks: &jobs_extra_hooks
+          - name: upgrade-warning
+            hook: pre-upgrade, pre-rollback
+            hook_weight: -5
+            command: ["st2", "run", "--tail", "custom_pack.warn_about_upgrade"]
     asserts:
       - isNull:
-          path: spec.dnsPolicy
+          path: spec.template.spec.dnsPolicy
       - isNull:
-          path: spec.dnsConfig
+          path: spec.template.spec.dnsConfig
 
   - it: Deployments and Jobs accept custom dnsPolicy or dnsConfig
     templates:
@@ -85,7 +73,11 @@ tests:
             value: "2"
           - name: edns0
       st2:
-        packs: { sensors: [] } # ensure only 1 sensor
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: []
+          volumes: *volumes_enabled
+          configs: {} # has one core.yaml config file by default (dicts get merged)
         rbac: { enabled: true } # enable rbac job
       jobs:
         extra_hooks: *jobs_extra_hooks
@@ -95,26 +87,4 @@ tests:
           value: *dnsPolicy
       - equal:
           path: spec.template.spec.dnsConfig
-          value: *dnsConfig
-
-  - it: Hook Pod accepts custom dnsPolicy or dnsConfig
-    template: hooks/pod_packs-volumes.yaml
-    set:
-      dnsPolicy: *dnsPolicy
-      dnsConfig: *dnsConfig
-      st2:
-        packs:
-          sensors: [] # ensure only 1 sensor
-          images: []
-          volumes: *volumes_enabled
-          configs: {} # has one core.yaml config file by default (dicts get merged)
-    asserts:
-      - hasDocuments:
-          count: 1
-
-      - equal:
-          path: spec.dnsPolicy
-          value: *dnsPolicy
-      - equal:
-          path: spec.dnsConfig
           value: *dnsConfig

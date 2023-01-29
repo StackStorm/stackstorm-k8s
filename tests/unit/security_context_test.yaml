@@ -4,7 +4,6 @@ templates:
   # primary template files
   - deployments.yaml
   - jobs.yaml
-  - hooks/pod_packs-volumes.yaml
 
   # included templates must also be listed
   - configmaps_overrides.yaml
@@ -40,7 +39,24 @@ tests:
       st2chatops:
         enabled: true
       st2:
-        packs: { sensors: [] } # ensure only 1 sensor
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: []
+          volumes: &volumes_enabled
+            enabled: true # for st2canary volumes job
+            packs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/packs
+            virtualenvs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/virtualenvs
+            configs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/configs
+          configs: {} # has one core.yaml config file by default (dicts get merged)
         rbac: { enabled: true } # enable rbac job
       jobs:
         extra_hooks: &jobs_extra_hooks
@@ -63,43 +79,6 @@ tests:
       #- isNull:
       #    path: 'spec.template.spec.initContainers[].securityContext'
 
-  - it: Hook Pod+Containers have no SecurityContext by default
-    template: hooks/pod_packs-volumes.yaml
-    set:
-      st2:
-        packs:
-          sensors: [] # ensure only 1 sensor
-          images: []
-          volumes: &volumes_enabled
-            enabled: true
-            packs:
-              nfs:
-                server: "10.12.34.56"
-                path: /var/nfsshare/packs
-            virtualenvs:
-              nfs:
-                server: "10.12.34.56"
-                path: /var/nfsshare/virtualenvs
-            configs:
-              nfs:
-                server: "10.12.34.56"
-                path: /var/nfsshare/configs
-          configs: {} # has one core.yaml config file by default (dicts get merged)
-
-      podSecurityContext: {}
-      securityContext: {}
-
-    asserts:
-      # pod
-      - isNull:
-          path: spec.securityContext
-      # container
-      - isNull:
-          path: "spec.containers[0].securityContext"
-      # path can only select one element, not all initContainers (if present).
-      #- isNull:
-      #    path: "spec.initContainers[].securityContext"
-
   - it: Deployment and Job Pods+Containers use same SecurityContext when defined
     templates:
       - deployments.yaml
@@ -119,7 +98,11 @@ tests:
       st2chatops:
         enabled: true
       st2:
-        packs: { sensors: [] } # ensure only 1 sensor
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: []
+          volumes: *volumes_enabled
+          configs: {} # has one core.yaml config file by default (dicts get merged)
         rbac: { enabled: true } # enable rbac job
       jobs:
         extra_hooks: *jobs_extra_hooks
@@ -147,33 +130,6 @@ tests:
 
   # overrides for st2web, st2actionrunner, st2sensorcontainer, st2client
   # document indexes: 3, 10, 9, 12
-
-  - it: Hook Pods+Containers use same SecurityContext when defined
-    template: hooks/pod_packs-volumes.yaml
-    set:
-      st2:
-        packs:
-          sensors: [] # ensure only 1 sensor
-          images: []
-          volumes: *volumes_enabled
-          configs: {} # has one core.yaml config file by default (dicts get merged)
-
-      podSecurityContext: *global_pod_security_context
-      securityContext: *global_security_context
-
-    asserts:
-      # pod
-      - equal:
-          path: spec.securityContext
-          value: *global_pod_security_context
-      # container
-      - equal:
-          path: spec.containers[0].securityContext
-          value: *global_security_context
-      # path can only select one element, not all initContainers (if present).
-      #- equal:
-      #    path: spec.initContainers[].securityContext
-      #    value: *global_security_context
 
   - it: Deployment Pod+Containers accept SecurityContext overrides
     template: deployments.yaml

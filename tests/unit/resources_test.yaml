@@ -3,9 +3,9 @@ suite: Resources
 templates:
   # primary template files
   - deployments.yaml
-  - hooks/pod_packs-volumes.yaml
 
-  # No jobs resources yet
+  # Not all jobs have resources yet
+  - jobs.yaml
 
   # included templates must also be listed
   - configmaps_overrides.yaml
@@ -40,8 +40,8 @@ tests:
       - isNotEmpty:
           path: spec.template.spec.containers[0].resources.requests.cpu
 
-  - it: Hook Pod has default resources
-    template: hooks/pod_packs-volumes.yaml
+  - it: st2canary Job has default resources
+    template: jobs.yaml
     set:
       st2:
         packs:
@@ -62,14 +62,21 @@ tests:
                 server: "10.12.34.56"
                 path: /var/nfsshare/configs
           configs: {} # has one core.yaml config file by default (dicts get merged)
+      # Only the st2canary job has resources, so disable the other jobs to narrow the test.
+      jobs:
+        skip:
+          - apply_rbac_definitions
+          - apikey_load
+          - key_load
+          - register_content
     asserts:
       - hasDocuments:
           count: 1
 
       - isNull:
-          path: spec.containers[0].resources.limits
+          path: spec.template.spec.containers[0].resources.limits
       - isNull:
-          path: spec.containers[0].resources.requests
+          path: spec.template.spec.containers[0].resources.requests
 
   - it: Deployments accept custom resources (except st2client)
     template: deployments.yaml
@@ -158,10 +165,8 @@ tests:
       - equal: *assert_custom_requests
         documentIndex: 13
 
-  # Jobs do not have default resources defined yet.
-
-  - it: Hook Pod accepts custom resources
-    template: hooks/pod_packs-volumes.yaml
+  - it: st2canary Job accepts custom resources
+    template: jobs.yaml
     set:
       st2:
         packs:
@@ -171,10 +176,17 @@ tests:
           configs: {} # has one core.yaml config file by default (dicts get merged)
       st2canary:
         resources: *custom_resources
+      # Only the st2canary job has resources, so disable the other jobs to narrow the test.
+      jobs:
+        skip:
+          - apply_rbac_definitions
+          - apikey_load
+          - key_load
+          - register_content
     asserts:
       - hasDocuments:
           count: 1
 
       - equal:
-          path: spec.containers[0].resources.requests
+          path: spec.template.spec.containers[0].resources.requests
           value: *custom_resources_requests
