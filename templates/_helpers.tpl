@@ -40,6 +40,18 @@ app.kubernetes.io/instance: {{ $root.Release.Name }}
 {{- end -}}
 
 {{/*
+Generate Docker image registry: container registry
+*/}}
+{{- define "stackstorm-ha.imageRegistry" -}}
+{{- if .Values.image.registry -}}
+{{ .Values.image.registry }}
+{{- else -}}
+'docker.io'
+{{- end -}}
+{{- end -}}
+
+
+{{/*
 Generate Docker image repository: Public Docker Hub 'stackstorm' for FOSS version
 */}}
 {{- define "stackstorm-ha.imageRepository" -}}
@@ -91,7 +103,7 @@ Generate comma-separated list of nodes for MongoDB-HA connection string, based o
 {{- range $index0 := until $replicas -}}
   {{- $index1 := $index0 | add1 -}}
   {{- if eq $architecture "replicaset" }}
-    {{- $mongo_fullname }}-{{ $index0 }}.{{ $mongo_fullname }}-headless{{ if ne $index1 $replicas }},{{ end }}
+    {{- $mongo_fullname }}-{{ $index0 }}.{{ $mongo_fullname }}-headless.{{ $.Release.Namespace }}.svc.cluster.local{{ if ne $index1 $replicas }},{{ end }}
   {{- else }}
     {{- $mongo_fullname }}-{{ $index0 }}.{{ $mongo_fullname }}{{ if ne $index1 $replicas }},{{ end }}
   {{- end -}}
@@ -110,9 +122,9 @@ Generate list of nodes for Redis with Sentinel connection string, based on numbe
 {{- $sentinel_port := (index .Values "redis" "sentinel" "port") }}
 {{- range $index0 := until $replicas -}}
   {{- if eq $index0 0 -}}
-    {{ $.Release.Name }}-redis-node-{{ $index0 }}.{{ $.Release.Name }}-redis-headless:{{ $sentinel_port }}?sentinel={{ $master_name }}
+    {{ $.Release.Name }}-redis-node-{{ $index0 }}.{{ $.Release.Name }}-redis-headless.{{ $.Release.Namespace }}.svc.cluster.local:{{ $sentinel_port }}?sentinel={{ $master_name }}
   {{- else -}}
-    &sentinel_fallback={{ $.Release.Name }}-redis-node-{{ $index0 }}.{{ $.Release.Name }}-redis-headless:{{ $sentinel_port }}
+    &sentinel_fallback={{ $.Release.Name }}-redis-node-{{ $index0 }}.{{ $.Release.Name }}-redis-headless.{{ $.Release.Namespace }}.svc.cluster.local:{{ $sentinel_port }}
   {{- end -}}
 {{- end -}}
 {{- end -}}
@@ -165,7 +177,7 @@ Reduce duplication of the st2.*.conf volume details
 {{- if index .Values "mongodb" "enabled" }}
 {{- $mongodb_port := (int (index .Values "mongodb" "service" "port")) }}
 - name: wait-for-db
-  image: busybox:1.28
+  image: {{ template "stackstorm-ha.imageRegistry" . }}/library/busybox:1.28
   command:
     - 'sh'
     - '-c'
@@ -185,7 +197,7 @@ Reduce duplication of the st2.*.conf volume details
   {{- if index .Values "rabbitmq" "enabled" }}
     {{- $rabbitmq_port := (int (index .Values "rabbitmq" "service" "port")) }}
 - name: wait-for-queue
-  image: busybox:1.28
+  image: {{ template "stackstorm-ha.imageRegistry" . }}/library/busybox:1.28
   command:
     - 'sh'
     - '-c'
@@ -296,7 +308,7 @@ Merge packs and virtualenvs from st2 with those from st2packs images
   {{- if $.Values.st2.packs.images }}
     {{- range $.Values.st2.packs.images }}
 - name: 'st2-custom-pack-{{ printf "%s-%s-%s" .repository .name .tag | sha1sum }}'
-  image: "{{ .repository }}/{{ .name }}:{{ .tag }}"
+  image: "{{ .registry }}/{{ .repository }}/{{ .name }}:{{ .tag }}"
   imagePullPolicy: {{ .pullPolicy | quote }}
   volumeMounts:
   - name: st2-packs-vol

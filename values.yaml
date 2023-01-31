@@ -5,6 +5,8 @@
 ## Docker image settings, applied to all StackStorm pods
 ##
 image:
+
+  registry: ""
   # Image pull policy
   pullPolicy: IfNotPresent
   # st2 image repository. Set this to override the default ("stackstorm").
@@ -70,6 +72,17 @@ st2:
   config: |
     [api]
     allow_origin = '*'
+    # fixes no replicaset found bug;  
+    [database]
+    # Connection retry backoff max (seconds).
+    connection_retry_backoff_max_s = 10
+    # Backoff multiplier (seconds).
+    connection_retry_backoff_mul = 1
+    # Connection retry total time (minutes).
+    connection_retry_max_delay_m = 3
+    # Connection and server selection timeout (in ms).
+    connection_timeout = 12000
+
 
   #Override Definitions can be added here.
   #https://docs.stackstorm.com/latest/packs.html#overriding-pack-defaults

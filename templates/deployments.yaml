@@ -45,7 +45,7 @@ spec:
       {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
       # Sidecar container for generating .htpasswd with st2 username & password pair and sharing produced file with the main st2auth container
       - name: generate-htpasswd
-        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2auth:{{ tpl (.Values.st2auth.image.tag | default .Values.image.tag) . }}'
+        image: '{{ template "stackstorm-ha.imageRegistry" . }}/{{ template "stackstorm-ha.imageRepository" . }}/st2auth:{{ tpl (.Values.st2auth.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -62,7 +62,7 @@ spec:
           - printf "${ST2_AUTH_USERNAME}:$(openssl passwd -apr1 "${ST2_AUTH_PASSWORD}")\n" > /tmp/st2/htpasswd
       containers:
       - name: st2auth
-        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2auth:{{ tpl (.Values.st2auth.image.tag | default .Values.image.tag) . }}'
+        image: '{{ template "stackstorm-ha.imageRegistry" . }}/{{ template "stackstorm-ha.imageRepository" . }}/st2auth:{{ tpl (.Values.st2auth.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -181,7 +181,7 @@ spec:
       {{- end }}
       containers:
       - name: st2api
-        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2api:{{ tpl (.Values.st2api.image.tag | default .Values.image.tag) . }}'
+        image: '{{ template "stackstorm-ha.imageRegistry" . }}/{{ template "stackstorm-ha.imageRepository" . }}/st2api:{{ tpl (.Values.st2api.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -307,7 +307,7 @@ spec:
       {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
       containers:
       - name: st2stream
-        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2stream:{{ tpl (.Values.st2stream.image.tag | default .Values.image.tag) . }}'
+        image: '{{ template "stackstorm-ha.imageRegistry" . }}/{{ template "stackstorm-ha.imageRepository" . }}/st2stream:{{ tpl (.Values.st2stream.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -407,7 +407,7 @@ spec:
       {{- end }}
       containers:
       - name: st2web
-        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2web:{{ tpl (.Values.st2web.image.tag | default .Values.image.tag) . }}'
+        image: '{{ template "stackstorm-ha.imageRegistry" . }}/{{ template "stackstorm-ha.imageRepository" . }}/st2web:{{ tpl (.Values.st2web.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{- with default .Values.securityContext .Values.st2web.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -541,7 +541,7 @@ spec:
       {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
       containers:
       - name: st2rulesengine
-        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2rulesengine:{{ tpl (.Values.st2rulesengine.image.tag | default .Values.image.tag) . }}'
+        image: '{{ template "stackstorm-ha.imageRegistry" . }}/{{ template "stackstorm-ha.imageRepository" . }}/st2rulesengine:{{ tpl (.Values.st2rulesengine.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -658,7 +658,7 @@ spec:
       {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
       containers:
       - name: st2timersengine
-        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2timersengine:{{ tpl (.Values.st2timersengine.image.tag | default .Values.image.tag) . }}'
+        image: '{{ template "stackstorm-ha.imageRegistry" . }}/{{ template "stackstorm-ha.imageRepository" . }}/st2timersengine:{{ tpl (.Values.st2timersengine.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -762,7 +762,7 @@ spec:
       {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
       containers:
       - name: st2workflowengine
-        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2workflowengine:{{ tpl (.Values.st2workflowengine.image.tag | default .Values.image.tag) . }}'
+        image: '{{ template "stackstorm-ha.imageRegistry" . }}/{{ template "stackstorm-ha.imageRepository" . }}/st2workflowengine:{{ tpl (.Values.st2workflowengine.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -878,7 +878,7 @@ spec:
       {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
       containers:
       - name: st2scheduler
-        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2scheduler:{{ tpl (.Values.st2scheduler.image.tag | default .Values.image.tag) . }}'
+        image: '{{ template "stackstorm-ha.imageRegistry" . }}/{{ template "stackstorm-ha.imageRepository" . }}/st2scheduler:{{ tpl (.Values.st2scheduler.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -994,7 +994,7 @@ spec:
       {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
       containers:
       - name: st2notifier
-        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2notifier:{{ tpl (.Values.st2notifier.image.tag | default .Values.image.tag) . }}'
+        image: '{{ template "stackstorm-ha.imageRegistry" . }}/{{ template "stackstorm-ha.imageRepository" . }}/st2notifier:{{ tpl (.Values.st2notifier.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -1138,7 +1138,7 @@ spec:
       initContainers:
       {{- if $some_sensors_per_pod }}
       - name: {{ $name }}-init-config
-        image: busybox:1.28
+        image: '{{ template "stackstorm-ha.imageRegistry" $ }}/library/busybox:1.28'
         volumeMounts:
         - name: st2-sensor-config-vol
           mountPath: /tmp/st2
@@ -1160,7 +1160,7 @@ spec:
       {{- end }}
       containers:
       - name: {{ $name }}
-        image: '{{ template "stackstorm-ha.imageRepository" $ }}/st2sensorcontainer:{{ tpl ($sensor.image.tag | default $.Values.image.tag) $ }}'
+        image: '{{ template "stackstorm-ha.imageRegistry" $ }}/{{ template "stackstorm-ha.imageRepository" $ }}/st2sensorcontainer:{{ tpl ($sensor.image.tag | default $.Values.image.tag) $ }}'
         imagePullPolicy: {{ $.Values.image.pullPolicy }}
         {{- with default $.Values.securityContext $sensor.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -1324,7 +1324,7 @@ spec:
       containers:
       - name: st2actionrunner
         {{- with .Values.st2actionrunner }}
-        image: '{{ .image.repository | default (include "stackstorm-ha.imageRepository" $) }}/{{ .image.name | default "st2actionrunner" }}:{{ tpl (.image.tag | default $.Values.image.tag) $ }}'
+        image: '{{ .image.registry | default (include "stackstorm-ha.imageRegistry" $) }}/{{ .image.repository | default (include "stackstorm-ha.imageRepository" $) }}/{{ .image.name | default "st2actionrunner" }}:{{ tpl (.image.tag | default $.Values.image.tag) $ }}'
         {{- end }}
         imagePullPolicy: {{ .Values.st2actionrunner.image.pullPolicy | default .Values.image.pullPolicy }}
         {{- with default .Values.securityContext .Values.st2actionrunner.securityContext }}
@@ -1459,7 +1459,7 @@ spec:
       {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
       containers:
       - name: st2garbagecollector
-        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2garbagecollector:{{ tpl (.Values.st2garbagecollector.image.tag | default .Values.image.tag) . }}'
+        image: '{{ template "stackstorm-ha.imageRegistry" . }}/{{ template "stackstorm-ha.imageRepository" . }}/st2garbagecollector:{{ tpl (.Values.st2garbagecollector.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -1572,7 +1572,7 @@ spec:
       {{- end }}
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
       - name: generate-st2client-config
-        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2client.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
+        image: '{{ template "stackstorm-ha.imageRegistry" . }}/{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2client.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -1599,7 +1599,7 @@ spec:
             EOT
       containers:
       - name: st2client
-        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2client.image.tag | default .Values.image.tag) . }}'
+        image: '{{ template "stackstorm-ha.imageRegistry" . }}/{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2client.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{- with default .Values.securityContext .Values.st2actionrunner.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
@@ -1749,7 +1749,7 @@ spec:
       containers:
       - name: st2chatops
         {{- with .Values.st2chatops }}
-        image: '{{ .image.repository | default (include "stackstorm-ha.imageRepository" $) }}/{{ .image.name | default "st2chatops" }}:{{ tpl (.image.tag | default $.Values.image.tag) $ }}'
+        image: '{{ .image.registry | default (include "stackstorm-ha.imageRegistry" $) }}/{{ .image.repository | default (include "stackstorm-ha.imageRepository" $) }}/{{ .image.name | default "st2chatops" }}:{{ tpl (.image.tag | default $.Values.image.tag) $ }}'
         {{- end }}
         imagePullPolicy: {{ .Values.st2chatops.image.pullPolicy | default .Values.image.pullPolicy }}
         {{- with .Values.securityContext }}
