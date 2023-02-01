@@ -6,7 +6,7 @@
 ##
 image:
 
-  registry: ""
+  utilityImage: ""
   # Image pull policy
   pullPolicy: IfNotPresent
   # st2 image repository. Set this to override the default ("stackstorm").

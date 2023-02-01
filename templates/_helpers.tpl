@@ -40,13 +40,13 @@ app.kubernetes.io/instance: {{ $root.Release.Name }}
 {{- end -}}
 
 {{/*
-Generate Docker image registry: container registry
+Generate Docker utility image line
 */}}
-{{- define "stackstorm-ha.imageRegistry" -}}
-{{- if .Values.image.registry -}}
-{{ .Values.image.registry }}
+{{- define "stackstorm-ha.utilityImage" -}}
+{{- if .Values.image.utilityImage -}}
+{{ .Values.image.utilityImage }}
 {{- else -}}
-'docker.io'
+'docker.io/library/busybox:1.28'
 {{- end -}}
 {{- end -}}
 
@@ -177,7 +177,7 @@ Reduce duplication of the st2.*.conf volume details
 {{- if index .Values "mongodb" "enabled" }}
 {{- $mongodb_port := (int (index .Values "mongodb" "service" "port")) }}
 - name: wait-for-db
-  image: {{ template "stackstorm-ha.imageRegistry" . }}/library/busybox:1.28
+  image: {{ template "stackstorm-ha.utilityImage" . }}
   command:
     - 'sh'
     - '-c'
@@ -197,7 +197,7 @@ Reduce duplication of the st2.*.conf volume details
   {{- if index .Values "rabbitmq" "enabled" }}
     {{- $rabbitmq_port := (int (index .Values "rabbitmq" "service" "port")) }}
 - name: wait-for-queue
-  image: {{ template "stackstorm-ha.imageRegistry" . }}/library/busybox:1.28
+  image: {{ template "stackstorm-ha.utilityImage" . }}
   command:
     - 'sh'
     - '-c'
