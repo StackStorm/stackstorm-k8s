@@ -46,7 +46,7 @@ Generate Docker utility image line
 {{- if .Values.image.utilityImage -}}
 {{ .Values.image.utilityImage }}
 {{- else -}}
-'docker.io/library/busybox:1.28'
+docker.io/library/busybox:1.28
 {{- end -}}
 {{- end -}}
 
