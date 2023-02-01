@@ -22,7 +22,7 @@ image:
   # See: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
   #pullSecret: "your-pull-secret"
 
-
+clusterDomain: cluster.local
 
 ##
 ## Service Account

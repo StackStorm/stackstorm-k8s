@@ -103,7 +103,7 @@ Generate comma-separated list of nodes for MongoDB-HA connection string, based o
 {{- range $index0 := until $replicas -}}
   {{- $index1 := $index0 | add1 -}}
   {{- if eq $architecture "replicaset" }}
-    {{- $mongo_fullname }}-{{ $index0 }}.{{ $mongo_fullname }}-headless.{{ $.Release.Namespace }}.svc.cluster.local{{ if ne $index1 $replicas }},{{ end }}
+    {{- $mongo_fullname }}-{{ $index0 }}.{{ $mongo_fullname }}-headless.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}{{ if ne $index1 $replicas }},{{ end }}
   {{- else }}
     {{- $mongo_fullname }}-{{ $index0 }}.{{ $mongo_fullname }}{{ if ne $index1 $replicas }},{{ end }}
   {{- end -}}
@@ -122,9 +122,9 @@ Generate list of nodes for Redis with Sentinel connection string, based on numbe
 {{- $sentinel_port := (index .Values "redis" "sentinel" "port") }}
 {{- range $index0 := until $replicas -}}
   {{- if eq $index0 0 -}}
-    {{ $.Release.Name }}-redis-node-{{ $index0 }}.{{ $.Release.Name }}-redis-headless.{{ $.Release.Namespace }}.svc.cluster.local:{{ $sentinel_port }}?sentinel={{ $master_name }}
+    {{ $.Release.Name }}-redis-node-{{ $index0 }}.{{ $.Release.Name }}-redis-headless.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $sentinel_port }}?sentinel={{ $master_name }}
   {{- else -}}
-    &sentinel_fallback={{ $.Release.Name }}-redis-node-{{ $index0 }}.{{ $.Release.Name }}-redis-headless.{{ $.Release.Namespace }}.svc.cluster.local:{{ $sentinel_port }}
+    &sentinel_fallback={{ $.Release.Name }}-redis-node-{{ $index0 }}.{{ $.Release.Name }}-redis-headless.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $sentinel_port }}
   {{- end -}}
 {{- end -}}
 {{- end -}}
