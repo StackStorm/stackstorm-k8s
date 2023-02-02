@@ -12,6 +12,7 @@ orbs:
 jobs:
   # Spin up minikube K8s cluster and run Helm chart & e2e tests on it
   e2e-k8s:
+    parallelism: 1
     parameters:
       kubernetes-version:
         type: string
@@ -53,7 +54,6 @@ jobs:
           when: always
           name: Show created K8s resources
           command: kubectl get all
-  parallelism: 1
 
 workflows:
   version: 2
