@@ -53,6 +53,7 @@ jobs:
           when: always
           name: Show created K8s resources
           command: kubectl get all
+  parallelism: 1
 
 workflows:
   version: 2
