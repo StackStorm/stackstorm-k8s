@@ -12,7 +12,6 @@ orbs:
 jobs:
   # Spin up minikube K8s cluster and run Helm chart & e2e tests on it
   e2e-k8s:
-    parallelism: 1
     parameters:
       kubernetes-version:
         type: string
