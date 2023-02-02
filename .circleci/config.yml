@@ -39,7 +39,7 @@ jobs:
           command: helm dependency update
       - run:
           name: Helm install stackstorm-ha chart
-          command: helm install --timeout 10m0s --debug --wait --name-template stackstorm-ha .
+          command: helm install --timeout 15m0s --debug --wait --name-template stackstorm-ha .
       - run:
           name: Helm test
           command: helm test stackstorm-ha
