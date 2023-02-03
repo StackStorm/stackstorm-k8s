@@ -28,7 +28,7 @@ jobs:
         # https://github.com/StackStorm/stackstorm-k8s/issues/342
         # https://github.com/k3s-io/k3s/releases
         k3s-channel:
-          - "v1.26.0+k3s1"
+          - "v1.26.1+k3s1"
     steps:
       - name: Checkout source
         uses: actions/checkout@v3
