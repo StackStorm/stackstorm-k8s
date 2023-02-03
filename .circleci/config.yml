@@ -27,7 +27,7 @@ jobs:
       - kubernetes/install
       - minikube/minikube-install:
           # https://github.com/kubernetes/minikube/releases
-          version: v1.28.0
+          version: v1.29.0
       - run:
           name: Install Helm v3
           command: curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
