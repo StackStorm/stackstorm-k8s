@@ -489,7 +489,7 @@ spec:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ $.Release.Name }}-job-st2canary-for-writable-packs-volumes
+  name: {{ $.Release.Name }}-job-ensure-packs-volumes-are-writable
   labels: {{- include "stackstorm-ha.labels" (list $ "st2canary") | nindent 4 }}
   annotations:
     helm.sh/hook: pre-install, pre-upgrade, pre-rollback
