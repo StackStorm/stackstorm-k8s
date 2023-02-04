@@ -1,6 +1,7 @@
 # Changelog
 
 ## In Development
+* Shift K3s and K8s versions forward. (by @mamercad)
 * BREAKING: Use the standardized labels recommended in the Helm docs. You can use `migrations/v1.0/standardize-labels.sh` to prepare an existing cluster before running `helm update`. (#351) (by @cognifloyd)
 * Drop support for `networking.k8s.io/v1beta1` which was removed in kubernetes v1.22 (EOL 2022-10-28) (#353) (by @cognifloyd)
 * Reduce duplication in label tests (#354) (by @cognifloyd)

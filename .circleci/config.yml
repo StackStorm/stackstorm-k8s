@@ -27,7 +27,7 @@ jobs:
       - kubernetes/install
       - minikube/minikube-install:
           # https://github.com/kubernetes/minikube/releases
-          version: v1.28.0
+          version: v1.29.0
       - run:
           name: Install Helm v3
           command: curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
@@ -63,9 +63,9 @@ workflows:
             parameters:
               # https://kubernetes.io/releases
               kubernetes-version:
+                - "v1.26.1"
                 - "v1.25.5"
                 - "v1.24.9"
-                - "v1.23.15"
   # Run periodic nightly Helm tests to ensure there are no regressions
   e2e-nightly:
     jobs:
@@ -74,9 +74,9 @@ workflows:
             parameters:
               # https://kubernetes.io/releases
               kubernetes-version:
+                - "v1.26.1"
                 - "v1.25.5"
                 - "v1.24.9"
-                - "v1.23.15"
     triggers:
       - schedule:
           cron: "0 1 * * *"
