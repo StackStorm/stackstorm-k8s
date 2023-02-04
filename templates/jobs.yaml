@@ -567,10 +567,6 @@ spec:
         - name: st2-pack-configs-vol
           mountPath: /opt/stackstorm/configs/
           readOnly: false
-        {{- range $.Values.jobs.extra_volumes }}
-        - name: {{ required "Each volume must have a 'name' in jobs.extra_volumes" .name }}
-          {{- tpl (required "Each volume must have a 'mount' definition in jobs.extra_volumes" .mount | toYaml) $ | nindent 10 }}
-        {{- end }}
         # TODO: Find out default resource limits for this specific job (#5)
         #resources:
       volumes:
@@ -580,10 +576,7 @@ spec:
         - name: st2-pack-configs-vol
           {{- toYaml $.Values.st2.packs.volumes.configs | nindent 10 }}
         {{- end }}
-        {{- range $.Values.jobs.extra_volumes }}
-        - name: {{ required "Each volume must have a 'name' in jobs.extra_volumes" .name }}
-          {{- tpl (required "Each volume must have a 'volume' definition in jobs.extra_volumes" .volume | toYaml) $ | nindent 10 }}
-        {{- end }}
+        # st2canary job does not support extra_volumes. Let us know if you need this.
     {{- if $.Values.dnsPolicy }}
       dnsPolicy: {{ $.Values.dnsPolicy }}
     {{- end }}
