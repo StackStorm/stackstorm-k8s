@@ -187,10 +187,6 @@ tests:
         tolerations: *custom_tolerations
         affinity: *custom_affinity
         extra_hooks: *jobs_extra_hooks
-      st2canary:
-        nodeSelector: *custom_nodeSelector
-        tolerations: *custom_tolerations
-        affinity: *custom_affinity
     asserts:
       - equal:
           path: spec.template.spec.nodeSelector

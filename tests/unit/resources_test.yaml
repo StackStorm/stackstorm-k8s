@@ -176,10 +176,9 @@ tests:
           images: []
           volumes: *volumes_enabled
           configs: {} # has one core.yaml config file by default (dicts get merged)
-      st2canary:
-        resources: *custom_resources
       # Only the st2canary job has resources, so disable the other jobs to narrow the test.
       jobs:
+        resources: *custom_resources
         skip:
           - apply_rbac_definitions
           - apikey_load

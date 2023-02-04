@@ -168,10 +168,6 @@ tests:
                 server: "10.12.34.56"
                 path: /var/nfsshare/configs
           configs: {} # has one core.yaml config file by default (dicts get merged)
-      st2canary:
-        annotations:
-          foo: bar
-          answer: "42"
       jobs:
         annotations:
           foo: bar
