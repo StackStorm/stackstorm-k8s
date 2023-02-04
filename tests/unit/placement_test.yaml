@@ -34,10 +34,28 @@ tests:
         # job-st2-apikey-load
         # job-st2-key-load
         # job-st2-register-content
+        # job-st2canary-for-writable-packs-volumes
     set:
       st2:
         rbac: { enabled: true } # enable rbac job
-        packs: { sensors: [] } # ensure only 1 sensor
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: []
+          volumes: &volumes_enabled
+            enabled: true
+            packs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/packs
+            virtualenvs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/virtualenvs
+            configs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/configs
+          configs: {} # has one core.yaml config file by default (dicts get merged)
       st2chatops:
         enabled: true
       jobs:
@@ -69,10 +87,14 @@ tests:
         # job-st2-apikey-load
         # job-st2-key-load
         # job-st2-register-content
+        # job-st2canary-for-writable-packs-volumes
     set:
       st2:
         rbac: { enabled: true } # enable rbac job
-        packs: { sensors: [] } # ensure only 1 sensor
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: []
+          volumes: *volumes_enabled
       st2web:
         # these examples come from the k8s docs
         nodeSelector: &custom_nodeSelector
