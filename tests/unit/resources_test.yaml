@@ -4,19 +4,16 @@ templates:
   # primary template files
   - deployments.yaml
 
-  # Not all jobs have resources yet
-  - jobs.yaml
+  # No jobs resources yet
 
   # included templates must also be listed
   - configmaps_overrides.yaml
   - configmaps_packs.yaml
   - configmaps_rbac.yaml
   - configmaps_st2-conf.yaml
-  - configmaps_st2-urls.yaml
   - configmaps_st2web.yaml
   - secrets_datastore_crypto_key.yaml
   - secrets_ssh.yaml
-  - secrets_st2apikeys.yaml
   - secrets_st2auth.yaml
   - secrets_st2chatops.yaml
 
@@ -41,44 +38,6 @@ tests:
           path: spec.template.spec.containers[0].resources.requests.memory
       - isNotEmpty:
           path: spec.template.spec.containers[0].resources.requests.cpu
-
-  - it: st2canary Job has default resources
-    template: jobs.yaml
-    set:
-      st2:
-        packs:
-          sensors: [] # ensure only 1 sensor
-          images: []
-          volumes: &volumes_enabled
-            enabled: true
-            packs:
-              nfs:
-                server: "10.12.34.56"
-                path: /var/nfsshare/packs
-            virtualenvs:
-              nfs:
-                server: "10.12.34.56"
-                path: /var/nfsshare/virtualenvs
-            configs:
-              nfs:
-                server: "10.12.34.56"
-                path: /var/nfsshare/configs
-          configs: {} # has one core.yaml config file by default (dicts get merged)
-      # Only the st2canary job has resources, so disable the other jobs to narrow the test.
-      jobs:
-        skip:
-          - apply_rbac_definitions
-          - apikey_load
-          - key_load
-          - register_content
-    asserts:
-      - hasDocuments:
-          count: 1
-
-      - isNull:
-          path: spec.template.spec.containers[0].resources.limits
-      - isNull:
-          path: spec.template.spec.containers[0].resources.requests
 
   - it: Deployments accept custom resources (except st2client)
     template: deployments.yaml
@@ -167,27 +126,4 @@ tests:
       - equal: *assert_custom_requests
         documentIndex: 13
 
-  - it: st2canary Job accepts custom resources
-    template: jobs.yaml
-    set:
-      st2:
-        packs:
-          sensors: [] # ensure only 1 sensor
-          images: []
-          volumes: *volumes_enabled
-          configs: {} # has one core.yaml config file by default (dicts get merged)
-      # Only the st2canary job has resources, so disable the other jobs to narrow the test.
-      jobs:
-        resources: *custom_resources
-        skip:
-          - apply_rbac_definitions
-          - apikey_load
-          - key_load
-          - register_content
-    asserts:
-      - hasDocuments:
-          count: 1
-
-      - equal:
-          path: spec.template.spec.containers[0].resources.requests
-          value: *custom_resources_requests
+  # Jobs do not have default resources defined yet.
