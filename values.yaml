@@ -5,7 +5,10 @@
 ## Docker image settings, applied to all StackStorm pods
 ##
 image:
-
+  # utility image to use as sidecar for running startup scripts
+  # allows you to override the registry namespace as well if you are using a private registry
+  # ie
+  # utilityImage: "myprivateregsistry.local/ext.docker.io/library/busybox:1.28"
   utilityImage: ""
   # Image pull policy
   pullPolicy: IfNotPresent
@@ -22,6 +25,12 @@ image:
   # See: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
   #pullSecret: "your-pull-secret"
 
+##
+## local cluster domain suffix to enable fqdn lookups for redis, mongo
+##  kube-dns defaults to cluster.local and allows override with --domain
+##  core-dns has no default but allows config in k8 configmap
+##    https://kubernetes.io/docs/tasks/administer-cluster/dns-custom-nameservers/#configuration-of-stub-domain-and-upstream-nameserver-using-coredns
+##
 clusterDomain: cluster.local
 
 ##
