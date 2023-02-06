@@ -308,7 +308,7 @@ Merge packs and virtualenvs from st2 with those from st2packs images
   {{- if $.Values.st2.packs.images }}
     {{- range $.Values.st2.packs.images }}
 - name: 'st2-custom-pack-{{ printf "%s-%s-%s" .repository .name .tag | sha1sum }}'
-  image: "{{ .registry }}/{{ .repository }}/{{ .name }}:{{ .tag }}"
+  image: "{{ .repository }}/{{ .name }}:{{ .tag }}"
   imagePullPolicy: {{ .pullPolicy | quote }}
   volumeMounts:
   - name: st2-packs-vol
