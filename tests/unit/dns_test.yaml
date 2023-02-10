@@ -25,7 +25,24 @@ tests:
       - jobs.yaml
     set:
       st2:
-        packs: { sensors: [] } # ensure only 1 sensor
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: []
+          volumes: &volumes_enabled
+            enabled: true # for st2canary volumes job
+            packs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/packs
+            virtualenvs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/virtualenvs
+            configs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/configs
+          configs: {} # has one core.yaml config file by default (dicts get merged)
         rbac: { enabled: true } # enable rbac job
       jobs:
         extra_hooks: &jobs_extra_hooks
@@ -56,7 +73,11 @@ tests:
             value: "2"
           - name: edns0
       st2:
-        packs: { sensors: [] } # ensure only 1 sensor
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: []
+          volumes: *volumes_enabled
+          configs: {} # has one core.yaml config file by default (dicts get merged)
         rbac: { enabled: true } # enable rbac job
       jobs:
         extra_hooks: *jobs_extra_hooks

@@ -150,6 +150,24 @@ tests:
       st2:
         rbac:
           enabled: true # enable rbac job
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: []
+          volumes:
+            enabled: true
+            packs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/packs
+            virtualenvs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/virtualenvs
+            configs:
+              nfs:
+                server: "10.12.34.56"
+                path: /var/nfsshare/configs
+          configs: {} # has one core.yaml config file by default (dicts get merged)
       jobs:
         annotations:
           foo: bar
@@ -161,11 +179,12 @@ tests:
             command: ["st2", "run", "--tail", "custom_pack.warn_about_upgrade"]
     asserts:
       - hasDocuments:
-          count: 5
+          count: 6
           # job-st2-apply-rbac-defintions
           # job-st2-apikey-load
           # job-st2-key-load
           # job-st2-register-content
+          # job-st2canary-for-writable-packs-volumes
           # extra_hooks job
 
       # job annotations

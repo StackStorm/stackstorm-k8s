@@ -157,6 +157,11 @@ st2:
     # The choice of storage solution is cluster-dependent (it changes besed on where the cluster is hosted
     # and which storage solutions are available in your cluster).
     #
+    # WARNING: These volumes must use ReadWriteMany (RWX) access mode so StackStorm
+    # can dynamically install packs from any of the st2actionrunner pods and have those
+    # file changes available in all of the other StackStorm pods.
+    # see: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes
+    #
     # To use this, set enabled to true, and add cluster-specific volume definitions for at least packs and virtualenvs below.
     # Please consult the documentation for your cluster's storage solution.
     # Some generic examples are listed under st2.packs.volumes.packs below.
@@ -984,6 +989,7 @@ jobs:
     #     - run
     #     - --tail
     #     - custom_pack.warn_about_upgrade
+
 ##
 ## MongoDB HA configuration (3rd party chart dependency)
 ##

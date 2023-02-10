@@ -1,9 +1,11 @@
 # Changelog
 
 ## In Development
+* Shift K3s and K8s versions forward. (by @mamercad)
 * BREAKING: Use the standardized labels recommended in the Helm docs. You can use `migrations/v1.0/standardize-labels.sh` to prepare an existing cluster before running `helm update`. (#351) (by @cognifloyd)
 * Drop support for `networking.k8s.io/v1beta1` which was removed in kubernetes v1.22 (EOL 2022-10-28) (#353) (by @cognifloyd)
 * Reduce duplication in label tests (#354) (by @cognifloyd)
+* Add `st2canary` job as a Helm Hook that runs before install/upgrade to ensure `st2.packs.volumes` is configured correctly (if `st2.packs.volumes.enabled`). (#323) (by @cognifloyd)
 
 ## v0.110.0
 * Switch st2 to `v3.8` as a new default stable version (#347)
