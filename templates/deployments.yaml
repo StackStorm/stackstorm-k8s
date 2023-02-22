@@ -1138,7 +1138,7 @@ spec:
       initContainers:
       {{- if $some_sensors_per_pod }}
       - name: {{ $name }}-init-config
-        image: busybox:1.28
+        image: '{{ template "stackstorm-ha.utilityImage" $ }}'
         volumeMounts:
         - name: st2-sensor-config-vol
           mountPath: /tmp/st2

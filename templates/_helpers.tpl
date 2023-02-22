@@ -40,6 +40,18 @@ app.kubernetes.io/instance: {{ $root.Release.Name }}
 {{- end -}}
 
 {{/*
+Generate Docker utility image line
+*/}}
+{{- define "stackstorm-ha.utilityImage" -}}
+{{- if .Values.image.utilityImage -}}
+{{ .Values.image.utilityImage }}
+{{- else -}}
+docker.io/library/busybox:1.28
+{{- end -}}
+{{- end -}}
+
+
+{{/*
 Generate Docker image repository: Public Docker Hub 'stackstorm' for FOSS version
 */}}
 {{- define "stackstorm-ha.imageRepository" -}}
@@ -91,7 +103,7 @@ Generate comma-separated list of nodes for MongoDB-HA connection string, based o
 {{- range $index0 := until $replicas -}}
   {{- $index1 := $index0 | add1 -}}
   {{- if eq $architecture "replicaset" }}
-    {{- $mongo_fullname }}-{{ $index0 }}.{{ $mongo_fullname }}-headless{{ if ne $index1 $replicas }},{{ end }}
+    {{- $mongo_fullname }}-{{ $index0 }}.{{ $mongo_fullname }}-headless.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}{{ if ne $index1 $replicas }},{{ end }}
   {{- else }}
     {{- $mongo_fullname }}-{{ $index0 }}.{{ $mongo_fullname }}{{ if ne $index1 $replicas }},{{ end }}
   {{- end -}}
@@ -110,9 +122,9 @@ Generate list of nodes for Redis with Sentinel connection string, based on numbe
 {{- $sentinel_port := (index .Values "redis" "sentinel" "port") }}
 {{- range $index0 := until $replicas -}}
   {{- if eq $index0 0 -}}
-    {{ $.Release.Name }}-redis-node-{{ $index0 }}.{{ $.Release.Name }}-redis-headless:{{ $sentinel_port }}?sentinel={{ $master_name }}
+    {{ $.Release.Name }}-redis-node-{{ $index0 }}.{{ $.Release.Name }}-redis-headless.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $sentinel_port }}?sentinel={{ $master_name }}
   {{- else -}}
-    &sentinel_fallback={{ $.Release.Name }}-redis-node-{{ $index0 }}.{{ $.Release.Name }}-redis-headless:{{ $sentinel_port }}
+    &sentinel_fallback={{ $.Release.Name }}-redis-node-{{ $index0 }}.{{ $.Release.Name }}-redis-headless.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $sentinel_port }}
   {{- end -}}
 {{- end -}}
 {{- end -}}
@@ -165,7 +177,7 @@ Reduce duplication of the st2.*.conf volume details
 {{- if index .Values "mongodb" "enabled" }}
 {{- $mongodb_port := (int (index .Values "mongodb" "service" "port")) }}
 - name: wait-for-db
-  image: busybox:1.28
+  image: {{ template "stackstorm-ha.utilityImage" . }}
   command:
     - 'sh'
     - '-c'
@@ -185,7 +197,7 @@ Reduce duplication of the st2.*.conf volume details
   {{- if index .Values "rabbitmq" "enabled" }}
     {{- $rabbitmq_port := (int (index .Values "rabbitmq" "service" "port")) }}
 - name: wait-for-queue
-  image: busybox:1.28
+  image: {{ template "stackstorm-ha.utilityImage" . }}
   command:
     - 'sh'
     - '-c'
