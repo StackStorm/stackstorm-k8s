@@ -68,6 +68,9 @@ st2:
   # If you want to disable datastore encryption, set "datastore_crypto_key: disable".
   #datastore_crypto_key: >-
   #  {"hmacKey": {"hmacKeyString": "", "size": 256}, "size": 256, "aesKeyString": "", "mode": "CBC"}
+  #  Secret name for existing crypto key.  Setting this to a value will disable key generation.
+  #  This is helpfull if you want to do an uninstall/install of the helm chart
+  datastore_crypto_key_secret_name: "no_name"
   # SSH private key for the 'stanley' system user ('system_user.ssh_key_file' in st2.conf)
   # If set, st2.ssh_key always overrides any existing ssh_key.
   # If not set, the ssh_key is auto-generated on install and preserved across upgrades.
