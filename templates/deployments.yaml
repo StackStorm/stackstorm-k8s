@@ -7,7 +7,12 @@
 {{- fail "Volume definition(s) missing! When st2.packs.volumes.enabled, you must define volumes for both packs and virtualenvs." }}
   {{- end }}
 {{- end }}
-
+{{ $crypto_key_name := "false" }}
+{{- if eq .Values.st2.datastore_crypto_key_secret_name "false" }}
+{{ $crypto_key_name := print  .Release.Name "-st2-datastore-crypto-key" }}
+{{- else }}
+{{ $crypto_key_name := print  .Values.st2.datastore_crypto_key_secret_name }}
+{{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -233,7 +238,7 @@ spec:
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
-            secretName: {{ .Release.Name }}-st2-datastore-crypto-key
+            secretName: {{ $crypto_key_name }}
             items:
             - key: datastore_crypto_key
               path: datastore_key.json
@@ -588,7 +593,7 @@ spec:
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
-            secretName: {{ .Release.Name }}-st2-datastore-crypto-key
+            secretName: {{ $crypto_key_name }}
             items:
             - key: datastore_crypto_key
               path: datastore_key.json
@@ -809,7 +814,7 @@ spec:
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
-            secretName: {{ .Release.Name }}-st2-datastore-crypto-key
+            secretName: {{ $crypto_key_name }}
             items:
             - key: datastore_crypto_key
               path: datastore_key.json
@@ -924,7 +929,7 @@ spec:
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
-            secretName: {{ .Release.Name }}-st2-datastore-crypto-key
+            secretName: {{ $crypto_key_name }}
             items:
             - key: datastore_crypto_key
               path: datastore_key.json
@@ -1230,7 +1235,7 @@ spec:
         {{- if ne "disable" (default "" $.Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
-            secretName: {{ $.Release.Name }}-st2-datastore-crypto-key
+            secretName: {{ $crypto_key_name }}
             items:
             - key: datastore_crypto_key
               path: datastore_key.json
@@ -1379,7 +1384,7 @@ spec:
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
-            secretName: {{ .Release.Name }}-st2-datastore-crypto-key
+            secretName: {{ $crypto_key_name }}
             items:
             - key: datastore_crypto_key
               path: datastore_key.json
@@ -1658,7 +1663,7 @@ spec:
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
-            secretName: {{ .Release.Name }}-st2-datastore-crypto-key
+            secretName: {{ $crypto_key_name }}
             items:
             - key: datastore_crypto_key
               path: datastore_key.json
