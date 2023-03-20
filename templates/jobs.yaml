@@ -156,7 +156,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         - secretRef:
-            name: {{ .Release.Name }}-st2-auth
+            name: {{ include "stackstorm-ha.secrets.st2Auth" . }}
         {{- range .Values.jobs.envFromSecrets }}
         - secretRef:
             name: {{ . }}
@@ -282,7 +282,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         - secretRef:
-            name: {{ .Release.Name }}-st2-auth
+            name: {{ include "stackstorm-ha.secrets.st2Auth" . }}
         {{- range .Values.jobs.envFromSecrets }}
         - secretRef:
             name: {{ . }}
@@ -647,7 +647,7 @@ spec:
         - configMapRef:
             name: {{ $.Release.Name }}-st2-urls
         - secretRef:
-            name: {{ $.Release.Name }}-st2-auth
+            name: {{ include "stackstorm-ha.secrets.st2Auth" $ }}
         {{- range $.Values.jobs.envFromSecrets }}
         - secretRef:
             name: {{ . }}

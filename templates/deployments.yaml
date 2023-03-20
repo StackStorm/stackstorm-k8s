@@ -52,7 +52,7 @@ spec:
         {{- end }}
         envFrom:
         - secretRef:
-            name: {{ .Release.Name }}-st2-auth
+            name: {{ include "stackstorm-ha.secrets.st2Auth" . }}
         volumeMounts:
         - name: htpasswd-vol
           mountPath: /tmp/st2
@@ -1581,7 +1581,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         - secretRef:
-            name: {{ .Release.Name }}-st2-auth
+            name: {{ include "stackstorm-ha.secrets.st2Auth" . }}
         {{- range .Values.st2client.envFromSecrets }}
         - secretRef:
             name: {{ . }}
@@ -1760,7 +1760,7 @@ spec:
             name: {{ .Release.Name }}-st2-urls
         {{- if not (hasKey .Values.st2chatops.env "ST2_API_KEY") }}
         - secretRef:
-            name: {{ .Release.Name }}-st2-auth
+            name: {{ include "stackstorm-ha.secrets.st2Auth" . }}
         {{- end }}
         - secretRef:
             name: {{ .Release.Name }}-st2chatops

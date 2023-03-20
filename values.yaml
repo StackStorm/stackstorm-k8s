@@ -60,7 +60,11 @@ st2:
   # Password, used to login to StackStorm system
   # If set, st2.password always overrides any existing password.
   # If not set, the password is auto-generated on install and preserved across upgrades.
+  # Disabled if st2.existingAuthSecret is set
   #password: Ch@ngeMe
+  # Name of existing ST2 Auth secret, disables creation of this secret
+  # existingAuthSecret: ""
+
   # ST2 crypto key for the  K/V datastore.
   # See https://docs.stackstorm.com/datastore.html#securing-secrets-admin-only for more info.
   # If set, st2.datastore_crypto_key always overrides any existing datastore_crypto_key.
@@ -81,7 +85,7 @@ st2:
   config: |
     [api]
     allow_origin = '*'
-    # fixes no replicaset found bug;  
+    # fixes no replicaset found bug;
     [database]
     # Connection and server selection timeout (in ms).
     connection_timeout = 5000
