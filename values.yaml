@@ -64,6 +64,8 @@ st2:
   #password: Ch@ngeMe
   # Name of existing ST2 Auth secret, disables creation of this secret
   # existingAuthSecret: ""
+  # Name of existing ST2 datastore secret, disables creation of this secret
+  # existingDatastoreSecret: ""
 
   # ST2 crypto key for the  K/V datastore.
   # See https://docs.stackstorm.com/datastore.html#securing-secrets-admin-only for more info.
