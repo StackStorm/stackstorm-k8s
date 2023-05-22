@@ -35,7 +35,7 @@ jobs:
         # We should periodically check to see if another fork has taken over maintenance,
         # as the de-facto "best" fork has changed several times over the years.
         run: |
-          helm plugin install https://github.com/quintush/helm-unittest
+          helm plugin install https://github.com/quintush/helm-unittest --version v0.2.11
 
       - name: Install chart dependencies
         run: |
