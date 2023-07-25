@@ -250,10 +250,10 @@ For example, to use persistentVolumeClaims:
     enabled: true
     packs:
       persistentVolumeClaim:
-        claim-name: pvc-st2-packs
+        claimName: pvc-st2-packs
     virtualenvs:
       persistentVolumeClaim:
-        claim-name: pvc-st2-virtualenvs
+        claimName: pvc-st2-virtualenvs
 ```
 
 Or, for example, to use NFS:
@@ -286,7 +286,7 @@ For example, to use persistentVolumeClaims:
     ... # define packs and virtualenvs volumes as shown above
     configs:
       persistentVolumeClaim:
-        claim-name: pvc-st2-pack-configs
+        claimName: pvc-st2-pack-configs
 ```
 
 Or, for example, to use NFS:
