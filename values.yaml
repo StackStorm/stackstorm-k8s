@@ -563,6 +563,7 @@ st2timersengine:
 # https://docs.stackstorm.com/reference/ha.html#st2workflowengine
 # Multiple st2workflowengine processes can run in active-active mode and will share the load and pick up more work if one or more of the processes become available.
 st2workflowengine:
+  #terminationGracePeriodSeconds: 350
   replicas: 2
   resources:
     requests:
@@ -657,6 +658,7 @@ st2notifier:
 # Multiple st2actionrunner processes can run in active-active with only connections to MongoDB and RabbitMQ. Work gets naturally
 # distributed across runners via RabbitMQ. Adding more st2actionrunner processes increases the ability of StackStorm to execute actions.
 st2actionrunner:
+  #terminationGracePeriodSeconds: 350
   replicas: 5
   resources:
     requests:

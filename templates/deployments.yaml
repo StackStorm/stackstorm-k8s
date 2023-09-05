@@ -753,6 +753,7 @@ spec:
           {{- toYaml .Values.st2workflowengine.annotations | nindent 8 }}
         {{- end }}
     spec:
+      terminationGracePeriodSeconds: {{ .Values.st2workflowengine.terminationGracePeriodSeconds | default 300 }}
       imagePullSecrets:
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
@@ -1321,6 +1322,7 @@ spec:
       {{- if and .Values.st2.packs.images (not .Values.st2.packs.volumes.enabled) }}
         {{- include "stackstorm-ha.packs-initContainers" . | nindent 6 }}
       {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.st2actionrunner.terminationGracePeriodSeconds | default 300 }}
       containers:
       - name: st2actionrunner
         {{- with .Values.st2actionrunner }}
