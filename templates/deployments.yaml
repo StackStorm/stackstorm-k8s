@@ -233,7 +233,7 @@ spec:
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
-            secretName: {{ .Release.Name }}-st2-datastore-crypto-key
+            secretName: {{ include "stackstorm-ha.secrets.st2Datastore" . }}
             items:
             - key: datastore_crypto_key
               path: datastore_key.json
@@ -588,7 +588,7 @@ spec:
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
-            secretName: {{ .Release.Name }}-st2-datastore-crypto-key
+            secretName: {{ include "stackstorm-ha.secrets.st2Datastore" . }}
             items:
             - key: datastore_crypto_key
               path: datastore_key.json
@@ -809,7 +809,7 @@ spec:
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
-            secretName: {{ .Release.Name }}-st2-datastore-crypto-key
+            secretName: {{ include "stackstorm-ha.secrets.st2Datastore" . }}
             items:
             - key: datastore_crypto_key
               path: datastore_key.json
@@ -924,7 +924,7 @@ spec:
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
-            secretName: {{ .Release.Name }}-st2-datastore-crypto-key
+            secretName: {{ include "stackstorm-ha.secrets.st2Datastore" . }}
             items:
             - key: datastore_crypto_key
               path: datastore_key.json
@@ -1230,7 +1230,7 @@ spec:
         {{- if ne "disable" (default "" $.Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
-            secretName: {{ $.Release.Name }}-st2-datastore-crypto-key
+            secretName: {{ include "stackstorm-ha.secrets.st2Datastore" $ }}
             items:
             - key: datastore_crypto_key
               path: datastore_key.json
@@ -1379,7 +1379,7 @@ spec:
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
-            secretName: {{ .Release.Name }}-st2-datastore-crypto-key
+            secretName: {{ include "stackstorm-ha.secrets.st2Datastore" . }}
             items:
             - key: datastore_crypto_key
               path: datastore_key.json
@@ -1658,7 +1658,7 @@ spec:
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
-            secretName: {{ .Release.Name }}-st2-datastore-crypto-key
+            secretName: {{ include "stackstorm-ha.secrets.st2Datastore" . }}
             items:
             - key: datastore_crypto_key
               path: datastore_key.json

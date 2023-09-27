@@ -661,7 +661,6 @@ spec:
           - '-ec'
           - |
             cat <<EOT > /root/.st2/config
-            [credentials]
             {{- tpl $.Values.jobs.st2clientConfig $ | nindent 12 }}
             EOT
       containers:
