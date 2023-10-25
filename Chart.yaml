@@ -29,18 +29,18 @@ details:
   For configuration details please check default values.yaml and README.
 dependencies:
   - name: rabbitmq
-    version: 12.3.0
-    repository: https://github.com/bitnami/charts/tree/main/bitnami/rabbitmq
+    version: 7.2.2
+    repository: oci://registry-1.docker.io/bitnamicharts/redis
     condition: rabbitmq.enabled
   - name: mongodb
-    version: 14.0.13
-    repository: https://github.com/bitnami/charts/tree/main/bitnami/mongodb
+    version: 7.0.2
+    repository: oci://registry-1.docker.io/bitnamicharts/mongodb
     condition: mongodb.enabled
   - name: external-dns
-    version: 6.26.5
-    repository: https://github.com/bitnami/charts/tree/main/bitnami/external-dns
+    version: 0.13.6
+    repository: oci://registry-1.docker.io/bitnamicharts/external-dns
     condition: external-dns.enabled
   - name: redis
-    version: 18.1.6
-    repository: https://github.com/bitnami/charts/tree/main/bitnami/redis
+    version: 7.2.2
+    repository: oci://registry-1.docker.io/bitnamicharts/redis
     condition: redis.enabled
