@@ -659,7 +659,7 @@ st2notifier:
 # Multiple st2actionrunner processes can run in active-active with only connections to MongoDB and RabbitMQ. Work gets naturally
 # distributed across runners via RabbitMQ. Adding more st2actionrunner processes increases the ability of StackStorm to execute actions.
 st2actionrunner:
-  #terminationGracePeriodSeconds: 350
+  terminationGracePeriodSeconds: 300
   replicas: 5
   resources:
     requests:
