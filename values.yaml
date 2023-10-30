@@ -563,7 +563,8 @@ st2timersengine:
 # https://docs.stackstorm.com/reference/ha.html#st2workflowengine
 # Multiple st2workflowengine processes can run in active-active mode and will share the load and pick up more work if one or more of the processes become available.
 st2workflowengine:
-  #terminationGracePeriodSeconds: 350
+  # include some small explanation about this setting
+  terminationGracePeriodSeconds: 300
   replicas: 2
   resources:
     requests:
