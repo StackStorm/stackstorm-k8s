@@ -28,7 +28,7 @@ jobs:
         # https://github.com/StackStorm/stackstorm-k8s/issues/342
         # https://github.com/k3s-io/k3s/releases
         k3s-channel:
-          - "v1.26.1+k3s1"
+          - "v1.28.3+k3s1"
     steps:
       - name: Checkout source
         uses: actions/checkout@v3
@@ -46,7 +46,7 @@ jobs:
 
       - name: Helm install
         run: |
-          helm install --timeout 10m0s --debug --wait \
+          helm install --timeout 20m0s --debug --wait \
             --name-template stackstorm-ha .
 
       - name: Helm test
