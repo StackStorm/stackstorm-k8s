@@ -330,7 +330,7 @@ Merge packs and virtualenvs from st2 with those from st2packs images
 {{- define "stackstorm-ha.packs-initContainers" -}}
   {{- if $.Values.st2.packs.images }}
     {{- range $.Values.st2.packs.images }}
-- name: 'st2-custom-pack-{{ printf "%s-%s-%s" .repository .name .tag | sha1sum }}'
+- name: 'st2-custom-pack-{{ printf "%s-%s" .repository .name | sha1sum }}'
   image: "{{ .repository }}/{{ .name }}:{{ .tag }}"
   imagePullPolicy: {{ .pullPolicy | quote }}
   volumeMounts:
