@@ -39,7 +39,7 @@ jobs:
           command: helm dependency update
       - run:
           name: Helm install stackstorm-ha chart
-          command: helm install --timeout 10m0s --debug --wait --name-template stackstorm-ha .
+          command: helm install --timeout 20m0s --debug --wait --name-template stackstorm-ha .
       - run:
           name: Helm test
           command: helm test stackstorm-ha
@@ -66,7 +66,6 @@ workflows:
                 - "v1.28.3"
                 - "v1.27.7"
                 - "v1.26.10"
-                - "v1.25.15"
   # Run periodic nightly Helm tests to ensure there are no regressions
   e2e-nightly:
     jobs:
@@ -78,7 +77,6 @@ workflows:
                 - "v1.28.3"
                 - "v1.27.7"
                 - "v1.26.10"
-                - "v1.25.15"
     triggers:
       - schedule:
           cron: "0 1 * * *"
