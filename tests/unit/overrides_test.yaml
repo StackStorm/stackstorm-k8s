@@ -43,7 +43,6 @@ tests:
     asserts:
       - hasDocuments:
           count: 5
-
       - contains: &overrides_volume
           path: spec.template.spec.volumes
           content:
@@ -51,20 +50,16 @@ tests:
             configMap:
               name: st2ha-st2-overrides-configs
         documentIndex: 3 # register_content
-
-   
       - contains: &overrides_mnt
           path: spec.template.spec.containers[0].volumeMounts
           content:
             name: st2-overrides-vol
             mountPath: /opt/stackstorm/overrides
         documentIndex: 3 # register_content
-      
       - contains: *overrides_mnt
         documentIndex: 4 #Extra_jobs
       - contains: *overrides_volume
         documentIndex: 4 #extra_jobs
-
       - notContains: *overrides_volume
         documentIndex: 0
       - notContains: *overrides_mnt
@@ -78,7 +73,7 @@ tests:
       - notContains: *overrides_mnt
         documentIndex: 2
 
-  
+
   - it: Deployments with overrides
     template: deployments.yaml
     set:
@@ -102,14 +97,10 @@ tests:
     asserts:
       - hasDocuments:
           count: 14
-
-
       - contains: *overrides_volume # always included
         documentIndex: 12 # st2client
       - contains: *overrides_mnt # always included
         documentIndex: 12 # st2client
-
-     
       - notContains: *overrides_volume
         documentIndex: 1
       - notContains: *overrides_mnt

@@ -8,7 +8,7 @@ tests:
   - it: Ingress not present if disabled
     set:
       ingress:
-        enabled: false 
+        enabled: false
     asserts:
       - hasDocuments:
           count: 0
