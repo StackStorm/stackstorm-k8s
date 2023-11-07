@@ -46,7 +46,7 @@ jobs:
 
       - name: Helm install
         run: |
-          helm install --timeout 20m0s --debug --wait \
+          helm install --timeout 15m0s --debug --wait \
             --name-template stackstorm-ha .
 
       - name: Helm test
