@@ -1,6 +1,12 @@
 # Changelog
 
 ## In Development
+* Bump to latest CircleCI orb versions (kubernetes@1.3.1 and helm@3.0.0 by @ZoeLeah)
+* Remove unsupported k8s Versions (1.24.x and 1.25.x by @ZoeLeah)
+* Update and add new K8s versions (1.28.3, 1.27.7 and 1.26.10 by @ZoeLeah)
+* Switch from ubuntu-2204:2022.10.2 to ubuntu-2204:current (by @ZoeLeah)
+* Update K3s to v1.28.3+k3s1 (by @ZoeLeah)
+* Increase helm install timeout to 15 minutes (by @ZoeLeah)
 * Shift K3s and K8s versions forward. (by @mamercad)
 * BREAKING: Use the standardized labels recommended in the Helm docs. You can use `migrations/v1.0/standardize-labels.sh` to prepare an existing cluster before running `helm update`. (#351) (by @cognifloyd)
 * Drop support for `networking.k8s.io/v1beta1` which was removed in kubernetes v1.22 (EOL 2022-10-28) (#353) (by @cognifloyd)

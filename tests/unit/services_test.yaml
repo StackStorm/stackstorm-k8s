@@ -8,13 +8,13 @@ tests:
   - it: st2web, st2auth, st2api, st2stream should work without externalName
     set:
       st2chatops:
-        enabled: false 
+        enabled: false
     asserts:
       - hasDocuments:
           count: 4
       - isNull:
           path: spec.externalName
-  
+
   - it: st2web, st2auth, st2api, st2stream should work with externalName if type is ExternalName
     set:
       st2web:
@@ -34,7 +34,7 @@ tests:
           hostname: some-host-name
           type: ExternalName
       st2chatops:
-        enabled: false 
+        enabled: false
     asserts:
       - hasDocuments:
           count: 4
@@ -44,4 +44,3 @@ tests:
       - equal:
           path: spec.externalName
           value: some-host-name
-

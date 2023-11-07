@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# We switched to the standard labels recommend in Helm's "Best Practices" doc.                                  
+# We switched to the standard labels recommend in Helm's "Best Practices" doc.
 # https://helm.sh/docs/chart_best_practices/labels/#standard-labels
 #
 # This script adds those labels to all the resources in an existing release,
