@@ -267,4 +267,3 @@ tests:
       - equal: *assert_lifecycle
       - contains: *assert_volume_mount
       - contains: *assert_volume
-
