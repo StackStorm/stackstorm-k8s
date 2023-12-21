@@ -60,6 +60,7 @@ spec:
           - 'sh'
           - '-ec'
           - printf "${ST2_AUTH_USERNAME}:$(openssl passwd -apr1 "${ST2_AUTH_PASSWORD}")\n" > /tmp/st2/htpasswd
+      terminationGracePeriodSeconds: {{ .Values.st2auth.terminationGracePeriodSeconds | default 30 }}
       containers:
       - name: st2auth
         image: '{{ template "stackstorm-ha.imageRepository" . }}/st2auth:{{ tpl (.Values.st2auth.image.tag | default .Values.image.tag) . }}'
@@ -179,6 +180,7 @@ spec:
       {{- if and .Values.st2.packs.images (not .Values.st2.packs.volumes.enabled) }}
         {{- include "stackstorm-ha.packs-initContainers" . | nindent 6 }}
       {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.st2api.terminationGracePeriodSeconds | default 30 }}
       containers:
       - name: st2api
         image: '{{ template "stackstorm-ha.imageRepository" . }}/st2api:{{ tpl (.Values.st2api.image.tag | default .Values.image.tag) . }}'
@@ -220,6 +222,9 @@ spec:
           mountPath: /post-start.sh
           subPath: post-start.sh
         lifecycle:
+          preStop:
+            exec:
+              command: [ "sleep", {{ .Values.st2.st2api.preStopSleep }} ]
           postStart:
             exec:
               command: ["/bin/bash", "/post-start.sh"]
