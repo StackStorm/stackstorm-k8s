@@ -317,7 +317,7 @@ spec:
       initContainers:
       {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
       {{- include "stackstorm-ha.init-containers-wait-for-mq" . | nindent 6 }}
-      terminationGracePeriodSeconds: {{ .Values.st2workflowengine.terminationGracePeriodSeconds | default 30 }}
+      terminationGracePeriodSeconds: {{ .Values.st2stream.terminationGracePeriodSeconds | default 30 }}
       containers:
       - name: st2stream
         image: '{{ template "stackstorm-ha.imageRepository" . }}/st2stream:{{ tpl (.Values.st2stream.image.tag | default .Values.image.tag) . }}'
@@ -354,7 +354,7 @@ spec:
             exec: # https://blog.laputa.io/graceful-shutdown-in-kubernetes-85f1c8d586da
               # kubeproxy and kubelet both race  
               # wait a bit to ensure kubeproxy has removed the iptables rule.
-              command: [ "sleep", {{ .Values.st2.st2api.preStopSleep | default 10 }} ]
+              command: [ "sleep", {{ .Values.st2.st2stream.preStopSleep | default 10 }} ]
           postStart:
             exec:
               command: ["/bin/bash", "/post-start.sh"]
@@ -423,7 +423,7 @@ spec:
       {{- if .Values.image.pullSecret }}
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
-      terminationGracePeriodSeconds: {{ .Values.st2api.terminationGracePeriodSeconds | default 30 }}
+      terminationGracePeriodSeconds: {{ .Values.st2web.terminationGracePeriodSeconds | default 30 }}
       containers:
       - name: st2web
         image: '{{ template "stackstorm-ha.imageRepository" . }}/st2web:{{ tpl (.Values.st2web.image.tag | default .Values.image.tag) . }}'
