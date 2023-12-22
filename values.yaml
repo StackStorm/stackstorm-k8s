@@ -381,7 +381,7 @@ st2web:
   # The pod will not be marked as "running" until this script completes successfully.
   # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   postStartScript: ""
-  preStopSleep: 10
+  preStopSleep: "10"
 
 # https://docs.stackstorm.com/reference/ha.html#st2auth
 # Multiple st2auth processes can be behind a load balancer in an active-active configuration.
@@ -417,7 +417,7 @@ st2auth:
   # The pod will not be marked as "running" until this script completes successfully.
   # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   postStartScript: ""
-  preStopSleep: 10
+  preStopSleep: "10"
   # mount extra volumes on the st2auth pod(s) (primarily useful for custom logging conf)
   ## Note that Helm templating is supported in 'mount' and 'volume'
   extra_volumes: []
@@ -457,7 +457,7 @@ st2api:
   # The pod will not be marked as "running" until this script completes successfully.
   # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   postStartScript: ""
-  preStopSleep: 10
+  preStopSleep: "10"
   # mount extra volumes on the st2api pod(s) (primarily useful for custom logging conf)
   ## Note that Helm templating is supported in 'mount' and 'volume'
   extra_volumes: []
@@ -497,7 +497,7 @@ st2stream:
   # The pod will not be marked as "running" until this script completes successfully.
   # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   postStartScript: ""
-  preStopSleep: 10
+  preStopSleep: "10"
   # mount extra volumes on the st2stream pod(s) (primarily useful for custom logging conf)
   ## Note that Helm templating is supported in 'mount' and 'volume'
   extra_volumes: []

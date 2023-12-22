@@ -101,7 +101,7 @@ spec:
             exec: # https://blog.laputa.io/graceful-shutdown-in-kubernetes-85f1c8d586da
               # kubeproxy and kubelet both race  
               # wait a bit to ensure kubeproxy has removed the iptables rule.
-              command: [ "sleep", {{ .Values.st2auth.preStopSleep | default 10 }} ]
+              command: [ "sleep", {{ .Values.st2auth.preStopSleep | default "10" }} ]
           postStart:
             exec:
               command: ["/bin/bash", "/post-start.sh"]
@@ -231,7 +231,7 @@ spec:
             exec: # https://blog.laputa.io/graceful-shutdown-in-kubernetes-85f1c8d586da
               # kubeproxy and kubelet both race  
               # wait a bit to ensure kubeproxy has removed the iptables rule.
-              command: [ "sleep", {{ .Values.st2api.preStopSleep | default 10 }} ]
+              command: [ "sleep", {{ .Values.st2api.preStopSleep | default "10" }} ]
           postStart:
             exec:
               command: ["/bin/bash", "/post-start.sh"]
@@ -354,7 +354,7 @@ spec:
             exec: # https://blog.laputa.io/graceful-shutdown-in-kubernetes-85f1c8d586da
               # kubeproxy and kubelet both race  
               # wait a bit to ensure kubeproxy has removed the iptables rule.
-              command: [ "sleep", {{ .Values.st2stream.preStopSleep | default 10 }} ]
+              command: [ "sleep", {{ .Values.st2stream.preStopSleep | default "10" }} ]
           postStart:
             exec:
               command: ["/bin/bash", "/post-start.sh"]
@@ -438,7 +438,7 @@ spec:
             exec: # https://blog.laputa.io/graceful-shutdown-in-kubernetes-85f1c8d586da
               # kubeproxy and kubelet both race  
               # wait a bit to ensure kubeproxy has removed the iptables rule.
-              command: [ "sleep", {{ .Values.st2web.preStopSleep | default 10 }} ]
+              command: [ "sleep", {{ .Values.st2web.preStopSleep | default "10" }} ]
         # Probe to check if app is running. Failure will lead to a pod restart.
         livenessProbe:
           httpGet:
