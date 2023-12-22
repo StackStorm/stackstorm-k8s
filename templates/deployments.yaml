@@ -433,12 +433,6 @@ spec:
         {{- end }}
         ports:
         - containerPort: {{ eq (get .Values.st2web.env "ST2WEB_HTTPS" | toString) "1" | ternary 443 80 }}
-        lifecycle:
-          preStop:
-            exec: # https://blog.laputa.io/graceful-shutdown-in-kubernetes-85f1c8d586da
-              # kubeproxy and kubelet both race  
-              # wait a bit to ensure kubeproxy has removed the iptables rule.
-              command: [ "sleep", {{ .Values.st2web.preStopSleep | toString }} ]
         # Probe to check if app is running. Failure will lead to a pod restart.
         livenessProbe:
           httpGet:
@@ -482,6 +476,11 @@ spec:
             mountPath: /post-start.sh
             subPath: post-start.sh
         lifecycle:
+          preStop:
+            exec: # https://blog.laputa.io/graceful-shutdown-in-kubernetes-85f1c8d586da
+              # kubeproxy and kubelet both race  
+              # wait a bit to ensure kubeproxy has removed the iptables rule.
+              command: [ "sleep", {{ .Values.st2web.preStopSleep | toString }} ]
           postStart:
             exec:
               command: ["/bin/bash", "/post-start.sh"]
