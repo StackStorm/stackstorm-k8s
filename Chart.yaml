@@ -20,9 +20,9 @@ keywords:
   - IFTTT
   - HA
 maintainers:
-  - name: Eugen Cusmaunsa
-    email: armab@stackstorm.com
-    url: https://github.com/armab
+  - name: The StackStorm Authors
+    email: info@stackstorm.com
+    url: https://github.com/StackStorm
 details:
   This Helm chart is a fully installable app that codifies StackStorm cluster deployment optimized for HA and K8s environment.
   RabbitMQ-HA, MongoDB-HA clusters and Redis coordination backend st2 relies on will be deployed as 3rd party chart dependencies.
