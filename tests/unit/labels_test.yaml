@@ -51,61 +51,61 @@ tests:
           # st2client, st2chatops
 
       # each of these should be the same, but there is no test for that:
-      #   metdata.labels.[app.kubernetes.io/name]
-      #   spec.selector.matchLabels.[app.kubernetes.io/name]
-      #   spec.template.metadata.labels.[app.kubernetes.io/name]
+      #   metdata.labels["app.kubernetes.io/name"]
+      #   spec.selector.matchLabels["app.kubernetes.io/name"]
+      #   spec.template.metadata.labels["app.kubernetes.io/name"]
       # So, we use isNotNull instead.
       # see: https://github.com/quintush/helm-unittest/issues/122
       - isNotNull:
-          path: metadata.labels.[app.kubernetes.io/name]
+          path: metadata.labels["app.kubernetes.io/name"]
       - isNotNull:
-          path: spec.selector.matchLabels.[app.kubernetes.io/name]
+          path: spec.selector.matchLabels["app.kubernetes.io/name"]
       - isNotNull:
-          path: spec.template.metadata.labels.[app.kubernetes.io/name]
+          path: spec.template.metadata.labels["app.kubernetes.io/name"]
 
       - equal: &metadata_labels_instance
-          path: metadata.labels.[app.kubernetes.io/instance]
+          path: metadata.labels["app.kubernetes.io/instance"]
           value: some-release-name
       - equal:
-          path: spec.selector.matchLabels.[app.kubernetes.io/instance]
+          path: spec.selector.matchLabels["app.kubernetes.io/instance"]
           value: some-release-name
       - equal: &spec_template_metadata_labels_instance
-          path: spec.template.metadata.labels.[app.kubernetes.io/instance]
+          path: spec.template.metadata.labels["app.kubernetes.io/instance"]
           value: some-release-name
 
       - matchRegex: &regex_metadata_labels_component_backend_or_frontend
-          path: metadata.labels.[app.kubernetes.io/component]
+          path: metadata.labels["app.kubernetes.io/component"]
           pattern: ^(backend|frontend)$
       - matchRegex: &regex_spec_template_metadata_labels_component_backend_or_frontend
-          path: spec.template.metadata.labels.[app.kubernetes.io/component]
+          path: spec.template.metadata.labels["app.kubernetes.io/component"]
           pattern: ^(backend|frontend)$
 
       - equal: &metadata_labels_part_of
-          path: metadata.labels.[app.kubernetes.io/part-of]
+          path: metadata.labels["app.kubernetes.io/part-of"]
           value: stackstorm
       - equal: &spec_template_metadata_labels_part_of
-          path: spec.template.metadata.labels.[app.kubernetes.io/part-of]
+          path: spec.template.metadata.labels["app.kubernetes.io/part-of"]
           value: stackstorm
 
       - equal: &metadata_labels_app_version
-          path: metadata.labels.[app.kubernetes.io/version]
+          path: metadata.labels["app.kubernetes.io/version"]
           value: *appVersion
       - equal: &spec_template_metadata_labels_app_version
-          path: spec.template.metadata.labels.[app.kubernetes.io/version]
+          path: spec.template.metadata.labels["app.kubernetes.io/version"]
           value: *appVersion
 
       - equal: &metadata_labels_chart
-          path: metadata.labels.[helm.sh/chart]
+          path: metadata.labels["helm.sh/chart"]
           value: stackstorm-ha-1.0.999
       - equal: &spec_template_metadata_labels_chart
-          path: spec.template.metadata.labels.[helm.sh/chart]
+          path: spec.template.metadata.labels["helm.sh/chart"]
           value: stackstorm-ha-1.0.999
 
       - equal: &metadata_labels_managed_by
-          path: metadata.labels.[app.kubernetes.io/managed-by]
+          path: metadata.labels["app.kubernetes.io/managed-by"]
           value: Helm
       - equal: &spec_template_metadata_labels_managed_by
-          path: spec.template.metadata.labels.[app.kubernetes.io/managed-by]
+          path: spec.template.metadata.labels["app.kubernetes.io/managed-by"]
           value: Helm
 
   - it: Jobs+Pods have requried labels
@@ -152,21 +152,21 @@ tests:
       # unlike deployments, jobs should not have selector.matchLabels
 
       # like deployments each of these should be the same:
-      #   metdata.labels.[app.kubernetes.io/name]
-      #   spec.template.metadata.labels.[app.kubernetes.io/name]
+      #   metdata.labels["app.kubernetes.io/name"]
+      #   spec.template.metadata.labels["app.kubernetes.io/name"]
       - isNotNull:
-          path: metadata.labels.[app.kubernetes.io/name]
+          path: metadata.labels["app.kubernetes.io/name"]
       - isNotNull:
-          path: spec.template.metadata.labels.[app.kubernetes.io/name]
+          path: spec.template.metadata.labels["app.kubernetes.io/name"]
 
       - equal: *metadata_labels_instance
       - equal: *spec_template_metadata_labels_instance
 
       - matchRegex:
-          path: metadata.labels.[app.kubernetes.io/component]
+          path: metadata.labels["app.kubernetes.io/component"]
           pattern: ^(backend|tests)$
       - matchRegex:
-          path: spec.template.metadata.labels.[app.kubernetes.io/component]
+          path: spec.template.metadata.labels["app.kubernetes.io/component"]
           pattern: ^(backend|tests)$
 
       - equal: *metadata_labels_part_of
@@ -193,7 +193,7 @@ tests:
           # st2auth, st2api, st2stream, st2web, st2chatops
 
       - isNotNull:
-          path: metadata.labels.[app.kubernetes.io/name]
+          path: metadata.labels["app.kubernetes.io/name"]
       - equal: *metadata_labels_instance
       - matchRegex: *regex_metadata_labels_component_backend_or_frontend
       - equal: *metadata_labels_part_of
@@ -211,11 +211,11 @@ tests:
       - hasDocuments:
           count: 1
       - equal:
-          path: metadata.labels.[app.kubernetes.io/name]
+          path: metadata.labels["app.kubernetes.io/name"]
           value: stackstorm-ha
       - equal: *metadata_labels_instance
       - equal: &metadata_labels_component_backend
-          path: metadata.labels.[app.kubernetes.io/component]
+          path: metadata.labels["app.kubernetes.io/component"]
           value: backend
       - equal: *metadata_labels_part_of
       - equal: *metadata_labels_app_version
@@ -253,11 +253,11 @@ tests:
       - hasDocuments:
           count: 1
       - equal:
-          path: metadata.labels.[app.kubernetes.io/name]
+          path: metadata.labels["app.kubernetes.io/name"]
           value: ingress
       - equal: *metadata_labels_instance
       - equal:
-          path: metadata.labels.[app.kubernetes.io/component]
+          path: metadata.labels["app.kubernetes.io/component"]
           value: frontend
       - equal: *metadata_labels_part_of
       - equal: *metadata_labels_app_version
@@ -284,7 +284,7 @@ tests:
       - hasDocuments:
           count: 1
       - equal: &metadata_labels_app_eq_st2
-          path: metadata.labels.[app.kubernetes.io/name]
+          path: metadata.labels["app.kubernetes.io/name"]
           value: st2
       - equal: *metadata_labels_instance
       - equal: *metadata_labels_component_backend
@@ -323,7 +323,7 @@ tests:
       - hasDocuments:
           count: 1
       - equal:
-          path: metadata.labels.[app.kubernetes.io/name]
+          path: metadata.labels["app.kubernetes.io/name"]
           value: st2chatops
       - equal: *metadata_labels_instance
       - equal: *metadata_labels_component_backend
@@ -347,11 +347,11 @@ tests:
       - hasDocuments:
           count: 1
       - equal:
-          path: metadata.labels.[app.kubernetes.io/name]
+          path: metadata.labels["app.kubernetes.io/name"]
           value: st2 # should this be st2web?
       - equal: *metadata_labels_instance
       - equal:
-          path: metadata.labels.[app.kubernetes.io/component]
+          path: metadata.labels["app.kubernetes.io/component"]
           value: backend # should this be frontend?
       - equal: *metadata_labels_part_of
       - equal: *metadata_labels_app_version
