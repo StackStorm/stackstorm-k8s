@@ -32,9 +32,9 @@ tests:
       - isAPIVersion:
           of: v1
       - isNotEmpty:
-          path: data["post-start.sh"]
+          path: data.[post-start.sh]
       - equal:
-          path: data["post-start.sh"]
+          path: data.[post-start.sh]
           value: |
             #!/bin/bash
             mkdir -p /home/yelnats/.ssh
@@ -85,9 +85,9 @@ tests:
       - isAPIVersion:
           of: v1
       - isNotEmpty:
-          path: data["post-start.sh"]
+          path: data.[post-start.sh]
       - matchRegex:
-          path: data["post-start.sh"]
+          path: data.[post-start.sh]
           # (?m) = multi-line mode: ^ and $ match begin/end line in addition to begin/end text
           # (?s) = let . match \n
           # .*? = any character zero or more times, prefer fewer
@@ -107,7 +107,7 @@ tests:
       # st2actionrunner and st2client do not have checksum annotations
       # (even though they probably should)
       - isNull: &assert_checksum
-          path: spec.template.metadata.annotations["checksum/post-start-script"]
+          path: spec.template.metadata.annotations.[checksum/post-start-script]
 
       # only st2actionrunner and st2client have default postStart scripts
       - equal: &assert_lifecycle
