@@ -1,6 +1,6 @@
 # Changelog
 
-## In Development
+## v1.0.0
 * Bump to latest CircleCI orb versions (kubernetes@1.3.1 and helm@3.0.0 by @ZoeLeah)
 * Remove unsupported k8s Versions (1.24.x and 1.25.x by @ZoeLeah)
 * Update and add new K8s versions (1.28.3, 1.27.7 and 1.26.10 by @ZoeLeah)
