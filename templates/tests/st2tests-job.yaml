@@ -1,0 +1,89 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ .Release.Name }}-job-st2-tests"
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2tests") | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test-success
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    metadata:
+      name: "{{ .Release.Name }}-job-st2-tests"
+      labels: {{- include "stackstorm-ha.labels" (list $ "st2tests") | nindent 8 }}
+      annotations:
+        "helm.sh/hook": test-success
+        "helm.sh/hook-delete-policy": hook-succeeded
+    spec:
+      initContainers:
+      {{- include "stackstorm-ha.init-containers-wait-for-auth" . | nindent 6 }}
+      # Sidecar container to copy BATS framework to the main container
+      - name: bats-core
+        image: "bats/bats:1.8.2"
+        imagePullPolicy: {{ $.Values.image.pullPolicy }}
+    {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 12 }}
+    {{- end }}
+        command:
+          - bash
+          - -ec
+          - |
+            cp -R /opt/bats /tools/
+        volumeMounts:
+          - name: tools
+            mountPath: /tools
+      - name: bats-addons
+        image: "alpine/git:2.36.3"
+        imagePullPolicy: {{ $.Values.image.pullPolicy }}
+    {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 12 }}
+    {{- end }}
+        command:
+          - ash
+          - -ec
+          - |
+            git clone --config advice.detachedHead=false --depth 1 --branch v0.3.0 \
+              https://github.com/ztombol/bats-assert /tools/bats-assert
+            git clone --config advice.detachedHead=false --depth 1 --branch v0.2.0 \
+              https://github.com/ztombol/bats-file /tools/bats-file
+            git clone --config advice.detachedHead=false --depth 1 --branch v0.3.0 \
+              https://github.com/ztombol/bats-support /tools/bats-support
+        volumeMounts:
+          - name: tools
+            mountPath: /tools
+      # Run the actual BATS tests
+      containers:
+      - name: st2tests
+        image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2actionrunner.image.tag | default .Values.image.tag) $ }}'
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+    {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 12 }}
+    {{- end }}
+        envFrom:
+        - configMapRef:
+            name: {{ .Release.Name }}-st2-urls
+        - secretRef:
+            name: {{ include "stackstorm-ha.secrets.st2Auth" . }}
+        env:
+        - name: BATS_HELPERS_DIR
+          value: /tools
+        - name: ST2_VERSION
+          value: "{{ .Values.image.tag }}"
+        - name: ST2_RBAC_ENABLED
+          value: "{{ .Values.st2.rbac.enabled }}"
+        volumeMounts:
+        - name: tools
+          mountPath: /tools
+        - name: tests
+          mountPath: /tests
+        command:
+          - /tools/bats/bin/bats
+          - /tests/st2tests.sh
+      volumes:
+        - name: tools
+          emptyDir: {}
+        - name: tests
+          configMap:
+            name: {{ .Release.Name }}-job-st2-tests
+      restartPolicy: Never
+  backoffLimit: 0

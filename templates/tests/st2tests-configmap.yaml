@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-st2tests
+  name: {{ .Release.Name }}-job-st2-tests
   labels: {{- include "stackstorm-ha.labels" (list $ "st2tests") | nindent 4 }}
 data:
   st2tests.sh: |
