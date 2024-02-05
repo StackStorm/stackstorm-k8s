@@ -48,7 +48,11 @@ spec:
   {{- end }}
   ports:
   - protocol: TCP
+    {{- if and .Values.st2.tls.enabled .Values.st2api.tls.enabled }}
+    port: 9111
+    {{- else }}
     port: 9101
+    {{- end }}
 
 ---
 kind: Service
@@ -74,7 +78,11 @@ spec:
   {{- end }}
   ports:
   - protocol: TCP
+    {{- if and .Values.st2.tls.enabled .Values.st2stream.tls.enabled }}
+    port: 9112
+    {{- else }}
     port: 9102
+    {{- end }}
 
 ---
 kind: Service
@@ -99,8 +107,12 @@ spec:
   {{- end }}
   {{- end }}
   ports:
-  - protocol: TCP
-    port: {{ eq (get .Values.st2web.env "ST2WEB_HTTPS" | toString) "1" | ternary 443 80 }}
+  {{- $https_port := include "stackstorm-ha.st2web.https_port" . }}
+  {{- $http_port := include "stackstorm-ha.st2web.http_port" . }}
+  - name: st2web
+    protocol: TCP
+    port: {{ if and .Values.st2.tls.enabled .Values.st2web.tls.enabled -}}{{ $https_port }}{{- else -}}{{ $http_port }}{{- end }}
+    targetPort: {{ if and .Values.st2.tls.enabled .Values.st2web.tls.enabled -}}{{ $https_port }}{{- else -}}{{ $http_port }}{{- end }}
 
 {{ if .Values.st2chatops.enabled -}}
 ---

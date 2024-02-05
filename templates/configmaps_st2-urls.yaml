@@ -7,6 +7,18 @@ metadata:
     description: StackStorm service URLs, used across entire st2 cluster
   labels: {{- include "stackstorm-ha.labels" (list $ "st2") | nindent 4 }}
 data:
-  ST2_AUTH_URL: http://{{ .Release.Name }}-st2auth:9100/
-  ST2_API_URL: http://{{ .Release.Name }}-st2api:9101/
-  ST2_STREAM_URL: http://{{ .Release.Name }}-st2stream:9102/
+  {{- if and .Values.st2.tls.enabled .Values.st2auth.tls.enabled }}
+  ST2_AUTH_URL: https://{{ .Release.Name }}-st2auth.{{ .Release.Namespace }}.svc.{{$.Values.clusterDomain }}:9100/
+  {{- else }}
+  ST2_AUTH_URL: http://{{ .Release.Name }}-st2auth.{{ .Release.Namespace }}.svc.{{$.Values.clusterDomain }}:9100/
+  {{- end }}
+  {{- if and .Values.st2.tls.enabled .Values.st2api.tls.enabled }}
+  ST2_API_URL: https://{{ .Release.Name }}-st2api.{{ .Release.Namespace }}.svc.{{$.Values.clusterDomain }}:9111/
+  {{- else }}
+  ST2_API_URL: http://{{ .Release.Name }}-st2api.{{ .Release.Namespace }}.svc.{{$.Values.clusterDomain }}:9101/
+  {{- end }}
+  {{- if and .Values.st2.tls.enabled .Values.st2stream.tls.enabled }}
+  ST2_STREAM_URL: https://{{ .Release.Name }}-st2stream.{{ .Release.Namespace }}.svc.{{$.Values.clusterDomain }}:9112/
+  {{- else }}
+  ST2_STREAM_URL: http://{{ .Release.Name }}-st2stream.{{ .Release.Namespace }}.svc.{{$.Values.clusterDomain }}:9102/
+  {{- end }}

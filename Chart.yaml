@@ -33,7 +33,7 @@ dependencies:
     repository: https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami
     condition: rabbitmq.enabled
   - name: mongodb
-    version: 10.0.1
+    version: 13.18.5
     repository: https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami
     condition: mongodb.enabled
   - name: external-dns

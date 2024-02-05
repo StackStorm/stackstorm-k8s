@@ -51,6 +51,7 @@ spec:
         {{- end }}
         {{- end }}
         volumeMounts:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.mount" . | nindent 8  }}
         {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         - name: st2-rbac-roles-vol
           mountPath: /opt/stackstorm/rbac/roles/
@@ -65,6 +66,7 @@ spec:
         # TODO: Find out default resource limits for this specific service (#5)
         #resources:
       volumes:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.volume" . | nindent 8  }}
         {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         - name: st2-rbac-roles-vol
           configMap:
@@ -143,7 +145,11 @@ spec:
           - 'sh'
           - '-c'
           - >
+            {{- if and .Values.st2.tls.enabled .Values.st2api.tls.enabled }}
+            until nc -z -w 2 {{ .Release.Name }}-st2api 9111 && echo st2api ready;
+            {{- else }}
             until nc -z -w 2 {{ .Release.Name }}-st2api 9101 && echo st2api ready;
+            {{- end }}
               do sleep 2;
             done
       # Sidecar container for generating st2client config with st2 username & password pair and sharing produced file with the main container
@@ -163,6 +169,7 @@ spec:
             name: {{ . }}
         {{- end }}
         volumeMounts:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.mount" . | nindent 8  }}
         - name: st2client-config-vol
           mountPath: /root/.st2/
         # `st2 login` doesn't exit on failure correctly, use old methods instead. See bug: https://github.com/StackStorm/st2/issues/4338
@@ -196,6 +203,7 @@ spec:
             name: {{ . }}
         {{- end }}
         volumeMounts:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.mount" . | nindent 8  }}
         - name: st2client-config-vol
           mountPath: /root/.st2/
         - name: st2-apikeys-vol
@@ -208,6 +216,7 @@ spec:
         # TODO: Find out default resource limits for this specific service (#5)
         #resources:
       volumes:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.volume" . | nindent 8  }}
         - name: st2client-config-vol
           emptyDir:
             medium: Memory
@@ -289,6 +298,7 @@ spec:
             name: {{ . }}
         {{- end }}
         volumeMounts:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.mount" . | nindent 8  }}
         - name: st2client-config-vol
           mountPath: /root/.st2/
         # `st2 login` doesn't exit on failure correctly, use old methods instead. See bug: https://github.com/StackStorm/st2/issues/4338
@@ -323,6 +333,7 @@ spec:
             name: {{ . }}
         {{- end }}
         volumeMounts:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.mount" . | nindent 8  }}
         {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         - name: st2client-config-vol
           mountPath: /root/.st2/
@@ -336,6 +347,7 @@ spec:
         # TODO: Find out default resource limits for this specific service (#5)
         #resources:
       volumes:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.volume" . | nindent 8  }}
         {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         - name: st2client-config-vol
           emptyDir:
@@ -418,6 +430,7 @@ spec:
         {{- end }}
         command: {{- toYaml $.Values.jobs.preRegisterContentCommand | nindent 8 }}
         volumeMounts:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.mount" . | nindent 8  }}
         {{- include "stackstorm-ha.overrides-config-mounts" . | nindent 8 }}
         {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- include "stackstorm-ha.pack-configs-volume-mount" . | nindent 8 }}
@@ -447,6 +460,7 @@ spec:
         {{- end }}
         {{- end }}
         volumeMounts:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.mount" . | nindent 8  }}
         {{- include "stackstorm-ha.overrides-config-mounts" . | nindent 8 }}
         {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- include "stackstorm-ha.packs-volume-mounts-for-register-job" . | nindent 8 }}
@@ -458,6 +472,7 @@ spec:
         # TODO: Find out default resource limits for this specific service (#5)
         #resources:
       volumes:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.volume" . | nindent 8  }}
         {{- include "stackstorm-ha.overrides-configs" . | nindent 8 }}
         {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         {{- include "stackstorm-ha.packs-volumes" . | nindent 8 }}
@@ -567,6 +582,7 @@ spec:
             echo DONE
 
         volumeMounts:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.mount" . | nindent 8  }}
         {{- include "stackstorm-ha.packs-volume-mounts" $ | nindent 8 }}
         {{/* do not include the pack-configs-volume-mount helper here */}}
         - name: st2-pack-configs-vol
@@ -575,6 +591,7 @@ spec:
         # TODO: Find out default resource limits for this specific job (#5)
         #resources:
       volumes:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.volume" . | nindent 8  }}
         {{- include "stackstorm-ha.packs-volumes" $ | nindent 8 }}
         {{- if $.Values.st2.packs.volumes.configs }}
           {{/* do not include the pack-configs-volume helper here */}}
@@ -659,6 +676,7 @@ spec:
             name: {{ . }}
         {{- end }}
         volumeMounts:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.mount" $ | nindent 8  }}
         - name: st2client-config-vol
           mountPath: /root/.st2/
         # `st2 login` doesn't exit on failure correctly, use old methods instead. See bug: https://github.com/StackStorm/st2/issues/4338
@@ -693,6 +711,7 @@ spec:
         volumeMounts:
         - name: st2client-config-vol
           mountPath: /root/.st2/
+        {{- include "stackstorm-ha.internal_tls.cert_volume.mount" $ | nindent 8  }}
         {{- include "stackstorm-ha.overrides-config-mounts" $ | nindent 8 }}
         {{- include "stackstorm-ha.st2-config-volume-mounts" $ | nindent 8 }}
         {{- include "stackstorm-ha.packs-volume-mounts-for-register-job" $ | nindent 8 }}
@@ -708,6 +727,7 @@ spec:
         - name: st2client-config-vol
           emptyDir:
             medium: Memory
+        {{- include "stackstorm-ha.internal_tls.cert_volume.volume" $ | nindent 8  }}
         {{- include "stackstorm-ha.overrides-configs" $ | nindent 8 }}
         {{- include "stackstorm-ha.st2-config-volume" $ | nindent 8 }}
         {{- include "stackstorm-ha.packs-volumes" $ | nindent 8 }}

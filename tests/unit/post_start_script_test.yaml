@@ -177,8 +177,15 @@ tests:
         documentIndex: 11
 
       # st2web and st2chatops have no volumes (and can be null)
-      - isNullOrEmpty:
+      - equal:
           path: spec.template.spec.containers[0].volumeMounts
+          value:
+            - mountPath: /etc/ssl/internal/
+              name: internal-tls
+              readOnly: true
+            - mountPath: /etc/ssl/st2/
+              name: internal-tls-st2web
+              readOnly: true
         documentIndex: 3
       - isNullOrEmpty:
           path: spec.template.spec.containers[0].volumeMounts
@@ -217,8 +224,20 @@ tests:
       - notContains: *assert_volume
         documentIndex: 11
 
-      - isNullOrEmpty:
+      - equal:
           path: spec.template.spec.volumes
+          value:
+            - name: internal-tls
+              secret:
+                secretName: internal-tls
+            - name: internal-tls-st2web
+              secret:
+                items:
+                  - key: tls.crt
+                    path: st2.crt
+                  - key: tls.key
+                    path: st2.key
+                secretName: internal-tls
         documentIndex: 3
       - isNullOrEmpty:
           path: spec.template.spec.volumes

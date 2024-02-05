@@ -19,7 +19,7 @@ templates:
   - secrets_st2chatops.yaml
 
 tests:
-  - it: Deployments default to no env (except st2client)
+  - it: Deployments default to no env (except st2client & st2web)
     template: deployments.yaml
     set:
       st2: { packs: { sensors: [] } } # ensure only 1 sensor
@@ -34,6 +34,16 @@ tests:
             - name: ST2CLIENT
               value: "1"
         documentIndex: 12
+      - equal:
+          path: spec.template.spec.containers[0].env
+          value:
+            - name: "ST2WEB_HTTPS"
+              value: "1"
+            - name: "ST2_PORT_HTTP"
+              value: "80"
+            - name: "ST2_PORT_HTTPS"
+              value: "443"
+        documentIndex: 3
       - notExists: &is_null_env
           path: spec.template.spec.containers[0].env
         documentIndex: 0
@@ -41,8 +51,6 @@ tests:
         documentIndex: 1
       - notExists: *is_null_env
         documentIndex: 2
-      - notExists: *is_null_env
-        documentIndex: 3
       - notExists: *is_null_env
         documentIndex: 4
       - notExists: *is_null_env

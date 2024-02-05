@@ -11,19 +11,49 @@ data:
   # The order of merging: st2.conf < st2.docker.conf < st2.user.conf
   st2.docker.conf: |
     [auth]
+    {{- if .Values.rabbitmq.tls.enabled }}
+    api_url = https://{{ .Release.Name }}-st2api:9111/
+    {{- else }}
     api_url = http://{{ .Release.Name }}-st2api:9101/
+    {{- end -}}
+    {{- if and .Values.st2.tls.enabled .Values.st2auth.tls.enabled }}
+    use_ssl = True
+    key = {{ .Values.st2.tls.mountPath }}/tls.key
+    cert = {{ .Values.st2.tls.mountPath }}/tls.crt
+    debug = False
+    enable = True
+    {{- else }}
+    use_ssl = False
+    {{- end }}
+
     [system_user]
     user = {{ .Values.st2.system_user.user }}
     ssh_key_file = {{ tpl .Values.st2.system_user.ssh_key_file . }}
     {{- if index .Values "redis" "enabled" }}
+
     [coordination]
     url = redis://{{ template "stackstorm-ha.redis-password" $ }}{{ template "stackstorm-ha.redis-nodes" $ }}
     {{- end }}
     {{- if index .Values "rabbitmq" "enabled" }}
+
     [messaging]
+    {{- if .Values.rabbitmq.tls.enabled }}
+    url = amqp://{{ required "rabbitmq.auth.username is required!" (index .Values "rabbitmq" "auth" "username") }}:{{ required "rabbitmq.auth.password is required!" (index .Values "rabbitmq" "auth" "password") }}@{{ .Release.Name }}-rabbitmq:5671{{ required "rabbitmq.ingress.path is required!" (index .Values "rabbitmq" "ingress" "path") }}
+    {{- else }}
     url = amqp://{{ required "rabbitmq.auth.username is required!" (index .Values "rabbitmq" "auth" "username") }}:{{ required "rabbitmq.auth.password is required!" (index .Values "rabbitmq" "auth" "password") }}@{{ .Release.Name }}-rabbitmq:5672{{ required "rabbitmq.ingress.path is required!" (index .Values "rabbitmq" "ingress" "path") }}
+    {{- end -}}
     {{- end }}
     {{- if index .Values "mongodb" "enabled" }}
+    {{- if .Values.rabbitmq.tls.enabled }}
+    ssl = True
+    ssl_ca_certs = {{ .Values.st2.tls.mountPath }}/ca.crt
+    ssl_cert_reqs = optional
+    ssl_certfile = {{ .Values.st2.tls.mountPath }}/tls.crt
+    ssl_keyfile = {{ .Values.st2.tls.mountPath }}/tls.key
+    {{- else }}
+    ssl = False
+    {{- end }}
+
     [database]
     {{- if index .Values "mongodb" "auth" "enabled" }}
     host = mongodb://{{ template "stackstorm-ha.mongodb-nodes" $ }}/{{ required "mongodb.auth.database is required!" (index .Values "mongodb" "auth" "database") }}?authSource={{ required "mongodb.auth.database is required!" (index .Values "mongodb" "auth" "database") }}&replicaSet={{ index .Values "mongodb" "replicaSetName" }}
@@ -36,10 +66,21 @@ data:
     port = {{ index .Values "mongodb" "service" "port" }}
     {{- end }}
     {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
+    {{- if .Values.mongodb.tls.enabled }}
+    ssl = True
+    ssl_ca_certs = {{ .Values.st2.tls.mountPath }}/ca.crt
+    ssl_cert_reqs = optional
+    ssl_certfile = {{ .Values.st2.tls.mountPath }}/tls.crt
+    ssl_keyfile = {{ .Values.st2.tls.mountPath }}/tls.key
+    {{- else }}
+    ssl = False
+    {{- end }}
+
     [keyvalue]
     encryption_key_path = /etc/st2/keys/datastore_key.json
     {{- end }}
     {{- if .Values.st2.rbac.enabled }}
+
     [rbac]
     enable = True
     backend = default

@@ -51,7 +51,20 @@ spec:
       value: "{{ .Chart.AppVersion }}"
     - name: ST2_RBAC_ENABLED
       value: "{{ .Values.st2.rbac.enabled }}"
+  {{- if and .Values.st2.tls.enabled .Values.st2auth.tls.enabled }}
+    - name: ST2_AUTH_TLS
+      value: "--cacert {{ .Values.st2.tls.mountPath }}/ca.crt"
+  {{- end }}
+  {{- if and .Values.st2.tls.enabled .Values.st2api.tls.enabled }}
+    - name: ST2_API_TLS
+      value: "--cacert {{ .Values.st2.tls.mountPath }}/ca.crt"
+  {{- end }}
+  {{- if and .Values.st2.tls.enabled .Values.st2stream.tls.enabled }}
+    - name: ST2_STREAM_TLS
+      value: "--cacert {{ .Values.st2.tls.mountPath }}/ca.crt"
+  {{- end }}
     volumeMounts:
+    {{- include "stackstorm-ha.internal_tls.cert_volume.mount" . | nindent 4  }}
     - name: tools
       mountPath: /tools
     - name: tests
@@ -60,6 +73,7 @@ spec:
       - /tools/bats/bin/bats
       - /tests/st2tests.sh
   volumes:
+    {{- include "stackstorm-ha.internal_tls.cert_volume.volume" . | nindent 4  }}
     - name: tools
       emptyDir: {}
     - name: tests
