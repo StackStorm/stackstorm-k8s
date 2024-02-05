@@ -83,6 +83,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.mount" . | nindent 8  }}
         {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8  }}
         - name: htpasswd-vol
           mountPath: /etc/st2/htpasswd
@@ -112,6 +113,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.volume" . | nindent 8  }}
         {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         - name: htpasswd-vol
           emptyDir:
@@ -193,8 +195,11 @@ spec:
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
         {{- end }}
+        {{/* When using internal TLS don't expose API Port outside pod */}}
+        {{- if not (and .Values.st2.tls.enabled .Values.st2api.tls.enabled) }}
         ports:
         - containerPort: 9101
+        {{- end }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
@@ -208,6 +213,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.mount" . | nindent 8  }}
         {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
@@ -238,10 +244,45 @@ spec:
         {{- end }}
         resources:
           {{- toYaml .Values.st2api.resources | nindent 10 }}
+      {{- if and .Values.st2.tls.enabled .Values.st2api.tls.enabled }}
+      # StackStorm doesn't provide TLS for the API endpoint.
+      # Therefore when using Internal TLS, we need use ghostunnel (https://github.com/ghostunnel/ghostunnel) to provide a TLS proxy layer
+      - name: tls-proxy
+        image: {{ .Values.ghostunnel.image.repository }}/{{ .Values.ghostunnel.image.name }}:{{ .Values.ghostunnel.image.tag }}
+        imagePullPolicy: {{ .Values.ghostunnel.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
+        args:
+          - server
+          - --listen=:9111
+          - --target=127.0.0.1:9101
+          - --key={{ .Values.st2.tls.mountPath }}/tls.key
+          - --cert={{ .Values.st2.tls.mountPath }}/tls.crt
+          - --disable-authentication
+        resources:
+          requests:
+            memory: 25Mi
+            cpu: 100m
+          limits:
+            memory: 50Mi
+            cpu: 200m
+        ports:
+        - containerPort: 9111
+          name: https
+          protocol: TCP
+        volumeMounts:
+          {{- include "stackstorm-ha.internal_tls.cert_volume.mount" . | nindent 10  }}
+          {{- range .Values.st2api.extra_volumes }}
+          - name: {{ required "Each volume must have a 'name' in st2api.extra_volumes" .name }}
+            {{- tpl (required "Each volume must have a 'mount' definition in st2api.extra_volumes" .mount | toYaml) $ | nindent 12 }}
+          {{- end }}
+      {{- end }}
     {{- if .Values.st2api.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.volume" . | nindent 8  }}
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
@@ -325,8 +366,11 @@ spec:
         {{- with .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
         {{- end }}
+        {{/* When using internal TLS don't expose Stream Port outside pod */}}
+        {{- if not (and .Values.st2.tls.enabled .Values.st2stream.tls.enabled) }}
         ports:
         - containerPort: 9102
+        {{- end }}
         # TODO: Add liveness/readiness probes (#3)
         #livenessProbe:
         #readinessProbe:
@@ -340,6 +384,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.mount" . | nindent 8  }}
         {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- range .Values.st2stream.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in st2stream.extra_volumes" .name }}
@@ -361,10 +406,45 @@ spec:
         {{- end }}
         resources:
           {{- toYaml .Values.st2stream.resources | nindent 10 }}
+      {{- if and .Values.st2.tls.enabled .Values.st2stream.tls.enabled }}
+      # StackStorm doesn't provide TLS for the Stream endpoint.
+      # Therefore when using Internal TLS, we need use ghostunnel (https://github.com/ghostunnel/ghostunnel) to provide a TLS proxy layer
+      - name: tls-proxy
+        image: {{ .Values.ghostunnel.image.repository }}/{{ .Values.ghostunnel.image.name }}:{{ .Values.ghostunnel.image.tag }}
+        imagePullPolicy: {{ .Values.ghostunnel.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
+        args:
+          - server
+          - --listen=:9112
+          - --target=127.0.0.1:9102
+          - --key={{ .Values.st2.tls.mountPath }}/tls.key
+          - --cert={{ .Values.st2.tls.mountPath }}/tls.crt
+          - --disable-authentication
+        resources:
+          requests:
+            memory: 25Mi
+            cpu: 100m
+          limits:
+            memory: 50Mi
+            cpu: 200m
+        ports:
+        - containerPort: 9112
+          name: https
+          protocol: TCP
+        volumeMounts:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.mount" . | nindent 8  }}
+          {{- range .Values.st2stream.extra_volumes }}
+          - name: {{ required "Each volume must have a 'name' in st2stream.extra_volumes" .name }}
+            {{- tpl (required "Each volume must have a 'mount' definition in st2stream.extra_volumes" .mount | toYaml) $ | nindent 12 }}
+          {{- end }}
+      {{- end }}
     {{- if .Values.st2stream.serviceAccount.attach }}
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.volume" . | nindent 8  }}
         {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         {{- range .Values.st2stream.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in st2stream.extra_volumes" .name }}
@@ -432,13 +512,13 @@ spec:
         securityContext: {{- toYaml . | nindent 10 }}
         {{- end }}
         ports:
-        - containerPort: {{ eq (get .Values.st2web.env "ST2WEB_HTTPS" | toString) "1" | ternary 443 80 }}
+        - containerPort: {{ if and .Values.st2.tls.enabled .Values.st2web.tls.enabled -}}8443{{- else -}}8080{{- end }}
         # Probe to check if app is running. Failure will lead to a pod restart.
         livenessProbe:
           httpGet:
-            scheme: {{ eq (get .Values.st2web.env "ST2WEB_HTTPS" | toString) "1" | ternary "HTTPS" "HTTP" }}
+            scheme: {{ if and .Values.st2.tls.enabled .Values.st2web.tls.enabled -}}HTTPS{{- else -}}HTTP{{- end }}
             path: /
-            port: {{ eq (get .Values.st2web.env "ST2WEB_HTTPS" | toString) "1" | ternary 443 80 }}
+            port: {{ if and .Values.st2.tls.enabled .Values.st2web.tls.enabled -}}8443{{- else -}}8080{{- end }}
           initialDelaySeconds: 1
         # Probe to check if app is ready to serve traffic. Failure will lead to temp stop serving traffic.
         # TODO: Failing to add readinessProbe, since st2 requires authorization (401) and we don't have `/healthz` endpoints yet (https://github.com/StackStorm/st2/issues/4020)
@@ -451,8 +531,13 @@ spec:
 #            path: /api/
 #            port: 443
 #          initialDelaySeconds: 3
+        env:
         {{- if .Values.st2web.env }}
-        env: {{- include "stackstorm-ha.customEnv" .Values.st2web | nindent 8 }}
+        {{- include "stackstorm-ha.customEnv" .Values.st2web | nindent 8 }}
+        {{- end }}
+        {{- if and .Values.st2.tls.enabled .Values.st2web.tls.enabled }}
+        - name: "ST2WEB_HTTPS"
+          value: "1"
         {{- end }}
         envFrom:
         - configMapRef:
@@ -462,6 +547,7 @@ spec:
     {{- else }}
         volumeMounts: []
     {{- end }}
+        {{- include "stackstorm-ha.internal_tls.cert_volume.mount" . | nindent 10  }}
         {{- range .Values.st2web.extra_volumes }}
           - name: {{ required "Each volume must have a 'name' in st2web.extra_volumes" .name }}
             {{- tpl (required "Each volume must have a 'mount' definition in st2web.extra_volumes" .mount | toYaml) $ | nindent 12 }}
@@ -495,6 +581,7 @@ spec:
     {{- else }}
       volumes: []
     {{- end }}
+        {{- include "stackstorm-ha.internal_tls.cert_volume.volume" . | nindent 8  }}
         {{- range .Values.st2web.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in st2web.extra_volumes" .name }}
           {{- tpl (required "Each volume must have a 'volume' definition in st2web.extra_volumes" .volume | toYaml) $ | nindent 10 }}
@@ -583,6 +670,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.mount" . | nindent 8  }}
         {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
@@ -608,6 +696,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.volume" . | nindent 8  }}
         {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
@@ -700,6 +789,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.mount" . | nindent 8  }}
         {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- range .Values.st2timersengine.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in st2timersengine.extra_volumes" .name }}
@@ -720,6 +810,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.volume" . | nindent 8  }}
         {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         {{- range .Values.st2timersengine.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in st2timersengine.extra_volumes" .name }}
@@ -805,6 +896,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.mount" . | nindent 8  }}
         {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
@@ -830,6 +922,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.volume" . | nindent 8  }}
         {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
@@ -921,6 +1014,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.mount" . | nindent 8  }}
         {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
@@ -946,6 +1040,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.volume" . | nindent 8  }}
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
@@ -1037,6 +1132,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.mount" . | nindent 8  }}
         {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- range .Values.st2notifier.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in st2notifier.extra_volumes" .name }}
@@ -1057,6 +1153,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.volume" . | nindent 8  }}
         {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         {{- range .Values.st2notifier.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in st2notifier.extra_volumes" .name }}
@@ -1220,6 +1317,7 @@ spec:
             name: {{ . }}
         {{- end }}
         volumeMounts:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.mount" $ | nindent 8  }}
         {{- include "stackstorm-ha.st2-config-volume-mounts" $ | nindent 8 }}
         {{- include "stackstorm-ha.packs-volume-mounts" $ | nindent 8 }}
         {{- if $some_sensors_per_pod }}
@@ -1252,6 +1350,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" $ }}
     {{- end }}
       volumes:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.volume" $ | nindent 8  }}
         {{- if ne "disable" (default "" $.Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
@@ -1373,6 +1472,7 @@ spec:
             name: {{ . }}
         {{- end }}
         volumeMounts:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.mount" . | nindent 8  }}
         {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         - name: st2-ssh-key-vol
           mountPath: {{ tpl .Values.st2.system_user.ssh_key_file . | dir | dir }}/.ssh-key-vol/
@@ -1402,6 +1502,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.volume" . | nindent 8  }}
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:
@@ -1503,6 +1604,7 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-st2-urls
         volumeMounts:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.mount" . | nindent 8  }}
         {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- range .Values.st2garbagecollector.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in st2garbagecollector.extra_volumes" .name }}
@@ -1523,6 +1625,7 @@ spec:
       serviceAccountName: {{ template "stackstorm-ha.serviceAccountName" . }}
     {{- end }}
       volumes:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.volume" . | nindent 8  }}
         {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         {{- range .Values.st2garbagecollector.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in st2garbagecollector.extra_volumes" .name }}
@@ -1642,6 +1745,7 @@ spec:
             name: {{ . }}
         {{- end }}
         volumeMounts:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.mount" . | nindent 8  }}
         {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         {{- if .Values.st2.rbac.enabled }}
         - name: st2-rbac-roles-vol
@@ -1681,6 +1785,7 @@ spec:
         resources:
           {{- toYaml .Values.st2client.resources | nindent 10 }}
       volumes:
+        {{- include "stackstorm-ha.internal_tls.cert_volume.volume" . | nindent 8  }}
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
         - name: st2-encryption-key-vol
           secret:

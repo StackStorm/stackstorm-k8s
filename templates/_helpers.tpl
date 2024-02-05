@@ -411,3 +411,21 @@ Create the custom env list for each deployment
   value: {{ $value | quote }}
   {{- end }}
 {{- end -}}
+
+{{/*
+Set up values for Internal TLS
+*/}}
+{{- define "stackstorm-ha.internal_tls.cert_volume.mount" -}}
+{{- if or .Values.st2.tls.enabled .Values.mongodb.tls.enabled .Values.rabbitmq.tls.enabled }}
+- name: {{ .Values.st2.tls.secretName }}
+  mountPath: {{ .Values.st2.tls.mountPath }}/
+  readOnly: true
+{{- end }}
+{{- end -}}
+{{- define "stackstorm-ha.internal_tls.cert_volume.volume" -}}
+{{- if or .Values.st2.tls.enabled .Values.mongodb.tls.enabled .Values.rabbitmq.tls.enabled }}
+- name: {{ .Values.st2.tls.secretName }}
+  secret:
+    secretName: {{ .Values.st2.tls.secretName }}
+{{- end }}
+{{- end -}}
