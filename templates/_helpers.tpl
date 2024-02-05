@@ -422,3 +422,21 @@ Create the custom env list for each deployment
   value: {{ $value | quote }}
   {{- end }}
 {{- end -}}
+
+{{/*
+Define st2web ports
+*/}}
+{{- define "stackstorm-ha.st2web.http_port" -}}
+{{- if ne (default 0 ((($.Values.st2web.securityContext).runAsUser) | int)) 0 -}}
+8080
+{{- else -}}
+80
+{{- end -}}
+{{- end -}}
+{{- define "stackstorm-ha.st2web.https_port" -}}
+{{- if ne (default 0 ((($.Values.st2web.securityContext).runAsUser) | int)) 0 -}}
+8443
+{{- else -}}
+443
+{{- end -}}
+{{- end -}}

@@ -64,7 +64,7 @@ tests:
                 servicePort: 80
               - path: /fancy-sensor
                 serviceName: fancy-sensor
-                servicePort: 8080
+                servicePort: {{ template ".stackstorm-ha.st2web.http_port" . }}
         tls: []
       st2web:
         service:
@@ -105,4 +105,4 @@ tests:
             service:
               name: fancy-sensor
               port:
-                number: 8080
+                number: {{ template ".stackstorm-ha.st2web.http_port" . }}

@@ -164,13 +164,13 @@ spec:
         {{- end }}
         volumeMounts:
         - name: st2client-config-vol
-          mountPath: /root/.st2/
+          mountPath: /home/stanley/.st2/
         # `st2 login` doesn't exit on failure correctly, use old methods instead. See bug: https://github.com/StackStorm/st2/issues/4338
         command:
           - 'sh'
           - '-ec'
           - |
-            cat <<EOT > /root/.st2/config
+            cat <<EOT > /home/stanley/.st2/config
             {{- tpl .Values.jobs.st2clientConfig . | nindent 12 }}
             EOT
       containers:
@@ -197,7 +197,7 @@ spec:
         {{- end }}
         volumeMounts:
         - name: st2client-config-vol
-          mountPath: /root/.st2/
+          mountPath: /home/stanley/.st2/
         - name: st2-apikeys-vol
           mountPath: /etc/st2/apikeys.yaml
           subPath: apikeys.yaml
@@ -290,13 +290,13 @@ spec:
         {{- end }}
         volumeMounts:
         - name: st2client-config-vol
-          mountPath: /root/.st2/
+          mountPath: /home/stanley/.st2/
         # `st2 login` doesn't exit on failure correctly, use old methods instead. See bug: https://github.com/StackStorm/st2/issues/4338
         command:
           - 'sh'
           - '-ec'
           - |
-            cat <<EOT > /root/.st2/config
+            cat <<EOT > /home/stanley/.st2/config
             {{- tpl .Values.jobs.st2clientConfig . | nindent 12 }}
             EOT
       containers:
@@ -325,7 +325,7 @@ spec:
         volumeMounts:
         {{- include "stackstorm-ha.st2-config-volume-mounts" . | nindent 8 }}
         - name: st2client-config-vol
-          mountPath: /root/.st2/
+          mountPath: /home/stanley/.st2/
         - name: st2-kv-vol
           mountPath: /etc/st2/st2kv.yaml
           subPath: st2kv.yaml
@@ -660,13 +660,13 @@ spec:
         {{- end }}
         volumeMounts:
         - name: st2client-config-vol
-          mountPath: /root/.st2/
+          mountPath: /home/stanley/.st2/
         # `st2 login` doesn't exit on failure correctly, use old methods instead. See bug: https://github.com/StackStorm/st2/issues/4338
         command:
           - 'sh'
           - '-ec'
           - |
-            cat <<EOT > /root/.st2/config
+            cat <<EOT > /home/stanley/.st2/config
             {{- tpl $.Values.jobs.st2clientConfig $ | nindent 12 }}
             EOT
       containers:
@@ -692,7 +692,7 @@ spec:
         {{- end }}
         volumeMounts:
         - name: st2client-config-vol
-          mountPath: /root/.st2/
+          mountPath: /home/stanley/.st2/
         {{- include "stackstorm-ha.overrides-config-mounts" $ | nindent 8 }}
         {{- include "stackstorm-ha.st2-config-volume-mounts" $ | nindent 8 }}
         {{- include "stackstorm-ha.packs-volume-mounts-for-register-job" $ | nindent 8 }}
