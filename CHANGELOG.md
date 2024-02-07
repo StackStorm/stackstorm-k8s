@@ -16,7 +16,7 @@
 * Add terminationGracePeriodSeconds to workflow and actionrunner pods to allow adjustment of grace period in k8 (#374) (by @guzzijones12)
 * Prevent duplicate init containers on helm upgrade (#375) (by @guzzijones12)
 * Fix st2 client config issue affecting addon jobs using jobs.extra_hooks (#370) (by @cars)
-* Fix generation of DataStore Secret (#385) and checksum labels (#391) (by @bmarick)
+* Stop generating the DataStore Secret (#385) and checksum labels (#391) when existing secret provided or disabled (by @bmarick)
 
 ## v0.110.0
 * Switch st2 to `v3.8` as a new default stable version (#347)
