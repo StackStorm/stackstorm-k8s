@@ -390,6 +390,37 @@ Merge packs and virtualenvs from st2 with those from st2packs images
   {{- end }}
 {{- end -}}
 
+{{- define "stackstorm-ha.cleanup-packs" -}}
+  {{- if or $.Values.st2.packs.images $.Values.st2.packs.volumes.enabled }}
+# Clean Up packs - unregister packs no longer installed
+- name: st2-cleanup-packs
+  image: '{{ .Values.jobs.image.registry }}/sswann/jq:latest'
+  imagePullPolicy: {{ .Values.image.pullPolicy }}
+  volumeMounts:
+  - name: st2-packs-vol
+    mountPath: /opt/stackstorm/packs-shared
+  - name: st2-virtualenvs-vol
+    mountPath: /opt/stackstorm/virtualenvs-shared
+  - name: st2-cleanup-packs
+    mountPath: /st2-cleanup-packs.sh
+    subPath: st2-cleanup-packs.sh
+  command:
+    - 'sh'
+    - '-ec'
+    - /st2-cleanup-packs.sh
+  {{- with .Values.securityContext }}
+  securityContext: {{- toYaml . | nindent 8 }}
+  {{- end }}
+  envFrom:
+  - secretRef:
+      name: {{ include "stackstorm-ha.secrets.st2Auth" . }}
+  env:
+  - name: ST2_AUTH_URL
+    value: "https://{{ .Release.Name }}-st2auth:9100"
+  - name: ST2_API_URL
+    value: "https://{{ .Release.Name }}-st2api:9111"
+  {{- end }}
+{{- end -}}
 
 {{/*
 For custom st2packs-pullSecrets reduce duplicity by defining them here once
