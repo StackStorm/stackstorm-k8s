@@ -1164,6 +1164,7 @@ spec:
       {{- if $some_sensors_per_pod }}
       - name: {{ $name }}-init-config
         image: '{{ template "stackstorm-ha.utilityImage" $ }}'
+        imagePullPolicy: {{ $.Values.image.pullPolicy }}
         volumeMounts:
         - name: st2-sensor-config-vol
           mountPath: /tmp/st2
