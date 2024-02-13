@@ -369,3 +369,11 @@ This approach allows not only extending sub-chart with custom objects and templa
 but also adds flexibility to include many sub-chart dependencies and pin versions as well as include all the sub-chart values in one single place.
 This approach is infra-as-code friendly and more reproducible. See official Helm documentation about
 [Subcharts](https://helm.sh/docs/chart_template_guide/#subcharts-and-global-values) and [Dependencies](https://helm.sh/docs/developing_charts/#managing-dependencies-manually-via-the-charts-directory).
+
+## Releasing information
+In order to create a release, the steps are as follows:
+1. Create a pull request by updating [CHANGELOG.md](./CHANGELOG.md) by replacing the "In Development" heading with the new version, and [Chart.yaml](./Chart.yaml) by replacing the `version` value.
+2. Once the pull request is merged, create and push the matching tag (for example, if you are creating release `v1.0.0`, then the tag should also be `v1.0.0`).
+3. After the tag is pushed, create the corresponding [release](https://github.com/StackStorm/stackstorm-k8s/releases).
+4. After the release is created, switch to the `gh-pages` branch, and generate the updated [Helm index](https://helm.sh/docs/helm/helm_repo_index/), [package](https://helm.sh/docs/helm/helm_package/) and [provenance](https://helm.sh/docs/topics/provenance/).
+5. After committing and pushing the changes in the previous step, verify that the new release is present on [ArtifactHub](https://artifacthub.io/packages/helm/stackstorm/stackstorm-ha).
