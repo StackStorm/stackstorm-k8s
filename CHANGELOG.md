@@ -1,5 +1,8 @@
 # Changelog
 
+## Development
+* Fix syntax with ensure-packs-volumes-are-writable job (#403) (by @skiedude)
+
 ## v1.0.0
 * Bump to latest CircleCI orb versions (kubernetes@1.3.1 and helm@3.0.0 by @ZoeLeah)
 * Remove unsupported k8s Versions (1.24.x and 1.25.x by @ZoeLeah)
