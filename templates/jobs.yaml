@@ -540,7 +540,7 @@ spec:
             and then delete this st2canary pod manually.
             INTRO
 
-            function __handle_error__(){
+            function __handle_error__ {
               cat <<- 'FAIL'
               ERROR: One or more volumes in st2.packs.volumes (from helm values) does not meet
               StackStorm's shared volumes requirements!
@@ -577,6 +577,7 @@ spec:
           {{- toYaml $.Values.st2.packs.volumes.configs | nindent 10 }}
         {{- end }}
         # st2canary job does not support extra_volumes. Let us know if you need this.
+      restartPolicy: OnFailure
     {{- if $.Values.dnsPolicy }}
       dnsPolicy: {{ $.Values.dnsPolicy }}
     {{- end }}
