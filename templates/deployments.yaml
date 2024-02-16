@@ -164,7 +164,9 @@ spec:
       labels: {{- include "stackstorm-ha.labels" (list $ "st2api") | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        {{- if and (ne "disable" (default "" .Values.st2.datastore_crypto_key)) (not .Values.st2.existingDatastoreSecret) }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+        {{- end }}
         {{- if .Values.st2api.postStartScript }}
         checksum/post-start-script: {{ .Values.st2api.postStartScript | sha256sum }}
         {{- end }}
@@ -548,7 +550,9 @@ spec:
       labels: {{- include "stackstorm-ha.labels" (list $ "st2rulesengine") | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        {{- if and (ne "disable" (default "" .Values.st2.datastore_crypto_key)) (not .Values.st2.existingDatastoreSecret) }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+        {{- end }}
         {{- if .Values.st2rulesengine.postStartScript }}
         checksum/post-start-script: {{ .Values.st2rulesengine.postStartScript | sha256sum }}
         {{- end }}
@@ -769,7 +773,9 @@ spec:
       labels: {{- include "stackstorm-ha.labels" (list $ "st2workflowengine") | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        {{- if and (ne "disable" (default "" .Values.st2.datastore_crypto_key)) (not .Values.st2.existingDatastoreSecret) }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+        {{- end }}
         {{- if .Values.st2workflowengine.postStartScript }}
         checksum/post-start-script: {{ .Values.st2workflowengine.postStartScript | sha256sum }}
         {{- end }}
@@ -886,7 +892,9 @@ spec:
       labels: {{- include "stackstorm-ha.labels" (list $ "st2scheduler") | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        {{- if and (ne "disable" (default "" .Values.st2.datastore_crypto_key)) (not .Values.st2.existingDatastoreSecret) }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+        {{- end }}
         {{- if .Values.st2scheduler.postStartScript }}
         checksum/post-start-script: {{ .Values.st2scheduler.postStartScript | sha256sum }}
         {{- end }}
@@ -1137,7 +1145,9 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") $ | sha256sum }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") $ | sha256sum }}
+        {{- if and (ne "disable" (default "" $.Values.st2.datastore_crypto_key)) (not $.Values.st2.existingDatastoreSecret) }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") $ | sha256sum }}
+        {{- end }}
         {{- if $.Values.st2sensorcontainer.postStartScript }}
         checksum/post-start-script: {{ $.Values.st2sensorcontainer.postStartScript | sha256sum }}
         {{- end }}
@@ -1318,7 +1328,9 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/ssh: {{ include (print $.Template.BasePath "/secrets_ssh.yaml") . | sha256sum }}
+        {{- if and (ne "disable" (default "" .Values.st2.datastore_crypto_key)) (not .Values.st2.existingDatastoreSecret) }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+        {{- end }}
         {{- if .Values.st2actionrunner.postStartScript }}
         checksum/post-start-script: {{ .Values.st2actionrunner.postStartScript | sha256sum }}
         {{- end }}
@@ -1574,7 +1586,9 @@ spec:
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") . | sha256sum }}
         checksum/auth: {{ include (print $.Template.BasePath "/secrets_st2auth.yaml") . | sha256sum }}
         checksum/ssh: {{ include (print $.Template.BasePath "/secrets_ssh.yaml") . | sha256sum }}
+        {{- if and (ne "disable" (default "" .Values.st2.datastore_crypto_key)) (not .Values.st2.existingDatastoreSecret) }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+        {{- end }}
         {{- if .Values.st2.overrides }}
         checksum/overrides: {{ include (print $.Template.BasePath "/configmaps_overrides.yaml") . | sha256sum }}
         {{- end }}
