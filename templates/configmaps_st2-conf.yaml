@@ -11,7 +11,11 @@ data:
   # The order of merging: st2.conf < st2.docker.conf < st2.user.conf
   st2.docker.conf: |
     [auth]
+    {{- if .Values.rabbitmq.tls.enabled }}
+    api_url = https://{{ .Release.Name }}-st2api:9111/
+    {{- else }}
     api_url = http://{{ .Release.Name }}-st2api:9101/
+    {{- end -}}
     [system_user]
     user = {{ .Values.st2.system_user.user }}
     ssh_key_file = {{ tpl .Values.st2.system_user.ssh_key_file . }}
@@ -21,7 +25,11 @@ data:
     {{- end }}
     {{- if index .Values "rabbitmq" "enabled" }}
     [messaging]
+    {{- if .Values.rabbitmq.tls.enabled }}
+    url = amqp://{{ required "rabbitmq.auth.username is required!" (index .Values "rabbitmq" "auth" "username") }}:{{ required "rabbitmq.auth.password is required!" (index .Values "rabbitmq" "auth" "password") }}@{{ .Release.Name }}-rabbitmq:5671{{ required "rabbitmq.ingress.path is required!" (index .Values "rabbitmq" "ingress" "path") }}
+    {{- else }}
     url = amqp://{{ required "rabbitmq.auth.username is required!" (index .Values "rabbitmq" "auth" "username") }}:{{ required "rabbitmq.auth.password is required!" (index .Values "rabbitmq" "auth" "password") }}@{{ .Release.Name }}-rabbitmq:5672{{ required "rabbitmq.ingress.path is required!" (index .Values "rabbitmq" "ingress" "path") }}
+    {{- end -}}
     {{- end }}
     {{- if index .Values "mongodb" "enabled" }}
     [database]

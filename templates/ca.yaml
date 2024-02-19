@@ -1,0 +1,21 @@
+{{- if not ( .Values.st2.tls.certificate_issuer.existing ) -}}
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ .Values.st2.tls.certificate_issuer.name }}
+  namespace: "{{ $.Release.Namespace }}"
+spec:
+  ca:
+    secretName: {{ .Values.st2.tls.certificate_issuer.name }}-tls
+---
+apiVersion: v1
+data:
+  tls.crt: "{{ .Values.secret.ca.crt }}"
+  tls.key: "{{ .Values.secret.ca.key }}"
+kind: Secret
+metadata:
+  name: {{ .Values.st2.tls.certificate_issuer.name }}-tls
+  namespace: "{{ $.Release.Namespace }}"
+type: kubernetes.io/tls
+{{- end -}}
