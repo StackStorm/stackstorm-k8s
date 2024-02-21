@@ -1,0 +1,35 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-st2-cleanup-packs
+  labels: {{- include "stackstorm-ha.labels" (list $ "st2") | nindent 4 }}
+data:
+  st2-cleanup-packs.sh: |
+    #!/bin/bash
+
+    # Generate Token for StackStorm from Credentials
+    ST2_TOKEN=$(curl --fail -sk -X POST -u ${ST2_AUTH_USERNAME}:${ST2_AUTH_PASSWORD} ${ST2_AUTH_URL}/tokens | jq -r .token)
+
+    # Get the list of all packs from the StackStorm API
+    packs_in_db=$(curl --fail -sk -H "X-Auth-Token: $ST2_TOKEN" ${ST2_API_URL}/v1/packs | jq -r '.[].ref')
+
+    # Get the list of packs in the /opt/stackstorm/packs-shared directory
+    packs_in_dir=$(ls -1 /opt/stackstorm/packs-shared)
+
+    # Get the packs in the Database that aren't installed
+    packs_to_remove=()
+    for pack in $packs_in_db; do
+        if ! echo "$packs_in_dir" | grep -q "^$pack$"; then
+            packs_to_remove+=("$pack")
+        fi
+    done
+
+    # Purge old packs from DB
+    packs_to_remove_json_string=$(printf '%s\n' "${packs_to_remove[@]}" | jq -R . | jq -cs .)
+     if [ "$packs_to_remove_json_string" == '[""]' ]; then
+      echo "No packs to remove"
+    else
+      echo "Removing the folling packs: ${packs_to_remove_json_string}"
+      curl --fail -sk -X POST -H "X-Auth-Token: $ST2_TOKEN" -H 'Content-Type: application/json' -d "{\"packs\":${packs_to_remove_json_string}}"  ${ST2_API_URL}/v1/packs/uninstall
+    fi

@@ -407,6 +407,7 @@ spec:
       initContainers:
       {{- include "stackstorm-ha.init-containers-wait-for-db" . | nindent 6 }}
       {{- include "stackstorm-ha.packs-initContainers" . | nindent 6 }}
+      {{- include "stackstorm-ha.cleanup-packs" . | nindent 6 }}
       {{- if $.Values.jobs.preRegisterContentCommand }}
       - name: st2-register-content-custom-init
         image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
@@ -459,6 +460,10 @@ spec:
         {{- include "stackstorm-ha.st2-config-volume" . | nindent 8 }}
         {{- include "stackstorm-ha.packs-volumes" . | nindent 8 }}
         {{- include "stackstorm-ha.pack-configs-volume" . | nindent 8 }}
+        - name: st2-cleanup-packs
+          configMap:
+            name: {{ .Release.Name }}-st2-cleanup-packs
+            defaultMode: 0777
         {{- range $.Values.jobs.extra_volumes }}
         - name: {{ required "Each volume must have a 'name' in jobs.extra_volumes" .name }}
           {{- tpl (required "Each volume must have a 'volume' definition in jobs.extra_volumes" .volume | toYaml) $ | nindent 10 }}
