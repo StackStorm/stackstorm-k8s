@@ -191,6 +191,23 @@ Reduce duplication of the st2.*.conf volume details
 {{- end }}
 {{- end -}}
 
+{{- define "stackstorm-ha.init-containers-wait-for-auth" -}}
+- name: wait-for-auth
+  image: "alpine/curl:8.4.0"
+  imagePullPolicy: {{ .Values.image.pullPolicy }}
+  command:
+    - 'sh'
+    - '-c'
+    - >
+      until curl -skSL --fail -w '\n'  -X POST -u {{ .Values.st2.username }}:{{ .Values.st2.password }} "https://{{ required ".Values.ingress.fqdn is required if .Values.ingress.class is non-empty" .Values.ingress.fqdn | printf (ternary "canary-%s" "%s" .Values.phaseCanary)}}/auth/tokens"; do
+        echo 'Waiting for StackStorm API'
+        sleep 2;
+      done
+  {{- with .Values.securityContext }}
+  securityContext: {{- toYaml . | nindent 8 }}
+  {{- end }}
+{{- end -}}
+
 {{- define "stackstorm-ha.init-containers-wait-for-db" -}}
 {{- if index .Values "mongodb" "enabled" }}
 {{- $mongodb_port := (int (index .Values "mongodb" "service" "port")) }}
