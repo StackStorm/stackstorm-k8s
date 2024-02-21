@@ -342,8 +342,8 @@ Merge packs and virtualenvs from st2 with those from st2packs images
     - 'sh'
     - '-ec'
     - |
-      /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
-      /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
+      /bin/cp -dR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
+      /bin/cp -dR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
   {{- with $.Values.securityContext }}
   securityContext: {{- toYaml . | nindent 8 }}
   {{- end }}
@@ -363,8 +363,8 @@ Merge packs and virtualenvs from st2 with those from st2packs images
     - 'sh'
     - '-ec'
     - |
-      /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
-      /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
+      /bin/cp -dR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
+      /bin/cp -dR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
   {{- with .Values.securityContext }}
   securityContext: {{- toYaml . | nindent 8 }}
   {{- end }}
@@ -383,7 +383,7 @@ Merge packs and virtualenvs from st2 with those from st2packs images
     - 'sh'
     - '-ec'
     - |
-      /bin/cp -aR /opt/stackstorm/configs/. /opt/stackstorm/configs-shared
+      /bin/cp -dR /opt/stackstorm/configs/. /opt/stackstorm/configs-shared
   {{- with .Values.securityContext }}
   securityContext: {{- toYaml . | nindent 8 }}
   {{- end }}

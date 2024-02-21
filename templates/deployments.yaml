@@ -432,13 +432,13 @@ spec:
         securityContext: {{- toYaml . | nindent 10 }}
         {{- end }}
         ports:
-        - containerPort: {{ eq (get .Values.st2web.env "ST2WEB_HTTPS" | toString) "1" | ternary 443 80 }}
+        - containerPort: {{ eq (get .Values.st2web.env "ST2WEB_HTTPS" | toString) "1" | ternary 8443 8080 }}
         # Probe to check if app is running. Failure will lead to a pod restart.
         livenessProbe:
           httpGet:
             scheme: {{ eq (get .Values.st2web.env "ST2WEB_HTTPS" | toString) "1" | ternary "HTTPS" "HTTP" }}
             path: /
-            port: {{ eq (get .Values.st2web.env "ST2WEB_HTTPS" | toString) "1" | ternary 443 80 }}
+            port: {{ eq (get .Values.st2web.env "ST2WEB_HTTPS" | toString) "1" | ternary 8443 8080 }}
           initialDelaySeconds: 1
         # Probe to check if app is ready to serve traffic. Failure will lead to temp stop serving traffic.
         # TODO: Failing to add readinessProbe, since st2 requires authorization (401) and we don't have `/healthz` endpoints yet (https://github.com/StackStorm/st2/issues/4020)
@@ -1614,13 +1614,13 @@ spec:
         {{- end }}
         volumeMounts:
         - name: st2client-config-vol
-          mountPath: /root/.st2/
+          mountPath: /home/stanley/.st2/
         # `st2 login` doesn't exit on failure correctly, use old methods instead. See bug: https://github.com/StackStorm/st2/issues/4338
         command:
           - 'sh'
           - '-ec'
           - |
-            cat <<EOT > /root/.st2/config
+            cat <<EOT > /home/stanley/.st2/config
             {{- tpl .Values.st2client.st2clientConfig . | nindent 12 }}
             EOT
       containers:
@@ -1653,7 +1653,7 @@ spec:
         {{- end }}
         {{- include "stackstorm-ha.overrides-config-mounts" . | nindent 8 }}
         - name: st2client-config-vol
-          mountPath: /root/.st2/
+          mountPath: /home/stanley/.st2/
         - name: st2-ssh-key-vol
           mountPath: {{ tpl .Values.st2.system_user.ssh_key_file . | dir | dir }}/.ssh-key-vol/
         {{- if ne "disable" (default "" .Values.st2.datastore_crypto_key) }}
