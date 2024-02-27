@@ -241,7 +241,7 @@ NOTE: With care, `st2packs` images can be used with `volumes`. Just make sure to
 If a pack is installed via an `st2packs` image and then it gets updated with `st2 pack install`, a subsequent `helm upgrade` will revert back to the version in the `st2packs` image.
 
 #### Configure the storage volumes
-Enable the `st2.packs.voluems` section of Helm values and add volume definitions for both `packs` and `virtualenvs`.
+Enable the `st2.packs.volumes` section of Helm values and add volume definitions for both `packs` and `virtualenvs`.
 Each of the volume definitions should be customized for your cluster and storage solution.
 
 For example, to use persistentVolumeClaims:
