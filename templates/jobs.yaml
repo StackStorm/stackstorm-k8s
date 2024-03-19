@@ -533,27 +533,6 @@ spec:
           # -E => trap ERR is inherited in subfunctions
           - '-eEc'
           - |
-            cat << 'INTRO'
-            Testing write permissions for packs volumes.
-            If this passes, the pod will automatically be deleted.
-            If this fails, inspect the pod for errors in kubernetes,
-            and then delete this st2canary pod manually.
-            INTRO
-
-            function __handle_error__ {
-              cat <<- 'FAIL'
-              ERROR: One or more volumes in st2.packs.volumes (from helm values) does not meet
-              StackStorm's shared volumes requirements!
-              see: https://github.com/StackStorm/stackstorm-k8s#method-2-shared-volumes
-
-              HINT: The volumes defined in st2.packs.volumes must use ReadWriteMany (RWX) access mode
-              so StackStorm can dynamically install packs from any of the st2actionrunner pods
-              and have those file changes available in all of the other StackStorm pods.
-              see: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes
-              FAIL
-            }
-            trap __handle_error__ ERR
-
             for volume in packs virtualenvs {{ if $.Values.st2.packs.volumes.configs }}configs{{ end }}; do
               echo Testing write permissions on ${volume} volume...
               touch /opt/stackstorm/${volume}/.write-test
@@ -569,6 +548,7 @@ spec:
           readOnly: false
         # TODO: Find out default resource limits for this specific job (#5)
         #resources:
+      restartPolicy: OnFailure
       volumes:
         {{- include "stackstorm-ha.packs-volumes" $ | nindent 8 }}
         {{- if $.Values.st2.packs.volumes.configs }}
