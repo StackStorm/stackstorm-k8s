@@ -986,6 +986,7 @@ jobs:
     #   hook: post-install   # required "helm.sh/hook"
     #   hook_weight: 10      # optional hook_weight (defaults to 10)
     #   resources: {}        # optional definition of resources to request
+    #   podSecurityContext: {} # optional definition of pod securityContext override
     #   securityContext: {}  # optional definition of container securityContext override
     #   command:             # required command to run
     #     - st2

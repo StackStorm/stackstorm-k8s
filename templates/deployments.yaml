@@ -428,7 +428,7 @@ spec:
       - name: st2web
         image: '{{ template "stackstorm-ha.imageRepository" . }}/st2web:{{ tpl (.Values.st2web.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        {{- with default .Values.securityContext .Values.st2web.securityContext }}
+        {{- with .Values.st2web.securityContext | default .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
         {{- end }}
         ports:
@@ -515,7 +515,7 @@ spec:
     {{- with .Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with default .Values.podSecurityContext .Values.st2client.podSecurityContext }}
+    {{- with .Values.st2client.podSecurityContext | default .Values.podSecurityContext }}
       securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2web.nodeSelector }}
@@ -1187,7 +1187,7 @@ spec:
       - name: {{ $name }}
         image: '{{ template "stackstorm-ha.imageRepository" $ }}/st2sensorcontainer:{{ tpl ($sensor.image.tag | default $.Values.image.tag) $ }}'
         imagePullPolicy: {{ $.Values.image.pullPolicy }}
-        {{- with default $.Values.securityContext $sensor.securityContext }}
+        {{- with $sensor.securityContext | default $.Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
         {{- end }}
         {{- with $sensor.readinessProbe }}
@@ -1282,7 +1282,7 @@ spec:
     {{- with $.Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with default $.Values.podSecurityContext $sensor.podSecurityContext }}
+    {{- with $sensor.podSecurityContext | default $.Values.podSecurityContext }}
       securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with $sensor.nodeSelector }}
@@ -1353,7 +1353,7 @@ spec:
         image: '{{ .image.repository | default (include "stackstorm-ha.imageRepository" $) }}/{{ .image.name | default "st2actionrunner" }}:{{ tpl (.image.tag | default $.Values.image.tag) $ }}'
         {{- end }}
         imagePullPolicy: {{ .Values.st2actionrunner.image.pullPolicy | default .Values.image.pullPolicy }}
-        {{- with default .Values.securityContext .Values.st2actionrunner.securityContext }}
+        {{- with .Values.st2actionrunner.securityContext | default .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
         {{- end }}
         # TODO: Add liveness/readiness probes (#3)
@@ -1436,7 +1436,7 @@ spec:
     {{- with .Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with default .Values.podSecurityContext .Values.st2actionrunner.podSecurityContext }}
+    {{- with .Values.st2actionrunner.podSecurityContext | default .Values.podSecurityContext }}
       securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2actionrunner.nodeSelector }}
