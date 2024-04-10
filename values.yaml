@@ -150,6 +150,8 @@ st2:
       #  pullPolicy: IfNotPresent
       # Optional name of the imagePullSecret if your custom packs image is hosted by a private Docker registry
       #  pullSecret: st2packs-auth
+      # Optional .securityContext override for container
+      #  securityContext:
 
     # Custom packs volumes definitions.
     #
@@ -288,7 +290,7 @@ st2:
 
 ##
 ## Default SecurityContext for pods and containers.
-## Overrides available for st2web, st2actionrunner, st2sensorcontainer, and st2client pods.
+## Overrides available for st2web, st2actionrunner, st2sensorcontainer, st2client pods, and custom packs images.
 ##
 podSecurityContext: {}
 securityContext: {}
@@ -703,7 +705,7 @@ st2actionrunner:
     attach: false
   # override the default .podSecurityContext or .securityContext here
   podSecurityContext: {}
-  securityContext: {}
+  securityContext: {} # also applies to init or jobs containers that copy/modify files
   # postStartScript is optional. It has the contents of a bash script.
   # k8s will run the script in the st2 container in parallel with the ENTRYPOINT.
   # The pod will not be marked as "running" until this script completes successfully.
@@ -984,6 +986,7 @@ jobs:
     #   hook: post-install   # required "helm.sh/hook"
     #   hook_weight: 10      # optional hook_weight (defaults to 10)
     #   resources: {}        # optional definition of resources to request
+    #   securityContext: {}  # optional definition of container securityContext override
     #   command:             # required command to run
     #     - st2
     #     - run

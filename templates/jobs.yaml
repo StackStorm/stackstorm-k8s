@@ -411,7 +411,8 @@ spec:
       - name: st2-register-content-custom-init
         image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        {{- with .Values.securityContext }}
+        {{- with .Values.st2actionrunner.securityContext | default .Values.securityContext }}
+        {{/* st2actionrunner is likely the most permissive so use that if defined. */}}
         securityContext: {{- toYaml . | nindent 10 }}
         {{- end }}
         command: {{- toYaml $.Values.jobs.preRegisterContentCommand | nindent 8 }}
@@ -425,7 +426,8 @@ spec:
       - name: st2-register-content
         image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        {{- with .Values.securityContext }}
+        {{- with .Values.st2actionrunner.securityContext | default .Values.securityContext }}
+        {{/* st2actionrunner is likely the most permissive so use that if defined. */}}
         securityContext: {{- toYaml . | nindent 10 }}
         {{- end }}
         command:
@@ -470,7 +472,8 @@ spec:
     {{- with .Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with .Values.podSecurityContext }}
+    {{- with .Values.st2actionrunner.podSecurityContext | default .Values.podSecurityContext }}
+      {{/* st2actionrunner is likely the most permissive so use that if defined. */}}
       securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.jobs.nodeSelector }}
@@ -641,7 +644,7 @@ spec:
       - name: generate-st2client-config
         image: '{{ template "stackstorm-ha.imageRepository" $ }}/st2actionrunner:{{ tpl ($.Values.jobs.image.tag | default ($.Values.st2actionrunner.image.tag | default $.Values.image.tag)) $ }}'
         imagePullPolicy: {{ $.Values.image.pullPolicy }}
-        {{- with $.Values.securityContext }}
+        {{- with default $.Values.st2actionrunner.securityContext | default $.Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
         {{- end }}
         envFrom:
@@ -668,7 +671,7 @@ spec:
       - name: {{ $name }}
         image: '{{ template "stackstorm-ha.imageRepository" $ }}/st2actionrunner:{{ tpl ($.Values.jobs.image.tag | default ($.Values.st2actionrunner.image.tag | default $.Values.image.tag)) $ }}'
         imagePullPolicy: {{ $.Values.image.pullPolicy }}
-        {{- with $.Values.securityContext }}
+        {{- with .securityContext | default $.Values.st2actionrunner.securityContext | default $.Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
         {{- end }}
         {{- if $.Values.jobs.env }}
@@ -718,7 +721,7 @@ spec:
     {{- with $.Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with $.Values.podSecurityContext }}
+    {{- with $.Values.jobs.podSecurityContext | default $.Values.st2actionrunner.podSecurityContext | default $.Values.podSecurityContext }}
       securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with $.Values.jobs.nodeSelector }}
