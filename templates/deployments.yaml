@@ -28,7 +28,9 @@ spec:
       labels: {{- include "stackstorm-ha.labels" (list $ "st2auth") | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        {{- if not .Values.st2.existingAuthSecret }}
         checksum/auth: {{ include (print $.Template.BasePath "/secrets_st2auth.yaml") . | sha256sum }}
+        {{- end }}
         {{- if .Values.st2auth.postStartScript }}
         checksum/post-start-script: {{ .Values.st2auth.postStartScript | sha256sum }}
         {{- end }}
@@ -164,7 +166,9 @@ spec:
       labels: {{- include "stackstorm-ha.labels" (list $ "st2api") | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        {{- if and (ne "disable" (default "" .Values.st2.datastore_crypto_key)) (not .Values.st2.existingDatastoreSecret) }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+        {{- end }}
         {{- if .Values.st2api.postStartScript }}
         checksum/post-start-script: {{ .Values.st2api.postStartScript | sha256sum }}
         {{- end }}
@@ -428,7 +432,7 @@ spec:
       - name: st2web
         image: '{{ template "stackstorm-ha.imageRepository" . }}/st2web:{{ tpl (.Values.st2web.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        {{- with default .Values.securityContext .Values.st2web.securityContext }}
+        {{- with .Values.st2web.securityContext | default .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
         {{- end }}
         ports:
@@ -515,7 +519,7 @@ spec:
     {{- with .Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with default .Values.podSecurityContext .Values.st2client.podSecurityContext }}
+    {{- with .Values.st2web.podSecurityContext | default .Values.podSecurityContext }}
       securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2web.nodeSelector }}
@@ -548,7 +552,9 @@ spec:
       labels: {{- include "stackstorm-ha.labels" (list $ "st2rulesengine") | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        {{- if and (ne "disable" (default "" .Values.st2.datastore_crypto_key)) (not .Values.st2.existingDatastoreSecret) }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+        {{- end }}
         {{- if .Values.st2rulesengine.postStartScript }}
         checksum/post-start-script: {{ .Values.st2rulesengine.postStartScript | sha256sum }}
         {{- end }}
@@ -769,7 +775,9 @@ spec:
       labels: {{- include "stackstorm-ha.labels" (list $ "st2workflowengine") | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        {{- if and (ne "disable" (default "" .Values.st2.datastore_crypto_key)) (not .Values.st2.existingDatastoreSecret) }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+        {{- end }}
         {{- if .Values.st2workflowengine.postStartScript }}
         checksum/post-start-script: {{ .Values.st2workflowengine.postStartScript | sha256sum }}
         {{- end }}
@@ -886,7 +894,9 @@ spec:
       labels: {{- include "stackstorm-ha.labels" (list $ "st2scheduler") | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
+        {{- if and (ne "disable" (default "" .Values.st2.datastore_crypto_key)) (not .Values.st2.existingDatastoreSecret) }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+        {{- end }}
         {{- if .Values.st2scheduler.postStartScript }}
         checksum/post-start-script: {{ .Values.st2scheduler.postStartScript | sha256sum }}
         {{- end }}
@@ -1137,7 +1147,9 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") $ | sha256sum }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") $ | sha256sum }}
+        {{- if and (ne "disable" (default "" $.Values.st2.datastore_crypto_key)) (not $.Values.st2.existingDatastoreSecret) }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") $ | sha256sum }}
+        {{- end }}
         {{- if $.Values.st2sensorcontainer.postStartScript }}
         checksum/post-start-script: {{ $.Values.st2sensorcontainer.postStartScript | sha256sum }}
         {{- end }}
@@ -1164,6 +1176,7 @@ spec:
       {{- if $some_sensors_per_pod }}
       - name: {{ $name }}-init-config
         image: '{{ template "stackstorm-ha.utilityImage" $ }}'
+        imagePullPolicy: {{ $.Values.image.pullPolicy }}
         volumeMounts:
         - name: st2-sensor-config-vol
           mountPath: /tmp/st2
@@ -1187,7 +1200,7 @@ spec:
       - name: {{ $name }}
         image: '{{ template "stackstorm-ha.imageRepository" $ }}/st2sensorcontainer:{{ tpl ($sensor.image.tag | default $.Values.image.tag) $ }}'
         imagePullPolicy: {{ $.Values.image.pullPolicy }}
-        {{- with default $.Values.securityContext $sensor.securityContext }}
+        {{- with $sensor.securityContext | default $.Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
         {{- end }}
         {{- with $sensor.readinessProbe }}
@@ -1282,7 +1295,7 @@ spec:
     {{- with $.Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with default $.Values.podSecurityContext $sensor.podSecurityContext }}
+    {{- with $sensor.podSecurityContext | default $.Values.podSecurityContext }}
       securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with $sensor.nodeSelector }}
@@ -1318,7 +1331,9 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/ssh: {{ include (print $.Template.BasePath "/secrets_ssh.yaml") . | sha256sum }}
+        {{- if and (ne "disable" (default "" .Values.st2.datastore_crypto_key)) (not .Values.st2.existingDatastoreSecret) }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+        {{- end }}
         {{- if .Values.st2actionrunner.postStartScript }}
         checksum/post-start-script: {{ .Values.st2actionrunner.postStartScript | sha256sum }}
         {{- end }}
@@ -1353,7 +1368,7 @@ spec:
         image: '{{ .image.repository | default (include "stackstorm-ha.imageRepository" $) }}/{{ .image.name | default "st2actionrunner" }}:{{ tpl (.image.tag | default $.Values.image.tag) $ }}'
         {{- end }}
         imagePullPolicy: {{ .Values.st2actionrunner.image.pullPolicy | default .Values.image.pullPolicy }}
-        {{- with default .Values.securityContext .Values.st2actionrunner.securityContext }}
+        {{- with .Values.st2actionrunner.securityContext | default .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
         {{- end }}
         # TODO: Add liveness/readiness probes (#3)
@@ -1436,7 +1451,7 @@ spec:
     {{- with .Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with default .Values.podSecurityContext .Values.st2actionrunner.podSecurityContext }}
+    {{- with .Values.st2actionrunner.podSecurityContext | default .Values.podSecurityContext }}
       securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2actionrunner.nodeSelector }}
@@ -1572,9 +1587,13 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps_st2-conf.yaml") . | sha256sum }}
         checksum/rbac: {{ include (print $.Template.BasePath "/configmaps_rbac.yaml") . | sha256sum }}
         checksum/packs: {{ include (print $.Template.BasePath "/configmaps_packs.yaml") . | sha256sum }}
+        {{- if not .Values.st2.existingAuthSecret }}
         checksum/auth: {{ include (print $.Template.BasePath "/secrets_st2auth.yaml") . | sha256sum }}
+        {{- end }}
         checksum/ssh: {{ include (print $.Template.BasePath "/secrets_ssh.yaml") . | sha256sum }}
+        {{- if and (ne "disable" (default "" .Values.st2.datastore_crypto_key)) (not .Values.st2.existingDatastoreSecret) }}
         checksum/datastore-key: {{ include (print $.Template.BasePath "/secrets_datastore_crypto_key.yaml") . | sha256sum }}
+        {{- end }}
         {{- if .Values.st2.overrides }}
         checksum/overrides: {{ include (print $.Template.BasePath "/configmaps_overrides.yaml") . | sha256sum }}
         {{- end }}
@@ -1600,7 +1619,7 @@ spec:
       - name: generate-st2client-config
         image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2client.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        {{- with .Values.securityContext }}
+        {{- with .Values.st2client.securityContext | default .Values.st2actionrunner.securityContext | default .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
         {{- end }}
         envFrom:
@@ -1627,7 +1646,7 @@ spec:
       - name: st2client
         image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.st2client.image.tag | default .Values.image.tag) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        {{- with default .Values.securityContext .Values.st2actionrunner.securityContext }}
+        {{- with .Values.st2client.securityContext | default .Values.st2actionrunner.securityContext | default .Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
         {{- end }}
         env:
@@ -1728,7 +1747,7 @@ spec:
     {{- with .Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with default .Values.podSecurityContext .Values.st2client.podSecurityContext }}
+    {{- with .Values.st2client.podSecurityContext | default .Values.st2actionrunner.podSecurityContext | default .Values.podSecurityContext }}
       securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2client.nodeSelector }}

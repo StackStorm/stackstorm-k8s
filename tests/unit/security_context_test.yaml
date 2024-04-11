@@ -18,6 +18,9 @@ templates:
   - secrets_st2auth.yaml
   - secrets_st2chatops.yaml
 
+# TODO: test initContainers that use st2.packs.images[].securityContext
+#       (there is no good way to select initContainers)
+
 tests:
   - it: Deployment and Job Pods+Containers have no SecurityContext by default
     templates:
@@ -34,6 +37,7 @@ tests:
         # job-st2-apikey-load
         # job-st2-key-load
         # job-st2-register-content
+        # job-ensure-packs-volumes-are-writable
         # extra_hooks job
     set:
       st2chatops:
@@ -135,7 +139,16 @@ tests:
     template: deployments.yaml
     set:
       st2:
-        packs: { sensors: [] } # ensure only 1 sensor
+        packs:
+          sensors: [] # ensure only 1 sensor
+          #images: &st2_packs_images
+          #  - repository: index.docker.io/stackstorm
+          #    name: st2packs
+          #    tag: example
+          #    securityContext: &st2packs_security_context
+          #      capabilities:
+          #        drop: [ALL]
+          #        add: [kill, net_raw, chown, fowner]
         rbac: { enabled: true } # enable rbac job
 
       podSecurityContext: *global_pod_security_context
@@ -159,8 +172,14 @@ tests:
         securityContext: *security_context_override
 
       st2client:
-        podSecurityContext: *pod_security_context_override
-        securityContext: *security_context_override
+        podSecurityContext: &pod_security_context_override_2
+          fsGroup: 8888
+          supplementalGroups: [4444]
+        securityContext: &security_context_override_2
+          capabilities:
+            drop: [ALL]
+            add: [kill, net_raw, chown]
+
     asserts:
       - hasDocuments:
           count: 13
@@ -231,16 +250,202 @@ tests:
       # st2client pod
       - notEqual: *global_pod_security_context_assert
         documentIndex: 12
+      - notEqual: *override_pod_security_context_assert
+        documentIndex: 12
+      - equal: &override_pod_security_context_assert_2
+          path: spec.template.spec.securityContext
+          value: *pod_security_context_override_2
+        documentIndex: 12
+
+      # st2client container
+      - notEqual: *global_container0_security_context_assert
+        documentIndex: 12
+      - notEqual: *override_container0_security_context_assert
+        documentIndex: 12
+      - equal: &override_container0_security_context_assert_2
+          path: spec.template.spec.containers[0].securityContext
+          value: *security_context_override_2
+        documentIndex: 12
+      # path can only select one element, not all initContainers (if present).
+      #- notEqual: *global_initcontainers_security_context_assert
+      #  documentIndex: 12
+      #- notEqual: *override_initcontainers_security_context_assert
+      #  documentIndex: 12
+      #- equal: &override_initcontainers_security_context_assert_2
+      #    path: spec.template.spec.initContainers[].securityContext
+      #    value: *security_context_override
+      #  documentIndex: 12
+
+  - it: st2client Deployment Pod+Containers default to st2actionrunner SecurityContext overrides
+    template: deployments.yaml
+    set:
+      st2:
+        packs:
+          sensors: [] # ensure only 1 sensor
+          #images: *st2_packs_images
+        rbac: { enabled: true } # enable rbac job
+
+      podSecurityContext: *global_pod_security_context
+      securityContext: *global_security_context
+
+      st2actionrunner:
+        podSecurityContext: *pod_security_context_override
+        securityContext: *security_context_override
+
+      #st2client: no override defined
+
+    asserts:
+      - hasDocuments:
+          count: 13
+
+      # st2client pod
+      - notEqual: *global_pod_security_context_assert
+        documentIndex: 12
+      - notEqual: *override_pod_security_context_assert_2
+        documentIndex: 12
       - equal: *override_pod_security_context_assert
         documentIndex: 12
 
       # st2client container
       - notEqual: *global_container0_security_context_assert
         documentIndex: 12
+      - notEqual: *override_container0_security_context_assert_2
+        documentIndex: 12
       - equal: *override_container0_security_context_assert
         documentIndex: 12
       # path can only select one element, not all initContainers (if present).
       #- notEqual: *global_initcontainers_security_context_assert
       #  documentIndex: 12
+      #- notEqual: *override_initcontainers_security_context_assert_2
+      #  documentIndex: 12
       #- equal: *override_initcontainers_security_context_assert
       #  documentIndex: 12
+
+  # overrides for register-content job and extra_hooks job(s)
+  # document indexes: 3, 5
+
+  - it: extra_hooks Jobs Pod+Containers accept SecurityContext overrides
+    template: jobs.yaml
+    set:
+      st2:
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: []
+          volumes: *volumes_enabled
+          configs: {} # has one core.yaml config file by default (dicts get merged)
+        rbac: { enabled: true } # enable rbac job
+
+      podSecurityContext: *global_pod_security_context
+      securityContext: *global_security_context
+
+      st2actionrunner:
+        podSecurityContext: *pod_security_context_override
+        securityContext: *security_context_override
+
+      jobs:
+        extra_hooks:
+          - name: upgrade-warning
+            hook: pre-upgrade, pre-rollback
+            hook_weight: -5
+            command: ["st2", "run", "--tail", "custom_pack.warn_about_upgrade"]
+            podSecurityContext: *pod_security_context_override_2
+            securityContext: *security_context_override_2
+
+    asserts:
+      - hasDocuments:
+          count: 6
+
+      # extra_hooks job pod
+      - notEqual: *global_pod_security_context_assert
+        documentIndex: 5
+      - notEqual: *override_pod_security_context_assert
+        documentIndex: 5
+      - equal: *override_pod_security_context_assert_2
+        documentIndex: 5
+
+      # extra_hooks job container
+      - notEqual: *global_container0_security_context_assert
+        documentIndex: 5
+      - notEqual: *override_container0_security_context_assert
+        documentIndex: 5
+      - equal: *override_container0_security_context_assert_2
+        documentIndex: 5
+      # path can only select one element, not all initContainers (if present).
+      #- notEqual: *global_initcontainers_security_context_assert
+      #  documentIndex: 5
+      #- notEqual: *override_initcontainers_security_context_assert
+      #  documentIndex: 5
+      #- equal: *override_initcontainers_security_context_assert_2
+      #  documentIndex: 5
+
+  - it: register-content and extra_hooks Jobs Pod+Containers default to st2actionrunner SecurityContext overrides
+    template: jobs.yaml
+    set:
+      st2:
+        packs:
+          sensors: [] # ensure only 1 sensor
+          images: []
+          volumes: *volumes_enabled
+          configs: {} # has one core.yaml config file by default (dicts get merged)
+        rbac: { enabled: true } # enable rbac job
+
+      podSecurityContext: *global_pod_security_context
+      securityContext: *global_security_context
+
+      st2actionrunner:
+        podSecurityContext: *pod_security_context_override
+        securityContext: *security_context_override
+
+      jobs:
+        extra_hooks: *jobs_extra_hooks
+          # does not override podSecurityContext or securityContext
+
+    asserts:
+      - hasDocuments:
+          count: 6
+
+      # job-register-content pod
+      - notEqual: *global_pod_security_context_assert
+        documentIndex: 3
+      - notEqual: *override_pod_security_context_assert_2
+        documentIndex: 3
+      - equal: *override_pod_security_context_assert
+        documentIndex: 3
+
+      # job-register-content container
+      - notEqual: *global_container0_security_context_assert
+        documentIndex: 3
+      - notEqual: *override_container0_security_context_assert_2
+        documentIndex: 3
+      - equal: *override_container0_security_context_assert
+        documentIndex: 3
+      # path can only select one element, not all initContainers (if present).
+      #- notEqual: *global_initcontainers_security_context_assert
+      #  documentIndex: 3
+      #- notEqual: *override_initcontainers_security_context_assert_2
+      #  documentIndex: 3
+      #- equal: *override_initcontainers_security_context_assert
+      #  documentIndex: 3
+
+      # extra_hooks job pod
+      - notEqual: *global_pod_security_context_assert
+        documentIndex: 5
+      - notEqual: *override_pod_security_context_assert_2
+        documentIndex: 5
+      - equal: *override_pod_security_context_assert
+        documentIndex: 5
+
+      # extra_hooks job container
+      - notEqual: *global_container0_security_context_assert
+        documentIndex: 5
+      - notEqual: *override_container0_security_context_assert_2
+        documentIndex: 5
+      - equal: *override_container0_security_context_assert
+        documentIndex: 5
+      # path can only select one element, not all initContainers (if present).
+      #- notEqual: *global_initcontainers_security_context_assert
+      #  documentIndex: 5
+      #- notEqual: *override_initcontainers_security_context_assert_2
+      #  documentIndex: 5
+      #- equal: *override_initcontainers_security_context_assert
+      #  documentIndex: 5
