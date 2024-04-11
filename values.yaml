@@ -24,6 +24,14 @@ image:
   # May be required for public docker hub due to rate limiting or any private repository.
   # See: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
   #pullSecret: "your-pull-secret"
+  # Image entry point.
+  # This chart replaces the entrypoint (command+args) baked into the docker images.
+  # If you are have installed a custom init process (like dumb-init, pid1, tini or similar),
+  # in the docker image(s) you are using, you can add that entrypoint here.
+  entrypoint: []
+    # For example you could add dumb-init like this (dumb-init must be present in the image).
+    #- "/usr/bin/dumb-init"
+    #- "--"
 
 ##
 ## local cluster domain suffix to enable fqdn lookups for redis, mongo

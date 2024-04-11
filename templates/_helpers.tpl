@@ -182,8 +182,9 @@ Reduce duplication of the st2.*.conf volume details
 {{- end -}}
 
 {{- define "stackstorm-ha.st2-entrypoint" -}}
-- /usr/bin/dumb-init
-- '--'
+  {{- range $.Values.image.entrypoint }}
+- {{ toYaml . }}
+  {{- end }}
 {{- end -}}
 
 # Override CMD CLI parameters passed to the startup of all pods to add support for /etc/st2/st2.secrets.conf
