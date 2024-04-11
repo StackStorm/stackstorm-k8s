@@ -46,23 +46,19 @@ tests:
       # document indexes: 3, 13
       # all remaining deployments do use image.entrypoint
 
-      - notEqual: &eq_custom_entrypoint_0
+      - notExists: &exists_command
+          path: spec.template.spec.containers[0].command
+        documentIndex: 3 # st2web
+      - notExists: *exists_command
+        documentIndex: 13 # st2chatops
+
+      - equal: &eq_custom_entrypoint_0
           path: spec.template.spec.containers[0].command[0]
           value: *custom_entrypoint_0
-        documentIndex: 3 # st2web
-      - notEqual: &eq_custom_entrypoint_1
+        documentIndex: 0
+      - equal: &eq_custom_entrypoint_1
           path: spec.template.spec.containers[0].command[1]
           value: *custom_entrypoint_1
-        documentIndex: 3 # st2web
-
-      - notEqual: *eq_custom_entrypoint_0
-        documentIndex: 13 # st2chatops
-      - notEqual: *eq_custom_entrypoint_1
-        documentIndex: 13 # st2chatops
-
-      - equal: *eq_custom_entrypoint_0
-        documentIndex: 0
-      - equal: *eq_custom_entrypoint_1
         documentIndex: 0
       - equal: *eq_custom_entrypoint_0
         documentIndex: 1
@@ -123,14 +119,9 @@ tests:
       - hasDocuments:
           count: 14
 
-      - notEqual: *eq_custom_entrypoint_0
+      - notExists: *exists_command
         documentIndex: 3 # st2web
-      - notEqual: *eq_custom_entrypoint_1
-        documentIndex: 3 # st2web
-
-      - notEqual: *eq_custom_entrypoint_0
-        documentIndex: 13 # st2chatops
-      - notEqual: *eq_custom_entrypoint_1
+      - notExists: *exists_command
         documentIndex: 13 # st2chatops
 
       - notEqual: *eq_custom_entrypoint_0
@@ -196,14 +187,9 @@ tests:
       - hasDocuments:
           count: 14
 
-      - notEqual: *eq_custom_entrypoint_0
+      - notExists: *exists_command
         documentIndex: 3 # st2web
-      - notEqual: *eq_custom_entrypoint_1
-        documentIndex: 3 # st2web
-
-      - notEqual: *eq_custom_entrypoint_0
-        documentIndex: 13 # st2chatops
-      - notEqual: *eq_custom_entrypoint_1
+      - notExists: *exists_command
         documentIndex: 13 # st2chatops
 
       - notEqual: *eq_custom_entrypoint_0
