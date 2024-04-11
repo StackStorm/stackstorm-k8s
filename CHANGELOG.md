@@ -3,6 +3,7 @@
 ## Development
 * Fix syntax with ensure-packs-volumes-are-writable job (#403) (by @skiedude)
 * Add securityContext support to custom st2packs images, extra_hooks jobs; Also fallback to st2actionrunner securityContext for misc init container jobs and pods. (#410) (by @cognifloyd)
+* Stop generating the DataStore Secret (#385) and checksum labels (#391) when existing secret provided or disabled (by @bmarick)
 
 ## v1.0.0
 * Bump to latest CircleCI orb versions (kubernetes@1.3.1 and helm@3.0.0 by @ZoeLeah)
