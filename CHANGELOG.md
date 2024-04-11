@@ -4,6 +4,7 @@
 * Fix syntax with ensure-packs-volumes-are-writable job (#403) (by @skiedude)
 * Add securityContext support to custom st2packs images, extra_hooks jobs; Also fallback to st2actionrunner securityContext for misc init container jobs and pods. (#410) (by @cognifloyd)
 * Stop generating the DataStore Secret (#385) and checksum labels (#391) when existing secret provided or disabled (by @bmarick)
+* Stop generating the checksum labels for Auth Secret (#392) when existing secret provided or disabled (by @bmarick)
 
 ## v1.0.0
 * Bump to latest CircleCI orb versions (kubernetes@1.3.1 and helm@3.0.0 by @ZoeLeah)
@@ -21,7 +22,6 @@
 * Add terminationGracePeriodSeconds to workflow and actionrunner pods to allow adjustment of grace period in k8 (#374) (by @guzzijones12)
 * Prevent duplicate init containers on helm upgrade (#375) (by @guzzijones12)
 * Fix st2 client config issue affecting addon jobs using jobs.extra_hooks (#370) (by @cars)
-* Stop generating the checksum labels for Auth Secret (#392) when existing secret provided or disabled (by @bmarick)
 
 ## v0.110.0
 * Switch st2 to `v3.8` as a new default stable version (#347)
