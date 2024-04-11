@@ -24,7 +24,7 @@ image:
   # May be required for public docker hub due to rate limiting or any private repository.
   # See: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
   #pullSecret: "your-pull-secret"
-  # Image entry point.
+  # Image entry point for st2* deployments (except st2web and st2chatops).
   # This chart replaces the entrypoint (command+args) baked into the docker images.
   # If you are have installed a custom init process (like dumb-init, pid1, tini or similar),
   # in the docker image(s) you are using, you can add that entrypoint here.
