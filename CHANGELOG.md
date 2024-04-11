@@ -5,6 +5,7 @@
 * Add securityContext support to custom st2packs images, extra_hooks jobs; Also fallback to st2actionrunner securityContext for misc init container jobs and pods. (#410) (by @cognifloyd)
 * Stop generating the DataStore Secret (#385) and checksum labels (#391) when existing secret provided or disabled (by @bmarick)
 * Stop generating the checksum labels for Auth Secret (#392) when existing secret provided or disabled (by @bmarick)
+* Use `image.pullPolicy` for all containers including init containers that use `image.utilityImage`. (#397) (by @jk464)
 
 ## v1.0.0
 * Bump to latest CircleCI orb versions (kubernetes@1.3.1 and helm@3.0.0 by @ZoeLeah)

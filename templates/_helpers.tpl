@@ -196,6 +196,7 @@ Reduce duplication of the st2.*.conf volume details
 {{- $mongodb_port := (int (index .Values "mongodb" "service" "port")) }}
 - name: wait-for-db
   image: {{ template "stackstorm-ha.utilityImage" . }}
+  imagePullPolicy: {{ .Values.image.pullPolicy }}
   command:
     - 'sh'
     - '-c'
@@ -216,6 +217,7 @@ Reduce duplication of the st2.*.conf volume details
     {{- $rabbitmq_port := (int (index .Values "rabbitmq" "service" "port")) }}
 - name: wait-for-queue
   image: {{ template "stackstorm-ha.utilityImage" . }}
+  imagePullPolicy: {{ .Values.image.pullPolicy }}
   command:
     - 'sh'
     - '-c'
