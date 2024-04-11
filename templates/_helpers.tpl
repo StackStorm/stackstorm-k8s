@@ -344,7 +344,8 @@ Merge packs and virtualenvs from st2 with those from st2packs images
     - |
       /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
       /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
-  {{- with $.Values.securityContext }}
+  {{- with .securityContext | default $.Values.st2actionrunner.securityContext | default $.Values.securityContext }}
+  {{/* st2actionrunner is likely the most permissive so use that if defined. */}}
   securityContext: {{- toYaml . | nindent 8 }}
   {{- end }}
     {{- end }}
@@ -365,7 +366,8 @@ Merge packs and virtualenvs from st2 with those from st2packs images
     - |
       /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
       /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
-  {{- with .Values.securityContext }}
+  {{- with .Values.st2actionrunner.securityContext | default .Values.securityContext }}
+  {{/* st2actionrunner is likely the most permissive so use that if defined. */}}
   securityContext: {{- toYaml . | nindent 8 }}
   {{- end }}
   {{- end }}
@@ -384,7 +386,8 @@ Merge packs and virtualenvs from st2 with those from st2packs images
     - '-ec'
     - |
       /bin/cp -aR /opt/stackstorm/configs/. /opt/stackstorm/configs-shared
-  {{- with .Values.securityContext }}
+  {{- with .Values.st2actionrunner.securityContext | default .Values.securityContext }}
+  {{/* st2actionrunner is likely the most permissive so use that if defined. */}}
   securityContext: {{- toYaml . | nindent 8 }}
   {{- end }}
   {{- end }}

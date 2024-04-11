@@ -411,7 +411,8 @@ spec:
       - name: st2-register-content-custom-init
         image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        {{- with .Values.securityContext }}
+        {{- with .Values.st2actionrunner.securityContext | default .Values.securityContext }}
+        {{/* st2actionrunner is likely the most permissive so use that if defined. */}}
         securityContext: {{- toYaml . | nindent 10 }}
         {{- end }}
         command: {{- toYaml $.Values.jobs.preRegisterContentCommand | nindent 8 }}
@@ -425,7 +426,8 @@ spec:
       - name: st2-register-content
         image: '{{ template "stackstorm-ha.imageRepository" . }}/st2actionrunner:{{ tpl (.Values.jobs.image.tag | default (.Values.st2actionrunner.image.tag | default .Values.image.tag)) . }}'
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        {{- with .Values.securityContext }}
+        {{- with .Values.st2actionrunner.securityContext | default .Values.securityContext }}
+        {{/* st2actionrunner is likely the most permissive so use that if defined. */}}
         securityContext: {{- toYaml . | nindent 10 }}
         {{- end }}
         command:
@@ -470,7 +472,8 @@ spec:
     {{- with .Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with .Values.podSecurityContext }}
+    {{- with .Values.st2actionrunner.podSecurityContext | default .Values.podSecurityContext }}
+      {{/* st2actionrunner is likely the most permissive so use that if defined. */}}
       securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.jobs.nodeSelector }}
@@ -540,7 +543,7 @@ spec:
             and then delete this st2canary pod manually.
             INTRO
 
-            function __handle_error__(){
+            function __handle_error__ {
               cat <<- 'FAIL'
               ERROR: One or more volumes in st2.packs.volumes (from helm values) does not meet
               StackStorm's shared volumes requirements!
@@ -577,6 +580,7 @@ spec:
           {{- toYaml $.Values.st2.packs.volumes.configs | nindent 10 }}
         {{- end }}
         # st2canary job does not support extra_volumes. Let us know if you need this.
+      restartPolicy: Never
     {{- if $.Values.dnsPolicy }}
       dnsPolicy: {{ $.Values.dnsPolicy }}
     {{- end }}
@@ -640,7 +644,7 @@ spec:
       - name: generate-st2client-config
         image: '{{ template "stackstorm-ha.imageRepository" $ }}/st2actionrunner:{{ tpl ($.Values.jobs.image.tag | default ($.Values.st2actionrunner.image.tag | default $.Values.image.tag)) $ }}'
         imagePullPolicy: {{ $.Values.image.pullPolicy }}
-        {{- with $.Values.securityContext }}
+        {{- with $.Values.st2actionrunner.securityContext | default $.Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
         {{- end }}
         envFrom:
@@ -667,7 +671,7 @@ spec:
       - name: {{ $name }}
         image: '{{ template "stackstorm-ha.imageRepository" $ }}/st2actionrunner:{{ tpl ($.Values.jobs.image.tag | default ($.Values.st2actionrunner.image.tag | default $.Values.image.tag)) $ }}'
         imagePullPolicy: {{ $.Values.image.pullPolicy }}
-        {{- with $.Values.securityContext }}
+        {{- with .securityContext | default $.Values.st2actionrunner.securityContext | default $.Values.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
         {{- end }}
         {{- if $.Values.jobs.env }}
@@ -717,7 +721,7 @@ spec:
     {{- with $.Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with $.Values.podSecurityContext }}
+    {{- with .podSecurityContext | default $.Values.st2actionrunner.podSecurityContext | default $.Values.podSecurityContext }}
       securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with $.Values.jobs.nodeSelector }}
