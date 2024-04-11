@@ -515,7 +515,7 @@ spec:
     {{- with .Values.dnsConfig }}
       dnsConfig: {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with .Values.st2client.podSecurityContext | default .Values.podSecurityContext }}
+    {{- with .Values.st2web.podSecurityContext | default .Values.podSecurityContext }}
       securityContext: {{- toYaml . | nindent 8 }}
     {{- end }}
     {{- with .Values.st2web.nodeSelector }}
