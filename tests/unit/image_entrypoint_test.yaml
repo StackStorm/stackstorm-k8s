@@ -1,0 +1,243 @@
+---
+suite: Image Entrypoint
+templates:
+  # primary template files
+  - deployments.yaml
+
+  # included templates must also be listed
+  - configmaps_overrides.yaml
+  - configmaps_packs.yaml
+  - configmaps_rbac.yaml
+  - configmaps_st2-conf.yaml
+  - configmaps_st2web.yaml
+  - secrets_datastore_crypto_key.yaml
+  - secrets_ssh.yaml
+  - secrets_st2auth.yaml
+  - secrets_st2chatops.yaml
+
+# relevant values:
+#   image.entrypoint
+
+tests:
+  - it: Deployments use custom image.entrypoint
+    template: deployments.yaml
+      # st2auth, st2api,
+      # st2stream, st2web,
+      # st2rulesengine, st2timersengine,
+      # st2workflowengine, st2scheduler,
+      # st2notifier, (1) st2sensorcontainer,
+      # st2actionrunner, st2garbagecollector,
+      # st2client, st2chatops
+    set:
+      image:
+        entrypoint:
+          - &custom_entrypoint_0 "/usr/bin/dumb-init"
+          - &custom_entrypoint_1 "--"
+      st2:
+        rbac: { enabled: true } # enable rbac job
+        packs: { sensors: [] } # ensure only 1 sensor
+      st2chatops:
+        enabled: true
+    asserts:
+      - hasDocuments:
+          count: 14
+
+      # st2web and st2chatops do not use image.entrypoint
+      # document indexes: 3, 13
+      # all remaining deployments do use image.entrypoint
+
+      - isNull: &exists_command
+          path: spec.template.spec.containers[0].command
+        documentIndex: 3 # st2web
+      - isNull: *exists_command
+        documentIndex: 13 # st2chatops
+
+      - equal: &eq_custom_entrypoint_0
+          path: spec.template.spec.containers[0].command[0]
+          value: *custom_entrypoint_0
+        documentIndex: 0
+      - equal: &eq_custom_entrypoint_1
+          path: spec.template.spec.containers[0].command[1]
+          value: *custom_entrypoint_1
+        documentIndex: 0
+      - equal: *eq_custom_entrypoint_0
+        documentIndex: 1
+      - equal: *eq_custom_entrypoint_1
+        documentIndex: 1
+      - equal: *eq_custom_entrypoint_0
+        documentIndex: 2
+      - equal: *eq_custom_entrypoint_1
+        documentIndex: 2
+      - equal: *eq_custom_entrypoint_0
+        documentIndex: 4
+      - equal: *eq_custom_entrypoint_1
+        documentIndex: 4
+      - equal: *eq_custom_entrypoint_0
+        documentIndex: 5
+      - equal: *eq_custom_entrypoint_1
+        documentIndex: 5
+      - equal: *eq_custom_entrypoint_0
+        documentIndex: 6
+      - equal: *eq_custom_entrypoint_1
+        documentIndex: 6
+      - equal: *eq_custom_entrypoint_0
+        documentIndex: 7
+      - equal: *eq_custom_entrypoint_1
+        documentIndex: 7
+      - equal: *eq_custom_entrypoint_0
+        documentIndex: 8
+      - equal: *eq_custom_entrypoint_1
+        documentIndex: 8
+      - equal: *eq_custom_entrypoint_0
+        documentIndex: 9
+      - equal: *eq_custom_entrypoint_1
+        documentIndex: 9
+      - equal: *eq_custom_entrypoint_0
+        documentIndex: 10
+      - equal: *eq_custom_entrypoint_1
+        documentIndex: 10
+      - equal: *eq_custom_entrypoint_0
+        documentIndex: 11
+      - equal: *eq_custom_entrypoint_1
+        documentIndex: 11
+      - equal: *eq_custom_entrypoint_0
+        documentIndex: 12
+      - equal: *eq_custom_entrypoint_1
+        documentIndex: 12
+
+  - it: Deployments use custom empty image.entrypoint
+    template: deployments.yaml
+    set:
+      # image.entrypoint defaults to []
+      # this might change in a future release
+      st2:
+        rbac: { enabled: true } # enable rbac job
+        packs: { sensors: [] } # ensure only 1 sensor
+      st2chatops:
+        enabled: true
+    asserts:
+      - hasDocuments:
+          count: 14
+
+      - isNull: *exists_command
+        documentIndex: 3 # st2web
+      - isNull: *exists_command
+        documentIndex: 13 # st2chatops
+
+      - notEqual: *eq_custom_entrypoint_0
+        documentIndex: 0
+      - notEqual: *eq_custom_entrypoint_1
+        documentIndex: 0
+      - notEqual: *eq_custom_entrypoint_0
+        documentIndex: 1
+      - notEqual: *eq_custom_entrypoint_1
+        documentIndex: 1
+      - notEqual: *eq_custom_entrypoint_0
+        documentIndex: 2
+      - notEqual: *eq_custom_entrypoint_1
+        documentIndex: 2
+      - notEqual: *eq_custom_entrypoint_0
+        documentIndex: 4
+      - notEqual: *eq_custom_entrypoint_1
+        documentIndex: 4
+      - notEqual: *eq_custom_entrypoint_0
+        documentIndex: 5
+      - notEqual: *eq_custom_entrypoint_1
+        documentIndex: 5
+      - notEqual: *eq_custom_entrypoint_0
+        documentIndex: 6
+      - notEqual: *eq_custom_entrypoint_1
+        documentIndex: 6
+      - notEqual: *eq_custom_entrypoint_0
+        documentIndex: 7
+      - notEqual: *eq_custom_entrypoint_1
+        documentIndex: 7
+      - notEqual: *eq_custom_entrypoint_0
+        documentIndex: 8
+      - notEqual: *eq_custom_entrypoint_1
+        documentIndex: 8
+      - notEqual: *eq_custom_entrypoint_0
+        documentIndex: 9
+      - notEqual: *eq_custom_entrypoint_1
+        documentIndex: 9
+      - notEqual: *eq_custom_entrypoint_0
+        documentIndex: 10
+      - notEqual: *eq_custom_entrypoint_1
+        documentIndex: 10
+      - notEqual: *eq_custom_entrypoint_0
+        documentIndex: 11
+      - notEqual: *eq_custom_entrypoint_1
+        documentIndex: 11
+      - notEqual: *eq_custom_entrypoint_0
+        documentIndex: 12
+      - notEqual: *eq_custom_entrypoint_1
+        documentIndex: 12
+
+  - it: Deployments use default image.entrypoint
+    template: deployments.yaml
+    set:
+      image:
+        entrypoint: []  # explicitly empty list
+      st2:
+        rbac: { enabled: true } # enable rbac job
+        packs: { sensors: [] } # ensure only 1 sensor
+      st2chatops:
+        enabled: true
+    asserts:
+      - hasDocuments:
+          count: 14
+
+      - isNull: *exists_command
+        documentIndex: 3 # st2web
+      - isNull: *exists_command
+        documentIndex: 13 # st2chatops
+
+      - notEqual: *eq_custom_entrypoint_0
+        documentIndex: 0
+      - notEqual: *eq_custom_entrypoint_1
+        documentIndex: 0
+      - notEqual: *eq_custom_entrypoint_0
+        documentIndex: 1
+      - notEqual: *eq_custom_entrypoint_1
+        documentIndex: 1
+      - notEqual: *eq_custom_entrypoint_0
+        documentIndex: 2
+      - notEqual: *eq_custom_entrypoint_1
+        documentIndex: 2
+      - notEqual: *eq_custom_entrypoint_0
+        documentIndex: 4
+      - notEqual: *eq_custom_entrypoint_1
+        documentIndex: 4
+      - notEqual: *eq_custom_entrypoint_0
+        documentIndex: 5
+      - notEqual: *eq_custom_entrypoint_1
+        documentIndex: 5
+      - notEqual: *eq_custom_entrypoint_0
+        documentIndex: 6
+      - notEqual: *eq_custom_entrypoint_1
+        documentIndex: 6
+      - notEqual: *eq_custom_entrypoint_0
+        documentIndex: 7
+      - notEqual: *eq_custom_entrypoint_1
+        documentIndex: 7
+      - notEqual: *eq_custom_entrypoint_0
+        documentIndex: 8
+      - notEqual: *eq_custom_entrypoint_1
+        documentIndex: 8
+      - notEqual: *eq_custom_entrypoint_0
+        documentIndex: 9
+      - notEqual: *eq_custom_entrypoint_1
+        documentIndex: 9
+      - notEqual: *eq_custom_entrypoint_0
+        documentIndex: 10
+      - notEqual: *eq_custom_entrypoint_1
+        documentIndex: 10
+      - notEqual: *eq_custom_entrypoint_0
+        documentIndex: 11
+      - notEqual: *eq_custom_entrypoint_1
+        documentIndex: 11
+      - notEqual: *eq_custom_entrypoint_0
+        documentIndex: 12
+      - notEqual: *eq_custom_entrypoint_1
+        documentIndex: 12
+
