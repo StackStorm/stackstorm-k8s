@@ -532,7 +532,7 @@ spec:
         #     readOnly: false
         #   ephemeral volumes could also work, ... but that config is even deeper.
         command:
-          - 'sh'
+          - 'bash'
           # -e => exit on failure
           # -E => trap ERR is inherited in subfunctions
           - '-eEc'
@@ -545,7 +545,7 @@ spec:
             INTRO
 
             function __handle_error__ {
-              cat <<- 'FAIL'
+              cat <<- '  FAIL'
               ERROR: One or more volumes in st2.packs.volumes (from helm values) does not meet
               StackStorm's shared volumes requirements!
               see: https://github.com/StackStorm/stackstorm-k8s#method-2-shared-volumes
@@ -565,6 +565,7 @@ spec:
               echo
             done
             echo DONE
+
         volumeMounts:
         {{- include "stackstorm-ha.packs-volume-mounts" $ | nindent 8 }}
         {{/* do not include the pack-configs-volume-mount helper here */}}
