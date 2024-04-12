@@ -6,6 +6,7 @@
 * Stop generating the DataStore Secret (#385) and checksum labels (#391) when existing secret provided or disabled (by @bmarick)
 * Stop generating the checksum labels for Auth Secret (#392) when existing secret provided or disabled (by @bmarick)
 * Use `image.pullPolicy` for all containers including init containers that use `image.utilityImage`. (#397) (by @jk464)
+* Add new `image.entrypoint` value to simplify using a custom entry point like `dumb-init` or `pid1` (if installed in the image). (#413) (by @cognifloyd)
 * Improve Deployments migration in `migrations/v1.0/standardize-labels.sh` by temporarily orphaning the old ReplicaSets. (#412) (by @cognifloyd)
 
 ## v1.0.0
