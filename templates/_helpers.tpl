@@ -343,9 +343,14 @@ Merge packs and virtualenvs from st2 with those from st2packs images
   command:
     - 'sh'
     - '-ec'
-    - |
-      /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
-      /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
+    - >
+      if command rsync; then
+        rsync -a /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
+        rsync -a /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared;
+      else
+        /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
+        /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared;
+      fi
   {{- with .securityContext | default $.Values.st2actionrunner.securityContext | default $.Values.securityContext }}
   {{/* st2actionrunner is likely the most permissive so use that if defined. */}}
   securityContext: {{- toYaml . | nindent 8 }}
@@ -365,9 +370,14 @@ Merge packs and virtualenvs from st2 with those from st2packs images
   command:
     - 'sh'
     - '-ec'
-    - |
-      /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
-      /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
+    - >
+      if command rsync; then
+        rsync -a /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
+        rsync -a /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared;
+      else
+        /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
+        /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
+      fi
   {{- with .Values.st2actionrunner.securityContext | default .Values.securityContext }}
   {{/* st2actionrunner is likely the most permissive so use that if defined. */}}
   securityContext: {{- toYaml . | nindent 8 }}
@@ -386,8 +396,12 @@ Merge packs and virtualenvs from st2 with those from st2packs images
   command:
     - 'sh'
     - '-ec'
-    - |
-      /bin/cp -aR /opt/stackstorm/configs/. /opt/stackstorm/configs-shared
+    - >
+      if command rsync; then
+        rsync -a /opt/stackstorm/configs/. /opt/stackstorm/configs-shared;
+      else
+        /bin/cp -aR /opt/stackstorm/configs/. /opt/stackstorm/configs-shared;
+      fi
   {{- with .Values.st2actionrunner.securityContext | default .Values.securityContext }}
   {{/* st2actionrunner is likely the most permissive so use that if defined. */}}
   securityContext: {{- toYaml . | nindent 8 }}
