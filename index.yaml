@@ -3,6 +3,50 @@ entries:
   stackstorm-ha:
   - apiVersion: v2
     appVersion: "3.8"
+    created: "2024-04-12T19:59:46.641556362-05:00"
+    dependencies:
+    - condition: rabbitmq.enabled
+      name: rabbitmq
+      repository: https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami
+      version: 8.0.2
+    - condition: mongodb.enabled
+      name: mongodb
+      repository: https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami
+      version: 10.0.1
+    - condition: external-dns.enabled
+      name: external-dns
+      repository: https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami
+      version: 4.0.0
+    - condition: redis.enabled
+      name: redis
+      repository: https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami
+      version: 12.3.2
+    description: StackStorm K8s Helm Chart, optimized for running StackStorm in HA
+      environment.
+    digest: 7b781dbf969d632b7738899c9bc2a110673f98f030fa356beb1490140f7553a0
+    home: https://stackstorm.com/
+    icon: https://landscape.cncf.io/logos/stack-storm.svg
+    keywords:
+    - st2
+    - stackstorm
+    - devops
+    - SRE
+    - automation
+    - chatops
+    - event-driven
+    - auto-remediation
+    - IFTTT
+    - HA
+    maintainers:
+    - email: info@stackstorm.com
+      name: The StackStorm Authors
+      url: https://github.com/StackStorm
+    name: stackstorm-ha
+    urls:
+    - stackstorm-ha-1.1.0.tgz
+    version: 1.1.0
+  - apiVersion: v2
+    appVersion: "3.8"
     created: "2024-02-14T19:46:38.10873339-06:00"
     dependencies:
     - condition: rabbitmq.enabled
@@ -1949,4 +1993,4 @@ entries:
     urls:
     - stackstorm-ha-0.6.0.tgz
     version: 0.6.0
-generated: "2024-02-14T19:46:37.603476878-06:00"
+generated: "2024-04-12T19:59:46.432698519-05:00"
