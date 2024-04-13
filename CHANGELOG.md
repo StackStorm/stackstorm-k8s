@@ -1,6 +1,8 @@
 # Changelog
 
 ## Development
+
+## v1.1.0
 * Fix syntax with ensure-packs-volumes-are-writable job (#403, #411) (by @skiedude)
 * Add securityContext support to custom st2packs images, extra_hooks jobs; Also fallback to st2actionrunner securityContext for misc init container jobs and pods. (#410) (by @cognifloyd)
 * Stop generating the DataStore Secret (#385) and checksum labels (#391) when existing secret provided or disabled (by @bmarick)
