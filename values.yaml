@@ -391,6 +391,9 @@ st2web:
   # The pod will not be marked as "running" until this script completes successfully.
   # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   postStartScript: ""
+  # preStopSleep works around iptables race conditions in kubeproxy and kubelet.
+  # https://blog.laputa.io/graceful-shutdown-in-kubernetes-85f1c8d586da
+  # If you use an alternative to kubeproxy, like Calico, disable this by setting it to "0".
   preStopSleep: "10"
 
 # https://docs.stackstorm.com/reference/ha.html#st2auth
@@ -427,6 +430,9 @@ st2auth:
   # The pod will not be marked as "running" until this script completes successfully.
   # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   postStartScript: ""
+  # preStopSleep works around iptables race conditions in kubeproxy and kubelet.
+  # https://blog.laputa.io/graceful-shutdown-in-kubernetes-85f1c8d586da
+  # If you use an alternative to kubeproxy, like Calico, disable this by setting it to "0".
   preStopSleep: "10"
   # mount extra volumes on the st2auth pod(s) (primarily useful for custom logging conf)
   ## Note that Helm templating is supported in 'mount' and 'volume'
@@ -467,6 +473,9 @@ st2api:
   # The pod will not be marked as "running" until this script completes successfully.
   # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   postStartScript: ""
+  # preStopSleep works around iptables race conditions in kubeproxy and kubelet.
+  # https://blog.laputa.io/graceful-shutdown-in-kubernetes-85f1c8d586da
+  # If you use an alternative to kubeproxy, like Calico, disable this by setting it to "0".
   preStopSleep: "10"
   # mount extra volumes on the st2api pod(s) (primarily useful for custom logging conf)
   ## Note that Helm templating is supported in 'mount' and 'volume'
@@ -507,6 +516,9 @@ st2stream:
   # The pod will not be marked as "running" until this script completes successfully.
   # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   postStartScript: ""
+  # preStopSleep works around iptables race conditions in kubeproxy and kubelet.
+  # https://blog.laputa.io/graceful-shutdown-in-kubernetes-85f1c8d586da
+  # If you use an alternative to kubeproxy, like Calico, disable this by setting it to "0".
   preStopSleep: "10"
   # mount extra volumes on the st2stream pod(s) (primarily useful for custom logging conf)
   ## Note that Helm templating is supported in 'mount' and 'volume'
