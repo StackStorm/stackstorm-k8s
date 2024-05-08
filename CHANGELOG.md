@@ -7,6 +7,7 @@
 * Stop generating the checksum labels for Auth Secret (#392) when existing secret provided or disabled (by @bmarick)
 * Use `image.pullPolicy` for all containers including init containers that use `image.utilityImage`. (#397) (by @jk464)
 * Use `rsync` to copy pack contents when available, falling back to `cp`. (#414) (by @cognifloyd)
+* Support non-root container environments when copying pack contents (#414) (by @Stealthii)
 
 ## v1.0.0
 * Bump to latest CircleCI orb versions (kubernetes@1.3.1 and helm@3.0.0 by @ZoeLeah)
