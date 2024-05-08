@@ -300,8 +300,11 @@ st2:
 ## Default SecurityContext for pods and containers.
 ## Overrides available for st2web, st2actionrunner, st2sensorcontainer, st2client pods, and custom packs images.
 ##
-podSecurityContext: {}
-securityContext: {}
+podSecurityContext:
+  runAsNonRoot: true
+securityContext:
+  runAsUser: 1000
+  allowPrivilegeEscalation: false
 
 ##
 ## StackStorm HA Ingress
@@ -377,7 +380,10 @@ st2web:
     attach: false
   # override the default .podSecurityContext or .securityContext here
   podSecurityContext: {}
-  securityContext: {}  # NB: nginx requires some capabilities, drop ALL will cause issues.
+  securityContext: # NB: nginx requires some capabilities, drop ALL will cause issues.
+    runAsUser: 999  # run as nginx user
+    runAsGroup: 999 # run as nginx group
+    allowPrivilegeEscalation: false 
   # mount extra volumes on the st2web pod(s) (primarily useful for k8s-provisioned secrets)
   ## Note that Helm templating is supported in 'mount' and 'volume'
   extra_volumes: []
@@ -1050,6 +1056,15 @@ mongodb:
   arbiter:
     enabled: false
   resources: {}
+  podSecurityContext:
+    enabled: true
+    fsGroup: 1001
+    sysctls: []
+  containerSecurityContext:
+    enabled: true
+    runAsUser: 1001
+    runAsNonRoot: true
+    allowPrivilegeEscalation: false
 
 ##
 ## RabbitMQ configuration (3rd party chart dependency)
@@ -1097,7 +1112,12 @@ rabbitmq:
   # As RabbitMQ enabled prometheus operator monitoring by default, disable it for non-prometheus users
   metrics:
     enabled: false
-
+  podSecurityContext:
+    fsGroup: 1001
+    runAsUser: 1001
+    runAsNonRoot: true
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
 ##
 ## Redis HA configuration (3rd party chart dependency)
 ##
@@ -1133,6 +1153,14 @@ redis:
   usePassword: false
   metrics:
     enabled: false
+  securityContext:
+    enabled: true
+    fsGroup: 1001
+    runAsNonRoot: true
+  containerSecurityContext:
+    enabled: true
+    runAsUser: 1001
+    allowPrivilegeEscalation: false
 
 ##
 ## Settings to be applied to all stackstorm-ha pods

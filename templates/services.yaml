@@ -99,8 +99,10 @@ spec:
   {{- end }}
   {{- end }}
   ports:
+  {{- $https_port := include "stackstorm-ha.st2web.https_port" . }}
+  {{- $http_port := include "stackstorm-ha.st2web.http_port" . }}
   - protocol: TCP
-    port: {{ eq (get .Values.st2web.env "ST2WEB_HTTPS" | toString) "1" | ternary 443 80 }}
+    port: {{ eq (get .Values.st2web.env "ST2WEB_HTTPS" | toString) "1" | ternary $https_port $http_port }}
 
 {{ if .Values.st2chatops.enabled -}}
 ---

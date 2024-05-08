@@ -1,6 +1,7 @@
 # Changelog
 
 ## Development
+* Enable running all pods/containers as non-root without any escalation privileges (#400) (by @jk464 @Stealthii)
 
 ## v1.1.0
 * Fix syntax with ensure-packs-volumes-are-writable job (#403, #411) (by @skiedude)

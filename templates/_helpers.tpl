@@ -350,10 +350,9 @@ Merge packs and virtualenvs from st2 with those from st2packs images
     - 'sh'
     - '-ec'
     - |
-      /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
-      /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
-  {{- with .securityContext | default $.Values.st2actionrunner.securityContext | default $.Values.securityContext }}
-  {{/* st2actionrunner is likely the most permissive so use that if defined. */}}
+      /bin/cp -dR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
+      /bin/cp -dR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
+  {{- with $.Values.securityContext }}
   securityContext: {{- toYaml . | nindent 8 }}
   {{- end }}
     {{- end }}
@@ -372,10 +371,9 @@ Merge packs and virtualenvs from st2 with those from st2packs images
     - 'sh'
     - '-ec'
     - |
-      /bin/cp -aR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
-      /bin/cp -aR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
-  {{- with .Values.st2actionrunner.securityContext | default .Values.securityContext }}
-  {{/* st2actionrunner is likely the most permissive so use that if defined. */}}
+      /bin/cp -dR /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
+      /bin/cp -dR /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
+  {{- with .Values.securityContext }}
   securityContext: {{- toYaml . | nindent 8 }}
   {{- end }}
   {{- end }}
@@ -393,9 +391,8 @@ Merge packs and virtualenvs from st2 with those from st2packs images
     - 'sh'
     - '-ec'
     - |
-      /bin/cp -aR /opt/stackstorm/configs/. /opt/stackstorm/configs-shared
-  {{- with .Values.st2actionrunner.securityContext | default .Values.securityContext }}
-  {{/* st2actionrunner is likely the most permissive so use that if defined. */}}
+      /bin/cp -dR /opt/stackstorm/configs/. /opt/stackstorm/configs-shared
+  {{- with .Values.securityContext }}
   securityContext: {{- toYaml . | nindent 8 }}
   {{- end }}
   {{- end }}
@@ -421,4 +418,22 @@ Create the custom env list for each deployment
 - name: {{ $env | quote }}
   value: {{ $value | quote }}
   {{- end }}
+{{- end -}}
+
+{{/*
+Define st2web ports
+*/}}
+{{- define "stackstorm-ha.st2web.http_port" -}}
+{{- if ne (default 0 ((($.Values.st2web.securityContext).runAsUser) | int)) 0 -}}
+8080
+{{- else -}}
+80
+{{- end -}}
+{{- end -}}
+{{- define "stackstorm-ha.st2web.https_port" -}}
+{{- if ne (default 0 ((($.Values.st2web.securityContext).runAsUser) | int)) 0 -}}
+8443
+{{- else -}}
+443
+{{- end -}}
 {{- end -}}
