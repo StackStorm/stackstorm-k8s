@@ -4,14 +4,14 @@ This directory contains Helm chart unit and integration tests (under `tests/unit
 
 ## Unit tests
 
-Unit tests (`tests/unit/*_test.yaml`) use [`helm-unittest`](https://github.com/quintush/helm-unittest).
+Unit tests (`tests/unit/*_test.yaml`) use [`helm-unittest`](https://github.com/helm-unittest/helm-unittest).
 `helm-unittest` uses a yaml-based test file to ensure that the templates generate expected features.
 For example, they can ensure that custom annotations are applied consistently to all of the deployments.
 Unit tests do not require a running kubernetes cluster.
 
 Before running unit tests, install the `helm-unittest` plugin and ensure you have sub-charts installed:
 ```
-helm plugin install https://github.com/quintush/helm-unittest
+$ helm plugin install https://github.com/helm-unittest/helm-unittest.git
 helm dependency update
 ```
 
@@ -22,7 +22,7 @@ helm unittest --helm3 -f 'tests/unit/*_test.yaml' .
 
 > Note! If you need to add unit tests, file names should follow this pattern: `tests/unit/name_your_test.yaml`
 
-See https://github.com/quintush/helm-unittest/blob/master/DOCUMENT.md for details on writing unit tests.
+See https://github.com/helm-unittest/helm-unittest/blob/master/DOCUMENT.md for details on writing unit tests.
 
 ## Integration tests
 

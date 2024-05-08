@@ -46,10 +46,10 @@ tests:
       # document indexes: 3, 13
       # all remaining deployments do use image.entrypoint
 
-      - isNull: &exists_command
+      - notExists: &exists_command
           path: spec.template.spec.containers[0].command
         documentIndex: 3 # st2web
-      - isNull: *exists_command
+      - notExists: *exists_command
         documentIndex: 13 # st2chatops
 
       - equal: &eq_custom_entrypoint_0
@@ -119,9 +119,9 @@ tests:
       - hasDocuments:
           count: 14
 
-      - isNull: *exists_command
+      - notExists: *exists_command
         documentIndex: 3 # st2web
-      - isNull: *exists_command
+      - notExists: *exists_command
         documentIndex: 13 # st2chatops
 
       - notEqual: *eq_custom_entrypoint_0
@@ -187,9 +187,9 @@ tests:
       - hasDocuments:
           count: 14
 
-      - isNull: *exists_command
+      - notExists: *exists_command
         documentIndex: 3 # st2web
-      - isNull: *exists_command
+      - notExists: *exists_command
         documentIndex: 13 # st2chatops
 
       - notEqual: *eq_custom_entrypoint_0

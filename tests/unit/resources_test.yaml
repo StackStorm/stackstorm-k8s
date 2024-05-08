@@ -30,13 +30,13 @@ tests:
           count: 14
 
       # only st2web defines limits for now
-      - isNotEmpty:
+      - isNotNullOrEmpty:
           path: spec.template.spec.containers[0].resources.limits.memory
         documentIndex: 3
 
-      - isNotEmpty:
+      - isNotNullOrEmpty:
           path: spec.template.spec.containers[0].resources.requests.memory
-      - isNotEmpty:
+      - isNotNullOrEmpty:
           path: spec.template.spec.containers[0].resources.requests.cpu
 
   - it: Deployments accept custom resources (except st2client)

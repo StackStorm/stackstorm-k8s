@@ -12,7 +12,7 @@ tests:
     asserts:
       - hasDocuments:
           count: 4
-      - isNull:
+      - notExists:
           path: spec.externalName
 
   - it: st2web, st2auth, st2api, st2stream should work with externalName if type is ExternalName

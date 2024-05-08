@@ -67,7 +67,7 @@ tests:
             hook_weight: -5
             command: ["st2", "run", "--tail", "custom_pack.warn_about_upgrade"]
     asserts:
-      - isNull:
+      - notExists:
           path: spec.template.spec.imagePullSecrets
       - equal:
           path: spec.template.spec.containers[0].imagePullPolicy
@@ -202,7 +202,7 @@ tests:
       serviceAccount:
         create: true
     asserts:
-      - isNull:
+      - notExists:
           path: imagePullSecrets
 
   - it: ServiceAccount accepts custom imagePullSecret

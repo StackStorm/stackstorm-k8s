@@ -65,11 +65,11 @@ tests:
             hook_weight: -5
             command: ["st2", "run", "--tail", "custom_pack.warn_about_upgrade"]
     asserts:
-      - isNull:
+      - notExists:
           path: spec.template.spec.nodeSelector
-      - isNull:
+      - notExists:
           path: spec.template.spec.tolerations
-      - isNull:
+      - notExists:
           path: spec.template.spec.affinity
 
   - it: Deployments and Jobs accept custom placement

@@ -74,13 +74,13 @@ tests:
 
     asserts:
       # pod
-      - isNull:
+      - notExists:
           path: spec.template.spec.securityContext
       # container
-      - isNull:
+      - notExists:
           path: "spec.template.spec.containers[0].securityContext"
       # path can only select one element, not all initContainers (if present).
-      #- isNull:
+      #- notExists:
       #    path: 'spec.template.spec.initContainers[].securityContext'
 
   - it: Deployment and Job Pods+Containers use same SecurityContext when defined
