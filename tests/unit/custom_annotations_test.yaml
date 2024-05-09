@@ -31,7 +31,7 @@ tests:
           foo: bar
           answer: "42"
     asserts: &annotations_asserts
-      - isNotNull:
+      - exists:
           path: metadata.annotations
       - equal:
           path: metadata.annotations.foo
@@ -125,7 +125,7 @@ tests:
           # st2client, st2chatops
 
       # deployment annotations
-      - isNotNull:
+      - exists:
           path: metadata.annotations
       - equal:
           path: metadata.annotations.foo
@@ -135,7 +135,7 @@ tests:
           value: "42"
 
       # pod annotations
-      - isNotNull:
+      - exists:
           path: spec.template.metadata.annotations
       - equal:
           path: spec.template.metadata.annotations.foo
@@ -188,7 +188,7 @@ tests:
           # extra_hooks job
 
       # job annotations
-      - isNotNull:
+      - exists:
           path: metadata.annotations
       - equal:
           path: metadata.annotations.foo
@@ -198,7 +198,7 @@ tests:
           value: "42"
 
       # pod annotations
-      - isNotNull:
+      - exists:
           path: spec.template.metadata.annotations
       - equal:
           path: spec.template.metadata.annotations.foo

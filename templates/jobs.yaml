@@ -25,8 +25,8 @@ spec:
           {{- toYaml .Values.jobs.annotations | nindent 8 }}
         {{- end }}
     spec:
-      imagePullSecrets:
       {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       containers:
@@ -127,8 +127,8 @@ spec:
           {{- toYaml .Values.jobs.annotations | nindent 8 }}
         {{- end }}
     spec:
-      imagePullSecrets:
       {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
@@ -266,8 +266,8 @@ spec:
           {{- toYaml .Values.jobs.annotations | nindent 8 }}
         {{- end }}
     spec:
-      imagePullSecrets:
       {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
@@ -398,8 +398,8 @@ spec:
           {{- toYaml .Values.jobs.annotations | nindent 8 }}
         {{- end }}
     spec:
-      imagePullSecrets:
       {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       {{- if $.Values.st2.packs.images -}}
@@ -512,8 +512,8 @@ spec:
         {{- toYaml $.Values.jobs.annotations | nindent 8 }}
       {{- end }}
     spec:
-      imagePullSecrets:
       {{- if $.Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ $.Values.image.pullSecret }}
       {{- end }}
       initContainers: []
@@ -633,8 +633,8 @@ spec:
           {{- toYaml $.Values.jobs.annotations | nindent 8 }}
         {{- end }}
     spec:
-      imagePullSecrets:
       {{- if $.Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ $.Values.image.pullSecret }}
       {{- end }}
       {{- if $.Values.st2.packs.images -}}

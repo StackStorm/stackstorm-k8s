@@ -34,32 +34,32 @@ tests:
             - name: ST2CLIENT
               value: "1"
         documentIndex: 12
-      - isNull: &is_null_env
+      - notExists: &is_null_env
           path: spec.template.spec.containers[0].env
         documentIndex: 0
-      - isNull: *is_null_env
+      - notExists: *is_null_env
         documentIndex: 1
-      - isNull: *is_null_env
+      - notExists: *is_null_env
         documentIndex: 2
-      - isNull: *is_null_env
+      - notExists: *is_null_env
         documentIndex: 3
-      - isNull: *is_null_env
+      - notExists: *is_null_env
         documentIndex: 4
-      - isNull: *is_null_env
+      - notExists: *is_null_env
         documentIndex: 5
-      - isNull: *is_null_env
+      - notExists: *is_null_env
         documentIndex: 6
-      - isNull: *is_null_env
+      - notExists: *is_null_env
         documentIndex: 7
-      - isNull: *is_null_env
+      - notExists: *is_null_env
         documentIndex: 8
-      - isNull: *is_null_env
+      - notExists: *is_null_env
         documentIndex: 9
-      - isNull: *is_null_env
+      - notExists: *is_null_env
         documentIndex: 10
-      - isNull: *is_null_env
+      - notExists: *is_null_env
         documentIndex: 11
-      - isNull: *is_null_env
+      - notExists: *is_null_env
         documentIndex: 13
 
   - it: Jobs default to no env
@@ -76,7 +76,7 @@ tests:
     asserts:
       - hasDocuments:
           count: 5
-      - isNull: *is_null_env
+      - notExists: *is_null_env
 
   - it: Deployments accept custom env
     template: deployments.yaml
@@ -177,10 +177,10 @@ tests:
       - contains: *contains_st2_urls
         documentIndex: 2
 
-      - isNull: &is_null_envFrom
+      - notExists: &is_null_envFrom
           path: spec.template.spec.containers[0].envFrom
         documentIndex: 0
-      - isNull: *is_null_envFrom
+      - notExists: *is_null_envFrom
         documentIndex: 3
 
   - it: Deployments support envFromSecrets (st2actionrunner, st2sensorcontainer, and st2client)

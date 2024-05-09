@@ -31,10 +31,10 @@ tests:
           of: ConfigMap
       - isAPIVersion:
           of: v1
-      - isNotEmpty:
-          path: data.[post-start.sh]
+      - isNotNullOrEmpty:
+          path: data["post-start.sh"]
       - equal:
-          path: data.[post-start.sh]
+          path: data["post-start.sh"]
           value: |
             #!/bin/bash
             mkdir -p /home/yelnats/.ssh
@@ -84,10 +84,10 @@ tests:
           of: ConfigMap
       - isAPIVersion:
           of: v1
-      - isNotEmpty:
-          path: data.[post-start.sh]
+      - isNotNullOrEmpty:
+          path: data["post-start.sh"]
       - matchRegex:
-          path: data.[post-start.sh]
+          path: data["post-start.sh"]
           # (?m) = multi-line mode: ^ and $ match begin/end line in addition to begin/end text
           # (?s) = let . match \n
           # .*? = any character zero or more times, prefer fewer
@@ -106,8 +106,8 @@ tests:
 
       # st2actionrunner and st2client do not have checksum annotations
       # (even though they probably should)
-      - isNull: &assert_checksum
-          path: spec.template.metadata.annotations.[checksum/post-start-script]
+      - notExists: &assert_checksum
+          path: spec.template.metadata.annotations["checksum/post-start-script"]
 
       # only st2actionrunner and st2client have default postStart scripts
       - equal: &assert_lifecycle
@@ -119,30 +119,30 @@ tests:
       - equal: *assert_lifecycle
         documentIndex: 12
 
-      - isNull: &assert_null_lifecycle
+      - notExists: &assert_null_lifecycle
           path: spec.template.spec.containers[0].lifecycle
         documentIndex: 0
-      - isNull: *assert_null_lifecycle
+      - notExists: *assert_null_lifecycle
         documentIndex: 1
-      - isNull: *assert_null_lifecycle
+      - notExists: *assert_null_lifecycle
         documentIndex: 2
-      - isNull: *assert_null_lifecycle
+      - notExists: *assert_null_lifecycle
         documentIndex: 3
-      - isNull: *assert_null_lifecycle
+      - notExists: *assert_null_lifecycle
         documentIndex: 4
-      - isNull: *assert_null_lifecycle
+      - notExists: *assert_null_lifecycle
         documentIndex: 5
-      - isNull: *assert_null_lifecycle
+      - notExists: *assert_null_lifecycle
         documentIndex: 6
-      - isNull: *assert_null_lifecycle
+      - notExists: *assert_null_lifecycle
         documentIndex: 7
-      - isNull: *assert_null_lifecycle
+      - notExists: *assert_null_lifecycle
         documentIndex: 8
-      - isNull: *assert_null_lifecycle
+      - notExists: *assert_null_lifecycle
         documentIndex: 9
-      - isNull: *assert_null_lifecycle
+      - notExists: *assert_null_lifecycle
         documentIndex: 11
-      - isNull: *assert_null_lifecycle
+      - notExists: *assert_null_lifecycle
         documentIndex: 13
 
       - contains: &assert_volume_mount
@@ -177,10 +177,10 @@ tests:
         documentIndex: 11
 
       # st2web and st2chatops have no volumes (and can be null)
-      - isEmpty:
+      - isNullOrEmpty:
           path: spec.template.spec.containers[0].volumeMounts
         documentIndex: 3
-      - isEmpty:
+      - isNullOrEmpty:
           path: spec.template.spec.containers[0].volumeMounts
         documentIndex: 13
 
@@ -217,10 +217,10 @@ tests:
       - notContains: *assert_volume
         documentIndex: 11
 
-      - isEmpty:
+      - isNullOrEmpty:
           path: spec.template.spec.volumes
         documentIndex: 3
-      - isEmpty:
+      - isNullOrEmpty:
           path: spec.template.spec.volumes
         documentIndex: 13
 
@@ -263,7 +263,7 @@ tests:
       - hasDocuments:
           count: 14
 
-      - isNotEmpty: *assert_checksum
+      - isNotNullOrEmpty: *assert_checksum
       - equal: *assert_lifecycle
       - contains: *assert_volume_mount
       - contains: *assert_volume

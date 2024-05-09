@@ -38,8 +38,8 @@ spec:
           {{- toYaml .Values.st2auth.annotations | nindent 8 }}
         {{- end }}
     spec:
-      imagePullSecrets:
       {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
@@ -177,8 +177,8 @@ spec:
           {{- toYaml .Values.st2api.annotations | nindent 8 }}
         {{- end }}
     spec:
-      imagePullSecrets:
       {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       {{- if .Values.st2.packs.images }}
@@ -316,8 +316,8 @@ spec:
           {{- toYaml .Values.st2stream.annotations | nindent 8 }}
         {{- end }}
     spec:
-      imagePullSecrets:
       {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
@@ -426,8 +426,8 @@ spec:
           {{- toYaml .Values.st2web.annotations | nindent 8 }}
         {{- end }}
     spec:
-      imagePullSecrets:
       {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       terminationGracePeriodSeconds: {{ .Values.st2web.terminationGracePeriodSeconds | default 30 }}
@@ -565,8 +565,8 @@ spec:
           {{- toYaml .Values.st2rulesengine.annotations | nindent 8 }}
         {{- end }}
     spec:
-      imagePullSecrets:
       {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
@@ -683,8 +683,8 @@ spec:
           {{- toYaml .Values.st2timersengine.annotations | nindent 8 }}
         {{- end }}
     spec:
-      imagePullSecrets:
       {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
@@ -791,8 +791,8 @@ spec:
         {{- end }}
     spec:
       terminationGracePeriodSeconds: {{ .Values.st2workflowengine.terminationGracePeriodSeconds | default 300 }}
-      imagePullSecrets:
       {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
@@ -910,8 +910,8 @@ spec:
           {{- toYaml .Values.st2scheduler.annotations | nindent 8 }}
         {{- end }}
     spec:
-      imagePullSecrets:
       {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
@@ -1027,8 +1027,8 @@ spec:
           {{- toYaml .Values.st2notifier.annotations | nindent 8 }}
         {{- end }}
     spec:
-      imagePullSecrets:
       {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
@@ -1173,8 +1173,8 @@ spec:
           {{- toYaml $sensor.annotations | nindent 8 }}
         {{- end }}
     spec:
-      imagePullSecrets:
       {{- if $.Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ $.Values.image.pullSecret }}
       {{- end }}
       {{- if $.Values.st2.packs.images }}
@@ -1354,8 +1354,8 @@ spec:
       hostAliases:
         {{- toYaml .Values.st2actionrunner.hostAliases | nindent 8 }}
       {{- end }}
-      imagePullSecrets:
       {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       {{- if .Values.st2.packs.images }}
@@ -1501,8 +1501,8 @@ spec:
           {{- toYaml .Values.st2garbagecollector.annotations | nindent 8 }}
         {{- end }}
     spec:
-      imagePullSecrets:
       {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
@@ -1615,11 +1615,11 @@ spec:
           {{- toYaml .Values.st2client.annotations | nindent 8 }}
         {{- end }}
     spec:
-      imagePullSecrets:
       {{- if .Values.st2.packs.images }}
         {{- include "stackstorm-ha.packs-pullSecrets" . | nindent 6 }}
       {{- end }}
       {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:

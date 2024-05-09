@@ -35,7 +35,7 @@ jobs:
         # We should periodically check to see if another fork has taken over maintenance,
         # as the de-facto "best" fork has changed several times over the years.
         run: |
-          helm plugin install https://github.com/quintush/helm-unittest --version v0.2.11
+          helm plugin install https://github.com/helm-unittest/helm-unittest.git  --version v0.4.4
 
       - name: Install chart dependencies
         run: |
@@ -44,4 +44,4 @@ jobs:
       - name: Run helm-unittest
         # by default looks for tests/*_test.yaml
         run: |
-          helm unittest --color --helm3 -f 'tests/unit/*_test.yaml' .
+          helm unittest --color -f 'tests/unit/*_test.yaml' .

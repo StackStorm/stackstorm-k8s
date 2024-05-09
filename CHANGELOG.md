@@ -1,6 +1,7 @@
 # Changelog
 
 ## Development
+* Updated our tests/unit to support newer versions of `unittests` - for now bumping to `v0.4.4` as `v0.5.0` has a bug that impacts us (see helm-unittest/helm-unittest#329), but testing around the bug shows `v0.5.x` should also "just work" (#414) (by @jk464)
 
 ## v1.1.0
 * Fix syntax with ensure-packs-volumes-are-writable job (#403, #411) (by @skiedude)
