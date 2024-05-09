@@ -344,12 +344,12 @@ Merge packs and virtualenvs from st2 with those from st2packs images
     - 'sh'
     - '-ec'
     - >
-      if hash rsync 2>/dev/null; then
+      if command rsync; then
         rsync -rlptD /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
         rsync -rlptD /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared;
       else
-        cp -P --preserve=mode,timestamps,links,xattr /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
-        cp -P --preserve=mode,timestamps,links,xattr /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared;
+        cp -RP --preserve=mode,timestamps,links,xattr /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
+        cp -RP --preserve=mode,timestamps,links,xattr /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared;
       fi
   {{- with .securityContext | default $.Values.st2actionrunner.securityContext | default $.Values.securityContext }}
   {{/* st2actionrunner is likely the most permissive so use that if defined. */}}
@@ -371,12 +371,12 @@ Merge packs and virtualenvs from st2 with those from st2packs images
     - 'sh'
     - '-ec'
     - >
-      if hash rsync 2>/dev/null; then
+      if command rsync; then
         rsync -rlptD /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
         rsync -rlptD /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared;
       else
-        cp -P --preserve=mode,timestamps,links,xattr /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
-        cp -P --preserve=mode,timestamps,links,xattr /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
+        cp -RP --preserve=mode,timestamps,links,xattr /opt/stackstorm/packs/. /opt/stackstorm/packs-shared &&
+        cp -RP --preserve=mode,timestamps,links,xattr /opt/stackstorm/virtualenvs/. /opt/stackstorm/virtualenvs-shared
       fi
   {{- with .Values.st2actionrunner.securityContext | default .Values.securityContext }}
   {{/* st2actionrunner is likely the most permissive so use that if defined. */}}
@@ -397,10 +397,10 @@ Merge packs and virtualenvs from st2 with those from st2packs images
     - 'sh'
     - '-ec'
     - >
-      if hash rsync 2>/dev/null; then
+      if command rsync; then
         rsync -rlptD /opt/stackstorm/configs/. /opt/stackstorm/configs-shared;
       else
-        cp -P --preserve=mode,timestamps,links,xattr /opt/stackstorm/configs/. /opt/stackstorm/configs-shared;
+        cp -RP --preserve=mode,timestamps,links,xattr /opt/stackstorm/configs/. /opt/stackstorm/configs-shared;
       fi
   {{- with .Values.st2actionrunner.securityContext | default .Values.securityContext }}
   {{/* st2actionrunner is likely the most permissive so use that if defined. */}}
