@@ -7,6 +7,12 @@
 # so that helm upgrade will not create duplicate resources. The new label
 # selectors do not match the old labels, so this script adds the new labels
 # to the old resources. Thus, the new selectors will update them.
+#
+# NOTE: This will orphan all Pods, but they will be adopted by the new Deployments.
+# Specifically, we delete Deployment using propogationPolicy=Orphan,
+# and then when Helm creates the Deployments again, the selector will match the
+# current ReplicaSets (and their Pods) because we added the new labels.
+# Finally, the standard k8s Deployment upgrade will gradually replace old Pods.
 
 # These env vars need to be set to use this script:
 #   RELEASE_NAME (same as .Release.Name)
@@ -19,6 +25,9 @@ RELEASE_NAME=${RELEASE_NAME:-st2}
 NAMESPACE=${NAMESPACE:-default}
 CHART_NAME=${CHART_NAME:-stackstorm-ha} # see Chart.yaml
 
+echo RELEASE_NAME=${RELEASE_NAME}
+echo NAMESPACE=${NAMESPACE}
+echo CHART_NAME=${CHART_NAME}
 
 function klabel_app_instance() {
 	kind=${1}
@@ -40,6 +49,17 @@ function klabel_app_name() {
 		"app.kubernetes.io/name=${app}"
 }
 
+function kdelete_cascade_orphan() {
+	kind=${1}
+	app=${2}
+	kubectl delete "${kind}" \
+		-n "${NAMESPACE}" \
+		-l "vendor=stackstorm" \
+		-l "release=${RELEASE_NAME}" \
+		-l "app=${app}" \
+		--cascade=orphan
+}
+
 function k_get_app_names() {
 	kind=${1}
 	app=${2}
@@ -51,7 +71,9 @@ function k_get_app_names() {
 	| jq -r '.items[] | select(.metadata.name | test("'"${app}"'")).metadata.labels.app'
 }
 
+echo
 echo "Adding label app.kubernetes.io/instance=${RELEASE_NAME} (which will replace release=${RELEASE_NAME}) ..."
+echo
 
 for kind in ConfigMap Secret Ingress Service ServiceAccount Deployment ReplicaSet Pod Job; do
 	klabel_app_instance ${kind}
@@ -59,6 +81,7 @@ done
 
 echo
 echo "Adding label app.kubernetes.io/name=<app> (which will replace app=<app>) ..."
+echo
 
 klabel_app_name ConfigMap st2
 klabel_app_name Secret st2
@@ -83,10 +106,12 @@ deployment_apps=(
 	st2workflowengine
 )
 for app in "${deployment_apps[@]}"; do
-	echo "Deployment app=${app} ..."
-	klabel_app_name Deployment ${app}
+	echo "ReplicaSet and Pods from Deployment app=${app} ..."
 	klabel_app_name ReplicaSet ${app}
 	klabel_app_name Pod ${app}
+	echo "Deleting Deployment app=${app} (orphaning the ReplicaSets)..."
+	kdelete_cascade_orphan Deployment ${app}
+	# do not delete ReplicaSet or the Deployment will not adopt the pods
 done
 
 service_apps=(
@@ -115,3 +140,7 @@ done
 
 klabel_app_name ConfigMap st2tests
 klabel_app_name Pod st2tests
+
+echo
+echo "ReplicaSets from Deployments have been orphaned, but new Deployments will adopt them."
+echo "Make sure to run helm upgrade soon to create the new Deployments."

@@ -1,13 +1,18 @@
 # Changelog
 
 ## Development
-* Fix syntax with ensure-packs-volumes-are-writable job (#403) (by @skiedude)
+* Updated our tests/unit to support newer versions of `unittests` - for now bumping to `v0.4.4` as `v0.5.0` has a bug that impacts us (see helm-unittest/helm-unittest#329), but testing around the bug shows `v0.5.x` should also "just work" (#414) (by @jk464)
+* Use `rsync` to copy pack contents when available, falling back to `cp`. (#414) (by @cognifloyd)
+* Support non-root container environments when copying pack contents (#414) (by @Stealthii)
+
+## v1.1.0
+* Fix syntax with ensure-packs-volumes-are-writable job (#403, #411) (by @skiedude)
 * Add securityContext support to custom st2packs images, extra_hooks jobs; Also fallback to st2actionrunner securityContext for misc init container jobs and pods. (#410) (by @cognifloyd)
 * Stop generating the DataStore Secret (#385) and checksum labels (#391) when existing secret provided or disabled (by @bmarick)
 * Stop generating the checksum labels for Auth Secret (#392) when existing secret provided or disabled (by @bmarick)
 * Use `image.pullPolicy` for all containers including init containers that use `image.utilityImage`. (#397) (by @jk464)
-* Use `rsync` to copy pack contents when available, falling back to `cp`. (#414) (by @cognifloyd)
-* Support non-root container environments when copying pack contents (#414) (by @Stealthii)
+* Add new `image.entrypoint` value to simplify using a custom entry point like `dumb-init` or `pid1` (if installed in the image). (#413) (by @cognifloyd)
+* Improve Deployments migration in `migrations/v1.0/standardize-labels.sh` by temporarily orphaning the old ReplicaSets. (#412) (by @cognifloyd)
 
 ## v1.0.0
 * Bump to latest CircleCI orb versions (kubernetes@1.3.1 and helm@3.0.0 by @ZoeLeah)

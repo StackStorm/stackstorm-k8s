@@ -38,8 +38,8 @@ spec:
           {{- toYaml .Values.st2auth.annotations | nindent 8 }}
         {{- end }}
     spec:
-      imagePullSecrets:
       {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
@@ -76,6 +76,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         command:
+          {{- include "stackstorm-ha.st2-entrypoint" $ | nindent 10 }}
           - /opt/stackstorm/st2/bin/st2auth
           {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2auth.env }}
@@ -176,8 +177,8 @@ spec:
           {{- toYaml .Values.st2api.annotations | nindent 8 }}
         {{- end }}
     spec:
-      imagePullSecrets:
       {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       {{- if .Values.st2.packs.images }}
@@ -203,6 +204,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         command:
+          {{- include "stackstorm-ha.st2-entrypoint" $ | nindent 10 }}
           - /opt/stackstorm/st2/bin/st2api
           {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2api.env }}
@@ -314,8 +316,8 @@ spec:
           {{- toYaml .Values.st2stream.annotations | nindent 8 }}
         {{- end }}
     spec:
-      imagePullSecrets:
       {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
@@ -335,6 +337,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         command:
+          {{- include "stackstorm-ha.st2-entrypoint" $ | nindent 10 }}
           - /opt/stackstorm/st2/bin/st2stream
           {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2stream.env }}
@@ -423,8 +426,8 @@ spec:
           {{- toYaml .Values.st2web.annotations | nindent 8 }}
         {{- end }}
     spec:
-      imagePullSecrets:
       {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       terminationGracePeriodSeconds: {{ .Values.st2web.terminationGracePeriodSeconds | default 30 }}
@@ -562,8 +565,8 @@ spec:
           {{- toYaml .Values.st2rulesengine.annotations | nindent 8 }}
         {{- end }}
     spec:
-      imagePullSecrets:
       {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
@@ -580,6 +583,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         command:
+          {{- include "stackstorm-ha.st2-entrypoint" $ | nindent 10 }}
           - /opt/stackstorm/st2/bin/st2rulesengine
           {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2rulesengine.env }}
@@ -679,8 +683,8 @@ spec:
           {{- toYaml .Values.st2timersengine.annotations | nindent 8 }}
         {{- end }}
     spec:
-      imagePullSecrets:
       {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
@@ -697,6 +701,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         command:
+          {{- include "stackstorm-ha.st2-entrypoint" $ | nindent 10 }}
           - /opt/stackstorm/st2/bin/st2timersengine
           {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2timersengine.env }}
@@ -786,8 +791,8 @@ spec:
         {{- end }}
     spec:
       terminationGracePeriodSeconds: {{ .Values.st2workflowengine.terminationGracePeriodSeconds | default 300 }}
-      imagePullSecrets:
       {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
@@ -804,6 +809,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         command:
+          {{- include "stackstorm-ha.st2-entrypoint" $ | nindent 10 }}
           - /opt/stackstorm/st2/bin/st2workflowengine
           {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2workflowengine.env }}
@@ -904,8 +910,8 @@ spec:
           {{- toYaml .Values.st2scheduler.annotations | nindent 8 }}
         {{- end }}
     spec:
-      imagePullSecrets:
       {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
@@ -922,6 +928,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         command:
+          {{- include "stackstorm-ha.st2-entrypoint" $ | nindent 10 }}
           - /opt/stackstorm/st2/bin/st2scheduler
           {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2scheduler.env }}
@@ -1020,8 +1027,8 @@ spec:
           {{- toYaml .Values.st2notifier.annotations | nindent 8 }}
         {{- end }}
     spec:
-      imagePullSecrets:
       {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
@@ -1038,6 +1045,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         command:
+          {{- include "stackstorm-ha.st2-entrypoint" $ | nindent 10 }}
           - /opt/stackstorm/st2/bin/st2notifier
           {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2notifier.env }}
@@ -1165,8 +1173,8 @@ spec:
           {{- toYaml $sensor.annotations | nindent 8 }}
         {{- end }}
     spec:
-      imagePullSecrets:
       {{- if $.Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ $.Values.image.pullSecret }}
       {{- end }}
       {{- if $.Values.st2.packs.images }}
@@ -1213,6 +1221,7 @@ spec:
           {{- toYaml . | nindent 10 }}
         {{- end }}
         command:
+          {{- include "stackstorm-ha.st2-entrypoint" $ | nindent 10 }}
           - /opt/stackstorm/st2/bin/st2sensorcontainer
           {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
           {{- if $one_sensor_per_pod }}{{/* only in st2.packs.sensors[] */}}
@@ -1345,8 +1354,8 @@ spec:
       hostAliases:
         {{- toYaml .Values.st2actionrunner.hostAliases | nindent 8 }}
       {{- end }}
-      imagePullSecrets:
       {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       {{- if .Values.st2.packs.images }}
@@ -1375,6 +1384,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         command:
+          {{- include "stackstorm-ha.st2-entrypoint" $ | nindent 10 }}
           - /opt/stackstorm/st2/bin/st2actionrunner
           {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2actionrunner.env }}
@@ -1491,8 +1501,8 @@ spec:
           {{- toYaml .Values.st2garbagecollector.annotations | nindent 8 }}
         {{- end }}
     spec:
-      imagePullSecrets:
       {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
@@ -1509,6 +1519,7 @@ spec:
         #livenessProbe:
         #readinessProbe:
         command:
+          {{- include "stackstorm-ha.st2-entrypoint" $ | nindent 10 }}
           - /opt/stackstorm/st2/bin/st2garbagecollector
           {{- include "stackstorm-ha.st2-config-file-parameters" $ | nindent 10 }}
         {{- if .Values.st2garbagecollector.env }}
@@ -1604,11 +1615,11 @@ spec:
           {{- toYaml .Values.st2client.annotations | nindent 8 }}
         {{- end }}
     spec:
-      imagePullSecrets:
       {{- if .Values.st2.packs.images }}
         {{- include "stackstorm-ha.packs-pullSecrets" . | nindent 6 }}
       {{- end }}
       {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       initContainers:
@@ -1690,6 +1701,7 @@ spec:
           mountPath: /post-start.sh
           subPath: post-start.sh
         command:
+          {{- include "stackstorm-ha.st2-entrypoint" $ | nindent 10 }}
           - 'bash'
           - '-ec'
           - 'while true; do sleep 999; done'
