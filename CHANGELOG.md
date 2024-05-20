@@ -2,6 +2,7 @@
 
 ## Development
 * Updated our tests/unit to support `unittests` v0.5.1 (#414, #421) (by @jk464)
+* Migrate to kubeconform for k8s linting, as kubeval is now deprecated (#420) (by @jk464)
 
 ## v1.1.0
 * Fix syntax with ensure-packs-volumes-are-writable job (#403, #411) (by @skiedude)

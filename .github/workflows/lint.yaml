@@ -50,6 +50,15 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v3
 
+      - name: Install kubeconform-helm
+        run: |
+          helm plugin install https://github.com/jtyr/kubeconform-helm  --version v0.1.17
+
+      - name: Update stackstorm-ha chart dependencies
+        run: |
+          set -x
+          helm dependency update
+
       - name: Cache community
         id: cache-community
         uses: actions/cache@v3
@@ -57,7 +66,6 @@ jobs:
           path: community
           key: ${{ runner.os }}-community-${{ hashFiles('conf/**', 'templates/**', 'Chart.yaml', 'values.yaml') }}
 
-      - name: Kubernetes kubeval lint
-        uses: instrumenta/kubeval-action@master
-        with:
-          files: community
+      - name: Kubernetes kubeconform-helm Lint
+        run: |
+          helm kubeconform .
