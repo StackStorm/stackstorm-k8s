@@ -11,7 +11,7 @@ Unit tests do not require a running kubernetes cluster.
 
 Before running unit tests, install the `helm-unittest` plugin and ensure you have sub-charts installed:
 ```
-$ helm plugin install https://github.com/helm-unittest/helm-unittest.git
+helm plugin install https://github.com/helm-unittest/helm-unittest.git --version v0.5.1
 helm dependency update
 ```
 
