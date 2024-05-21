@@ -1,0 +1,8 @@
+# Command line options that can be set multiple times can be defined as an array
+schema-location:
+  - default
+  - https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json
+# Command line options that can be specified without a value must have boolean
+# value in the config file
+summary: true
+verbose: true
