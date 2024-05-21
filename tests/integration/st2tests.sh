@@ -13,19 +13,19 @@ load "${BATS_HELPERS_DIR}/bats-file/load.bash"
 }
 
 @test 'ST2_AUTH_URL service endpoint is accessible and working' {
-  run curl -v ${ST2_API_URL}
+  run curl -v ${ST2_AUTH_TLS} ${ST2_API_URL}
   assert_line --partial 'Content-Type: application/json'
   assert_line --partial 'St2-Api-Key'
 }
 
 @test 'ST2_API_URL service endpoint is accessible and working' {
-  run curl -v ${ST2_API_URL}
+  run curl -v ${ST2_API_TLS} ${ST2_API_URL}
   assert_line --partial 'Content-Type: application/json'
   assert_line --partial 'St2-Api-Key'
 }
 
 @test 'ST2_STREAM_URL service endpoint is accessible and working' {
-  run curl -v ${ST2_API_URL}
+  run curl -v ${ST2_STREAM_TLS} ${ST2_API_URL}
   assert_line --partial 'Content-Type: application/json'
   assert_line --partial 'St2-Api-Key'
 }

@@ -39,6 +39,17 @@ jobs:
         with:
           k3s-channel: ${{ matrix.k3s-channel }}
 
+      - name: Setup cert-manager
+        run: |
+          helm repo add jetstack https://charts.jetstack.io --force-update
+          helm repo update
+          kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.14.5/cert-manager.crds.yaml
+          helm install \
+            cert-manager jetstack/cert-manager \
+            --namespace cert-manager \
+            --create-namespace \
+            --version v1.14.5
+
       - name: Update stackstorm-ha chart dependencies
         run: |
           set -x

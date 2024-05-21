@@ -1,0 +1,29 @@
+{{- if or .Values.st2.tls.enabled .Values.mongodb.tls.enabled .Values.rabbitmq.tls.enabled }}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ .Values.st2.tls.secretName }}
+  namespace: "{{ $.Release.Namespace }}"
+  labels:
+    app: stackstorm
+    heritage: {{.Release.Service | quote}}
+    release: {{.Release.Name | quote}}
+    chart: {{ replace "+" "_" .Chart.Version | printf "%s-%s" .Chart.Name }}
+spec:
+  secretName: {{ .Values.st2.tls.secretName }}
+  dnsNames:
+    - "*.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}"
+{{ include "stackstorm-ha.mongodb-nodes" $ | splitList "," | toYaml | indent 4 }}
+  ipAddresses:
+    - "127.0.0.1"
+  renewBefore: 360h # 15d
+  privateKey:
+    rotationPolicy: Always
+    algorithm: RSA
+    size: 3072
+  issuerRef:
+    name: {{ .Values.st2.tls.certificate_issuer.name }}
+    kind: Issuer
+    group: cert-manager.io
+{{- end -}}

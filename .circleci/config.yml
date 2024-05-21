@@ -35,6 +35,17 @@ jobs:
           name: Create new K8s cluster
           command: minikube start --vm-driver=docker --memory 8192 --cpus 4 --kubernetes-version=<< parameters.kubernetes-version >>
       - run:
+          name: Setup cert-manager
+          command: |
+            helm repo add jetstack https://charts.jetstack.io --force-update
+            helm repo update
+            kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.14.5/cert-manager.crds.yaml
+            helm install \
+              cert-manager jetstack/cert-manager \
+              --namespace cert-manager \
+              --create-namespace \
+              --version v1.14.5
+      - run:
           name: Update stackstorm-ha chart dependencies
           command: helm dependency update
       - run:

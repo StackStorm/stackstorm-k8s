@@ -96,10 +96,10 @@ st2:
     [api]
     allow_origin = '*'
     # fixes no replicaset found bug;
+
     [database]
     # Connection and server selection timeout (in ms).
     connection_timeout = 5000
-
 
   #Override Definitions can be added here.
   #https://docs.stackstorm.com/latest/packs.html#overriding-pack-defaults
@@ -296,6 +296,15 @@ st2:
       #  roles:
       #    - "admin"
 
+  # Controls configuring TLS between internal inter-pod communications
+  tls:
+    enabled: true
+    secretName: "internal-tls"
+    mountPath: "/etc/ssl/internal"
+    certificate_issuer:
+      existing: false
+      name: stackstorm-issuer
+
 ##
 ## Default SecurityContext for pods and containers.
 ## Overrides available for st2web, st2actionrunner, st2sensorcontainer, st2client pods, and custom packs images.
@@ -392,6 +401,9 @@ st2web:
   # see: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   postStartScript: ""
   preStopSleep: "10"
+  # Use TLS on HTTP connections to st2web (i.e. between pod and ingress)
+  tls:
+    enabled: true
 
 # https://docs.stackstorm.com/reference/ha.html#st2auth
 # Multiple st2auth processes can be behind a load balancer in an active-active configuration.
@@ -432,6 +444,9 @@ st2auth:
   ## Note that Helm templating is supported in 'mount' and 'volume'
   extra_volumes: []
     # see examples under st2actionrunner.extra_volumes
+  # Use TLS on HTTP connections to st2auth (i.e. between pod and ingress, and inter-pod)
+  tls:
+    enabled: true
 
 # https://docs.stackstorm.com/reference/ha.html#st2api
 # Multiple st2api process can be behind a load balancer in an active-active configuration.
@@ -472,6 +487,9 @@ st2api:
   ## Note that Helm templating is supported in 'mount' and 'volume'
   extra_volumes: []
     # see examples under st2actionrunner.extra_volumes
+  # Use TLS on HTTP connections to st2api (i.e. between pod and ingress, and inter-pod)
+  tls:
+    enabled: true
 
 # https://docs.stackstorm.com/reference/ha.html#st2stream
 # Multiple st2stream process can be behind a load balancer in an active-active configuration.
@@ -512,6 +530,9 @@ st2stream:
   ## Note that Helm templating is supported in 'mount' and 'volume'
   extra_volumes: []
     # see examples under st2actionrunner.extra_volumes
+  # Use TLS on HTTP connections to st2stream (i.e. between pod and ingress, and inter-pod)
+  tls:
+    enabled: true
 
 # https://docs.stackstorm.com/reference/ha.html#st2rulesengine
 # Multiple st2rulesengine processes can run in active-active with only connections to MongoDB and RabbitMQ. All these will share the TriggerInstance load and naturally pick up more work if one or more of the processes becomes unavailable.
@@ -1050,6 +1071,13 @@ mongodb:
   arbiter:
     enabled: false
   resources: {}
+  tls:
+    enabled: true
+    replicaset:
+      existingSecrets:
+        - internal-tls
+        - internal-tls
+        - internal-tls
 
 ##
 ## RabbitMQ configuration (3rd party chart dependency)
@@ -1067,6 +1095,10 @@ rabbitmq:
     forceBoot: true
   # Authentication Details
   auth:
+    tls:
+      enabled: true
+      existingSecret: "internal-tls"
+    # Fail over to username admin if LDAP is down:
     username: admin
     # TODO: Use default random 10 character password, but need to fetch this string for use by downstream services
     password: 9jS+w1u07NbHtZke1m+jW4Cj
@@ -1097,7 +1129,9 @@ rabbitmq:
   # As RabbitMQ enabled prometheus operator monitoring by default, disable it for non-prometheus users
   metrics:
     enabled: false
-
+  tls:
+    enabled: true
+    existingSecret: "internal-tls"
 ##
 ## Redis HA configuration (3rd party chart dependency)
 ##
@@ -1133,6 +1167,13 @@ redis:
   usePassword: false
   metrics:
     enabled: false
+  # tls:
+  #   enabled: true
+  #   authClients: false
+  #   certificatesSecret: internal-tls
+  #   certFilename: tls.crt
+  #   certKeyFilename: tls.key
+  #   certCAFilename: ca.crt
 
 ##
 ## Settings to be applied to all stackstorm-ha pods
@@ -1168,3 +1209,13 @@ external-dns:
   aws:
     zoneType: "public"
   domainFilters: []
+
+##
+## Image details for ghostunnel
+##
+ghostunnel:
+  image:
+    name: ghostunnel
+    repository: ghostunnel
+    tag: v1.6.0
+    pullPolicy: IfNotPresent
