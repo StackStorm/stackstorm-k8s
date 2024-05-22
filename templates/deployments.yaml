@@ -100,11 +100,13 @@ spec:
           mountPath: /post-start.sh
           subPath: post-start.sh
         lifecycle:
+          {{- if .Values.st2auth.preStopSleep | toString | ne "0" }}
           preStop:
             exec: # https://blog.laputa.io/graceful-shutdown-in-kubernetes-85f1c8d586da
               # kubeproxy and kubelet both race  
               # wait a bit to ensure kubeproxy has removed the iptables rule.
-              command: [ "sleep", {{ .Values.st2auth.preStopSleep | toString }} ]
+              command: [ "sleep", "{{ .Values.st2auth.preStopSleep | toString }}" ]
+          {{- end }}
           postStart:
             exec:
               command: ["/bin/bash", "/post-start.sh"]
@@ -233,11 +235,13 @@ spec:
           mountPath: /post-start.sh
           subPath: post-start.sh
         lifecycle:
+          {{- if .Values.st2api.preStopSleep | toString | ne "0" }}
           preStop:
             exec: # https://blog.laputa.io/graceful-shutdown-in-kubernetes-85f1c8d586da
               # kubeproxy and kubelet both race  
               # wait a bit to ensure kubeproxy has removed the iptables rule.
-              command: [ "sleep", {{ .Values.st2api.preStopSleep | toString }} ]
+              command: [ "sleep", "{{ .Values.st2api.preStopSleep | toString }}" ]
+          {{- end }}
           postStart:
             exec:
               command: ["/bin/bash", "/post-start.sh"]
@@ -357,11 +361,13 @@ spec:
           mountPath: /post-start.sh
           subPath: post-start.sh
         lifecycle:
+          {{- if .Values.st2stream.preStopSleep | toString | ne "0" }}
           preStop:
             exec: # https://blog.laputa.io/graceful-shutdown-in-kubernetes-85f1c8d586da
               # kubeproxy and kubelet both race  
               # wait a bit to ensure kubeproxy has removed the iptables rule.
-              command: [ "sleep", {{ .Values.st2stream.preStopSleep | toString }} ]
+              command: [ "sleep", "{{ .Values.st2stream.preStopSleep | toString }}" ]
+          {{- end }}
           postStart:
             exec:
               command: ["/bin/bash", "/post-start.sh"]
@@ -483,11 +489,13 @@ spec:
             mountPath: /post-start.sh
             subPath: post-start.sh
         lifecycle:
+          {{- if .Values.st2web.preStopSleep | toString | ne "0" }}
           preStop:
             exec: # https://blog.laputa.io/graceful-shutdown-in-kubernetes-85f1c8d586da
               # kubeproxy and kubelet both race  
               # wait a bit to ensure kubeproxy has removed the iptables rule.
-              command: [ "sleep", {{ .Values.st2web.preStopSleep | toString }} ]
+              command: [ "sleep", "{{ .Values.st2web.preStopSleep | toString }}" ]
+          {{- end }}
           postStart:
             exec:
               command: ["/bin/bash", "/post-start.sh"]
