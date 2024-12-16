@@ -3,6 +3,7 @@
 ## Development
 * Updated our tests/unit to support `unittests` v0.5.1 (#414, #421) (by @jk464)
 * Migrate to kubeconform for k8s linting, as kubeval is now deprecated (#420) (by @jk464)
+* Allow clusters that do not use kubeproxy to disable presleep. (#416) (by @cognifloyd)
 
 ## v1.1.0
 * Fix syntax with ensure-packs-volumes-are-writable job (#403, #411) (by @skiedude)
@@ -27,8 +28,9 @@
 * Add `st2canary` job as a Helm Hook that runs before install/upgrade to ensure `st2.packs.volumes` is configured correctly (if `st2.packs.volumes.enabled`). (#323) (by @cognifloyd)
 * Enable using existing `st2-auth` secret. This allows users to manage this secret outside of the Helm process. (#359) (by @bmarick)
 * Add terminationGracePeriodSeconds to workflow and actionrunner pods to allow adjustment of grace period in k8 (#374) (by @guzzijones12)
+* Fix st2 client config issue affecting addon jobs using jobs.extra_hooks (#371) (by @cars)
 * Prevent duplicate init containers on helm upgrade (#375) (by @guzzijones12)
-* Fix st2 client config issue affecting addon jobs using jobs.extra_hooks (#370) (by @cars)
+* Workaround kubeproxy+kubelet race: Add presleep for st2auth, st2web, st2api, st2stream (#382) (by @guzzijones12)
 
 ## v0.110.0
 * Switch st2 to `v3.8` as a new default stable version (#347)
